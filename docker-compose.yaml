@@ -1,0 +1,295 @@
+version: "3.9"
+services:
+
+  #*********************************** DATABASE **********************************#
+  sgd_bd:
+    build: ./configs/bd
+    image: sgd_bd_master:latest
+    container_name: sgd_bd
+    environment:
+      - POSTGRES_DB=sgd_plc
+      - POSTGRES_USER=sgd_plc
+      - POSTGRES_PASSWORD=+S[P>Z|&8zMO,Z(5
+    volumes:
+      - ./data/bd/data:/var/lib/postgresql/data
+      - ./data/bd/scripts:/var/lib/postgresql/scripts
+      - ./data/bd/log/postgresql:/var/log/postgresql
+    ports:
+      - "5440:5432"
+    restart: always
+    networks:    
+      sgd_net:
+          ipv4_address: 172.168.21.2
+
+  #*********************************** FRONT END **********************************#
+  sgd_fe:
+    build: ./configs/fe
+    image: sgd_fe_master:latest
+    container_name: sgd_fe
+    volumes:
+      - ./src/fe:/var/www/sgd
+      - ./configs/fe/.env:/var/www/sgd/.env
+    expose: 
+      - "80"
+    restart: always
+    depends_on:
+      - sgd_bd
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.3
+
+
+  #*********************************** API GATEWAY / PROXY **********************************#
+  sgd_gtw:
+    build: ./configs/gtw
+    image: sgd_gtw_master:latest
+    container_name: sgd_gtw
+    ports: 
+      - "450:80"
+      - "451:443"
+    restart: always
+    depends_on: 
+      - sgd_bd
+    networks:     
+      sgd_net:
+          ipv4_address: 172.168.21.4
+
+
+  #*********************************** MICROSERVICES **********************************#            
+  sgd_ms_usuarios:
+    build: ./configs/ms
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_usuarios
+    expose: 
+      - "3333"
+    volumes:
+      - ./src/ms_usuarios:/src
+      - ./configs/ms/.env:/src/.env
+    restart: always
+    depends_on: 
+      - sgd_gtw
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.5
+
+    
+  sgd_ms_tipos_documentos:
+    build: ./configs/ms
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_tipos_documentos
+    expose: 
+      - "3333"
+    volumes:
+      - ./src/ms_tipos_documentos:/src
+      - ./configs/ms/.env:/src/.env
+    restart: always
+    depends_on: 
+      - sgd_ms_usuarios
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.6
+
+
+  sgd_ms_buzones:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_buzones
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_buzones:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.7
+  
+
+  sgd_ms_parametros:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_parametros
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_parametros:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.8
+
+
+  sgd_ms_documentos:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_documentos
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_documentos:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.9
+
+
+  sgd_ms_archivos:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_archivos
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_archivos:/src
+      #- ./data/files:/*******
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.10
+
+
+  sgd_ms_bitacora:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_bitacora
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_bitacora:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.11
+
+
+  sgd_ms_buscador:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_buscador
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_buscador:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.12
+
+
+  sgd_ms_folios:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_folios
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_folios:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.13
+
+
+  sgd_ms_firma:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_firma
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_firma:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.14
+
+
+  sgd_ms_verifica:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_verifica
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_verifica:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.15
+
+
+  sgd_ms_notificaciones:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_notificaciones
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_notificaciones:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.16
+
+
+  sgd_ms_descargas:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_descargas
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_descargas:/src
+      - ./configs/ms/.env:/src/.env
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.17
+
+
+  #*********************************** SWAGGER **********************************#            
+  sgd_sui:
+    image: swaggerapi/swagger-ui:v3.52.0
+    container_name: sgd_sui
+    expose:
+      - "8080"
+    volumes:
+      - ./data/sui:/usr/share/nginx/html/definitions
+    environment:
+      - "BASE_URL=/api/sui"
+      - "SWAGGER_JSON=/usr/share/nginx/html/definitions/sgd.json"
+    depends_on: 
+      - sgd_ms_usuarios
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.21.18
+
+#*********************************** NETWORKS **********************************#            
+networks: 
+    sgd_net:
+        driver: bridge
+        ipam:
+           driver: default
+           config: 
+             - subnet: 172.168.21.0/24

@@ -1,0 +1,102 @@
+.dropdown-menu.dropdown-menu-lg.dropdown-menu-right.show a{
+  background:#09579c;
+}
+.dropdown-menu.dropdown-menu-lg.dropdown-menu-right.show a:hover{
+  background:#20d60f;
+}
+.text-white a{
+  color: rgb(255, 255, 255)!important;
+  text-decoration: inherit;
+}
+
+.text-white a:hover{
+ color: #47b92a;
+}
+.navbar-light.navbar-nav.nav-link{
+    color: rgba(255, 255, 255, 0.8);
+}
+.a.nav-link.dropsown-toogle{
+    color: rgba(255, 255, 255, 0.8);
+}
+.nav.navbar-nav.navbar-right li a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.nav.navbar-nav.navbar-right li a {
+    color: rgba(255, 255, 255, 0.8);
+    }
+.sidebar-plc-blue{
+    background: #09579c !important;
+  }
+
+.navbar-plc {
+    background-color: #09579c;
+}
+
+  .navbar-plc.navbar-light .form-control-navbar::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .navbar-plc.navbar-light .form-control-navbar::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar::-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar,
+  .navbar-plc.navbar-light .form-control-navbar + .input-group-append > .btn-navbar {
+    background-color: #0071eb;
+    border-color: #0065d1;
+    color: rgba(196, 213, 230, 0.8);
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus::-webkit-input-placeholder {
+    color: #a1aab3;
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus::-moz-placeholder {
+    color: #a1aab3;
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus:-ms-input-placeholder {
+    color: #a1aab3;
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus::-ms-input-placeholder {
+    color: #a1aab3;
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus::placeholder {
+    color: #a1aab3;
+  }
+  
+  .navbar-plc.navbar-light .form-control-navbar:focus,
+  .navbar-plc.navbar-light .form-control-navbar:focus + .input-group-append .btn-navbar {
+    background-color: #006fe6;
+    border-color: #0065d1 !important;
+    color: #a9b5c2;
+  }
+
+  .navbar-plc > .user-menu > .dropdown-menu > .user-footer {
+    background-color: #5fa4e9;
+    padding: 10px;
+  }
+  
+  .navbar-plc > .user-menu > .dropdown-menu > .user-footer::after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+  
+  .navbar-plc > .user-menu > .dropdown-menu > .user-footer .btn-default {
+    color: #09579c;
+  }

@@ -1,0 +1,40 @@
+# editors
+.idea
+.vscode
+
+# configs
+/configs/fe/.env
+/configs/ms/.env
+
+# data
+/data/bd
+/data/files
+
+# fe
+/src/fe/node_modules
+/src/fe/public/hot
+/src/fe/public/storage
+/src/fe/storage/*.key
+/src/fe/vendor
+/src/fe/.env
+/src/fe/.env.backup
+/src/fe/.phpunit.result.cache
+/src/fe/docker-compose.override.yml
+/src/fe/Homestead.json
+/src/fe/Homestead.yaml
+/src/fe/npm-debug.log
+/src/fe/yarn-error.log
+/src/fe/.idea
+/src/fe/.vscode
+
+# ms_*
+/src/ms_*/vendor
+/src/ms_*/.idea
+/src/ms_*/.vscode
+/src/ms_*/Homestead.json
+/src/ms_*/Homestead.yaml
+/src/ms_*/.env
+/src/ms_*/.phpunit.result.cache
+
+
+
