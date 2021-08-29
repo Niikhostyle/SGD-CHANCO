@@ -7,14 +7,8 @@
 /configs/ms/.env
 
 # data
-/data/bd/data/*
-!/data/bd/data/.gitkeep
-/data/bd/log/*
-!/data/bd/log/.gitkeep
-/data/bd/scripts/*
-!/data/bd/scripts/.gitkeep
-/data/files/*
-!/data/files/.gitkeep
+/data/bd
+/data/files
 
 # fe
 /src/fe/node_modules
