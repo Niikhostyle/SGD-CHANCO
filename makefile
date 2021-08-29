@@ -11,6 +11,21 @@ sgd_up_build:
 	sleep 5
 	@echo "=================== Ejecutando setup ==================="
 	docker exec sgd_fe /var/www/sgd/setup.sh
+
+	docker exec -it -u 0 sgd_ms_usuarios bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_tipos_documentos bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_buzones bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_parametros bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_documentos bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_archivos bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_bitacora bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_buscador bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_folios bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_firma bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_verifica bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_notificaciones bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_descargas bash -c 'cd /src ; composer install'
+
 	@echo $(mensaje_fin)
 
 sgd_up:
