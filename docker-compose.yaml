@@ -19,7 +19,7 @@ services:
     restart: always
     networks:    
       sgd_net:
-          ipv4_address: 172.168.21.2
+          ipv4_address: 172.168.22.2
 
   #*********************************** FRONT END **********************************#
   sgd_fe:
@@ -36,7 +36,7 @@ services:
       - sgd_bd
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.3
+          ipv4_address: 172.168.22.3
 
 
   #*********************************** API GATEWAY / PROXY **********************************#
@@ -52,7 +52,7 @@ services:
       - sgd_bd
     networks:     
       sgd_net:
-          ipv4_address: 172.168.21.4
+          ipv4_address: 172.168.22.4
 
 
   #*********************************** MICROSERVICES **********************************#            
@@ -70,7 +70,7 @@ services:
       - sgd_gtw
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.5
+          ipv4_address: 172.168.22.5
 
     
   sgd_ms_tipos_documentos:
@@ -87,7 +87,7 @@ services:
       - sgd_ms_usuarios
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.6
+          ipv4_address: 172.168.22.6
 
 
   sgd_ms_buzones:
@@ -103,7 +103,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.7
+          ipv4_address: 172.168.22.7
   
 
   sgd_ms_parametros:
@@ -119,7 +119,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.8
+          ipv4_address: 172.168.22.8
 
 
   sgd_ms_documentos:
@@ -135,7 +135,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.9
+          ipv4_address: 172.168.22.9
 
 
   sgd_ms_archivos:
@@ -152,7 +152,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.10
+          ipv4_address: 172.168.22.10
 
 
   sgd_ms_bitacora:
@@ -168,7 +168,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.11
+          ipv4_address: 172.168.22.11
 
 
   sgd_ms_buscador:
@@ -184,7 +184,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.12
+          ipv4_address: 172.168.22.12
 
 
   sgd_ms_folios:
@@ -200,7 +200,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.13
+          ipv4_address: 172.168.22.13
 
 
   sgd_ms_firma:
@@ -216,7 +216,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.14
+          ipv4_address: 172.168.22.14
 
 
   sgd_ms_verifica:
@@ -232,7 +232,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.15
+          ipv4_address: 172.168.22.15
 
 
   sgd_ms_notificaciones:
@@ -248,7 +248,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.16
+          ipv4_address: 172.168.22.16
 
 
   sgd_ms_descargas:
@@ -264,7 +264,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.17
+          ipv4_address: 172.168.22.17
 
 
   #*********************************** SWAGGER **********************************#            
@@ -283,7 +283,7 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.21.18
+          ipv4_address: 172.168.22.18
 
 #*********************************** NETWORKS **********************************#            
 networks: 
@@ -292,4 +292,4 @@ networks:
         ipam:
            driver: default
            config: 
-             - subnet: 172.168.21.0/24
+             - subnet: 172.168.22.0/24
