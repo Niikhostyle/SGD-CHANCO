@@ -29,8 +29,8 @@ services:
     volumes:
       - ./src/fe:/var/www/sgd
       - ./configs/fe/.env:/var/www/sgd/.env
-    expose: 
-      - "80"
+    ports: 
+      - "82:80"
     restart: always
     depends_on:
       - sgd_bd
@@ -45,7 +45,6 @@ services:
     image: sgd_gtw_master:latest
     container_name: sgd_gtw
     ports: 
-      - "450:80"
       - "451:443"
     restart: always
     depends_on: 

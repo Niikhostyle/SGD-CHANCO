@@ -35,6 +35,7 @@
 /src/ms_*/Homestead.yaml
 /src/ms_*/.env
 /src/ms_*/.phpunit.result.cache
+.DS_Store*
 
 
 
