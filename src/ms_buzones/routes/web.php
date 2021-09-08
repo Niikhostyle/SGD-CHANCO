@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Http\Controllers\BuzonController;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -13,7 +15,20 @@
 |
 */
 
+
+$router->get('/api/sgd-buzones/listar_todos', 'BuzonController@listar_todos');     //ver todos         :: OK
+$router->post('/api/sgd-buzones/crear', 'BuzonController@crear');           //crear
+//$router->put('/api/sgd-buzones/buzon/{id}', 'BuzonController@actualizar');  //actualizar/editar
+$router->put('/api/sgd-buzones/actualizar', 'BuzonController@actualizar');  //actualizar/editar
+$router->delete('/api/sgd-buzones/eliminar', 'BuzonController@eliminar'); //eliminar
+//$router->get('/api/sgd-buzones/buzon/{id}', 'BuzonController@ver');         //ver
+//$router->get('/api/sgd-buzones/ver/{id}', 'BuzonController@ver');         //ver
+$router->get('/api/sgd-buzones/ver', 'BuzonController@ver');         //ver
+
+
+/*
 $router->get('/api/sgd-buzones', function () use ($router) {
     //return $router->app->version();
     return "prueba lumen buzones.";
 });
+*/
