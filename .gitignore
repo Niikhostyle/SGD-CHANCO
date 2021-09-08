@@ -26,6 +26,8 @@
 /src/fe/yarn-error.log
 /src/fe/.idea
 /src/fe/.vscode
+/src/fe/*/*/.DS_Store
+/src/fe/*/.DS_Store
 
 # ms_*
 /src/ms_*/vendor
@@ -36,6 +38,4 @@
 /src/ms_*/.env
 /src/ms_*/.phpunit.result.cache
 .DS_Store*
-
-
 

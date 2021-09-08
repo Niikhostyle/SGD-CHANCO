@@ -511,14 +511,14 @@ samp {
  *    CSS Remedy, with `svg` added as well.
  *
  *    https://github.com/mozdevs/cssremedy/issues/14
- * 
+ *
  * 2. Add `vertical-align: middle` to align replaced elements more
  *    sensibly by default when overriding `display` by adding a
  *    utility like `inline`.
  *
  *    This can trigger a poorly considered linting error in some
  *    tools but is included by design.
- * 
+ *
  *    https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210
  */
 
@@ -2227,3 +2227,75 @@ select {
 	}
 }
 
+.modif {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 10px !important;
+}
+.error {
+    color: red !important;
+    position: relative;
+    display: inline-grid;
+}
+#logo_plc {
+    padding-bottom: 30px;
+    max-width: 80%;
+}
+.logo-lg  {
+color: #ffffff;
+font-size: 15px;
+font-weight: bold;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+float: left;
+transition: width .3s ease-in-out;
+display: table;
+text-align: left;
+width: 200px;
+height: 50px;
+margin-left: 20px;
+margin-top: 10px;
+}
+#span-titulo1 {
+    font-family: "Arial Black", Gadget, sans-serif;
+    font-size: 35px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #FFFFFF;
+    font-weight: 800;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+}
+#span-titulo2 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #FFFFFF;
+    font-weight: 400;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+}
+
+
+.bg {
+        background-image: url("/img/fondo-login/fondo.jpeg");
+        /* Full height */
+        height: calc(100vh - 82px);
+        height: -moz-calc(100vh - 82px);
+        height: -webkit-calc(100vh - 82px);
+
+        /* Center and scale the image nicely */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+}
+.logo-lg, .logo {
+    width:100% !important;
+}
+
+#box-login {
+    max-width: 350px;
+}
