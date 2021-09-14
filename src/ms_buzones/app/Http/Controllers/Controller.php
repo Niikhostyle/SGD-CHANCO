@@ -12,18 +12,15 @@ class Controller extends BaseController
     {
         return response()->json([
             'status' => $status, 
-            'data' => [
-                'comentario' => $message
-        ]], $status);
+            'data' => $message
+        ], $status);
     }
 
     protected function respondFail($message) //400
     {
-        return response()->json([
-            'status' => '400', 
-            'data' => [
-                'comentario' => $message
-            ]], '400');  
+        $result = array('status' => '400', 'data' => array('comentario' => $message));
+
+        return response()->json($result, '400');  
     }
     
     protected function respondError($message, $status) //406
