@@ -103,7 +103,7 @@ class Controller extends BaseController
             }  
             catch (ModelNotFoundException $e) 
             {
-                return $this->respondError('No se encontraron perfiles', 500);
+                return $this->respondError('Falla al obtener parámetros', 500);
             } 
         }
         else 
