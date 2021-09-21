@@ -188,7 +188,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'panel',
+    'dashboard_url' => '/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -300,6 +300,11 @@ return [
         ],
         */
         [
+            'text'       => 'USUARIOS',
+            'icon'    => 'fas fa-fw fa-user',
+            'url'        => '/usuarios',
+        ],
+        [
         'text' => 'BUZONES',
         'icon'    => 'fas fa-fw fa-th-list',
         'submenu' => [
@@ -385,24 +390,51 @@ return [
 
     'plugins' => [
         'Datatables' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
                     'asset' => false,
-                    'location' => '//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js',
+                    'location' => '//cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js',
                 ],
                 [
                     'type' => 'js',
                     'asset' => false,
-                    'location' => '//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js',
+                    //'location' => '//cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js',
+                    'location' => 'https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js'
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => 'https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js',
+                ],
+               /* [
+                    'type' => 'js',
+                    'asset' => false,
+                    //'location' => '//cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js',
+                ],
+               [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdn.datatables.net/1.11.1/css/dataTables.bootstrap4.min.css',
+                ],*/
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => 'https://cdn.datatables.net/1.11.1/css/jquery.dataTables.min.css',
                 ],
                 [
                     'type' => 'css',
                     'asset' => false,
-                    'location' => '//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css',
+                    'location' => 'https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => 'https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css',
                 ],
             ],
+
         ],
         'Select2' => [
             'active' => false,
