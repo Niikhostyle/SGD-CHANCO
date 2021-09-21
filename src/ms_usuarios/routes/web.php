@@ -13,7 +13,17 @@
 |
 */
 
-$router->get('/api/sgd-usuarios', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen usuarios";
+
+$router->group(['middleware' => ['auth']], function () use ($router){
+        
+    $router->get('/api/sgd-usuarios/ver_todos', 'UsersController@ver_todos');
+    $router->post('/api/sgd-usuarios/crear', 'UsersController@crear');  
+    $router->put('/api/sgd-usuarios/actualizar', 'UsersController@actualizar');
+    $router->get('/api/sgd-usuarios/ver', 'UsersController@ver'); 
+    $router->get('/api/sgd-usuarios/estado', 'UsersController@estado'); 
 });
+
+//$router->get('/api/sgd-usuarios', function () use ($router) {
+    //return $router->app->version();
+//    return "prueba lumen usuarios";
+//});
