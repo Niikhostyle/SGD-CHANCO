@@ -85,7 +85,7 @@ class UsersController extends Controller{
                 $validator = $this->validator->validateUpdate();
 
                 if ($validator->fails())
-                    return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
+                    return $this->respondFail('Falla al actualizar usuario: revisar datos de entrada');
 
                 $datosUsuario = Users::findOrFail($datosRequest['id'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil']);
                 
@@ -111,7 +111,7 @@ class UsersController extends Controller{
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
 
-                return $this->respondError('Falla al actualizar buzón:' . $e->getMessage(), 500);                
+                return $this->respondError('Falla al actualizar usuario:' . $e->getMessage(), 500);                
             }            
         }
         else
@@ -143,6 +143,38 @@ class UsersController extends Controller{
         else 
             return $this->respondError('Json inválido', 406);
     }  
-    
+ 
+    public function estado(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+                
+                $validator = $this->validator->validateFieldUser($datosRequest);
+                if ($validator->fails())
+                    return $this->respondFail('Falla del servicio, usuario inválido');
+
+                if ($datosRequest['estado'] != 1 && $datosRequest['estado'] != 2)
+                    return $this->respondFail('Falla del servicio, revisar estado');
+
+                $datosUsuario = Users::findOrFail($datosRequest['id_usuario']);                
+                $datosUsuario->id_estado_usuario = $datosRequest['estado'];
+
+                $datosUsuario->save();
+                
+                return $this->respondSuccess(array('comentario' => "Estado actualizado"), 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Usuario no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+
+
+    }
 
 }

@@ -34,7 +34,6 @@ class UsuarioValidator
         return Validator::make($campo, $this->rules4(), $this->messages());        
     }
 
-// 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'password', 'aplica_fea', 'generar_pdf', 'id_estado_usuario'
     private function rules1()
     {
         return [
