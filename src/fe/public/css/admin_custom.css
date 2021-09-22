@@ -39,46 +39,46 @@
   .navbar-plc.navbar-light .form-control-navbar::-moz-placeholder {
     color: rgba(255, 255, 255, 0.8);
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:-ms-input-placeholder {
     color: rgba(255, 255, 255, 0.8);
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar::-ms-input-placeholder {
     color: rgba(255, 255, 255, 0.8);
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar::placeholder {
     color: rgba(255, 255, 255, 0.8);
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar,
   .navbar-plc.navbar-light .form-control-navbar + .input-group-append > .btn-navbar {
     background-color: #0071eb;
     border-color: #0065d1;
     color: rgba(196, 213, 230, 0.8);
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus::-webkit-input-placeholder {
     color: #a1aab3;
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus::-moz-placeholder {
     color: #a1aab3;
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus:-ms-input-placeholder {
     color: #a1aab3;
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus::-ms-input-placeholder {
     color: #a1aab3;
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus::placeholder {
     color: #a1aab3;
   }
-  
+
   .navbar-plc.navbar-light .form-control-navbar:focus,
   .navbar-plc.navbar-light .form-control-navbar:focus + .input-group-append .btn-navbar {
     background-color: #006fe6;
@@ -90,13 +90,23 @@
     background-color: #5fa4e9;
     padding: 10px;
   }
-  
+
   .navbar-plc > .user-menu > .dropdown-menu > .user-footer::after {
     display: block;
     clear: both;
     content: "";
   }
-  
+
   .navbar-plc > .user-menu > .dropdown-menu > .user-footer .btn-default {
     color: #09579c;
   }
+  .linea_content_header {
+    border-top: 3px solid #28a745;
+    height: 3px;
+    padding: 0;
+    margin: 20px auto 0 auto;
+  }
+.nuevo_usuario{
+    margin-left: auto;
+    display: block;
+}

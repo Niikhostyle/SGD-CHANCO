@@ -7,13 +7,15 @@
     "require": {
         "php": "^7.3|^8.0",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
+        "guzzlehttp/guzzle": "^7.3",
         "jeroennoten/laravel-adminlte": "^3.7",
         "laravel/framework": "^8.54",
         "laravel/jetstream": "^2.3",
         "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.5",
-        "livewire/livewire": "^2.5"
+        "livewire/livewire": "^2.5",
+        "malahierba-lab/chile-rut": "^5.1",
+        "realrashid/sweet-alert": "^4.0"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

@@ -25,9 +25,19 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'id_perfil',
+        'id_estado_usuario',
+        'run',
         'nombres',
+        'primer_apellido',
+        'segundo_apellido',
         'email',
         'password',
+        'aplica_fea',
+        'genera_pdf',
+        'hash_recuperacion',
+        'hash_recuperacion_fecha',
+        'remember_token',
     ];
 
     /**
@@ -59,4 +69,19 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function getId()
+    {
+        return $this->id;
+    }
+    /*public function session(){
+
+        return $this->hasMany('App\Models\Session', 'user_id', 'id');
+
+    }*/
+
+    /*public function getToken(){
+        return $this->id;
+    }*/
+
 }
