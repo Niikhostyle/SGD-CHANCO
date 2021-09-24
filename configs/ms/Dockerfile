@@ -24,10 +24,9 @@ RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/
 ENV TZ=America/Santiago
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-WORKDIR /src/public
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN chown -R appuser:appgroup /src/public
-USER appuser
-
+#WORKDIR /src/public
+#RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+#RUN chown -R appuser:appgroup /src/public
+#USER appuser
 
 CMD php -S 0.0.0.0:3333 -t /src/public

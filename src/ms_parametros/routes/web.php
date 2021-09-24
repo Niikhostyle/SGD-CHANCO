@@ -13,7 +13,12 @@
 |
 */
 
-$router->get('/api/sgd-parametros', function () use ($router) {
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->get('/api/sgd-parametros/traer', 'Controller@traer');
+});  
+    
+
+//$router->get('/api/sgd-parametros', function () use ($router) {
     //return $router->app->version();
-    return "prueba lumen parametros";
-});
+//    return "prueba lumen parametros";
+//});
