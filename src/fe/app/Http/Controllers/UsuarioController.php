@@ -22,16 +22,16 @@ class UsuarioController extends Controller
 
         $sesion_key =  AppServiceProvider::session_key_general();
 
-        $lista_usuarios = Http::withToken($sesion_key)
-        ->timeout(3)
-        ->get('https://run.mocky.io/v3/1ddc16d2-39bf-4303-a945-5f6c6a60ed03');
-        //->get('https://run.mocky.io/v3/56edfff2-9303-4917-a27b-4e7cf519f4bb');
-        //->json();
+        $lista_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver_todos');
+
+
         if($lista_usuarios->failed()){
             $mensaje= $lista_usuarios->json()['data']['comentario'];
 
             $lista_usuarios=['data'=>[
-                0=>['id_usuario'=>'0','nombres'=>'Sin Datos','rut'=>'','e-mail'=>'','estado_usuario'=>'']
+                0=>['id'=>'0','nombres'=>'Sin Datos','primer_apellido'=>'','segundo_apellido'=>'','run'=>'','email'=>'','id_estado_usuario'=>'']
             ]];
             toast($mensaje,'error');
         }else{
@@ -41,7 +41,6 @@ class UsuarioController extends Controller
         $perfiles = Http::withToken($sesion_key)
         ->timeout(3)
         ->get('https://run.mocky.io/v3/a6883c01-9d3f-4792-a519-468bc0bfb74c');
-        //->get('https://run.mocky.io/v3/56edfff2-9303-4917-a27b-4e7cf519f4bb');
         if($perfiles->failed()){
             $mensaje= $perfiles->json()['data']['comentario'];
 
@@ -58,26 +57,32 @@ class UsuarioController extends Controller
 
     public function store(StoreUsuario $request)
     {
-        //$validated = $request->validated();
-        //toast('dd','error');
-
         $sesion_key =  AppServiceProvider::session_key_general();
-        $response = Http::withToken($sesion_key)
-        ->timeout(3)
-        ->post(//'https://run.mocky.io/v3/56edfff2-9303-4917-a27b-4e7cf519f4bb', [
-            'https://run.mocky.io/v3/ed2f095f-a4d4-423c-8efe-440ec80893f8', [
-            'id_perfil'=>$request->id_perfil,
-            'id_estado_usuario'=>$request->id_estado_usuario,
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
             'run'=>$request->run,
             'nombres'=>$request->nombres,
             'primer_apellido'=>$request->primer_apellido,
             'segundo_apellido'=>$request->segundo_apellido,
             'email'=>$request->email,
             'password'=>$request->password,
+            'confirmar_password'=>$request->confirmar_password,
             'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf
+            'genera_pdf'=>$request->genera_pdf,
+            'id_estado_usuario'=>$request->id_estado_usuario,
+            'id_perfil'=>$request->id_perfil
+
         ]);
-        return response()->json($response->json());
+        $response_json=response()->json($response->json());
+
+        if($response->failed()){
+            $mensaje= $response->json()['data']['comentario'];
+            toast($mensaje,'error');
+        }else{
+            toast('Guardado.','susses');
+        }
+        return $response_json;
 
     }
 
