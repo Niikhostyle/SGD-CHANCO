@@ -63,7 +63,7 @@
         <ul></ul>
     </div>
     <div class="card" id="card_usuario_crear_editar" style="display:none">
-        <h5 id="titulo_usuario_crear_editar"class="card-header bg-success" >Nuevo Usuario</h5>
+        <h5 id="titulo_usuario_crear_editar" class="card-header bg-success" >Nuevo Usuario</h5>
         <div class="card-body">
             <form class="needs-validation" id="form_usuario_crear_editar" method="POST" action="{{route('usuarios.store')}}"  >
             @csrf
@@ -80,7 +80,7 @@
                         <label for="select_perfil">Perfil</label>
                         <select  class="form-control" id="form_perfil" name="id_perfil" required>
                             <option value="">Seleccionar</option>
-                            @foreach($perfiles['data'] as $perfil)
+                            @foreach($perfiles as $perfil)
                                 <option value="{{$perfil['id_perfil']}}">{{$perfil['nombre']}}</option>
                             @endforeach
                         </select>
@@ -143,8 +143,9 @@
                     <div class="form-group">
                         <label for="select_firma_electronica">Firma electrónica avanzada</label>
                         <select  class="form-control" id="form_aplica_fea" name="aplica_fea">
-                            <option value="1">Habilitada</option>
-                            <option value="0">Denegada</option>
+                            <option value="">Seleccionar</option>
+                            <option value="true">Habilitada</option>
+                            <option value="false">Denegada</option>
                         </select>
                     </div>
                 </div>
@@ -152,8 +153,9 @@
                     <div class="form-group">
                         <label for="select_generacion_pdf">Generación PDF</label>
                         <select  class="form-control" id="form_genera_pdf" name="aplica_genera_pdf">
-                            <option value="1">Habilitada</option>
-                            <option value="0">Denegada</option>
+                            <option value="">Seleccionar</option>
+                            <option value="true">Habilitada</option>
+                            <option value="false">Denegada</option>
                         </select>
                     </div>
                 </div>
@@ -198,6 +200,7 @@
 
         $(".nuevo_usuario").click(function(e){
             $('#card_usuario_crear_editar').show();
+            $('#form_run').focus();
         });
 
         $(".btn_cerrar_guardar").click(function(e){
@@ -228,7 +231,7 @@
             var re_password = $("input[name='re_password']").val();
             var email = $("input[name='email']").val();
             var aplica_fea = $("select[name='aplica_fea']").val();
-            var aplica_genera_pdf = $("select[name='aplica_genera_pdf']").val();
+            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
 
                 if(password==re_password){
                     $.ajax({
@@ -237,10 +240,10 @@
                         data: { _token:_token, run:run, id_perfil:id_perfil,
                                 id_estado_usuario:id_estado_usuario, nombres:nombres,
                                 primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,aplica_genera_pdf:aplica_genera_pdf
+                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
                                 },
                         success: function(data) {
-                            if(data.status!='200'){
+                            if(data.status=='400'){
                                 Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
@@ -248,13 +251,16 @@
                                 confirmButtonText: 'Cerrar',
                             });
                             }else{
-                                $('#card_usuario_crear_editar').hide();
-                                $('#form_usuario_crear_editar').trigger("reset");
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Guardado exitoso',
-                                    confirmButtonText: 'Cerrar',
-                                });
+                                if(data.status=='200' || data.status=='201'){
+                                    $('#card_usuario_crear_editar').hide();
+                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Guardado exitoso',
+                                        confirmButtonText: 'Cerrar',
+                                    });
+                                    location.reload();
+                                }
                             }
                         },
                         error: function (e) {

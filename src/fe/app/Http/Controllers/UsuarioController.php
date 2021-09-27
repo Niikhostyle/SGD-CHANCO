@@ -38,9 +38,10 @@ class UsuarioController extends Controller
             $lista_usuarios->json();
         }
 
-        $perfiles = Http::withToken($sesion_key)
-        ->timeout(3)
-        ->get('https://run.mocky.io/v3/a6883c01-9d3f-4792-a519-468bc0bfb74c');
+        $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        //->get('https://run.mocky.io/v3/a6883c01-9d3f-4792-a519-468bc0bfb74c');
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
         if($perfiles->failed()){
             $mensaje= $perfiles->json()['data']['comentario'];
 
@@ -49,10 +50,11 @@ class UsuarioController extends Controller
             ]];
             toast($mensaje,'error');
         }else{
-            $perfiles->json();
+            //$perfiles->json();
+            $perfiles_datos = $perfiles->json()['data']['perfil'];
         }
 
-        return View::make('usuario.index',['lista_usuarios'=>$lista_usuarios,'perfiles'=>$perfiles]);
+        return View::make('usuario.index',['lista_usuarios'=>$lista_usuarios,'perfiles'=>$perfiles_datos]);
     }
 
     public function store(StoreUsuario $request)
@@ -72,16 +74,10 @@ class UsuarioController extends Controller
             'genera_pdf'=>$request->genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil
-
         ]);
         $response_json=response()->json($response->json());
 
-        if($response->failed()){
-            $mensaje= $response->json()['data']['comentario'];
-            toast($mensaje,'error');
-        }else{
-            toast('Guardado.','susses');
-        }
+
         return $response_json;
 
     }
