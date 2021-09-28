@@ -40,7 +40,6 @@ class UsuarioController extends Controller
 
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
-        //->get('https://run.mocky.io/v3/a6883c01-9d3f-4792-a519-468bc0bfb74c');
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
         if($perfiles->failed()){
             $mensaje= $perfiles->json()['data']['comentario'];
@@ -84,10 +83,18 @@ class UsuarioController extends Controller
 
 
     public function show($id){
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $usuario = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver',[
+            'id_usuario'=> '"'.$id.'"'
+        ]);
 
+        return $usuario->json();
     }
 
     public function update($id){
+
         return $id;
     }
 }

@@ -300,11 +300,6 @@ return [
         ],
         */
         [
-            'text'       => 'USUARIOS',
-            'icon'    => 'fas fa-fw fa-user',
-            'url'        => '/usuarios',
-        ],
-        [
         'text' => 'BUZONES',
         'icon'    => 'fas fa-fw fa-th-list',
         'submenu' => [
@@ -347,6 +342,24 @@ return [
                 [
                     'text'       => 'Favortios',
                     'icon'    => 'fas fa-fw fa-star',
+                    'icon_color' => 'yellow',
+                    'url'        => '#',
+                ],
+            ],
+        ],
+        [
+            'text' => 'ADMINISTRACIÓN',
+            'icon'    => 'fas fa-users-cog',
+            'submenu' => [
+                [
+                    'text'       => 'Usuarios',
+                    'icon'    => 'fas fa-fw fa-user',
+                    'icon_color' => 'red',
+                    'url'        => '/usuarios',
+                ],
+                [
+                    'text'       => 'Buzones',
+                    'icon'    => 'fas fa-fw fa-th-list',
                     'icon_color' => 'yellow',
                     'url'        => '#',
                 ],

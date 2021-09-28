@@ -47,9 +47,9 @@
                                      <i class="fas fa-bars"></i>
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                     <a class="dropdown-item" href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
+                                     <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                     <a class="dropdown-item btn-menu-editar" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
+                                     <a class="dropdown-item btn-menu-deshabilitar" href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
                                  </div>
                             </div>
                         </td>
@@ -65,7 +65,7 @@
     <div class="card" id="card_usuario_crear_editar" style="display:none">
         <h5 id="titulo_usuario_crear_editar" class="card-header bg-success" >Nuevo Usuario</h5>
         <div class="card-body">
-            <form class="needs-validation" id="form_usuario_crear_editar" method="POST" action="{{route('usuarios.store')}}"  >
+            <form class="needs-validation" id="form_usuario_crear_editar"   >
             @csrf
 
             <div class="row">
@@ -167,7 +167,12 @@
                     <button type="button"  class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
                 </div>
                 <div class="col-md-2">
-                    <button type="button" class="btn btn-success btn-submit w-100">Guardar</button>
+                    <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-submit w-100">
+                        Guardar
+                    </button>
+                    <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-actualizar w-100">
+                        Actualizar
+                    </button>
                 </div>
             </div>
 
@@ -199,6 +204,67 @@
 
 
         $(".nuevo_usuario").click(function(e){
+            $('.btn-acciones-guardar-editar').hide();
+            $('#titulo_usuario_crear_editar').html('Nuevo Usuario');
+            $('#card_usuario_crear_editar').show();
+            $('.btn-submit').show();
+            $('#form_run').focus();
+        });
+
+        $(".btn-menu-editar").click(function(e){
+            $(".print-error-msg").hide();
+            $('#form_usuario_crear_editar').trigger("reset");
+            $('.btn-acciones-guardar-editar').hide();
+            $('#titulo_usuario_crear_editar').html('Editar Usuario');
+            $('#card_usuario_crear_editar').show();
+            $('.btn-actualizar').show();
+            $('#form_run').focus();
+            var identificador_usuario=2;
+            $.ajax({
+                        url: "usuarios/"+identificador_usuario,
+                        type:'GET',
+                        success: function(data) {
+                            if(data.status=='400'){
+                                Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.data.comentario,
+                                confirmButtonText: 'Cerrar',
+                            });
+                            }else{
+                                if(data.status=='200' || data.status=='201'){
+                                    $('#card_usuario_crear_editar').hide();
+                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Guardado exitoso',
+                                        confirmButtonText: 'Cerrar',
+                                    });
+                                    location.reload();
+                                }
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                        }
+                    });
+
+
+
+
+
+        });
+        $(".btn-menu-ver").click(function(e){
+            $('#form_usuario_crear_editar').trigger("reset");
+            $('.btn-acciones-guardar-editar').hide();
+            $('#titulo_usuario_crear_editar').html('Visualizar Usuario');
             $('#card_usuario_crear_editar').show();
             $('#form_run').focus();
         });
@@ -206,11 +272,20 @@
         $(".btn_cerrar_guardar").click(function(e){
             $('#card_usuario_crear_editar').hide();
             $('#form_usuario_crear_editar').trigger("reset");
+            $(".print-error-msg").hide();
         });
 
 
+        $(".btn-actualizar").click(function(e){
+
+        });
+
         $(".btn-submit").click(function(e){
             e.preventDefault();
+            $('.btn-submit').prop("disabled", true);
+            $('.btn-submit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
+            );
             var forms = document.getElementsByClassName('needs-validation');
             var validation = Array.prototype.filter.call(forms, function(form) {
                 if (form.checkValidity() === false) {
@@ -262,16 +337,22 @@
                                     location.reload();
                                 }
                             }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
                         },
                         error: function (e) {
                             data = e.responseJSON;
                             if (typeof data.errors !== 'undefined') {
                                 printErrorMsg(data.errors);
                             }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
                         }
                     });
                 }else{
-                    printErrorMsg({'password':'Las contraseñas no coinciden.'})
+                    printErrorMsg({'password':'Las contraseñas no coinciden.'});
+                    $('.btn-submit').prop("disabled", false);
+                    $('.btn-submit').html( 'Guardar' );
                 }
 
 
