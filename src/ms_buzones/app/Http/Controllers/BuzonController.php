@@ -44,9 +44,9 @@ class BuzonController extends Controller{
                 foreach ($datosBuzon->usuarios_asignados as $datoUsuario)
                 {
                     if ($bExisteDocBuzon > 0)
-                        $datoUsuario['permite_modificar'] = '0'; 
+                        $datoUsuario['permite_modificar'] = 0; 
                     else
-                        $datoUsuario['permite_modificar'] = '1'; 
+                        $datoUsuario['permite_modificar'] = 1; 
                 }
             
 
@@ -119,23 +119,27 @@ class BuzonController extends Controller{
                 
                 $datosUsuario = $datosBuzon['usuarios_asignados'];    
                 //opcion de crear buzon sin usuarios
-                foreach ($datosUsuario as $datos) 
-                {
-                    $aUsuarios[] = $datos['id_usuario'];
 
-                    $validator = $this->validator->validateFieldUser($datos);
-                    if ($validator->fails())
-                        return $this->respondFail('Falla al crear buzón: revisar usuarios asignados');
-                    
-                    $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+                if(count($datosUsuario) > 0)
+                {
+                    foreach ($datosUsuario as $datos) 
+                    {
+                        $aUsuarios[] = $datos['id_usuario'];
+
+                        $validator = $this->validator->validateFieldUser($datos);
+                        if ($validator->fails())
+                            return $this->respondFail('Falla al crear buzón: revisar usuarios asignados');
+                        
+                        $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+                    }
+
+                    if (count($datosUsuario) != count(array_unique($aUsuarios)))
+                        return $this->respondFail('Falla al crear buzón: usuarios asignados repetidos');
+
+                    if (count($datosUsuario) > 1 && $datosBuzon['tipo_buzon'] == 1)   
+                        return $this->respondFail('Falla al crear buzón: asignacion de usuarios'); 
                 }
 
-                if (count($datosUsuario) != count(array_unique($aUsuarios)))
-                    return $this->respondFail('Falla al crear buzón: usuarios asignados repetidos');
-
-                if (count($datosUsuario) > 1 && $datosBuzon['tipo_buzon'] == 1)   
-                    return $this->respondFail('Falla al crear buzón: asignacion de usuarios'); 
-                
                 $buzon = Buzon::create([
                     'nombre' => $datosBuzon['nombre_buzon'],
                     'nombre_corto' => $datosBuzon['nombre_corto_buzon'],
@@ -186,22 +190,25 @@ class BuzonController extends Controller{
 
                 $datosUsuario = $datosRequest['usuarios_asignados'];  
 
-                foreach ($datosUsuario as $datos) 
+                if(count($datosUsuario) > 0)
                 {
-                    $aUsuarios[] = $datos['id_usuario'];
+                    foreach ($datosUsuario as $datos) 
+                    {
+                        $aUsuarios[] = $datos['id_usuario'];
 
-                    $validator = $this->validator->validateFieldUser($datos);
-                    if ($validator->fails())
-                        return $this->respondFail('Falla al actualizar buzón: revisar usuarios asignados');
-                    
-                    $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+                        $validator = $this->validator->validateFieldUser($datos);
+                        if ($validator->fails())
+                            return $this->respondFail('Falla al actualizar buzón: revisar usuarios asignados');
+                        
+                        $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+                    }
+
+                    if (count($datosUsuario) != count(array_unique($aUsuarios)))
+                        return $this->respondFail('Falla al actualizar buzón: usuarios asignados repetidos');
+
+                    if (count($datosUsuario) > 1 && $datosRequest['tipo_buzon'] == 1)   
+                        return $this->respondFail('Falla al actualizar buzón: asignacion de usuarios'); 
                 }
-
-                if (count($datosUsuario) != count(array_unique($aUsuarios)))
-                    return $this->respondFail('Falla al actualizar buzón: usuarios asignados repetidos');
-
-                if (count($datosUsuario) > 1 && $datosRequest['tipo_buzon'] == 1)   
-                    return $this->respondFail('Falla al actualizar buzón: asignacion de usuarios'); 
 
                 $datoBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','id_tipo_buzon']);
                 
