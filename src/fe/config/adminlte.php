@@ -334,13 +334,13 @@ return [
             'icon'    => 'fas fa-fw fa-cogs',
             'submenu' => [
                 [
-                    'text'       => 'Buscar',
+                    'text'       => 'Documentos',
                     'icon'    => 'fas fa-fw fa-search',
                     'icon_color' => 'red',
-                    'url'        => '#',
+                    'url'        => '/buscador',
                 ],
                 [
-                    'text'       => 'Favortios',
+                    'text'       => 'Favoritos',
                     'icon'    => 'fas fa-fw fa-star',
                     'icon_color' => 'yellow',
                     'url'        => '#',
@@ -361,7 +361,7 @@ return [
                     'text'       => 'Buzones',
                     'icon'    => 'fas fa-fw fa-th-list',
                     'icon_color' => 'yellow',
-                    'url'        => '#',
+                    'url'        => '/buzones',
                 ],
             ],
         ],

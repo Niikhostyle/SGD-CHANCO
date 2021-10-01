@@ -31,7 +31,7 @@
 
         {{-- Configured Stylesheets --}}
         @include('adminlte::plugins', ['type' => 'css'])
-
+        <link rel="stylesheet" href="{{ asset('vendor/toastr/toastr.css') }}">
         <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     @else
@@ -114,8 +114,8 @@
     @include('sweetalert::alert')
 
     @if(!config('adminlte.enabled_laravel_mix'))
-        <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
         <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+        <script src="{{ asset('vendor/toastr/toastr.min.js') }}"></script>
         <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('vendor/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 

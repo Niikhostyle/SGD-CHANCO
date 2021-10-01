@@ -37,19 +37,28 @@
                     @foreach($lista_usuarios['data'] as $list)
                     <tr>
                         <td>{{$list['id']}}</td>
-                        <td>{{$list['nombres']}}</td>
+                        <td>{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
                         <td>{{$list['run']}}</td>
                         <td>{{$list['email']}}</td>
-                        <td>{{$list['id_estado_usuario']}}</td>
+                        <td>
+                            <?php
+                             foreach($estados_usuario as $estado)
+                             if($estado['id_estado_usuario']==$list['id_estado_usuario']){
+                                    echo $estado['nombre'];
+                             }
+
+                        ?>
+                        </td>
+
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                      <i class="fas fa-bars"></i>
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item btn-menu-editar" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                     <a class="dropdown-item btn-menu-deshabilitar" href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
+                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id']}})"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="eliminar_usuario({{$list['id']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
                                  </div>
                             </div>
                         </td>
@@ -62,6 +71,12 @@
     <div class="alert alert-warning print-error-msg" style="display:none">
         <ul></ul>
     </div>
+    <div id='cargando' style="display:none">
+        <span class="spinner-border text-success" role="status" aria-hidden="true"></span>
+        Cargando...
+    </div>
+
+
     <div class="card" id="card_usuario_crear_editar" style="display:none">
         <h5 id="titulo_usuario_crear_editar" class="card-header bg-success" >Nuevo Usuario</h5>
         <div class="card-body">
@@ -73,6 +88,7 @@
                     <div class="form-group">
                         <label for="form_run">RUN</label>
                         <input type="text" class="form-control" id="form_run" name="run" aria-describedby="run_error" placeholder="99229922-1" required>
+                        <input type="hidden" name="form_id_usuario" value="">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -91,8 +107,10 @@
                         <label for="select_estado">Estado</label>
                         <select  class="form-control" id="form_estado" name="id_estado_usuario" required>
                             <option value="">Seleccionar</option>
-                            <option value="1">Activo</option>
-                            <option value="2">Inactivo</option>
+
+                            @foreach($estados_usuario as $estado)
+                                <option value="{{$estado['id_estado_usuario']}}">{{$estado['nombre']}}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -206,68 +224,14 @@
         $(".nuevo_usuario").click(function(e){
             $('.btn-acciones-guardar-editar').hide();
             $('#titulo_usuario_crear_editar').html('Nuevo Usuario');
+            $('#form_usuario_crear_editar').trigger("reset");
+            $('.form-control').prop("disabled", false);
             $('#card_usuario_crear_editar').show();
             $('.btn-submit').show();
             $('#form_run').focus();
         });
 
-        $(".btn-menu-editar").click(function(e){
-            $(".print-error-msg").hide();
-            $('#form_usuario_crear_editar').trigger("reset");
-            $('.btn-acciones-guardar-editar').hide();
-            $('#titulo_usuario_crear_editar').html('Editar Usuario');
-            $('#card_usuario_crear_editar').show();
-            $('.btn-actualizar').show();
-            $('#form_run').focus();
-            var identificador_usuario=2;
-            $.ajax({
-                        url: "usuarios/"+identificador_usuario,
-                        type:'GET',
-                        success: function(data) {
-                            if(data.status=='400'){
-                                Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: data.data.comentario,
-                                confirmButtonText: 'Cerrar',
-                            });
-                            }else{
-                                if(data.status=='200' || data.status=='201'){
-                                    $('#card_usuario_crear_editar').hide();
-                                    $('#form_usuario_crear_editar').trigger("reset");
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Guardado exitoso',
-                                        confirmButtonText: 'Cerrar',
-                                    });
-                                    location.reload();
-                                }
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                        }
-                    });
 
-
-
-
-
-        });
-        $(".btn-menu-ver").click(function(e){
-            $('#form_usuario_crear_editar').trigger("reset");
-            $('.btn-acciones-guardar-editar').hide();
-            $('#titulo_usuario_crear_editar').html('Visualizar Usuario');
-            $('#card_usuario_crear_editar').show();
-            $('#form_run').focus();
-        });
 
         $(".btn_cerrar_guardar").click(function(e){
             $('#card_usuario_crear_editar').hide();
@@ -276,10 +240,77 @@
         });
 
 
+
         $(".btn-actualizar").click(function(e){
+            e.preventDefault();
+            $('.btn-actualizar').prop("disabled", true);
+            $('.btn-actualizar').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Actualizando'
+            );
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                if (form.checkValidity() === false) {
+                        //e.stopPropagation();
+                        form.classList.add('was-validated');
+                }
+            });
+
+            $(".print-error-msg").hide();
+            var _token = $("input[name='_token']").val();
+            var id_perfil = $("select[name='id_perfil']").val();
+            var id_estado_usuario = $("select[name='id_estado_usuario']").val();
+            var run = $("input[name='run']").val();
+            var nombres = $("input[name='nombres']").val();
+            var primer_apellido = $("input[name='primer_apellido']").val();
+            var segundo_apellido = $("input[name='segundo_apellido']").val();
+            var password = $("input[name='password']").val();
+            var re_password = $("input[name='re_password']").val();
+            var email = $("input[name='email']").val();
+            var aplica_fea = $("select[name='aplica_fea']").val();
+            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
+            var form_id_usuario = $("input[name='form_id_usuario']").val();
+                if(password==re_password){
+                    $.ajax({
+                        url: "{{route('usuarios.update')}}",
+                        type:'PUT',
+                        data: { _token:_token,form_id_usuario:form_id_usuario, run:run, id_perfil:id_perfil,
+                                id_estado_usuario:id_estado_usuario, nombres:nombres,
+                                primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
+                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
+                                },
+                        success: function(data) {
+                            if(data.status=='400'){
+                                toastr.error(data.data.comentario,"Oops...");
+
+                            }else{
+                                if(data.status=='200' || data.status=='201'){
+                                    $('#card_usuario_crear_editar').hide();
+                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    toastr.success("Guardado exitoso","Aviso!");
+                                    location.reload();
+                                }
+                            }
+                            $('.btn-actualizar').prop("disabled", false);
+                            $('.btn-actualizar').html( 'Actualizar' );
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-actualizar').prop("disabled", false);
+                            $('.btn-actualizar').html( 'Actualizar' );
+                        }
+                    });
+                }else{
+                    printErrorMsg({'password':'Las contraseñas no coinciden.'});
+                    $('.btn-actualizar').prop("disabled", false);
+                    $('.btn-actualizar').html( 'Actualizar' );
+                }
+
+
 
         });
-
         $(".btn-submit").click(function(e){
             e.preventDefault();
             $('.btn-submit').prop("disabled", true);
@@ -319,21 +350,13 @@
                                 },
                         success: function(data) {
                             if(data.status=='400'){
-                                Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: data.data.comentario,
-                                confirmButtonText: 'Cerrar',
-                            });
+                                toastr.error(data.data.comentario,"Oops...");
                             }else{
                                 if(data.status=='200' || data.status=='201'){
                                     $('#card_usuario_crear_editar').hide();
                                     $('#form_usuario_crear_editar').trigger("reset");
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Guardado exitoso',
-                                        confirmButtonText: 'Cerrar',
-                                    });
+                                    toastr.success("Guardado exitoso","Aviso!");
+
                                     location.reload();
                                 }
                             }
@@ -359,7 +382,168 @@
 
         });
 
-        function printErrorMsg(msg) {
+
+        // botones de la tabla
+        $(document).on('click', '#btnEdit', function () {
+            var data = table.row($(this).parents('tr')).data();
+            alert(data['name']);
+        });
+
+        $(document).on('click', '#btnDelete', function () {
+            var data = table.row($(this).parents('tr')).data();
+            alert(data['salary']);
+        });
+    });
+
+    function editar_usuario(identificador){
+        $('#cargando').show();
+        $(".print-error-msg").hide();
+        if(identificador>0){
+            $('#form_usuario_crear_editar').trigger("reset");
+            $('#card_usuario_crear_editar').hide();
+            $.ajax({
+                        url: "usuarios/"+identificador,
+                        type:'GET',
+                        success: function(data) {
+                            if(data.status==400){
+                                toastr.error(data.data.comentario,"Oops...");
+                            }else{
+                                console.log(data);
+                                if(data.status==200 || data.status==201){
+                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    $("select[name='id_perfil']").val(data.data.id_perfil);
+                                    $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
+                                    $("input[name='run']").val(data.data.run);
+                                    $("input[name='nombres']").val(data.data.nombres);
+                                    $("input[name='primer_apellido']").val(data.data.primer_apellido);
+                                    $("input[name='segundo_apellido']").val(data.data.segundo_apellido);
+                                    $("input[name='email']").val(data.data.email);
+                                    $("input[name='form_id_usuario']").val(data.data.id);
+                                    if(data.data.aplica_fea==true){
+                                        $("select[name='aplica_fea']").val('true');
+                                    }else if(data.data.aplica_fea==false){
+                                        $("select[name='aplica_fea']").val('false');
+                                    }
+                                    if(data.data.genera_pdf==true){
+                                        $("select[name='aplica_genera_pdf']").val('true');
+                                    }else if(data.data.genera_pdf==false){
+                                        $("select[name='aplica_genera_pdf']").val('false');
+                                    }
+
+                                }
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                            $('#cargando').hide();
+                            $('.btn-acciones-guardar-editar').hide();
+                            $('#titulo_usuario_crear_editar').html('Editar Usuario');
+                            $('.btn-actualizar').show();
+                            $('#form_run').focus();
+                            $('.form-control').prop("disabled", false);
+                            $('#card_usuario_crear_editar').show();
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                            $('#cargando').hide();
+                        }
+                    });
+
+        }
+    }
+
+    function visualizar_usuario(identificador){
+        $('#cargando').show();
+        $(".print-error-msg").hide();
+        if(identificador>0){
+            $('#form_usuario_crear_editar').trigger("reset");
+            $('#card_usuario_crear_editar').hide();
+            $.ajax({
+                        url: "usuarios/"+identificador,
+                        type:'GET',
+                        success: function(data) {
+                            if(data.status==400){
+                                toastr.error(data.data.comentario,"Oops...");
+
+                            }else{
+                                console.log(data);
+                                if(data.status==200 || data.status==201){
+                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    $("select[name='id_perfil']").val(data.data.id_perfil);
+                                    $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
+                                    $("input[name='run']").val(data.data.run);
+                                    $("input[name='nombres']").val(data.data.nombres);
+                                    $("input[name='primer_apellido']").val(data.data.primer_apellido);
+                                    $("input[name='segundo_apellido']").val(data.data.segundo_apellido);
+                                    $("input[name='email']").val(data.data.email);
+                                    if(data.data.aplica_fea==true){
+                                        $("select[name='aplica_fea']").val('true');
+                                    }else if(data.data.aplica_fea==false){
+                                        $("select[name='aplica_fea']").val('false');
+                                    }
+                                    if(data.data.genera_pdf==true){
+                                        $("select[name='aplica_genera_pdf']").val('true');
+                                    }else if(data.data.genera_pdf==false){
+                                        $("select[name='aplica_genera_pdf']").val('false');
+                                    }
+                                }
+                            }
+                            $('#cargando').hide();
+                            $('.btn-acciones-guardar-editar').hide();
+                            $('#titulo_usuario_crear_editar').html('Visualizar Usuario');
+                            $('#form_run').focus();
+                            $('.form-control').prop("disabled", true);
+                            $('#card_usuario_crear_editar').show();
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                            $('#cargando').hide();
+                        }
+                    });
+
+        }
+    }
+    function eliminar_usuario(id)
+    {
+        $(".print-error-msg").hide();
+        var token = $("input[name='_token']").val();
+        $.ajax({
+                url: "usuarios/"+id,
+                type:'PUT',
+                dataType: 'json',
+                data: {_token :token},
+                success: function(data) {
+                    if(data.status == '200')
+                    {
+                        toastr.success("Usuario Actualizado","Aviso!");
+                        autoRefresh();
+                    }
+                    else
+                    {
+                        toastr.error(data.data.comentario,"Aviso!");
+                    }
+                },
+                error: function (e) {
+                    data = e.responseJSON;
+                    //if (typeof data.errors !== 'undefined') {
+                       // printErrorMsg(data.errors);
+                       console.log(e);
+                        printErrorMsg(data);
+                }
+            //}
+        });
+    }
+
+    function printErrorMsg(msg) {
             $(".print-error-msg").find("ul").html('');
             $(".print-error-msg").show();
             $.each( msg, function( key, value ) {
@@ -374,19 +558,11 @@
             });
         }
 
-
-        // botones de la tabla
-        $(document).on('click', '#btnEdit', function () {
-            var data = table.row($(this).parents('tr')).data();
-            alert(data['name']);
-        });
-
-        $(document).on('click', '#btnDelete', function () {
-            var data = table.row($(this).parents('tr')).data();
-            alert(data['salary']);
-        });
-    });
-
+    function autoRefresh() {
+        window.setTimeout(function(){
+                            location.reload();
+                        },2000);
+    }
 
 
 </script>
