@@ -156,10 +156,13 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla del servicio, usuario inválido');
 
-                if ($datosRequest['estado'] != 1 && $datosRequest['estado'] != 2)
-                    return $this->respondFail('Falla del servicio, revisar estado');
-
-                $datosUsuario = Users::findOrFail($datosRequest['id_usuario']);                
+                $datosUsuario = Users::findOrFail($datosRequest['id_usuario']);      
+                
+                if ($datosUsuario->id_estado_usuario == 1)
+                    $datosUsuario->id_estado_usuario = 2;
+                else if ($datosUsuario->id_estado_usuario == 2)
+                    $datosUsuario->id_estado_usuario = 1;
+                    
                 $datosUsuario->id_estado_usuario = $datosRequest['estado'];
 
                 $datosUsuario->save();
