@@ -208,7 +208,7 @@
         asignados.forEach(function(option, index) {
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
 
-            if(modificados[index] == 1)
+            if(modificados[index] == 0)
                 $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
          });
 
