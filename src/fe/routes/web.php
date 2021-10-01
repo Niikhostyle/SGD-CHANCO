@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\BuscadorController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
