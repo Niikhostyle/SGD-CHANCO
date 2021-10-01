@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Malahierba\ChileRut\ChileRut;
 use Malahierba\ChileRut\Rules\ValidChileanRut;
 
-class StoreUsuario extends FormRequest
+class UpdateUsuario extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,8 +32,8 @@ class StoreUsuario extends FormRequest
         'nombres'=>'required|max:20',
         'primer_apellido'=>'required|max:20',
         'segundo_apellido'=>'required|max:20',
-        'password'=>'required|min:8|max:12',
-        'email'=>'required|unique:users|email',
+        'password'=>'min:8|max:12',
+        'email'=>'required|email',
         ];
     }
 
