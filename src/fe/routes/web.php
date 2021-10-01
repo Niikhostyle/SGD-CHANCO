@@ -24,3 +24,6 @@ Route::middleware(['auth:sanctum', 'verified'])->post('usuarios',[UsuarioControl
 //Route::middleware(['auth:sanctum', 'verified'])->get('usuarios/{id}',[UsuarioController::class,'show'])->name('usuarios.show');
 //Route::middleware(['auth:sanctum', 'verified'])->get('usuarios/{id}/update',[UsuarioController::class,'update'])->name('usuarios.update');
 //Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioController::class,'put'])->name('usuarios.put');
+
+//Documentos
+Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
