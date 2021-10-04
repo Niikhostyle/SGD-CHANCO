@@ -225,6 +225,24 @@ return [
     */
 
     'menu' => [
+        [
+            'text' => 'ADMINISTRACIÓN',
+            'icon'    => 'fas fa-users-cog',
+            'submenu' => [
+                [
+                    'text'       => 'Usuarios',
+                    'icon'    => 'fas fa-fw fa-user',
+                    'icon_color' => 'red',
+                    'url'        => '/usuarios',
+                ],
+                [
+                    'text'       => 'Buzones',
+                    'icon'    => 'fas fa-fw fa-th-list',
+                    'icon_color' => 'yellow',
+                    'url'        => '/buzones',
+                ],
+            ],
+        ],
         // Navbar items:
        /* [
             'type'         => 'navbar-search',
@@ -334,7 +352,7 @@ return [
             'icon'    => 'fas fa-fw fa-cogs',
             'submenu' => [
                 [
-                    'text'       => 'Documentos',
+                    'text'       => 'Buscar Documentos',
                     'icon'    => 'fas fa-fw fa-search',
                     'icon_color' => 'red',
                     'url'        => '/buscador',
@@ -344,24 +362,6 @@ return [
                     'icon'    => 'fas fa-fw fa-star',
                     'icon_color' => 'yellow',
                     'url'        => '#',
-                ],
-            ],
-        ],
-        [
-            'text' => 'ADMINISTRACIÓN',
-            'icon'    => 'fas fa-users-cog',
-            'submenu' => [
-                [
-                    'text'       => 'Usuarios',
-                    'icon'    => 'fas fa-fw fa-user',
-                    'icon_color' => 'red',
-                    'url'        => '/usuarios',
-                ],
-                [
-                    'text'       => 'Buzones',
-                    'icon'    => 'fas fa-fw fa-th-list',
-                    'icon_color' => 'yellow',
-                    'url'        => '/buzones',
                 ],
             ],
         ],
@@ -450,16 +450,16 @@ return [
 
         ],
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',
                 ],
             ],
@@ -475,11 +475,11 @@ return [
             ],
         ],
         'Sweetalert2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.jsdelivr.net/npm/sweetalert2@8',
                 ],
             ],
