@@ -163,8 +163,6 @@ class UsersController extends Controller{
                 else if ($datosUsuario->id_estado_usuario == 2)
                     $datosUsuario->id_estado_usuario = 1;
                     
-                $datosUsuario->id_estado_usuario = $datosRequest['estado'];
-
                 $datosUsuario->save();
                 
                 return $this->respondSuccess(array('comentario' => "Estado actualizado"), 200);

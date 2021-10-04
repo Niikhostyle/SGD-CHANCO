@@ -20,7 +20,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->post('/api/sgd-usuarios/crear', 'UsersController@crear');  
     $router->put('/api/sgd-usuarios/actualizar', 'UsersController@actualizar');
     $router->get('/api/sgd-usuarios/ver', 'UsersController@ver'); 
-    $router->get('/api/sgd-usuarios/estado', 'UsersController@estado'); 
+    $router->put('/api/sgd-usuarios/estado', 'UsersController@estado'); 
 });
 
 //$router->get('/api/sgd-usuarios', function () use ($router) {
