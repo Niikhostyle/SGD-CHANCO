@@ -58,7 +58,14 @@
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id']}})"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="eliminar_usuario({{$list['id']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id']}})" href="#">
+                                        @if($list['id_estado_usuario']==1)
+                                            <i class="fas fa-trash-alt text-red"></i> Deshabilitar
+                                        @endif
+                                        @if($list['id_estado_usuario']==2)
+                                            <i class="fas fa-plus-circle text-green"></i> Habilitar
+                                        @endif
+                                    </a>
                                  </div>
                             </div>
                         </td>
@@ -512,35 +519,51 @@
 
         }
     }
-    function eliminar_usuario(id)
+    function estado_usuario(id)
     {
-        $(".print-error-msg").hide();
-        var token = $("input[name='_token']").val();
-        $.ajax({
-                url: "usuarios/"+id,
-                type:'PUT',
-                dataType: 'json',
-                data: {_token :token},
-                success: function(data) {
-                    if(data.status == '200')
-                    {
-                        toastr.success("Usuario Actualizado","Aviso!");
-                        autoRefresh();
-                    }
-                    else
-                    {
-                        toastr.error(data.data.comentario,"Aviso!");
-                    }
-                },
-                error: function (e) {
-                    data = e.responseJSON;
-                    //if (typeof data.errors !== 'undefined') {
-                       // printErrorMsg(data.errors);
-                       console.log(e);
-                        printErrorMsg(data);
-                }
-            //}
-        });
+        Swal.fire({
+            title: 'Usuario',
+            text: "¿Quiere cambiar el estado del usuario?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) {
+                console.log(result.isConfirmed);
+                $(".print-error-msg").hide();
+                var token = $("input[name='_token']").val();
+                $.ajax({
+                        url: "usuarios/"+id,
+                        type:'PUT',
+                        dataType: 'json',
+                        data: {_token :token},
+                        success: function(data) {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Usuario Actualizado","Aviso!");
+                                autoRefresh();
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            //if (typeof data.errors !== 'undefined') {
+                            // printErrorMsg(data.errors);
+                            console.log(e);
+                                printErrorMsg(data);
+                        }
+                    //}
+                });
+            }
+        })
+
+
     }
 
     function printErrorMsg(msg) {
