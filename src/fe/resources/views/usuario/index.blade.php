@@ -35,7 +35,7 @@
                 </thead>
                 <tbody>
                     @foreach($lista_usuarios['data'] as $list)
-                    <tr>
+                    <tr @if($list['id_estado_usuario']==2)style="background-color:#e2e2e2"@endif>
                         <td>{{$list['id']}}</td>
                         <td>{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
                         <td>{{$list['run']}}</td>
