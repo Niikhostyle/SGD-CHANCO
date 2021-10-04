@@ -4,85 +4,92 @@
 
 @section('content_header')
 
-    <div class="row">
-        <div class="col-8">
-            <h1>Busqueda de Documentos</h1>
+    
+        <div class="row">
+            <div class="col-8">
+                <h1>Busqueda de Documentos</h1>
+            </div>
+        </div>
+        
+        <div class="linea_content_header"></div>
+        <br>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">   
+                <div class="col-md-4"> 
+                    <input id="name" name="name" class="form-control" type="text" size="" />
+                   
+                </div>
+                <div class="col-md-4" >
+                    <button type="button" id="id_btn_filtrar"><i class="fas fa-search text-blue"></i> </button> 
+                </div> 
+                <div class="col-md-4" >   
+                    <a href="#" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br desplegar_opciones_avanzadas">
+                    <i class="fa fa-angle-double-down "></i> Búsqueda avanzadas</a>
+                    <a href="#" style="display:none" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br cerrar_opciones_avanzadas">
+                    <i class="fa fa-angle-double-up "></i> Búsqueda simple</a>
+                </div>
+            </div> 
         </div>
     </div>
-       
-    <div class="linea_content_header"></div>
-    <br>
-        <div class="row">   
-            <div class="col-8"> 
-                
-                <input id="name" name="name" type="text" size="70"/>
-                <button type="button" class="button small bck success" id="id_btn_filtrar"><i class="fas fa-search text-blue"></i> </button> 
-            </div>
-            <div class="col" >
-                <a href="#" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br desplegar_opciones_avanzadas">
-                <i class="fa fa-angle-double-down "></i> Búsqueda avanzadas</a>
-                <a href="#" style="display:none" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br cerrar_opciones_avanzadas">
-                <i class="fa fa-angle-double-up "></i> Búsqueda simple</a>
-            </div>
-        </div> 
-
-        <div class="card" id="card_opciones_avanzadas" style="display:none">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                        <label for="id_documento">ID Documento: </label>
-                            <input type="text" class="form-control" id="id_documento" required>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="select_tipo_documento">Tipo Documento</label>
-                            <select  class="form-control" id="id_tipo_documento" name="tipo_documento" required>
-                                <option value="">Seleccionar</option>
-                                    <option value="">----------</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="select_buzon_origen">Buzón Orígen</label>
-                            <select  class="form-control" id="id_buzon_origen" name="buzon_origen" required>
-                                <option value="">Seleccionar</option>
-                                    <option value="">Oficio</option>
-                            </select>
-                        </div>
+    <div class="card" id="card_opciones_avanzadas" style="display:none">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                    <label for="id_documento">ID Documento: </label>
+                        <input type="text" class="form-control" id="id_documento" required>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="">Rango de Fechas </label>
-                        
-                            <br>
-                            <input type="date" id="birthday" name="birthday">
-                            <input type="date" id="birthday" name="birthday">
-                        </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="select_tipo_documento" >Tipo Documento</label>
+                        <br>
+                        <select class="form-control" id="tipo_documento" name="tipo_documento" required>
+                            <option value="">Seleccionar</option>
+                                <option value="">----------</option>
+                        </select>
                     </div>
-                    
-                    
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <input type="checkbox" name="Efectos_sobre_terceros" id="id_efectos_sobre_terceros" class="valign middle">
-                            <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
-                        </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="select_buzon_origen">Buzón Orígen</label>
+                        <br>
+                        <select  class="form-control" id="buzon_origen" name="buzon_origen" required>
+                            <option value="">Seleccionar</option>
+                                <option value="">Oficio</option>
+                        </select>
                     </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <br>
-                            <button type="button" class="btn btn-success nuevo_usuario">Buscar</button>
-                        </div>    
-                    </div>
-                </div>    
+                </div>
             </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Rango de Fechas </label>
+                    
+                        <br>
+                        <input type="date" id="birthday" name="birthday">
+                        <input type="date" id="birthday" name="birthday">
+                    </div>
+                </div>
+                
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <input type="checkbox" name="Efectos_sobre_terceros" id="id_efectos_sobre_terceros" class="valign middle">
+                        <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <br>
+                        <button type="button" class="btn btn-success nuevo_usuario">Buscar</button>
+                    </div>    
+                </div>
+            </div>    
         </div>
-    
+    </div>
 @stop
 
 
@@ -166,6 +173,9 @@
                 $(".cerrar_opciones_avanzadas").hide();
                 $(".desplegar_opciones_avanzadas").show();
             });
+
+            $('#buzon_origen').select2();
+            $('#tipo_documento').select2();
             
         })
 </script>
