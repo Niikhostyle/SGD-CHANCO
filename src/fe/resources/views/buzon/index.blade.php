@@ -122,7 +122,7 @@
 @stop
 
 @section('css')
-    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" >
+
     <link rel="stylesheet" href="/css/admin_custom.css">
     <link rel="stylesheet" type="text/css" href="css/bootstrap-duallistbox.css">
 
@@ -149,13 +149,18 @@
             background-image: none;
         }
 
+        .clear1, clear2
+        {
+            display:none;
+        }
+        
+
      </style>
 @stop
 
 @section('js')
 
 <script src="js/jquery.bootstrap-duallistbox.js"></script>
-
 <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
@@ -172,9 +177,10 @@
         filterTextClear: '',
         selectorMinimalHeight:'200',
         infoTextEmpty:'',
-        infoText:'{0}',
+        infoText:'',
         moveSelectedLabel:'Mover Asignados',
-        removeSelectedLabel:'Mover Disponibles'    
+        removeSelectedLabel:'Mover Disponibles',
+        infoTextFiltered: '' 
 
     });         
 
@@ -208,7 +214,7 @@
         asignados.forEach(function(option, index) {
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
 
-            if(modificados[index] == 1)
+            if(modificados[index] == 0)
                 $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
          });
 
