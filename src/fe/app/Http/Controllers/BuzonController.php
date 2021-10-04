@@ -67,7 +67,7 @@ class BuzonController extends Controller
         return View::make('buzon.index',['listado_buzones'=>$aBuzones, 'listado_usuarios'=>$aUsuarios]);
     }
 
-    public function store(Request $request)
+    public function store(StoreBuzon $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
@@ -129,7 +129,7 @@ class BuzonController extends Controller
         return $datosBuzon->json();          
     }
 
-    public function update(Request $request)
+    public function update(StoreBuzon $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 

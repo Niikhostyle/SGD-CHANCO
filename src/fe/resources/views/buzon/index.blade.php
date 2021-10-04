@@ -10,7 +10,7 @@
             <h1>Buzones</h1>
         </div>
         <div class="col">
-            <button type="button" class="btn btn-success nuevo_buzon">Nuevo Buzón</button>
+            <button type="button" class="btn btn-success boton_nuevo">Nuevo Buzón</button>
 
         </div>
       </div>
@@ -149,7 +149,7 @@
             background-image: none;
         }
 
-        .clear1, clear2
+        .clear1, .clear2
         {
             display:none;
         }
@@ -227,16 +227,19 @@
         $('#form_buzon_crear_editar').trigger("reset"); 
         $('#card_buzon_crear_editar').show(); 
         $('select#duallistbox').bootstrapDualListbox('refresh', true);
+        $('#form_buzon_crear_editar').removeClass("was-validated");
 
         if (op == 2)
         {
             $('#titulo_buzon_crear_editar').html('Editar Usuario'); 
+            $('.form-control').prop("disabled", false);
             $('.btn-submit').show();
         }            
         else
         {
             $('#titulo_buzon_crear_editar').html('Ver Usuario'); 
             $('.btn-submit').prop("disabled", false); 
+            $('.form-control').prop("disabled", true);
             $('.btn-submit').hide(); 
         }
 
@@ -266,8 +269,7 @@
                             {
                                 aUsuarios.push(item.id_usuario);
                                 aUsuariosModificar.push(item.permite_modificar);
-                            });
-                            
+                            });                            
 
                             //seleccionar los usuarios asignados
                             //dlb_repopulate(['3', '1']);
@@ -275,7 +277,6 @@
                         } 
                     } 
                     $('.btn-submit').prop("disabled", false); 
-                    //$('.btn-submit').html( 'Actualizar' ); 
                 }, 
                 error: function (e) { 
                     data = e.responseJSON; 
@@ -283,11 +284,8 @@
                         printErrorMsg(data.errors); 
                     } 
                     $('.btn-submit').prop("disabled", false); 
-                    //$('.btn-submit').html( 'Guardar' ); 
                 } 
             }); 
-
-            
     }
 
     function eliminar_buzon(id)
@@ -295,29 +293,43 @@
         $(".print-error-msg").hide(); 
         var token = $("input[name='_token']").val();
 
-        $.ajax({ 
-                url: "buzones/"+id, 
-                type:'DELETE', 
-                dataType: 'json',
-                data: {_token :token},
-                success: function(data) { 
-                    if(data.status == '200')
-                    { 
-                        toastr.success("Buzón eliminado","Aviso!");                     
-                        autoRefresh();
+        Swal.fire({
+            title: 'Buzón',
+            text: "¿Quiere eliminar el buzón?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) 
+            {
+                $.ajax({ 
+                        url: "buzones/"+id, 
+                        type:'DELETE', 
+                        dataType: 'json',
+                        data: {_token :token},
+                        success: function(data) { 
+                            if(data.status == '200')
+                            { 
+                                toastr.success("Buzón eliminado","Aviso!");                     
+                                autoRefresh();
+                            } 
+                            else
+                            {                         
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }                    
+                        }, 
+                        error: function (e) { 
+                            data = e.responseJSON; 
+                            if (typeof data.errors !== 'undefined') { 
+                                printErrorMsg(data.errors); 
+                        }                     
                     } 
-                    else
-                    {                         
-                        toastr.error(data.data.comentario,"Aviso!");
-                    }                    
-                }, 
-                error: function (e) { 
-                    data = e.responseJSON; 
-                    if (typeof data.errors !== 'undefined') { 
-                        printErrorMsg(data.errors); 
-                }                     
-            } 
-        }); 
+                }); 
+            }
+        })        
     }
 
     $('#tabla_buzones_grilla').DataTable({
@@ -328,12 +340,16 @@
         language: lenguaje_datatable
     });
 
-
-    $(".nuevo_buzon").click(function(e){
+    $(".boton_nuevo").click(function(e){
+        
+        $(".print-error-msg").hide();
         $('#form_buzon_crear_editar').trigger("reset");
         $('#titulo_buzon_crear_editar').html('Nuevo Buzón');
         $('#card_buzon_crear_editar').show();
+        $('.form-control').prop("disabled", false);
         $('.btn-submit').show();
+
+        $('#form_buzon_crear_editar').removeClass("was-validated");
         
         $('[name=duallistbox] option').prop('selected', false);
         $('[name=duallistbox] option').prop('disabled', false);
@@ -344,15 +360,28 @@
     $(".btn_cerrar_guardar").click(function(e){
         $('#card_buzon_crear_editar').hide();
         $('#form_buzon_crear_editar').trigger("reset");
+        $(".print-error-msg").hide();
+        $('#form_buzon_crear_editar').removeClass("was-validated");
     });
-
 
     $(".btn-submit").click(function(e){
         e.preventDefault();
+
+        $('.btn-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
+        );
+
         var forms = document.getElementsByClassName('needs-validation');
         var validation = Array.prototype.filter.call(forms, function(form) {
             if (form.checkValidity() === false) {
+                e.preventDefault();
+				e.stopPropagation();
+
                 form.classList.add('was-validated');
+            }
+            
+            if(form.checkValidity() === true){
+                form.classList.remove("was-validated");
             }
         });
 
@@ -396,12 +425,16 @@
                 {
                     toastr.error(data.data.comentario,"Aviso!");                    
                 }
+
+                $('.btn-submit').html( 'Guardar' );
             },
             error: function (e) {
                 data = e.responseJSON;
                 if (typeof data.errors !== 'undefined') {
                     printErrorMsg(data.errors);
                 }
+
+                $('.btn-submit').html( 'Guardar' );
             }
         });             
     });
