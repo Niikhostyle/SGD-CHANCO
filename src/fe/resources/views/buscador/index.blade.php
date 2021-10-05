@@ -7,7 +7,7 @@
     
         <div class="row">
             <div class="col-8">
-                <h1>Busqueda de Documentos</h1>
+                <h1>Buscar Documentos</h1>
             </div>
         </div>
         
@@ -16,14 +16,13 @@
     <div class="card">
         <div class="card-body">
             <div class="row">   
-                <div class="col-md-4"> 
-                    <input id="name" name="name" class="form-control" type="text" size="" />
-                   
+                <div class="col">  
+                    <input id="name" name="name" class="form-control" type="text" size="50" />
                 </div>
-                <div class="col-md-4" >
-                    <button type="button" id="id_btn_filtrar"><i class="fas fa-search text-blue"></i> </button> 
-                </div> 
-                <div class="col-md-4" >   
+                <div class="col">  
+                    <button class="btn btn-light" type="button" id="id_btn_filtrar"><i class="fas fa-search text-blue"></i> </button> 
+                </div>
+                <div class="col" >  
                     <a href="#" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br desplegar_opciones_avanzadas">
                     <i class="fa fa-angle-double-down "></i> Búsqueda avanzadas</a>
                     <a href="#" style="display:none" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br cerrar_opciones_avanzadas">
@@ -104,8 +103,8 @@
                         <th>Fecha</th>
                         <th>TD</th>
                         <th>Folio</th>
-                        <th>Búzon origen</th>
-                        <th>Búzon Actual</th>
+                        <th>Buzón origen</th>
+                        <th>Buzón Actual</th>
                         <th>Materia</th>
                         <th>Acciones</th>
                         <th></th>
