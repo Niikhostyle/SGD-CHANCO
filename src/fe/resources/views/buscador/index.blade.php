@@ -16,13 +16,14 @@
     <div class="card">
         <div class="card-body">
             <div class="row">   
-                <div class="col">  
+                <div class="col-md-4">  
                     <input id="name" name="name" class="form-control" type="text" size="50" />
+
                 </div>
-                <div class="col">  
+                <div class="col-md-4">  
                     <button class="btn btn-light" type="button" id="id_btn_filtrar"><i class="fas fa-search text-blue"></i> </button> 
                 </div>
-                <div class="col" >  
+                <div class="col-md-4" >  
                     <a href="#" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br desplegar_opciones_avanzadas">
                     <i class="fa fa-angle-double-down "></i> Búsqueda avanzadas</a>
                     <a href="#" style="display:none" class="bck white text small padding-left padding-right border-left border-bottom border-right radius-bl radius-br cerrar_opciones_avanzadas">
