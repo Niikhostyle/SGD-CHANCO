@@ -12,8 +12,16 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+$router->get('/api/sgd-tipodoc/ver_todos', 'TipoDocumentoController@ver_todos'); 
+$router->post('/api/sgd-tipodoc/crear', 'TipoDocumentoController@crear');
+    
+$router->group(['middleware' => ['auth']], function () use ($router){
 
-$router->get('/api/sgd-tipodoc', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen tipo documentos";
+
+    
 });
+
+
+//$router->get('/api/sgd-tipodoc', function () use ($router) {
+//    return "prueba lumen tipo documentos";
+//});
