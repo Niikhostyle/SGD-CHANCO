@@ -22,7 +22,7 @@ class BuzonController extends Controller
             'texto_busqueda' => '',
         ]), 'json')
         ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
-        
+
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
 
@@ -40,7 +40,7 @@ class BuzonController extends Controller
                     unset($aBuzones[$key]);
             }
         }
-        
+
         //listado de usuarios
 
         $listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -67,42 +67,42 @@ class BuzonController extends Controller
         return View::make('buzon.index',['listado_buzones'=>$aBuzones, 'listado_usuarios'=>$aUsuarios]);
     }
 
-    public function store(Request $request)
+    public function store(StoreBuzon $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $aUsuarios = [];
-        
+
         if (isset($request->usuarios_asignados))
         {
             foreach ($request->usuarios_asignados as $usuario)
                 $aUsuarios[] = ['id_usuario' => $usuario];
 
         }
-        
+
         $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [            
+        ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
             'usuarios_asignados'=> $aUsuarios
         ]);
 
-        return $accionBuzon->json();        
+        return $accionBuzon->json();
     }
 
     public function show($id)
-    {        
-        $sesion_key =  AppServiceProvider::session_key_general(); 
-        
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
         $datosBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30) 
+        ->timeout(30)
         ->withBody(json_encode([
             'id_buzon' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/ver'); 
-  
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/ver');
+
         //listado de usuarios
 
         $listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -126,25 +126,25 @@ class BuzonController extends Controller
             }
         }
 
-        return $datosBuzon->json();          
+        return $datosBuzon->json();
     }
 
-    public function update(Request $request)
+    public function update(StoreBuzon $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $aUsuarios = [];
 
         if (isset($request->usuarios_asignados))
-        {   
+        {
             foreach ($request->usuarios_asignados as $usuario)
                 $aUsuarios[] = ['id_usuario' => $usuario];
         }
 
         $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->put('http://sgd_ms_buzones:3333/api/sgd-buzones/actualizar', [ 
-            'id_buzon'=>$request->hiddBuzon,           
+        ->put('http://sgd_ms_buzones:3333/api/sgd-buzones/actualizar', [
+            'id_buzon'=>$request->hiddBuzon,
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
@@ -155,16 +155,23 @@ class BuzonController extends Controller
     }
 
     public function delete($id)
-    {        
-        $sesion_key = AppServiceProvider::session_key_general(); 
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
         $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30) 
+        ->timeout(30)
         ->withBody(json_encode([
             'id_buzon' => $id,
         ]), 'json')
-        ->delete('http://sgd_ms_buzones:3333/api/sgd-buzones/eliminar');   
-        
-        return $accionBuzon->json();          
+        ->delete('http://sgd_ms_buzones:3333/api/sgd-buzones/eliminar');
+
+        return $accionBuzon->json();
     }
+
+    public function carpetas($id){
+
+        $nombre_buzon="Personal";
+        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon]);
+    }
+
 
 }
