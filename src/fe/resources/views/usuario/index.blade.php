@@ -227,10 +227,11 @@
             language: lenguaje_datatable
         });
 
-
         $(".nuevo_usuario").click(function(e){
             $('.btn-acciones-guardar-editar').hide();
             $('#titulo_usuario_crear_editar').html('Nuevo Usuario');
+            $(".print-error-msg").hide();
+            $('#form_usuario_crear_editar').removeClass("was-validated");
             $('#form_usuario_crear_editar').trigger("reset");
             $('.form-control').prop("disabled", false);
             $('#card_usuario_crear_editar').show();
@@ -238,15 +239,11 @@
             $('#form_run').focus();
         });
 
-
-
         $(".btn_cerrar_guardar").click(function(e){
             $('#card_usuario_crear_editar').hide();
             $('#form_usuario_crear_editar').trigger("reset");
             $(".print-error-msg").hide();
         });
-
-
 
         $(".btn-actualizar").click(function(e){
             e.preventDefault();
@@ -388,7 +385,6 @@
 
 
         });
-
 
         // botones de la tabla
         $(document).on('click', '#btnEdit', function () {
