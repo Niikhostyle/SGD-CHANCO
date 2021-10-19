@@ -17,9 +17,9 @@ class TipoDocumentoBuzon extends Model{
         return $this->belongsTo(TipoDocumento::class, 'id_tipo_documento', 'id_tipo_documento');
     }
 
-    public function tipo_doc_buzon_accion()
+    public function acciones()
     {
-        return $this->hasMany(TipoDocumentoBuzonAccion::class, 'id_tipo_documento_buzon', 'id_tipo_documento_buzon');//->select(['id_buzon'])
+        return $this->hasMany(TipoDocumentoBuzonAccion::class, 'id_tipo_documento_buzon', 'id_tipo_documento_buzon')->select(['id_accion']);
     } 
 
 }
