@@ -472,6 +472,7 @@
         if (tipo_flujo == 2 || tipo_flujo == 3)
         {
             var datosBuzonFlujo = [];
+            
 
             for (let i = 1; i <= orden; i++)
             {
@@ -479,26 +480,34 @@
                     return this.value;
                 }).get();
                 
-                var str = arr.join(',');
+                var str = arr.join(',');                
+                
+                let datosAcciones = [];
 
-                var columnasA = {
+                for (let j = 0; j < arr.length; j++)
+                {
+                    var filAcciones = { 
+                        "id_accion": arr[j] 
+                    }
+                    
+                    datosAcciones.push(filAcciones);
+                }
+               
+                var filaBuzones = {
                     "id_buzon":$("input[name='hiddIdBuzon_"+i+"']").val(),
                     "orden":$("input[name='hiddIdOrden_"+i+"']").val(),
-                    "acciones":str
+                    "acciones": datosAcciones
                 }
 
-                datosBuzonFlujo.push(columnasA);
+                datosBuzonFlujo.push(filaBuzones);
 
-            //console.log(str); 3,5,6,9
-            // console.log(JSON.stringify(arr)); ["3","5","6","9"]
-                 
-            }              
+            }  
+            //console.log(datosBuzonFlujo);
+            //console.log(JSON.stringify(datosBuzonFlujo));          
         }
-
-        var buzones_flujo = {};
-        buzones_flujo.datosBuzonFlujo = datosBuzonFlujo;
-
-        console.log(buzones_flujo);
+//"buzones_flujo":[{"id_buzon":"41","orden":"1","acciones":[{"id_accion":"1"},{"id_accion":"3"}]},{"id_buzon":"42","orden":"2","acciones":[{"id_accion":"1"}]}]
+        //datosBuzonFlujo = JSON.stringify(datosBuzonFlujo);
+        
         var hiddTipoDocumento = $("input[name='hiddTipoDocumento']").val();
 
         if (hiddTipoDocumento == '') //crear
@@ -515,6 +524,8 @@
         $.ajax({
             url: urlAccion,
             type: typeAccion,
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded',
             data: { 
                     _token:_token, 
                     nombre:nombre, 
@@ -524,8 +535,9 @@
                     tipo_flujo:tipo_flujo,
                     tipo_folio:tipo_folio,
                     tipo_avance:tipo_avance,
-                    tipo_asignacion_folio:tipo_asignacion_folio,
-                    buzones_flujo:buzones_flujo,
+                    tipo_asignacion_folio:tipo_asignacion_folio,  
+                    requiere_fe:requiere_fe,                  
+                    bzs_flujo:datosBuzonFlujo,
                     hiddTipoDocumento:hiddTipoDocumento
                   },
             success: function(data) 

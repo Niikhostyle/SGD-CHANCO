@@ -123,15 +123,6 @@ class TipoDocumentoController extends Controller
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
-        $aBuzonesFlujo = [];
-/*
-        if (isset($request->buzones_flujo))
-        {
-            foreach ($request->buzones_flujo as $usuario)
-                $aBuzonesFlujo[] = ['id_usuario' => $usuario];
-
-        }
-*/
         $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
         ->post('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/crear', [
@@ -144,7 +135,7 @@ class TipoDocumentoController extends Controller
             'id_tipo_avance'=>$request->tipo_avance,
             'id_tipo_asignacion_folio'=>$request->tipo_asignacion_folio,
             'requiere_fe'=>$request->requiere_fe,
-            'buzones_flujo'=>$aBuzonesFlujo            
+            'buzones_flujo'=>$request->bzs_flujo       
             
         ]);
 
