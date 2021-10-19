@@ -225,24 +225,7 @@ return [
     */
 
     'menu' => [
-        [
-            'text' => 'ADMINISTRACIÓN',
-            'icon'    => 'fas fa-users-cog',
-            'submenu' => [
-                [
-                    'text'       => 'Usuarios',
-                    'icon'    => 'fas fa-fw fa-user',
-                    'icon_color' => 'red',
-                    'url'        => '/usuarios',
-                ],
-                [
-                    'text'       => 'Buzones',
-                    'icon'    => 'fas fa-fw fa-th-list',
-                    'icon_color' => 'yellow',
-                    'url'        => '/buzones',
-                ],
-            ],
-        ],
+
         // Navbar items:
        /* [
             'type'         => 'navbar-search',
@@ -317,54 +300,6 @@ return [
             ],
         ],
         */
-        [
-        'text' => 'BUZONES',
-        'icon'    => 'fas fa-fw fa-th-list',
-        'submenu' => [
-            [
-                'text'       => 'Personal',
-                'icon'    => 'fas fa-fw fa-clipboard',
-                'icon_color' => 'red',
-                'url'        => '#',
-                'label'     => 4,
-                'label_color'=>'success'
-            ],
-            [
-                'text'       => 'Tránsito',
-                'icon'    => 'fas fa-fw fa-archive',
-                'icon_color' => 'yellow',
-                'url'        => '#',
-                'label'     => 3,
-                'label_color'=>'success'
-            ],
-            [
-                'text'       => 'Alcaldia',
-                'icon'    => 'fas fa-fw fa-archive',
-                'icon_color' => 'cyan',
-                'url'        => '#',
-                'label'     => 5,
-                'label_color'=>'success'
-            ],
-            ],
-        ],
-        [
-            'text' => 'HERRAMIENTAS',
-            'icon'    => 'fas fa-fw fa-cogs',
-            'submenu' => [
-                [
-                    'text'       => 'Buscar Documentos',
-                    'icon'    => 'fas fa-fw fa-search',
-                    'icon_color' => 'red',
-                    'url'        => '/buscador',
-                ],
-                [
-                    'text'       => 'Favoritos',
-                    'icon'    => 'fas fa-fw fa-star',
-                    'icon_color' => 'yellow',
-                    'url'        => '#',
-                ],
-            ],
-        ],
     ],
 
     /*

@@ -95,7 +95,15 @@
                                 </table>
                                 {{-- Pagination --}}
                                 <div class="d-flex justify-content-center">
-                                    {{--!! $lista_por_recibir->links() !!--}}
+                                    <table class="table dt-responsive nowrap" style="width:100%" id="users-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Nombres</th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
                                 </div>
 
 
@@ -247,7 +255,6 @@
 @section('css')
 
     <link rel="stylesheet" href="/css/admin_custom.css">
-    <link rel="stylesheet" type="text/css" href="css/bootstrap-duallistbox.css">
 
 
 @stop
@@ -258,6 +265,26 @@
 <script>
  $(document).ready(function () {
     $(".nuevo_documento").prop("disabled", true);
+
+    $(function() {
+        $('#users-table').DataTable({
+            processing: true,
+            serverSide: true,
+           // ajax: '{!! route('datatables.data') !!}',
+            ajax: 'https://127.0.0.1:451/api/sgd-usuarios/listado',
+            type:'json',
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true,
+            language: lenguaje_datatable,
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'nombres', name: 'nombres' },
+                { data: 'email', name: 'email' }
+            ]
+        });
+    });
  });
 
 function cambio_texto_boton_carpetas(texto){
