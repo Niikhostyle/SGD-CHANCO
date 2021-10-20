@@ -13,6 +13,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
@@ -69,6 +70,7 @@ class BuzonController extends Controller
                     unset($aUsuarios[$key]);
             }
         }
+
 
         return View::make('buzon.index',['listado_buzones'=>$aBuzones, 'listado_usuarios'=>$aUsuarios]);
     }
@@ -251,9 +253,32 @@ class BuzonController extends Controller
      // $orders_to_show = $this->paginate($User);
 
 
+     $n_docs_por_recibir=0;
+        $n_docs_recibidos_pendientes=0;
+        $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)
+            ->withBody(json_encode([
+                'id_usuario' => Auth::user()->id,
+            ]), 'json')
+            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
+        if(isset($menuBuzon['data'])){
+            foreach ($menuBuzon['data'] as $key => $value)
+            {
+                if($value['id_buzon']==$id){
+                    $n_docs_por_recibir=$value['n_docs_por_recibir'];
+                    $n_docs_recibidos_pendientes=$value['n_docs_recibidos_pendientes'];
+                }
+            }
+        }
 
 
-        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon,'lista_por_recibir'=>$lista_por_recibir,'perfiles'=>$perfiles_datos,'estados_usuario'=>$estados_usuario]);
+        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon,
+        'lista_por_recibir'=>$lista_por_recibir,
+        'perfiles'=>$perfiles_datos,
+        'estados_usuario'=>$estados_usuario,
+        'n_docs_por_recibir'=>$n_docs_por_recibir,
+        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes
+        ]);
     }
 
 

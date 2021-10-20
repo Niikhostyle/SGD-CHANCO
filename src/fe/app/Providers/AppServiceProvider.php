@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Facades\Http;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -75,16 +77,62 @@ class AppServiceProvider extends ServiceProvider
             }
             $submenu_buzones_usuarios=[];
 
-            array_push($submenu_buzones_usuarios,
-            [
-                'text'       => 'Personal',
-                'icon'    => 'fas fa-fw fa-clipboard',
-                'icon_color' => 'red',
-                'url'        => '#',
-                'label'     => 4,
-                'label_color'=>'success'
-            ]);
-            array_push($submenu_buzones_usuarios,
+            $sesion_key =  AppServiceProvider::session_key_general();
+
+            $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)
+            ->withBody(json_encode([
+                'id_usuario' => Auth::user()->id,
+            ]), 'json')
+            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
+
+            if($menuBuzon->failed()){
+
+            }else{
+
+                $buzones = $menuBuzon['data'];
+                $colores = ['red','yellow','cyan','green','purple', 'blue', 'orange'];
+                foreach ($buzones as $key => $value)
+                {
+                    /*"id_buzon": 3,
+                    "nombre_buzon": "Personal",
+                    "nombre_corto_buzon": "PRSNAL",
+                    "tipo_buzon": 1,
+                    "n_docs_por_recibir": 4,
+                    "n_docs_recibidos_pendientes": 2*/
+                  $icon = 'fas fa-fw fa-archive';
+                  $seleccion_color= array_rand($colores,1);
+                  if($value['nombre_buzon']=='Personal'){
+                    $icon = 'fas fa-fw fa-clipboard';
+                  }
+                  if($value['n_docs_por_recibir']>0){
+                    array_push($submenu_buzones_usuarios,
+                    [
+                            'text'       => $value['nombre_buzon'],
+                            'icon'    => $icon,
+                            'icon_color' => $colores[$seleccion_color],
+                            'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon'],
+                            'label'     => $value['n_docs_por_recibir'],
+                            'label_color'=>'success'
+                    ]);
+                  }else{
+                    array_push($submenu_buzones_usuarios,
+                    [
+                            'text'       => $value['nombre_buzon'],
+                            'icon'    => $icon,
+                            'icon_color' => $colores[$seleccion_color],
+                            'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon']
+                    ]);
+                  }
+
+                }
+
+
+
+            }
+
+
+            /*array_push($submenu_buzones_usuarios,
             [
                 'text'       => 'Tránsito',
                     'icon'    => 'fas fa-fw fa-archive',
@@ -101,7 +149,7 @@ class AppServiceProvider extends ServiceProvider
                 'url'        => '#',
                 'label'     => 5,
                 'label_color'=>'success'
-            ]);
+            ]);*/
 
 
             $event->menu->add(
