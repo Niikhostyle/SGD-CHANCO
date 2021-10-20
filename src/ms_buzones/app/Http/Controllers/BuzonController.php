@@ -6,14 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Buzon;
 use App\Models\Users;
 use App\Models\BuzonUsuario;
-use App\Model\DocumentoBuzon;
+use App\Models\DocumentoBuzon;
 use App\Validator\BuzonValidator;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\TryCatch;
 
 class BuzonController extends Controller{
 
-    
+
     /**
      * @BuzonValidator
      */
@@ -28,10 +28,10 @@ class BuzonController extends Controller{
     {
         if($request->isJson())
         {
-            try 
+            try
             {
                 $datosRequest = $request->json()->all();
-                
+
                 $validator = $this->validator->validateFieldBuzon($datosRequest);
                 if ($validator->fails())
                     return $this->respondFail('Falla al obtener buzón: revisar datos de entrada');
@@ -44,22 +44,22 @@ class BuzonController extends Controller{
                 foreach ($datosBuzon->usuarios_asignados as $datoUsuario)
                 {
                     if ($bExisteDocBuzon > 0)
-                        $datoUsuario['permite_modificar'] = 0; 
+                        $datoUsuario['permite_modificar'] = 0;
                     else
-                        $datoUsuario['permite_modificar'] = 1; 
+                        $datoUsuario['permite_modificar'] = 1;
                 }
-            
+
 
                 unset($datosBuzon['documentos_buzon']);
-                
+
                 return $this->respondSuccess($datosBuzon, 200);
-            }  
-            catch (ModelNotFoundException $e) 
+            }
+            catch (ModelNotFoundException $e)
             {
                 return $this->respondError('No existe buzón', 500);
-            } 
+            }
         }
-        else 
+        else
             return $this->respondError('Json inválido', 406);
     }
 
@@ -67,38 +67,38 @@ class BuzonController extends Controller{
     {
         if($request->isJson())
         {
-            try 
+            try
             {
                 $datosRequest = $request->json()->all();
 
                 $datosSearchBuzon = Buzon::where('nombre', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->orWhere('nombre_corto', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->get(["id_buzon","id_tipo_buzon","nombre","nombre_corto"]);
-                
+
                 foreach($datosSearchBuzon as $datos)
                 {
                     $nCountFea = 0;
-                    foreach ($datos->usuarios_asignados as $datosUsuario) 
-                    {                       
-                        $aInfoUsuarios = Users::where('id', $datosUsuario['id_usuario'])->first(['aplica_fea']); 
+                    foreach ($datos->usuarios_asignados as $datosUsuario)
+                    {
+                        $aInfoUsuarios = Users::where('id', $datosUsuario['id_usuario'])->first(['aplica_fea']);
 
                         if ($aInfoUsuarios['aplica_fea'])
-                            $nCountFea++;   
+                            $nCountFea++;
                     }
 
                     $datos['total_us_asignados'] = count($datos->usuarios_asignados);
-                    $datos['total_us_fea'] = $nCountFea;  
+                    $datos['total_us_fea'] = $nCountFea;
                 }
 
                 if (!$datosSearchBuzon->first())
                    return $this->respondError('No se encontraron buzones', 500);
-                
+
                 return $this->respondSuccess($datosSearchBuzon, 200);
-            }  
-            catch (ModelNotFoundException $e) 
+            }
+            catch (ModelNotFoundException $e)
             {
                 return $this->respondError('No se encontraron buzones', 500);
-            } 
+            }
         }
-        else 
+        else
             return $this->respondError('Json inválido', 406);
     }
 
@@ -116,52 +116,52 @@ class BuzonController extends Controller{
 
                 if ($validator->fails())
                     return $this->respondFail('Falla al crear buzón: revisar datos de entrada');
-                
-                $datosUsuario = $datosBuzon['usuarios_asignados'];    
+
+                $datosUsuario = $datosBuzon['usuarios_asignados'];
                 //opcion de crear buzon sin usuarios
 
                 if(count($datosUsuario) > 0)
                 {
-                    foreach ($datosUsuario as $datos) 
+                    foreach ($datosUsuario as $datos)
                     {
                         $aUsuarios[] = $datos['id_usuario'];
 
                         $validator = $this->validator->validateFieldUser($datos);
                         if ($validator->fails())
                             return $this->respondFail('Falla al crear buzón: revisar usuarios asignados');
-                        
-                        $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+
+                        $datoUsuario = Users::findOrFail($datos['id_usuario']);
                     }
 
                     if (count($datosUsuario) != count(array_unique($aUsuarios)))
                         return $this->respondFail('Falla al crear buzón: usuarios asignados repetidos');
 
-                    if (count($datosUsuario) > 1 && $datosBuzon['tipo_buzon'] == 1)   
-                        return $this->respondFail('Falla al crear buzón: asignacion de usuarios'); 
+                    if (count($datosUsuario) > 1 && $datosBuzon['tipo_buzon'] == 1)
+                        return $this->respondFail('Falla al crear buzón: asignacion de usuarios');
                 }
 
                 $buzon = Buzon::create([
                     'nombre' => $datosBuzon['nombre_buzon'],
                     'nombre_corto' => $datosBuzon['nombre_corto_buzon'],
-                    'id_tipo_buzon' => $datosBuzon['tipo_buzon'] 
-                ]);                 
-                
-                foreach ($datosUsuario as $datos) 
-                {   
+                    'id_tipo_buzon' => $datosBuzon['tipo_buzon']
+                ]);
+
+                foreach ($datosUsuario as $datos)
+                {
                     $buzonUsuario = BuzonUsuario::create([
                         'id_buzon' => $buzon->id_buzon,
                         'id_usuario' => $datos['id_usuario']
-                    ]);                    
-                }   
+                    ]);
+                }
 
                 $buzon->usuarios_asignados;
-                
+
                 DB::commit();
 
                 return $this->respondSuccess($buzon, 201);
-                
+
             }
-            catch (ModelNotFoundException $e) 
+            catch (ModelNotFoundException $e)
             {
                 DB::rollBack();
 
@@ -170,13 +170,13 @@ class BuzonController extends Controller{
         }
         else
             return $this->respondError('Json inválido', 406);
-        
+
     }
 
     public function actualizar(Request $request){
 
-        if ($request->isJson()) 
-        {          
+        if ($request->isJson())
+        {
             try {
 
                 DB::beginTransaction();
@@ -188,57 +188,57 @@ class BuzonController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
 
-                $datosUsuario = $datosRequest['usuarios_asignados'];  
+                $datosUsuario = $datosRequest['usuarios_asignados'];
 
                 if(count($datosUsuario) > 0)
                 {
-                    foreach ($datosUsuario as $datos) 
+                    foreach ($datosUsuario as $datos)
                     {
                         $aUsuarios[] = $datos['id_usuario'];
 
                         $validator = $this->validator->validateFieldUser($datos);
                         if ($validator->fails())
                             return $this->respondFail('Falla al actualizar buzón: revisar usuarios asignados');
-                        
-                        $datoUsuario = Users::findOrFail($datos['id_usuario']);                  
+
+                        $datoUsuario = Users::findOrFail($datos['id_usuario']);
                     }
 
                     if (count($datosUsuario) != count(array_unique($aUsuarios)))
                         return $this->respondFail('Falla al actualizar buzón: usuarios asignados repetidos');
 
-                    if (count($datosUsuario) > 1 && $datosRequest['tipo_buzon'] == 1)   
-                        return $this->respondFail('Falla al actualizar buzón: asignacion de usuarios'); 
+                    if (count($datosUsuario) > 1 && $datosRequest['tipo_buzon'] == 1)
+                        return $this->respondFail('Falla al actualizar buzón: asignacion de usuarios');
                 }
 
                 $datoBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','id_tipo_buzon']);
-                
+
                 $datoBuzon->nombre = $datosRequest['nombre_buzon'];
                 $datoBuzon->nombre_corto = $datosRequest['nombre_corto_buzon'];
                 $datoBuzon->id_tipo_buzon = $datosRequest['tipo_buzon'];
 
                 $datoBuzon->save();
-                
+
                 $datoBuzon->usuarios_asignados()->delete();
 
-                foreach ($datosUsuario as $datos) 
-                {                                 
+                foreach ($datosUsuario as $datos)
+                {
                     $buzonUsuario = BuzonUsuario::create([
                         'id_buzon' => $datoBuzon->id_buzon,
                         'id_usuario' => $datos['id_usuario']
-                    ]);     
-                }  
+                    ]);
+                }
 
-                $datoBuzon->usuarios_asignados;               
+                $datoBuzon->usuarios_asignados;
 
-                DB::commit();   
+                DB::commit();
 
-                return $this->respondSuccess($datoBuzon, 200);                
+                return $this->respondSuccess($datoBuzon, 200);
 
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
 
-                return $this->respondError('Falla al actualizar buzón:' . $e->getMessage(), 500);                
-            }            
+                return $this->respondError('Falla al actualizar buzón:' . $e->getMessage(), 500);
+            }
         }
         else
             return $this->respondError('Json inválido', 406);
@@ -247,9 +247,9 @@ class BuzonController extends Controller{
 
     public function eliminar(Request $request)
     {
-        if ($request->isJson()) 
+        if ($request->isJson())
         {
-            try 
+            try
             {
                 DB::beginTransaction();
 
@@ -261,31 +261,76 @@ class BuzonController extends Controller{
                     return $this->respondFail('Falla al eliminar buzón: revisar datos de entrada');
 
                 $datoBuzon = Buzon::findOrFail($datosRequest['id_buzon']);
-                
+
                 if (count($datoBuzon->usuarios_asignados) == 0)
                 {
                     $datoBuzon->usuarios_asignados()->delete();
                     $datoBuzon->delete();
                 }
                 else
-                return $this->respondError('Falla al eliminar buzón: existen datos relacionados', 500);         
+                return $this->respondError('Falla al eliminar buzón: existen datos relacionados', 500);
 
                 DB::commit();
 
-                return $this->respondSuccess('Buzón eliminado con éxito', 200);         
-            } 
-            catch (ModelNotFoundException $e) 
+                return $this->respondSuccess('Buzón eliminado con éxito', 200);
+            }
+            catch (ModelNotFoundException $e)
             {
                 DB::rollBack();
 
-                return $this->respondError('Falla al eliminar buzón:' . $e->getMessage(), 500);  
+                return $this->respondError('Falla al eliminar buzón:' . $e->getMessage(), 500);
             }
-        } 
+        }
         else
             return $this->respondError('Json inválido', 406);
-   
+
     }
 
-    
+    public function menu(Request $request){
+        if($request->isJson())
+        {
+            try
+            {
+                $datosRequest = $request->json()->all();
+
+                $validator = $this->validator->validateFieldUser($datosRequest);
+                if ($validator->fails())
+                    return $this->respondFail('Falla al obtener buzón: revisar datos de entrada');
+
+
+                $datosBuzon = BuzonUsuario::where('id_usuario','=', $datosRequest['id_usuario'])->get();
+
+                $arreglo_datos_enlazados =[];
+                foreach ($datosBuzon as $buzon)
+                {
+                    $documento_buzon_por_recibir = DocumentoBuzon::where('id_carpeta','=','1')
+                    ->where('id_estado_documento','=','3')
+                    ->where('id_buzon','=',$buzon->buzon->id_buzon)
+                    ->get();
+                    $documento_buzon_recibidos_pendientes = DocumentoBuzon::where('id_carpeta','=','2')
+                    ->where('id_estado_documento','=','4')
+                    ->where('id_buzon','=',$buzon->buzon->id_buzon)
+                    ->get();
+
+                    array_push($arreglo_datos_enlazados,[
+                        'id_buzon'=>$buzon->buzon->id_buzon,
+                        'nombre_buzon'=>$buzon->buzon->nombre,
+                        'nombre_corto_buzon'=>$buzon->buzon->nombre_corto,
+                        'tipo_buzon'=>$buzon->buzon->id_tipo_buzon,
+                        'n_docs_por_recibir'=>count($documento_buzon_por_recibir),
+                        'n_docs_recibidos_pendientes'=>count($documento_buzon_recibidos_pendientes)
+                    ]) ;
+                }
+
+                return $this->respondSuccess($arreglo_datos_enlazados, 200);
+            }
+            catch (ModelNotFoundException $e)
+            {
+                return $this->respondError('No existe buzón', 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+    }
 
 }

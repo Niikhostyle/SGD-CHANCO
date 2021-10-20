@@ -17,14 +17,14 @@ use App\Http\Controllers\BuzonController;
 
 $router->group(['middleware' => ['auth']], function () use ($router){
     $router->get('/api/sgd-buzones/listar_todos', 'BuzonController@listar_todos');
-    $router->post('/api/sgd-buzones/crear', 'BuzonController@crear');  
-    $router->put('/api/sgd-buzones/actualizar', 'BuzonController@actualizar');  
-    $router->delete('/api/sgd-buzones/eliminar', 'BuzonController@eliminar'); 
-    $router->get('/api/sgd-buzones/ver', 'BuzonController@ver');           
+    $router->post('/api/sgd-buzones/crear', 'BuzonController@crear');
+    $router->put('/api/sgd-buzones/actualizar', 'BuzonController@actualizar');
+    $router->delete('/api/sgd-buzones/eliminar', 'BuzonController@eliminar');
+    $router->get('/api/sgd-buzones/ver', 'BuzonController@ver');
+    $router->get('/api/sgd-buzones/menu', 'BuzonController@menu');
 });
 
 
-       
 
 /*
 $router->get('/api/sgd-buzones', function () use ($router) {
