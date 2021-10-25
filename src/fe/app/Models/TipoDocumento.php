@@ -10,23 +10,4 @@ class TipoDocumento extends Model{
 
     protected $hidden = ['created_at', 'updated_at'];
 
-    public function tipo_origen()
-    {
-        return $this->belongsTo(TipoOrigen::class, 'id_tipo_origen', 'id_tipo_origen')->select(['nombre']);
-    }
-/*
-    protected $fillable = [
-        
-    ];
-
-    public function usuarios_asignados()
-    {
-        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon')->select(['id_usuario']);
-    } 
-
-    public function documentos_buzon()
-    {
-        return $this->hasMany(DocumentoBuzon::class, 'id_buzon', 'id_buzon');
-    } 
-    */
 }

@@ -60,23 +60,24 @@ class TipoDocumentoController extends Controller
         $aFlujoAccionT2[] = array("title" => "Orden", "id" => "");
         $aFlujoAccionT2[] = array("title" => "Buzón", "id" => "");
 
-        $aFlujoAccionT3[] = array("title" => "Orden");
-        $aFlujoAccionT3[] = array("title" => "Buzón");
+        $aFlujoAccionT3[] = array("title" => "Orden", "id" => "");
+        $aFlujoAccionT3[] = array("title" => "Buzón", "id" => "");
 
         foreach ($datosFlujoAccion as $dato)
         {
             if ($dato['id_tipo_flujo'] == 2) //Controlado
             {
                 $aFlujoAccionT2[] = array("title" => $aAcciones[$dato['id_accion']], "id" => $dato['id_accion']);    
-                $aAccionT2[] = array($dato['id_accion'] => $aAcciones[$dato['id_accion']]);
             }
 
             if ($dato['id_tipo_flujo'] == 3) //Mixto
             {
-                $aFlujoAccionT3[] = array("title" => $aAcciones[$dato['id_accion']]);    
-                $aAccionT3[$dato['id_accion']] = $aAcciones[$dato['id_accion']];
+                $aFlujoAccionT3[] = array("title" => $aAcciones[$dato['id_accion']], "id" => $dato['id_accion']);    
             }  
         }
+
+        $aFlujoAccionT2[] = array("title" => "Acciones", "id" => "");
+        $aFlujoAccionT3[] = array("title" => "Acciones", "id" => "");
 
         $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
@@ -103,19 +104,28 @@ class TipoDocumentoController extends Controller
             }
         }
         
+        $aOrigen = [];
+        foreach ($datosOrigen as $origen){
+            $aOrigen[$origen['id_tipo_origen']] = $origen['nombre'];
+        }
+
+        $aFlujo = [];
+        foreach ($datosFlujo as $flujo){
+            $aFlujo[$flujo['id_tipo_flujo']] = $flujo['nombre'];
+        }
 
         return View::make('tipo_documento.index', [
             'listado_tiposdoc'=>$datosTipoDoc,
             'listado_buzones'=>$aBuzones,
             'datosFlujo'=>$datosFlujo,
             'datosOrigen'=>$datosOrigen,
+            'aOrigen'=>$aOrigen,
+            'aFlujo'=>$aFlujo,
             'datosAvance'=>$datosAvance,
             'datosFolio'=>$datosFolio,
             'datosAsignacionFolio'=>$datosAsignacionFolio,
             'acciones_tipoflujo2'=>$aFlujoAccionT2,
-            'acciones_tipoflujo3'=>$aFlujoAccionT3,
-            'accionesT2'=>$aAccionT2,
-            'accionesT3'=>$aAccionT3
+            'acciones_tipoflujo3'=>$aFlujoAccionT3 
         ]);
     }
 
@@ -135,11 +145,54 @@ class TipoDocumentoController extends Controller
             'id_tipo_avance'=>$request->tipo_avance,
             'id_tipo_asignacion_folio'=>$request->tipo_asignacion_folio,
             'requiere_fe'=>$request->requiere_fe,
+            'plantilla_encabezado'=>$request->plantilla_encabezado,
+            'plantilla_cuerpo'=>$request->plantilla_cuerpo,
             'buzones_flujo'=>$request->bzs_flujo       
             
         ]);
 
         return $accionTipoDoc->json();
     }
+
+    public function show($id)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_tipo_documento' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
+
+        return $datosTipoDoc->json();
+    }
+
+    public function update(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->put('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/actualizar', [
+            'id_tipo_documento'=>$request->hiddTipoDocumento,
+            'nombre'=>$request->nombre,
+            'nombre_corto'=>$request->nombre_corto,
+            'descripcion'=>$request->descripcion,
+            'id_tipo_origen'=>$request->tipo_origen,
+            'id_tipo_flujo'=>$request->tipo_flujo,
+            'id_tipo_folio'=>$request->tipo_folio,
+            'id_tipo_avance'=>$request->tipo_avance,
+            'id_tipo_asignacion_folio'=>$request->tipo_asignacion_folio,
+            'requiere_fe'=>$request->requiere_fe,
+            'plantilla_encabezado'=>$request->plantilla_encabezado,
+            'plantilla_cuerpo'=>$request->plantilla_cuerpo,
+            'buzones_flujo'=>$request->bzs_flujo       
+            
+        ]);
+
+        return $accionTipoDoc->json();
+    }
+
 
 }

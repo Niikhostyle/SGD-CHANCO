@@ -35,8 +35,8 @@
                     @foreach($listado_tiposdoc as $list)
                     <tr>
                         <td>{{$list['nombre']}}</td>
-                        <td>{{$list['id_tipo_origen']}}</td>
-                        <td>{{$list['id_tipo_flujo']}}</td>
+                        <td>{{$aOrigen[$list['id_tipo_origen']]}}</td>
+                        <td>{{$aFlujo[$list['id_tipo_flujo']]}}</td>
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -44,7 +44,7 @@
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn_ver" onclick="ver_tipodoc()" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item btn_editar" onclick="ver_tipodoc()" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
+                                     <a class="dropdown-item btn_editar" onclick="ver_tipodoc({{$list['id_tipo_documento']}},2)" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
                                      <a class="dropdown-item" onclick="eliminar_tipodoc()" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>
                                  </div>
                             </div>
@@ -164,14 +164,14 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="input_encabezado">Plantilla encabezado:</label>
-                        <textarea class="form-control"></textarea>
+                        <textarea class="form-control " id="form_plantilla_encabezado" name="plantilla_encabezado"></textarea>
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="input_cuerpo">Plantilla cuerpo:</label>
-                        <textarea class="form-control"></textarea>
+                        <textarea class="form-control" id="form_plantilla_cuerpo" name="plantilla_cuerpo"></textarea>
                     </div>
                 </div>
             </div>    
@@ -240,8 +240,13 @@
 
 <script src="js/jquery.bootstrap-duallistbox.js"></script>
 
+<script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
+
 <script>
 
+    const editor_encabezado = CKEDITOR.replace('form_plantilla_encabezado');
+    const editor_cuerpo = CKEDITOR.replace('form_plantilla_cuerpo');
+   
     $('#tabla_grilla').DataTable({
         rowReorder: {
             selector: 'td:nth-child(2)'
@@ -250,19 +255,15 @@
         language: lenguaje_datatable
     });
 
-    const accionesFlujo2 = @json($acciones_tipoflujo2);
+    const accionesFlujo2 = @json($acciones_tipoflujo2); //acciones tipo 2
     const accionesFlujo3 = @json($acciones_tipoflujo3);
-    //const acciones_t2 = @json($accionesT2);  
-    //const acciones_t3 = @json($accionesT3);  
-
-    //const cantAccionesF2 = accionesFlujo2.length - 2;
-    //const cantAccionesF3 = accionesFlujo3.length - 2;
-
+    const listBuzones = @json($listado_buzones);
+    
     var arrAcciones2 = accionesFlujo2.map(function(obj2){
         var aAcc2 = [];
         aAcc2 = obj2.id;
         return aAcc2;
-    });
+    }); //id de acciones
 
     var arrAcciones3 = accionesFlujo3.map(function(obj3){
         var aAcc3 = [];
@@ -274,10 +275,6 @@
         columns1: accionesFlujo2,
         columns2: accionesFlujo3,
         data: [            
-        ],
-        data1: [            
-        ],
-        data2: [            
         ]
     };
 
@@ -292,17 +289,6 @@
             $('#carga_tabla_grilla_buzones').append(htmlTable);
         } 
 
-        //var data = (op == '2') ? sp : np;
-
-        if (op == '2')
-            var data = dataObject.data1;
-        else if (op == '3')
-            var data = dataObject.data2;     
-        else
-            var data = dataObject.data;
-
-        //var columns = (op == '2') ? spColumns : npColumns;    
-
         if (op == '2')
             var columns = dataObject.columns1;
         else if (op == '3')
@@ -315,20 +301,101 @@
             bProcessing : false,
             paging: false,
             searching: false,
-            aaData : data,
+            bPaginate: false,
+            bFilter: false,
+            bSort: false,
+            bInfo: false,
+            aaData : dataObject.data,
             aoColumns : columns
         }); 
        
         domTable = document.getElementById('tabla_grilla_buzones');        
     }
 
+    function ver_tipodoc(id,op)
+    { 
+        $(".print-error-msg").hide(); 
+        $('#form_crear_editar').trigger("reset"); 
+        $('#card_crear_editar').show(); 
+        $('#form_crear_editar').removeClass("was-validated");
+        $('.bloque_buzones_flujo').hide();
+        $('.bloque_flujo_interno').hide();
+        
+        if (op == 2)
+        {
+            $('#titulo_crear_editar').html('Editar Tipo de Documento'); 
+            $('.form-control').prop("disabled", false);
+            $('.btn-submit').show();
+        }            
+        else
+        {
+            $('#titulo_crear_editar').html('Ver Tipo de Documento'); 
+            $('.btn-submit').prop("disabled", false); 
+            $('.form-control').prop("disabled", true);
+            $('.btn-submit').hide(); 
+        }
+
+        $.ajax({
+                url: "tipos_documentos/"+id, 
+                type:'GET', 
+                dataType: 'json',
+                success: function(data) { 
+                    if(data.status=='400') { 
+                        toastr.error(data.data.comentario,"Aviso!");                        
+                    }
+                    else { 
+                        if(data.status=='200' || data.status=='201'){ 
+
+                            console.log(data.data); 
+                            $("input[name='nombre']").val(data.data.nombre);
+                            $("input[name='nombre_corto']").val(data.data.nombre_corto);
+                            $("input[name='descripcion']").val(data.data.descripcion);
+                            $("select[name='tipo_origen']").val(data.data.id_tipo_origen);
+                            $("select[name='tipo_flujo']").val(data.data.id_tipo_flujo);
+                            $("select[name='tipo_folio']").val(data.data.id_tipo_folio);
+                            $("select[name='tipo_avance']").val(data.data.id_tipo_avance);
+                            $("select[name='tipo_asignacion_folio']").val(data.data.id_tipo_asignacion_folio);
+                            $("select[name='fe']").val(""+data.data.requiere_fe+"");
+                            
+                            editor_encabezado.setData(data.data.plantilla_encabezado);   
+                            editor_cuerpo.setData(data.data.plantilla_cuerpo);   
+
+                            $("input[name='hiddTipoDocumento']").val(data.data.id_tipo_documento);
+
+                            //validaciones
+
+                            changeTipoFolio(data.data.id_tipo_folio);
+                            changeTipoOrigen(data.data.id_tipo_origen);
+                            changeTipoFlujo(data.data.id_tipo_flujo, data.data.buzones_flujo.length);
+
+                            cargarDatosFlujoAcciones(data.data.buzones_flujo);
+                           
+                        } 
+                    } 
+                    $('.btn-submit').prop("disabled", false); 
+                }, 
+                error: function (e) { 
+                    data = e.responseJSON; 
+                    if (typeof data.errors !== 'undefined') { 
+                        printErrorMsg(data.errors); 
+                    } 
+                    $('.btn-submit').prop("disabled", false); 
+                } 
+            }); 
+    }
+
+
     $(".boton_nuevo").click(function(e){
         
-        $(".print-error-msg").hide();
-        $('#form_crear_editar').trigger("reset");
+        $(".print-error-msg").hide();        
         $('#titulo_crear_editar').html('Nuevo Tipo de Documento');
         $('#card_crear_editar').show();
         $('.btn-submit').show();
+
+        $('#form_crear_editar').trigger("reset");
+        $("#form_crear_editar :input").prop("disabled", false);
+        editor_encabezado.setData();   
+        editor_cuerpo.setData();   
 
         $('#form_crear_editar').removeClass("was-validated");
 
@@ -339,20 +406,21 @@
     function inicialización_formulario(){
         $('.bloque_flujo_interno').hide();
         $('.bloque_buzones_flujo').hide();
+
+
     }
 
-    $("#form_tipo_origen").change(function(){
-
-        if ($(this).val() == 1) //interno
+    function changeTipoOrigen(op)
+    {
+        if (op == 1) //interno
             $('.bloque_flujo_interno').show();
         else
             $('.bloque_flujo_interno').hide();
+    } 
 
-	});
-
-    $("#form_tipo_folio").change(function(){
-
-        if ($(this).val() == 3) //sin folio
+    function changeTipoFolio(op)
+    {
+        if (op == 3) //sin folio
         {
             $('#form_tipo_asignacion_folio').prop("disabled", true);
             $('#form_tipo_asignacion_folio').val('3');
@@ -361,11 +429,11 @@
         {
             $('#form_tipo_asignacion_folio').prop("disabled", false);
         }
-	});
+    }
 
-    $("#form_tipo_flujo").change(function(){
-
-        if ($(this).val() == 1) //libre
+    function changeTipoFlujo(op, n)
+    {
+        if (op == 1) //libre
         {
             $('.bloque_buzones_flujo').hide();
             $('#form_tipo_avance').prop('selectedIndex',0);
@@ -376,10 +444,24 @@
             $('.bloque_buzones_flujo').show();
             $('#form_tipo_avance').prop("disabled", false);
 
-            muestraDataTable($(this).val());
+            muestraDataTable(op);
 
-            orden = 0;
+            orden = n;
         }
+        
+    }
+
+
+    $("#form_tipo_origen").change(function(){
+        changeTipoOrigen($(this).val());
+    });
+
+    $("#form_tipo_folio").change(function(){
+        changeTipoFolio($(this).val());        
+	});
+
+    $("#form_tipo_flujo").change(function(){        
+        changeTipoFlujo($(this).val(), 0);
 	});    
 
     $(".btn_cerrar_guardar").click(function(e){
@@ -388,6 +470,64 @@
         $(".print-error-msg").hide();
         $('#form_crear_editar').removeClass("was-validated");
     });
+
+    function cargarDatosFlujoAcciones(datosTabla)
+    {
+        var id_flujo_edit = $("select[name='tipo_flujo']").val(); 
+
+        if (id_flujo_edit == 2)
+            var nAcciones = accionesFlujo2.length;
+
+        if (id_flujo_edit == 3)
+            var nAcciones = accionesFlujo3.length;  
+
+        $.each(datosTabla, function(i, item) 
+        {
+            var tblRow = [];       
+
+            var nombre_buzonEdit = $("#listado_buzones option[value='"+item.id_buzon+"']").text();
+            var hiddIdBuzonEdit = '<input type="hidden" name="hiddIdBuzon_'+item.orden+'" id="hiddIdBuzon_'+item.orden+'" value="'+item.id_buzon+'">'; 
+            var hiddIdOrdenEdit = '<input type="hidden" name="hiddIdOrden_'+item.orden+'" id="hiddIdOrden_'+item.orden+'" value="'+item.orden+'">'; 
+            var hiddIdTipoDocBuzon = '<input type="hidden" name="hiddId_'+item.orden+'" id="hiddId_'+item.orden+'" value="'+item.id_tipo_documento_buzon+'">'; 
+
+            tblRow.push(item.orden+hiddIdOrdenEdit+hiddIdTipoDocBuzon);        
+            tblRow.push(hiddIdBuzonEdit+nombre_buzonEdit);   
+
+            var aAccionesEdit = item.acciones.map(function(objEdit){
+                var aAccEd = [];
+                aAccEd = objEdit.id_accion;
+                return aAccEd;
+            });
+
+            for (let j = 2; j < nAcciones-1; j++)
+            {           
+                if (id_flujo_edit == 2)
+                    codAccion = arrAcciones2[j];           
+
+                if (id_flujo_edit == 3)
+                    codAccion = arrAcciones3[j];           
+
+                salida =  aAccionesEdit.indexOf(codAccion);
+               
+                if (salida >= 0)
+                    checked = "checked";
+                else
+                    checked = "";
+
+                var row = "<input "+checked+" data-type='col" + codAccion + "' data-id='" + item.orden + "' type='checkbox' name='chk_" + item.orden + "[]' id='chk_" + item.orden + "' value='" + codAccion + "'>";
+                tblRow.push(row);
+            }
+        
+            sHtmlAcciones = ' ';
+            tblRow.push(sHtmlAcciones);   
+
+            dataTable.fnAddData(tblRow, true);
+            dataTable.fnDraw();
+
+        });                    
+
+
+    }
     
     $(".btn-agrega-buzon").click(function(e) {
 
@@ -411,7 +551,7 @@
         tblRow.push(orden+hiddIdOrden);        
         tblRow.push(nombre_buzon+hiddIdBuzon);        
 
-        for (let i = 2; i < nAcciones; i++)
+        for (let i = 2; i < nAcciones-1; i++)
         {           
             if (id_flujo == 2)
                 codAccion = arrAcciones2[i];           
@@ -423,19 +563,17 @@
             tblRow.push(row);
         }
 
+        sHtmlAcciones = '';
+        tblRow.push(sHtmlAcciones);    
+        
         if (id_buzon != '')
         {
             dataTable.fnAddData(tblRow, true);
             dataTable.fnDraw();
-
-            //$('input[name="hiddIdBuzon"]').val(id_buzon);
-            //$('input[name="hiddIdOrden"]').val(orden);
-
- 
         }        
     });
     
-
+    //SUBMIT
     $(".btn-submit").click(function(e){
         e.preventDefault();
 
@@ -457,6 +595,8 @@
             }
         });
 */
+
+        
         $(".print-error-msg").hide();
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
@@ -465,15 +605,17 @@
         var tipo_origen = $("select[name='tipo_origen']").val();
         var tipo_flujo = $("select[name='tipo_flujo']").val();
         var tipo_folio = $("select[name='tipo_folio']").val();
-        var tipo_avance = $("select[name='tipo_flujo']").val();
-        var tipo_asignacion_folio = $("select[name='tipo_flujo']").val();
-        var requiere_fe = $("input[name='fe']").val();
+        var tipo_avance = $("select[name='tipo_avance']").val();
+        var tipo_asignacion_folio = $("select[name='tipo_asignacion_folio']").val();
+        var requiere_fe = $("select[name='fe']").val();
+        var plantilla_encabezado = editor_encabezado.getData();
+        var plantilla_cuerpo = editor_cuerpo.getData();
+        var hiddTipoDocumento = $("input[name='hiddTipoDocumento']").val();
+ 
+        var datosBuzonFlujo = [];
 
         if (tipo_flujo == 2 || tipo_flujo == 3)
         {
-            var datosBuzonFlujo = [];
-            
-
             for (let i = 1; i <= orden; i++)
             {
                 var arr = $('[name="chk_'+i+'[]"]:checked').map(function(){
@@ -492,24 +634,24 @@
                     
                     datosAcciones.push(filAcciones);
                 }
-               
+                
+                var valorId = null;
+
+                if ($("input[name='hiddId_"+i+"']").val() != null)
+                    valorId = $("input[name='hiddId_"+i+"']").val();
+
                 var filaBuzones = {
+                    "id_tipo_documento_buzon": valorId,
                     "id_buzon":$("input[name='hiddIdBuzon_"+i+"']").val(),
                     "orden":$("input[name='hiddIdOrden_"+i+"']").val(),
                     "acciones": datosAcciones
                 }
 
                 datosBuzonFlujo.push(filaBuzones);
-
             }  
-            //console.log(datosBuzonFlujo);
-            //console.log(JSON.stringify(datosBuzonFlujo));          
-        }
-//"buzones_flujo":[{"id_buzon":"41","orden":"1","acciones":[{"id_accion":"1"},{"id_accion":"3"}]},{"id_buzon":"42","orden":"2","acciones":[{"id_accion":"1"}]}]
-        //datosBuzonFlujo = JSON.stringify(datosBuzonFlujo);
+                 
+        } 
         
-        var hiddTipoDocumento = $("input[name='hiddTipoDocumento']").val();
-
         if (hiddTipoDocumento == '') //crear
         {
             var urlAccion = "{{route('tipos_documentos.store')}}";
@@ -520,28 +662,31 @@
             var urlAccion = "{{route('tipos_documentos.update')}}";
             var typeAccion = 'PUT';
         }    
-        
+
         $.ajax({
             url: urlAccion,
             type: typeAccion,
             dataType: 'json',
-            contentType: 'application/x-www-form-urlencoded',
             data: { 
-                    _token:_token, 
-                    nombre:nombre, 
-                    nombre_corto:nombre_corto, 
-                    descripcion:descripcion,
-                    tipo_origen:tipo_origen,
-                    tipo_flujo:tipo_flujo,
-                    tipo_folio:tipo_folio,
-                    tipo_avance:tipo_avance,
-                    tipo_asignacion_folio:tipo_asignacion_folio,  
-                    requiere_fe:requiere_fe,                  
-                    bzs_flujo:datosBuzonFlujo,
-                    hiddTipoDocumento:hiddTipoDocumento
-                  },
+                _token:_token, 
+                nombre:nombre, 
+                nombre_corto:nombre_corto, 
+                descripcion:descripcion,
+                tipo_origen:tipo_origen,
+                tipo_flujo:tipo_flujo,
+                tipo_folio:tipo_folio,
+                tipo_avance:tipo_avance,
+                tipo_asignacion_folio:tipo_asignacion_folio,  
+                requiere_fe:requiere_fe,                  
+                bzs_flujo:datosBuzonFlujo,
+                plantilla_encabezado:plantilla_encabezado,
+                plantilla_cuerpo:plantilla_cuerpo,
+                hiddTipoDocumento:hiddTipoDocumento
+            },
             success: function(data) 
             {
+                console.log(data);
+            
                 if(data.status == '200')
                 {
                     toastr.success("Tipo de Documento actualizado","Aviso!");
@@ -560,7 +705,9 @@
                 $('.btn-submit').html( 'Guardar' );
             },
             error: function (e) {
-                data = e.responseJSON;
+                console.log(e);
+                data = e.responseJSON; 
+                console.log(data);
                 if (typeof data.errors !== 'undefined') {
                     printErrorMsg(data.errors);
                 }
@@ -583,8 +730,6 @@
                             location.reload();
                         },2000);
     }
-
-
 
 
 </script>
