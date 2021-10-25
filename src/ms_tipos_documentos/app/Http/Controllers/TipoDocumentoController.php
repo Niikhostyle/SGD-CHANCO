@@ -80,39 +80,42 @@ class TipoDocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosdatosTipoDoc = $request->json()->all();  
-                
+
                 $validator = $this->validator->validateInsert();
 
                 if ($validator->fails())
                     return $this->respondFail('No es posible crear el tipo documento: revisar datos de entrada');
 
                 $tipo_documento = TipoDocumento::create($datosdatosTipoDoc);                 
-
+                
                 $datosBuzonesFlujo = $datosdatosTipoDoc['buzones_flujo']; 
                 
-                foreach ($datosBuzonesFlujo as $datos) 
-                {   
-                    $tipoDocBuzon = TipoDocumentoBuzon::create([
-                        'id_tipo_documento' => $tipo_documento->id_tipo_documento,
-                        'id_buzon' => $datos['id_buzon'],
-                        'orden' => $datos['orden']
-                    ]);  
-                    
-                    $datosAccion = $datos['acciones']; 
+                if ($datosBuzonesFlujo != null) //agregar a ms
+                {
+                    foreach ($datosBuzonesFlujo as $datos) 
+                    {   
+                        $tipoDocBuzon = TipoDocumentoBuzon::create([
+                            'id_tipo_documento' => $tipo_documento->id_tipo_documento,
+                            'id_buzon' => $datos['id_buzon'],
+                            'orden' => $datos['orden']
+                        ]);  
+                        
+                        $datosAccion = $datos['acciones']; 
 
-                    foreach ($datosAccion as $accion)
-                    {
-                        $tipoDocBuzonAccion = TipoDocumentoBuzonAccion::create([
-                            'id_tipo_documento_buzon' => $tipoDocBuzon->id_tipo_documento_buzon,
-                            'id_accion' => $accion['id_accion']
-                        ]); 
-                    }
-                    
-                }  
+                        foreach ($datosAccion as $accion)
+                        {
+                            $tipoDocBuzonAccion = TipoDocumentoBuzonAccion::create([
+                                'id_tipo_documento_buzon' => $tipoDocBuzon->id_tipo_documento_buzon,
+                                'id_accion' => $accion['id_accion']
+                            ]);
+                        }
+                        
+                    }  
+                }
 
                 DB::commit();
 
-                return $this->respondSuccess($tipo_documento, 201);
+                return $this->respondSuccess("Tipo de Documento creado", 201);
                 
             }
             catch (ModelNotFoundException $e) 
@@ -145,44 +148,91 @@ class TipoDocumentoController extends Controller{
                 $datosTipoDoc = TipoDocumento::findOrFail($datosRequest['id_tipo_documento']);
                 $datosTipoDoc->update($datosRequest);
 
+                //agregar a ms
                 //actualizar en flujos buzones
-/*
+
+                $aTipoDocBuzon = array();
+                $aTipoDocBuzonAccion = array();
+
                 $datosBuzonesFlujo = $datosRequest['buzones_flujo']; 
-               
-                foreach ($datosBuzonesFlujo as $datos) 
-                {   
-                    $nOpcion = TipoDocumentoBuzon::updateOrCreate(
-                        ['id_tipo_documento_buzon' => $datos['id_tipo_documento_buzon']],
-                        ['id_buzon' => $datos['id_buzon'], 'orden' => $datos['orden']]
-                    );                   
-                    
-                    
-                }  
 
-                $datosTipoDoc->buzones_flujo;
-*/
-                //actualizar accciones
+                if ($datosBuzonesFlujo != null)
+                {
+                    foreach ($datosBuzonesFlujo as $datos) 
+                    {   
+                        
+                        if ($datos['id_tipo_documento_buzon'] != null)
+                        {
+                            $tipoDocBuzon = TipoDocumentoBuzon::findOrFail($datos['id_tipo_documento_buzon']);
+                            $tipoDocBuzon->id_buzon = $datos['id_buzon'];
+                            $tipoDocBuzon->orden = $datos['orden'];
 
-                
+                            $tipoDocBuzon->save();
 
-               /* 
-                $datosTipoDoc->nombre = $datosRequest['nombre'];
-                $datosTipoDoc->nombre_corto = $datosRequest['nombre_corto'];
-                $datosTipoDoc->descripcion = $datosRequest['descripcion'];
-                $datosTipoDoc->id_tipo_origen = $datosRequest['id_tipo_origen'];
-                $datosTipoDoc->id_tipo_flujo = $datosRequest['id_tipo_flujo'];
-                $datosTipoDoc->id_tipo_folio = $datosRequest['id_tipo_folio'];
-                $datosTipoDoc->id_tipo_avance = $datosRequest['id_tipo_avance'];
-                $datosTipoDoc->id_tipo_asignacion_folio = $datosRequest['id_tipo_asignacion_folio'];
-                $datosTipoDoc->requiere_fe = $datosRequest['requiere_fe'];
-                $datosTipoDoc->plantilla_encabezado = $datosRequest['plantilla_encabezado'];
-                $datosTipoDoc->plantilla_cuerpo = $datosRequest['plantilla_cuerpo'];
+                        }    
+                        else{
+                            $tipoDocBuzon = TipoDocumentoBuzon::create([
+                                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                                'id_buzon' => $datos['id_buzon'],
+                                'orden' => $datos['orden']
+                            ]); 
 
-                $datosTipoDoc->save();
-*/
+                            $datos['id_tipo_documento_buzon'] = $tipoDocBuzon->id_tipo_documento_buzon;
+
+                           
+                        } 
+
+                        $aTipoDocBuzon[] = $datos['id_tipo_documento_buzon'];
+
+                        //actualizar accciones
+
+                        $datosAccion = $datos['acciones']; 
+
+                        foreach ($datosAccion as $accion)
+                        {
+                            //busca y crea sino encuentra por tipo de doc y accion
+                            $buzon_accion = TipoDocumentoBuzonAccion::firstOrCreate([
+                                'id_tipo_documento_buzon' => $datos['id_tipo_documento_buzon'],
+                                'id_accion' => $accion['id_accion']
+                            ]);
+                            
+                            $aTipoDocBuzonAccion[] = $accion['id_accion'];
+                        }
+
+                        //eliminacion de acciones para el tipo de doc
+                        
+                        $listAcciones = TipoDocumentoBuzonAccion::where('id_tipo_documento_buzon', $datos['id_tipo_documento_buzon'])->get(); 
+
+                        foreach ($listAcciones as $nAccion)
+                        {
+                            if (!in_array($nAccion['id_accion'], $aTipoDocBuzonAccion))
+                                TipoDocumentoBuzonAccion::destroy($nAccion['id_tipo_documento_buzon_accion']);
+                        }
+
+                        unset($aTipoDocBuzonAccion);
+
+                    }  
+
+                    //eliminacion de tipo de doc
+                        
+                    $listTipoDoc = TipoDocumentoBuzon::where('id_tipo_documento', $datosRequest['id_tipo_documento'])->get(); 
+
+                    foreach ($listTipoDoc as $nTipo)
+                    {
+                        if (!in_array($nTipo['id_tipo_documento_buzon'], $aTipoDocBuzon))
+                        {
+                            //eliminar en tipos acciones y tipos buzon
+                            TipoDocumentoBuzon::findOrFail($nTipo['id_tipo_documento_buzon'])->acciones()->delete();
+                            TipoDocumentoBuzon::destroy($nTipo['id_tipo_documento_buzon']);
+                        }
+                    }
+
+                    unset($aTipoDocBuzon);
+                }
+
                 DB::commit();   
 
-                return $this->respondSuccess($datosTipoDoc, 200);                
+                return $this->respondSuccess('Tipo de Documento actualizado', 200);                
 
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
@@ -194,8 +244,4 @@ class TipoDocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
 
     }
-
- 
-
-
 }

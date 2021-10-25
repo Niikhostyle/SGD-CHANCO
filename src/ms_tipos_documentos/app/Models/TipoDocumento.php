@@ -11,7 +11,7 @@ class TipoDocumento extends Model{
     protected $hidden = ['created_at', 'updated_at','id_tipo_documento_buzon'];
 
     protected $fillable = [
-        'nombre', 'nombre_corto', 'desripcion', 'id_tipo_origen', "id_tipo_flujo", "id_tipo_folio", "id_tipo_avance", "id_tipo_asignacion_folio", "requiere_fe", "plantilla_encabezado", "plantilla_cuerpo"
+        'nombre', 'nombre_corto', 'descripcion', 'id_tipo_origen', "id_tipo_flujo", "id_tipo_folio", "id_tipo_avance", "id_tipo_asignacion_folio", "requiere_fe", "plantilla_encabezado", "plantilla_cuerpo"
     ];
 
     public function buzones_flujo()
