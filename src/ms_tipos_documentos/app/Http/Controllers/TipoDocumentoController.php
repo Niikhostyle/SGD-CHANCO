@@ -139,7 +139,7 @@ class TipoDocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-
+                
                 $validator = $this->validator->validateUpdate();
 
                 if ($validator->fails())
@@ -240,6 +240,54 @@ class TipoDocumentoController extends Controller{
                 return $this->respondError('Falla al actualizar Tipo Documento:' . $e->getMessage(), 500);                
             }            
         }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
+    function eliminar(Request $request)
+    {
+        if ($request->isJson()) 
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                $validator = $this->validator->validateField($datosRequest);
+                if ($validator->fails())
+                    return $this->respondFail('Falla al eliminar tipo de documento: revisar datos de entrada');
+
+                $datosTipoDoc = TipoDocumento::findOrFail($datosRequest['id_tipo_documento']);
+                
+                if (count($datosTipoDoc->documento) == 0 && count($datosTipoDoc->documento_buzon_folio) == 0)
+                {
+                    $listTipoDoc = TipoDocumentoBuzon::where('id_tipo_documento', $datosRequest['id_tipo_documento'])->get(); 
+                    
+                    foreach ($listTipoDoc as $nTipo)
+                    {                        
+                        //eliminar en tipos acciones y tipos buzon
+                        TipoDocumentoBuzon::findOrFail($nTipo['id_tipo_documento_buzon'])->acciones()->delete();
+                        TipoDocumentoBuzon::destroy($nTipo['id_tipo_documento_buzon']);
+                    }
+
+                    $datosTipoDoc->delete();
+                }
+                else
+                    return $this->respondError('Falla al eliminar tipo de documento: existen datos relacionados', 500);         
+
+                DB::commit();
+
+                return $this->respondSuccess('Tipo de documento eliminado con éxito', 200);         
+            } 
+            catch (ModelNotFoundException $e) 
+            {
+                DB::rollBack();
+
+                return $this->respondError('Falla al eliminar tipo de documento:' . $e->getMessage(), 500);  
+            }
+        } 
         else
             return $this->respondError('Json inválido', 406);
 
