@@ -1,0 +1,37 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Documento extends Model{
+
+    protected $table = "documento";
+    protected $primaryKey = 'id_documento';
+
+    protected $hidden = ['created_at', 'updated_at'];
+
+    protected $fillable = [
+        'id_tipo_documento',
+        'id_nivel_acceso',
+        'json_tipo_documento',
+        'identificador',
+        'folio',
+        'fecha',
+        'json_respuesta_a',
+        'materia',
+        'anterior',
+        'descripcion',
+        'encabezado',
+        'cuerpo',
+        'efectos_terceros',
+        'hash_validacion',
+        'archivo_existente',
+        'finalizado'
+    ];
+
+    public function buzones_flujo()
+    {
+        return $this->hasMany(TipoDocumentoBuzon::class, 'id_tipo_documento', 'id_tipo_documento')->select(['id_tipo_documento_buzon','id_buzon','orden']);
+    }
+
+}
