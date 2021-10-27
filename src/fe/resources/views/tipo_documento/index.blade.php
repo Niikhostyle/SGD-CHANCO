@@ -20,8 +20,10 @@
 
 @section('content')
 <div class="container">
-    <div class="card" id="card_grilla">
+    
+    <div class="card" id="card_grilla">        
         <div class="card-body">
+            
             <table id="tabla_grilla" class="table dt-responsive nowrap" style="width:100%">
                 <thead>
                     <tr>
@@ -45,7 +47,7 @@
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn_ver" onclick="ver_tipodoc()" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn_editar" onclick="ver_tipodoc({{$list['id_tipo_documento']}},2)" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                     <a class="dropdown-item" onclick="eliminar_tipodoc()" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>
+                                     <a class="dropdown-item" onclick="eliminar_tipodoc({{$list['id_tipo_documento']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>
                                  </div>
                             </div>
                         </td>
@@ -263,7 +265,7 @@
         var aAcc2 = [];
         aAcc2 = obj2.id;
         return aAcc2;
-    }); //id de acciones
+    }); 
 
     var arrAcciones3 = accionesFlujo3.map(function(obj3){
         var aAcc3 = [];
@@ -297,6 +299,7 @@
             var columns = dataObject.columns1;    
 
         dataTable = $("#tabla_grilla_buzones").dataTable({
+            //rowReorder: true,
             bDestroy : true,
             bProcessing : false,
             paging: false,
@@ -311,6 +314,25 @@
        
         domTable = document.getElementById('tabla_grilla_buzones');        
     }
+/*
+
+table.on( 'row-reorder', function ( e, diff, edit ) {
+  var index = edit.triggerRow[0][0];
+  table.rows(index).select();
+});
+*/
+$("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
+        //var result = 'Reorder started on row: '+edit.triggerRow.data()[1]+'<br>';
+ 
+        for ( var i=0, ien=diff.length ; i<ien ; i++ ) {
+            var rowData = dataTable.row( diff[i].node ).data();
+ 
+           // result += rowData[1]+' updated to be in position '+
+           //     diff[i].newData+' (was '+diff[i].oldData+')<br>';
+        }
+ 
+        //$('#result').html( 'Event result:<br>'+result );
+    } );
 
     function ver_tipodoc(id,op)
     { 
@@ -346,7 +368,6 @@
                     else { 
                         if(data.status=='200' || data.status=='201'){ 
 
-                            console.log(data.data); 
                             $("input[name='nombre']").val(data.data.nombre);
                             $("input[name='nombre_corto']").val(data.data.nombre_corto);
                             $("input[name='descripcion']").val(data.data.descripcion);
@@ -374,13 +395,11 @@
                     } 
                     $('.btn-submit').prop("disabled", false); 
                 }, 
-                error: function (e) { 
-                    data = e.responseJSON; 
-                    if (typeof data.errors !== 'undefined') { 
-                        printErrorMsg(data.errors); 
-                    } 
+                error: function (jqXHR, textStatus, errorThrown) {                                                      
+                    toastr.error("Falla al obtener el tipo de documento","Aviso!");
                     $('.btn-submit').prop("disabled", false); 
-                } 
+
+                }  
             }); 
     }
 
@@ -406,7 +425,6 @@
     function inicialización_formulario(){
         $('.bloque_flujo_interno').hide();
         $('.bloque_buzones_flujo').hide();
-
 
     }
 
@@ -451,7 +469,6 @@
         
     }
 
-
     $("#form_tipo_origen").change(function(){
         changeTipoOrigen($(this).val());
     });
@@ -490,8 +507,8 @@
             var hiddIdOrdenEdit = '<input type="hidden" name="hiddIdOrden_'+item.orden+'" id="hiddIdOrden_'+item.orden+'" value="'+item.orden+'">'; 
             var hiddIdTipoDocBuzon = '<input type="hidden" name="hiddId_'+item.orden+'" id="hiddId_'+item.orden+'" value="'+item.id_tipo_documento_buzon+'">'; 
 
-            tblRow.push(item.orden+hiddIdOrdenEdit+hiddIdTipoDocBuzon);        
-            tblRow.push(hiddIdBuzonEdit+nombre_buzonEdit);   
+            tblRow.push(item.orden);        
+            tblRow.push(nombre_buzonEdit+hiddIdBuzonEdit+hiddIdOrdenEdit+hiddIdTipoDocBuzon);   
 
             var aAccionesEdit = item.acciones.map(function(objEdit){
                 var aAccEd = [];
@@ -518,7 +535,15 @@
                 tblRow.push(row);
             }
         
-            sHtmlAcciones = ' ';
+            sHtmlAcciones = '<div class="dropdown">'+
+                            '    <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                            '         <i class="fas fa-bars"></i>'+
+                            '     </button>'+
+                            '    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'+
+                            '         <a class="dropdown-item btn_ver" onclick="habilitaOrden()" href="#"><i class="fas fa-grip text-blue"></i> Mover</a>'+
+                            '         <a class="dropdown-item" onClick="eliminarBuzonFlujo('+item.orden+')" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>'+
+                            '    </div>'+
+                            '</div>';
             tblRow.push(sHtmlAcciones);   
 
             dataTable.fnAddData(tblRow, true);
@@ -526,13 +551,41 @@
 
         });                    
 
+    }
+    
+    function habilitaOrden()
+    {
+        $('#tabla_grilla_buzones').dataTable().rowReordering();
+        //dataTable.rowReorder.enable();
+    }
 
+    function eliminarBuzonFlujo(fila)
+    {
+        var anSelected = fnGetSelected(dataTable,fila);
+		var iRow = dataTable.fnGetPosition(anSelected[0]);
+		
+        dataTable.fnDeleteRow( iRow );
+
+        //reordenaDatosFlujoAcciones(fila);
+        $.each($('#tabla_grilla_buzones tr td:first-child'),function(index,val){
+            $(this).html(index+1)
+        });
+
+    }
+
+    function fnGetSelected( oTableLocal,nFila )
+    {
+        var aReturn = new Array();
+        var aTrs = oTableLocal.fnGetNodes(); //cantidad de filas
+        aReturn.push(aTrs[nFila-1]);
+
+        return aReturn;
     }
     
     $(".btn-agrega-buzon").click(function(e) {
 
         orden = orden + 1; 
-        
+       
         var id_buzon = $('#listado_buzones').val();
         var nombre_buzon = $('select[name="listado_buzones"] option:selected').text(); 
         var hiddIdBuzon = '<input type="hidden" name="hiddIdBuzon_'+orden+'" id="hiddIdBuzon_'+orden+'" value="'+id_buzon+'">'; 
@@ -547,9 +600,15 @@
             var nAcciones = accionesFlujo3.length;
          
         var tblRow = [];
-        
-        tblRow.push(orden+hiddIdOrden);        
-        tblRow.push(nombre_buzon+hiddIdBuzon);        
+
+        //busca ultimo valor de orden de fila
+        var ordenFila = parseInt($('#tabla_grilla_buzones tr:last-child').find('td:first-child').text()) + 1;    
+
+        if (isNaN(ordenFila))
+            ordenFila = 1;
+
+        tblRow.push(ordenFila);        
+        tblRow.push(nombre_buzon+hiddIdOrden+hiddIdBuzon);        
 
         for (let i = 2; i < nAcciones-1; i++)
         {           
@@ -563,7 +622,15 @@
             tblRow.push(row);
         }
 
-        sHtmlAcciones = '';
+        sHtmlAcciones = '<div class="dropdown">'+
+                            '    <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                            '         <i class="fas fa-bars"></i>'+
+                            '     </button>'+
+                            '    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'+
+                            '         <a class="dropdown-item btn_ver" onclick="" href="#"><i class="fa-solid fa-grip text-blue"></i> Mover</a>'+
+                            '         <a class="dropdown-item" onClick="eliminarBuzonFlujo('+orden+')" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>'+
+                            '    </div>'+
+                            '</div>';
         tblRow.push(sHtmlAcciones);    
         
         if (id_buzon != '')
@@ -572,6 +639,47 @@
             dataTable.fnDraw();
         }        
     });
+
+    function eliminar_tipodoc(id)
+    { 
+        $(".print-error-msg").hide(); 
+        var token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Tipo de Documento',
+            text: "¿Quiere eliminar el Tipo de Documento?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                
+            if (result.value==true) 
+            {
+                $.ajax({ 
+                        url: "tipos_documentos/"+id, 
+                        type:'DELETE', 
+                        dataType: 'json',
+                        data: {_token :token},
+                        success: function(data) { 
+                            if(data.status == '200')
+                            { 
+                                toastr.success("Tipo de Documento eliminado","Aviso!");                     
+                                autoRefresh();
+                            } 
+                            else
+                            {                         
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }                    
+                        }, 
+                        error: function (jqXHR, textStatus, errorThrown) {                                                      
+                           toastr.error("Falla al eliminar tipo de documento","Aviso!");
+                        } 
+                }); 
+            }
+        })        
+    }
     
     //SUBMIT
     $(".btn-submit").click(function(e){
@@ -580,7 +688,7 @@
         $('.btn-submit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
         );
-/*
+            /*
         var forms = document.getElementsByClassName('needs-validation');
         var validation = Array.prototype.filter.call(forms, function(form) {
             if (form.checkValidity() === false) {
@@ -594,7 +702,7 @@
                 form.classList.remove("was-validated");
             }
         });
-*/
+        */
 
         
         $(".print-error-msg").hide();
@@ -616,8 +724,10 @@
 
         if (tipo_flujo == 2 || tipo_flujo == 3)
         {
+            var nOrden = 1;
+
             for (let i = 1; i <= orden; i++)
-            {
+            {               
                 var arr = $('[name="chk_'+i+'[]"]:checked').map(function(){
                     return this.value;
                 }).get();
@@ -640,14 +750,21 @@
                 if ($("input[name='hiddId_"+i+"']").val() != null)
                     valorId = $("input[name='hiddId_"+i+"']").val();
 
-                var filaBuzones = {
-                    "id_tipo_documento_buzon": valorId,
-                    "id_buzon":$("input[name='hiddIdBuzon_"+i+"']").val(),
-                    "orden":$("input[name='hiddIdOrden_"+i+"']").val(),
-                    "acciones": datosAcciones
-                }
+                if ($("input[name='hiddIdBuzon_"+i+"']").val() != null)
+                {
+                    var filaBuzones = {
+                        "id_tipo_documento_buzon": valorId,
+                        "id_buzon":$("input[name='hiddIdBuzon_"+i+"']").val(),
+                        //"orden":$("input[name='hiddIdOrden_"+i+"']").val(),
+                        "orden":nOrden,
+                        "acciones": datosAcciones
+                    }
 
-                datosBuzonFlujo.push(filaBuzones);
+                    nOrden++;
+
+                    datosBuzonFlujo.push(filaBuzones);
+                }
+               
             }  
                  
         } 
@@ -685,8 +802,7 @@
             },
             success: function(data) 
             {
-                console.log(data);
-            
+           
                 if(data.status == '200')
                 {
                     toastr.success("Tipo de Documento actualizado","Aviso!");
@@ -704,16 +820,12 @@
 
                 $('.btn-submit').html( 'Guardar' );
             },
-            error: function (e) {
-                console.log(e);
-                data = e.responseJSON; 
-                console.log(data);
-                if (typeof data.errors !== 'undefined') {
-                    printErrorMsg(data.errors);
-                }
+            error: function (jqXHR, textStatus, errorThrown) {                                                      
+                toastr.error("Falla en el tipo de documento","Aviso!");
 
                 $('.btn-submit').html( 'Guardar' );
-            }
+            } 
+            
         });             
     });
 

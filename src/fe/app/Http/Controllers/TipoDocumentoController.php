@@ -194,5 +194,17 @@ class TipoDocumentoController extends Controller
         return $accionTipoDoc->json();
     }
 
+    public function delete($id)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+        $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_tipo_documento' => $id,
+        ]), 'json')
+        ->delete('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/eliminar');
+
+        return $accionTipoDoc->json();
+    }
 
 }

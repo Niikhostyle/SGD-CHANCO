@@ -45,5 +45,5 @@ Route::middleware(['auth:sanctum', 'verified'])->get('tipos_documentos',[TipoDoc
 Route::middleware(['auth:sanctum', 'verified'])->post('tipos_documentos',[TipoDocumentoController::class,'store'])->name('tipos_documentos.store');
 Route::middleware(['auth:sanctum', 'verified'])->put('tipos_documentos',[TipodocumentoController::class,'update'])->name('tipos_documentos.update');
 Route::middleware(['auth:sanctum', 'verified'])->get('tipos_documentos/{id}',[TipodocumentoController::class,'show'])->name('tipos_documentos.show');
-
+Route::middleware(['auth:sanctum', 'verified'])->delete('tipos_documentos/{id}',[TipodocumentoController::class,'delete'])->name('tipos_documentos.delete');
 
