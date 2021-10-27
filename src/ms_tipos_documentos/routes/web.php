@@ -16,11 +16,12 @@
 
 $router->group(['middleware' => ['auth']], function () use ($router){
 
-$router->get('/api/sgd-tipodoc/ver_todos', 'TipoDocumentoController@ver_todos'); 
-$router->post('/api/sgd-tipodoc/crear', 'TipoDocumentoController@crear');
-$router->get('/api/sgd-tipodoc/ver', 'TipoDocumentoController@ver');
-$router->put('/api/sgd-tipodoc/actualizar', 'TipoDocumentoController@actualizar');
-    
+    $router->get('/api/sgd-tipodoc/ver_todos', 'TipoDocumentoController@ver_todos'); 
+    $router->post('/api/sgd-tipodoc/crear', 'TipoDocumentoController@crear');
+    $router->get('/api/sgd-tipodoc/ver', 'TipoDocumentoController@ver');
+    $router->put('/api/sgd-tipodoc/actualizar', 'TipoDocumentoController@actualizar');
+    $router->delete('/api/sgd-tipodoc/eliminar', 'TipoDocumentoController@eliminar');    
+
 });
 
 
