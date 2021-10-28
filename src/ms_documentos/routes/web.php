@@ -13,7 +13,12 @@
 |
 */
 
-$router->get('/api/sgd-documentos', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen documentos";
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->get('/api/sgd-documentos/listar', 'DocumentoController@listar');
+    $router->post('/api/sgd-documentos/crear', 'DocumentoController@crear');
 });
+
+//$router->get('/api/sgd-documentos', function () use ($router) {
+    //return $router->app->version();
+//    return "prueba lumen documentos";
+//});
