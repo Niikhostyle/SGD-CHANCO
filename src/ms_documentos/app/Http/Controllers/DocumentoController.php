@@ -20,6 +20,7 @@ class DocumentoController extends Controller{
         {
             try
             {
+
                 $datosRequest = $request->json()->all();
                 //$validator = $this->validator->validateFieldBuzon($datosRequest);
 
@@ -87,13 +88,13 @@ class DocumentoController extends Controller{
                 //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
-                
+
                 $datosTipoDoc = TipoDocumento::findOrFail($datosDocumento['id_tipo_documento']);
-                
+
                 $nFolio = null;
 
                 if( $datosTipoDoc->id_tipo_asignacion_folio == 1) //creación
-                    $nFolio = rand(); //servicio folio                
+                    $nFolio = rand(); //servicio folio
 
                 $datosTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
@@ -101,20 +102,20 @@ class DocumentoController extends Controller{
                     'id_tipo_documento' => $nTipoDoc,
                 ]), 'json')
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
-        
+
                 //return $datosTipoDoc->json();
-              
+
                 $dFechaCreacion = date('Y-m-d H:i:s');
-                //$documento = Documento::create($datosDocumento);              
+                //$documento = Documento::create($datosDocumento);
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
                     'efectos_terceros' => $datosDocumento['efectos_terceros'],
                     'json_tipo_documento' => null, //obtener de ms_tipos_documentos
                     'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
-                    'materia' => $datosDocumento['materia'],    
+                    'materia' => $datosDocumento['materia'],
                     'anterior' => $datosDocumento['anterior'],
-                    'descripcion' => $datosDocumento['descripcion'], 
+                    'descripcion' => $datosDocumento['descripcion'],
                     'cuerpo' => $datosDocumento['cuerpo'],
                     'fecha' => $dFechaCreacion,
                     'hash_validacion' => 'XyZ987',
@@ -141,9 +142,9 @@ class DocumentoController extends Controller{
                     'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
                     'id_accion' => 1,
                     'fecha' => $dFechaCreacion,
-                    'id_usuario' => $datosDocumento['id_usuario']                    
+                    'id_usuario' => $datosDocumento['id_usuario']
                 ]);
-               
+
                 $documento->rel_documento_buzon;
 
                 DB::commit();
