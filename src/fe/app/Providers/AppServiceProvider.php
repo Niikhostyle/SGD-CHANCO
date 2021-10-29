@@ -70,6 +70,12 @@ class AppServiceProvider extends ServiceProvider
                                     'icon_color' => 'yellow',
                                     'url'        => '/buzones',
                                 ],
+                                [
+                                    'text'       => 'Tipos de Documentos',
+                                    'icon'    => 'fas fa-fw fa-folder-open text-green',
+                                    'icon_color' => 'green',
+                                    'url'        => '/tipos_documentos',
+                                ],
                             ],
 
                     ]
