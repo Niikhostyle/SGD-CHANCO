@@ -202,7 +202,7 @@ class BuzonController extends Controller
 
 
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(33)
+        ->timeout(63)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
         if($perfiles->failed()){
             $mensaje= $perfiles->json()['data']['comentario'];

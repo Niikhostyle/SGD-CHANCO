@@ -98,17 +98,7 @@
                                     </tbody>
                                 </table>
                                 {{-- Pagination --}}
-                                <div class="d-flex justify-content-center">
-                                    <table class="table dt-responsive nowrap" style="width:100%" id="users-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Nombres</th>
-                                                <th>Email</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
+
 
 
 
@@ -169,43 +159,27 @@
                                 </table>
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab">
-                                <table id="tabla_despachados_grilla" class="table dt-responsive nowrap" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>E</th>
-                                            <th>ID Doc</th>
-                                            <th>Fecha Despacho</th>
-                                            <th>Fecha Recepción</th>
-                                            <th>TD</th>
-                                            <th>Destino</th>
-                                            <th>Materia</th>
-                                            <th>Rpta a</th>
-                                            <th>Fecha Doc</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($lista_por_recibir['data'] as $list)
-                                        <tr >
-                                            <td>{{$list['id_doc']}}</td>
-                                            <td>{{$list['f_entrada']}}</td>
-                                            <td>{{$list['contestar_hasta']}}</td>
-                                            <td>{{$list['td']}}</td>
-                                            <td>{{$list['te']}}</td>
-                                            <td>{{$list['origen']}}</td>
-                                            <td>{{$list['materia']}}</td>
-                                            <td>
-                                                <?php
-                                              //   foreach($estados_usuario as $estado)
-                                               //  if($estado['id_estado_usuario']==$list['id_estado_usuario']){
-                                               //         echo $estado['nombre'];
-                                               //  }
 
-                                            ?>
-                                            </td>
 
-                                            <td>
+                                    <table id="tabla_despachados_grilla">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>E</th>
+                                                <th>ID Doc</th>
+                                                <th>Fecha Despacho</th>
+                                                <th>Fecha Recepción</th>
+                                                <th>TD</th>
+                                                <th>Destinatario</th>
+                                                <th>Materia</th>
+                                                <th>Rpta a</th>
+                                                <th>Fecha Doc</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+
+                                <!--           <td>
                                                 <div class="dropdown">
                                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                          <i class="fas fa-bars"></i>
@@ -217,10 +191,8 @@
                                                      </div>
                                                 </div>
                                             </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                -->
+
                             </div>
                         </div>
 
@@ -269,12 +241,51 @@
 <script>
  $(document).ready(function () {
     $(".nuevo_documento").prop("disabled", true);
-
+    var token='Nw5CrZrQBg2qPaTLhtXnwxjixAX5Sm8dPKGvKrhQ';
     $(function() {
-        $('#users-table').DataTable({
+
+       /* var settings = {
+        "url": "https://127.0.0.1:451/api/sgd-documentos/listar",
+        "method": "GET",
+        "timeout": 0,
+        "headers": {
+            "Content-Type": "application/json",
+            "key": "3tt0gejsxEVb1JMwEB170enrBfTUhKf3qZyO4UeR"
+        },
+        "data": JSON.stringify({
+            "id_buzon": "107",
+            "id_carpeta": "3"
+        }),
+        };
+
+        $.ajax(settings).done(function (response) {
+        console.log(response);
+        });
+*/
+        $('#tabla_despachados_grilla').DataTable({
             processing: true,
             serverSide: true,
-            ajax: 'https://127.0.0.1:451/api/sgd-usuarios/listado',
+            //ajax: 'https://127.0.0.1:451/api/sgd-documentos/listar',
+            ajax: {
+                "url": "https://127.0.0.1:451/api/sgd-documentos/listar?id_buzon=107&id_carpeta=3",
+                "type": "GET",
+               /* 'beforeSend': function (request) {
+                    request.setRequestHeader("key", token);
+                },*/
+                "headers": {
+                    "Content-Type": "application/json",
+                    "key": "98XByEJKfozJlr7qTWHuaNS3ZTi85We08s0Qo4fw"
+                },
+                crossDomain : true,
+                xhrFields: {
+                    withCredentials: true
+                },
+                "dataType": "json",
+                /*"data": JSON.stringify({
+                    "id_buzon": "107",
+                    "id_carpeta": "3"
+                }),*/
+            },
             type:'json',
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -282,9 +293,59 @@
             responsive: true,
             language: lenguaje_datatable,
             columns: [
-                { data: 'id', name: 'id' },
-                { data: 'nombres', name: 'nombres' },
-                { data: 'email', name: 'email' }
+                { data: 'recibido',
+                  render: function(data, type) {
+                    if (type === 'display') {
+                        if(data==null){
+                            return '';
+                        }else{
+
+                            if(data==true){
+                                return '<span class="fas fa-check text-green"></span>';
+                            }
+
+                        }
+                    }
+                    return '';
+
+                  }
+                },
+
+                { data: 'estado_documento', name: 'estado_documento' },
+                { data: 'id_documento', name: 'id_documento' },
+                { data: 'fecha_despacho', name: 'fecha_despacho' },
+                { data: 'fecha_recepcion', name: 'fecha_recepcion' },
+                { data: 'tipo_documento', name: 'tipo_documento' },
+                { data: 'destinatario', name: 'destinatario' },
+                { data: 'materia', name: 'materia' },
+                { data: 'respuesta_a', name: 'respuesta_a' },
+                { data: 'fecha_documento', name: 'fecha_documento' },
+                { data: 'id_buzon',
+                  render: function(data, type) {
+                    if (type === 'display') {
+                        if(data==null){
+                            return '';
+                        }else{
+                            let botonera = '<div class="dropdown">';
+
+                                botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                    botonera +=' <i class="fas fa-bars"></i>';
+                                    botonera +='                 </button>';
+                                    botonera +='                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                    botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                    botonera +='                    <a class="dropdown-item btn-menu-editar" onclick="editar_usuario('+data+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                    botonera +='                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario('+data+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+                                    botonera +='</div>';
+                                botonera += '</div>';
+
+                            return botonera;
+
+
+                        }
+                    }
+                    return '';
+                  }
+                }
             ]
         });
     });

@@ -12,9 +12,9 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
-//$router->get('/api/sgd-documentos/listar', 'DocumentoController@listar');
+$router->get('/api/sgd-documentos/listar', 'DocumentoController@listar');
 $router->group(['middleware' => ['auth']], function () use ($router){
-    $router->get('/api/sgd-documentos/listar', 'DocumentoController@listar');
+    //$router->get('/api/sgd-documentos/listar', 'DocumentoController@listar');
 });
 
 
