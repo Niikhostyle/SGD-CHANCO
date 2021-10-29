@@ -102,53 +102,60 @@ class DocumentoController extends Controller{
                 ]), 'json')
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
         
-                //return $datosTipoDoc->json();
-              
-                $dFechaCreacion = date('Y-m-d H:i:s');
-                //$documento = Documento::create($datosDocumento);              
-                $documento = Documento::create([
-                    'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
-                    'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
-                    'efectos_terceros' => $datosDocumento['efectos_terceros'],
-                    'json_tipo_documento' => null, //obtener de ms_tipos_documentos
-                    'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
-                    'materia' => $datosDocumento['materia'],    
-                    'anterior' => $datosDocumento['anterior'],
-                    'descripcion' => $datosDocumento['descripcion'], 
-                    'cuerpo' => $datosDocumento['cuerpo'],
-                    'fecha' => $dFechaCreacion,
-                    'hash_validacion' => 'XyZ987',
-                    'folio' => $nFolio,
-                    'encabezado' => $datosDocumento['encabezado']
-                ]);
+                $jsonTipoDoc = $datosTipoDoc->json();
 
-                $documentoBuzon = DocumentoBuzon::create([
-                    'id_documento' => $documento->id_documento,
-                    'id_buzon' => $datosDocumento['id_buzon'],
-                    'id_carpeta' => 3,
-                    'id_estado_documento' => 1,
-                    'id_tipo_destino' => 1,
-                    //'id_documento_buzon_padre' => '',
-                    'fecha' => $dFechaCreacion,
-                    'contestar_hasta' => $datosDocumento['contestar_hasta'],
-                    'notificado' => false,
-                    'recibido' => false,
-                    'favorito' => false
+                if ($jsonTipoDoc['status'] == 200)
+                {
+                    unset($jsonTipoDoc['status']);
+return $jsonTipoDoc;
+                    $dFechaCreacion = date('Y-m-d H:i:s');
+                
+                    $documento = Documento::create([
+                        'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
+                        'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
+                        'efectos_terceros' => $datosDocumento['efectos_terceros'],
+                        'json_tipo_documento' => $jsonTipoDoc, //obtener de ms_tipos_documentos
+                        'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
+                        'materia' => $datosDocumento['materia'],    
+                        'anterior' => $datosDocumento['anterior'],
+                        'descripcion' => $datosDocumento['descripcion'], 
+                        'cuerpo' => $datosDocumento['cuerpo'],
+                        'fecha' => $dFechaCreacion,
+                        'hash_validacion' => 'XyZ987',
+                        'folio' => $nFolio,
+                        'encabezado' => $datosDocumento['encabezado']
+                    ]);
 
-                ]);
+                    $documentoBuzon = DocumentoBuzon::create([
+                        'id_documento' => $documento->id_documento,
+                        'id_buzon' => $datosDocumento['id_buzon'],
+                        'id_carpeta' => 3,
+                        'id_estado_documento' => 1,
+                        'id_tipo_destino' => 1,
+                        //'id_documento_buzon_padre' => '',
+                        'fecha' => $dFechaCreacion,
+                        'contestar_hasta' => $datosDocumento['contestar_hasta'],
+                        'notificado' => false,
+                        'recibido' => false,
+                        'favorito' => false
 
-                $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                    'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
-                    'id_accion' => 1,
-                    'fecha' => $dFechaCreacion,
-                    'id_usuario' => $datosDocumento['id_usuario']                    
-                ]);
-               
-                $documento->rel_documento_buzon;
+                    ]);
 
-                DB::commit();
+                    $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                        'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
+                        'id_accion' => 1,
+                        'fecha' => $dFechaCreacion,
+                        'id_usuario' => $datosDocumento['id_usuario']                    
+                    ]);
+                
+                    $documento->rel_documento_buzon;
 
-                return $this->respondSuccess($documento, 201);
+                    DB::commit();
+
+                    return $this->respondSuccess($documento, 201);
+                }
+                else
+                    return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
 
             }
             catch (ModelNotFoundException $e)
