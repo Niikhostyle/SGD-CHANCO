@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Http;
 use App\Models\Documento;
 use App\Models\DocumentoBuzon;
@@ -10,6 +11,13 @@ use App\Models\DocumentoBuzonBitacora;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use JeroenNoten\LaravelAdminLte\Components\Tool\Datatable;
+
+use App\Models\Buzon;
+use App\Models\Users;
+use App\Models\BuzonUsuario;
+use App\Validator\BuzonValidator;
+
+
 use PhpParser\Node\Stmt\TryCatch;
 
 class DocumentoController extends Controller{
@@ -22,6 +30,7 @@ class DocumentoController extends Controller{
             {
 
                 $datosRequest = $request->json()->all();
+
                 //$validator = $this->validator->validateFieldBuzon($datosRequest);
 
                 return datatables(
@@ -35,21 +44,24 @@ class DocumentoController extends Controller{
                              ->where('documento_buzon_bitacora.id_accion', '=', 3);
                     })
                     ->select(
-                        'documento_buzon.id_buzon',
-                        'documento_buzon.recibido',
-                        'estado_documento.nombre_corto',
-                        'documento_buzon.fecha',
-                        "documento_buzon_bitacora.fecha as fecha_recepcion",
+                        'documento_buzon.id_buzon as id_buzon',
+                        'documento.id_documento as id_documento',
+                        'documento_buzon.recibido as recibido',
+                        'estado_documento.nombre_corto as estado_documento',
+                        'documento_buzon.fecha as fecha_despacho',
+                        'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as destinatario',
-                        'documento.materia',
+                        'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento'
                         )
-                    ->where('documento_buzon.id_buzon','=',$datosRequest['id_buzon'])
-                    ->where('documento_buzon.id_carpeta','=',$datosRequest['id_carpeta'])
+                    ->where('documento_buzon.id_buzon','=',$_GET['id_buzon'])
+                    ->where('documento_buzon.id_carpeta','=',$_GET['id_carpeta'])
                     ->whereIn('documento_buzon.id_estado_documento',array(1,2))
-                )->toJson();
+                )
+                ->toJson();
+
                     /*
                     id_buzon            documento_buzon->id_buzon
                     palomitas           documento_buzon->recibido
@@ -71,6 +83,7 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
     }
+
 
     public function crear(Request $request)
     {
