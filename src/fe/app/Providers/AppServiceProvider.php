@@ -97,7 +97,8 @@ class AppServiceProvider extends ServiceProvider
             }else{
 
                 $buzones = $menuBuzon['data'];
-                $colores = ['red','yellow','cyan','green','purple', 'blue', 'orange'];
+                $colores = ['red','yellow','cyan','purple', 'blue', 'orange'];
+                $color_personal='green';
                 foreach ($buzones as $key => $value)
                 {
                     /*"id_buzon": 3,
@@ -110,13 +111,17 @@ class AppServiceProvider extends ServiceProvider
                   $seleccion_color= array_rand($colores,1);
                   if($value['nombre_buzon']=='Personal'){
                     $icon = 'fas fa-fw fa-clipboard';
+                    $color_icono = $color_personal;
+                  }else{
+                    $color_icono = $colores[$seleccion_color];
                   }
+
                   if($value['n_docs_por_recibir']>0){
                     array_push($submenu_buzones_usuarios,
                     [
                             'text'       => $value['nombre_buzon'],
                             'icon'    => $icon,
-                            'icon_color' => $colores[$seleccion_color],
+                            'icon_color' => $color_icono,
                             'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon'],
                             'label'     => $value['n_docs_por_recibir'],
                             'label_color'=>'success'
@@ -126,7 +131,7 @@ class AppServiceProvider extends ServiceProvider
                     [
                             'text'       => $value['nombre_buzon'],
                             'icon'    => $icon,
-                            'icon_color' => $colores[$seleccion_color],
+                            'icon_color' => $color_icono,
                             'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon']
                     ]);
                   }

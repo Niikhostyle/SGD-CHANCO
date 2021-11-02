@@ -62,7 +62,7 @@
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade show active" id="nav-por-recibir" role="tabpanel" aria-labelledby="nav-por-recibir-tab">
-                                <table id="tabla_por_recibir_grilla" class="table dt-responsive nowrap" style="width:100%">
+                                <table id="grilla_por_recibir"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>ID Doc.</th>
@@ -74,38 +74,13 @@
                                             <th>Materia</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach($lista_por_recibir['data'] as $list)
-                                        <tr>
-                                            <td>{{$list['id_doc']}}</td>
-                                            <td>{{$list['f_entrada']}}</td>
-                                            <td>{{$list['contestar_hasta']}}</td>
-                                            <td>{{$list['td']}}</td>
-                                            <td>{{$list['te']}}</td>
-                                            <td>{{$list['origen']}}</td>
-                                            <td>{{$list['materia']}}</td>
-                                            <td>
-                                                <?php
-                                                // foreach($estados_usuario as $estado)
-                                                // if($estado['id_estado_usuario']==$list['id_estado_usuario']){
-                                                //        echo $estado['nombre'];
-                                                // }
-
-                                            ?>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
                                 </table>
-                                {{-- Pagination --}}
-
-
-
-
-
                             </div>
+
+
+
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
-                                <table id="tabla_recibidos_grilla" class="table dt-responsive nowrap" style="width:100%">
+                                <table id="grilla_recibidos"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th></th>
@@ -120,55 +95,40 @@
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach($lista_por_recibir['data'] as $list)
-                                        <tr>
-                                            <td>{{$list['id_doc']}}</td>
-                                            <td>{{$list['f_entrada']}}</td>
-                                            <td>{{$list['contestar_hasta']}}</td>
-                                            <td>{{$list['td']}}</td>
-                                            <td>{{$list['te']}}</td>
-                                            <td>{{$list['origen']}}</td>
-                                            <td>{{$list['materia']}}</td>
+                                </table>
 
-                                            <td>
-                                                <div class="dropdown">
+                                                <!--<div class="dropdown">
+
                                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                          <i class="fas fa-bars"></i>
                                                      </button>
-                                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                         <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>
-                                                         <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id_doc']}})" href="#">
-                                                            @if($list['id_doc']==1)
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                         <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario(list['id_doc'])"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario(list['id_doc'])"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>
+                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario(list['id_doc'])"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>
+                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario($list['id_doc'])"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>
+                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario(list['id_doc'])"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>
+                                                         <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario($list['id_doc'])" href="#">
+                                                            if($list['id_doc']==1)
                                                                 <i class="far fa-star text-green"></i> ( + ) Favoritos
-                                                            @endif
-                                                            @if($list['id_doc']==2)
+                                                            endif
+                                                            if($list['id_doc']==2)
                                                                 <i class="fas fa-star text-green"></i>  ( - ) Favoritos
-                                                            @endif
+                                                            ndif
                                                         </a>
+
                                                      </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                                </div>-->
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab">
-
-
-                                    <table id="tabla_despachados_grilla">
+                                    <table id="grilla_despachados"  class="table dt-responsive nowrap" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th></th>
                                                 <th>E</th>
                                                 <th>ID Doc</th>
-                                                <th>Fecha Despacho</th>
-                                                <th>Fecha Recepción</th>
+                                                <th width="100px">Fecha Despacho</th>
+                                                <th width="50px">Fecha Recepción</th>
                                                 <th>TD</th>
                                                 <th>Destinatario</th>
                                                 <th>Materia</th>
@@ -178,21 +138,6 @@
                                             </tr>
                                         </thead>
                                     </table>
-
-                                <!--           <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                         <i class="fas fa-bars"></i>
-                                                     </button>
-                                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                         <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                                         <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id_doc']}})"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>
-                                                     </div>
-                                                </div>
-                                            </td>
-                                -->
-
                             </div>
                         </div>
 
@@ -216,8 +161,6 @@
                 </div>
                 <div class="card-body">
 
-                    Contenido...
-
                 </div>
               </div>
 
@@ -239,53 +182,49 @@
 
 
 <script>
+
+function cambio_texto_boton_carpetas(texto){
+    if(texto.length>20 || texto.length==0 ){
+        texto='';
+    }
+    $('#boton_carpetas_texto').html('Carpetas - '+texto);
+    if(texto=='Despachados'){
+        $(".nuevo_documento").removeAttr('disabled');
+    }else{
+        $(".nuevo_documento").prop("disabled", true);
+    }
+}
+
  $(document).ready(function () {
     $(".nuevo_documento").prop("disabled", true);
-    var token='Nw5CrZrQBg2qPaTLhtXnwxjixAX5Sm8dPKGvKrhQ';
+
     $(function() {
 
-       /* var settings = {
-        "url": "https://127.0.0.1:451/api/sgd-documentos/listar",
-        "method": "GET",
-        "timeout": 0,
-        "headers": {
-            "Content-Type": "application/json",
-            "key": "3tt0gejsxEVb1JMwEB170enrBfTUhKf3qZyO4UeR"
-        },
-        "data": JSON.stringify({
-            "id_buzon": "107",
-            "id_carpeta": "3"
-        }),
-        };
-
-        $.ajax(settings).done(function (response) {
-        console.log(response);
-        });
-*/
-        $('#tabla_despachados_grilla').DataTable({
+        $('#grilla_por_recibir').DataTable({
             processing: true,
             serverSide: true,
-            //ajax: 'https://127.0.0.1:451/api/sgd-documentos/listar',
-            ajax: {
-                "url": "https://127.0.0.1:451/api/sgd-documentos/listar?id_buzon=107&id_carpeta=3",
-                "type": "GET",
-               /* 'beforeSend': function (request) {
-                    request.setRequestHeader("key", token);
-                },*/
-                "headers": {
-                    "Content-Type": "application/json",
-                    "key": "98XByEJKfozJlr7qTWHuaNS3ZTi85We08s0Qo4fw"
-                },
-                crossDomain : true,
-                xhrFields: {
-                    withCredentials: true
-                },
-                "dataType": "json",
-                /*"data": JSON.stringify({
-                    "id_buzon": "107",
-                    "id_carpeta": "3"
-                }),*/
+            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
+            type:'json',
+            rowReorder: {
+                selector: 'td:nth-child(2)'
             },
+            responsive: true,
+            language: lenguaje_datatable,
+            columns: [
+                { data: 'id_documento', name: 'id_documento' },
+                { data: 'fecha_despacho', name: 'fecha_despacho' },
+                { data: 'contestas_hasta', name: 'contestas_hasta' },
+                { data: 'tipo_documento', name: 'tipo_documento' },
+                { data: 'tipo_envio', name: 'tipo_envio' },
+                { data: 'origen', name: 'origen' },
+                { data: 'materia', name: 'materia' },
+            ]
+        });
+
+       $('#grilla_recibidos').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
             type:'json',
             rowReorder: {
                 selector: 'td:nth-child(2)'
@@ -299,18 +238,72 @@
                         if(data==null){
                             return '';
                         }else{
-
                             if(data==true){
                                 return '<span class="fas fa-check text-green"></span>';
                             }
-
                         }
                     }
                     return '';
-
                   }
                 },
+                { data: 'estado_documento', name: 'estado_documento' },
+                { data: 'id_documento', name: 'id_documento' },
+                { data: 'fecha_recepcion', name: 'fecha_recepcion' },
+                { data: 'contestas_hasta', name: 'contestas_hasta' },
+                { data: 'tipo_documento', name: 'tipo_documento' },
+                { data: 'tipo_envio', name: 'tipo_envio' },
+                { data: 'origen', name: 'origen' },
+                { data: 'materia', name: 'materia' },
+                { data: 'id_buzon',
+                  render: function(data, type) {
+                    if (type === 'display') {
+                        if(data==null){
+                            return '';
+                        }else{
+                            let botonera = '<div class="dropdown">';
+                                botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                    botonera +=' <i class="fas fa-bars"></i>';
+                                    botonera +='                 </button>';
+                                    botonera +='                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                    botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                    botonera +='                    <a class="dropdown-item btn-menu-editar" onclick="editar_usuario('+data+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                    botonera +='                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario('+data+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+                                    botonera +='</div>';
+                                botonera += '</div>';
+                            return botonera;
+                        }
+                    }
+                    return '';
+                  }
+                }
+            ]
+        });
 
+        $('#grilla_despachados').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
+            type:'json',
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true,
+            language: lenguaje_datatable,
+            columns: [
+                { data: 'recibido',
+                  render: function(data, type) {
+                    if (type === 'display') {
+                        if(data==null){
+                            return '';
+                        }else{
+                            if(data==true){
+                                return '<span class="fas fa-check text-green"></span>';
+                            }
+                        }
+                    }
+                    return '';
+                  }
+                },
                 { data: 'estado_documento', name: 'estado_documento' },
                 { data: 'id_documento', name: 'id_documento' },
                 { data: 'fecha_despacho', name: 'fecha_despacho' },
@@ -327,7 +320,6 @@
                             return '';
                         }else{
                             let botonera = '<div class="dropdown">';
-
                                 botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                     botonera +=' <i class="fas fa-bars"></i>';
                                     botonera +='                 </button>';
@@ -337,10 +329,7 @@
                                     botonera +='                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario('+data+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
                                     botonera +='</div>';
                                 botonera += '</div>';
-
                             return botonera;
-
-
                         }
                     }
                     return '';
@@ -348,21 +337,10 @@
                 }
             ]
         });
+
     });
  });
 
-function cambio_texto_boton_carpetas(texto){
-    if(texto.length>20 || texto.length==0 ){
-        texto='';
-    }
-    $('#boton_carpetas_texto').html('Carpetas - '+texto);
-    if(texto=='Despachados'){
-        $(".nuevo_documento").removeAttr('disabled');
-    }else{
-        $(".nuevo_documento").prop("disabled", true);
-    }
 
-
-}
 </script>
 @stop
