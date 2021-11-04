@@ -284,8 +284,7 @@ class BuzonController extends Controller
 
     public function listar(Request $request){
 
-               return datatables(
-                    DB::table('documento_buzon')
+        $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
@@ -296,6 +295,7 @@ class BuzonController extends Controller
                              ->where('documento_buzon_bitacora.id_accion', '=', 1);
                     })
                     ->select(
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
                         'documento_buzon.recibido as recibido',
@@ -312,10 +312,17 @@ class BuzonController extends Controller
                         'documento_buzon.contestar_hasta as contestas_hasta'
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
-                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta)
-                    ->whereIn('documento_buzon.id_estado_documento',array(1,2))
-                )
-                ->toJson();
+                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
+                    if($request->id_carpeta==3){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
+                    }
+                    if($request->id_carpeta==2){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(4,5,6,7,8,9,10,11,12)); //2- Recibido
+                    }
+                    if($request->id_carpeta==1){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
+                    }
+               return datatables( $datos )->toJson();
 
                     /*
                     id_buzon            documento_buzon->id_buzon
