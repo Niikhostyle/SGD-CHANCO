@@ -10,7 +10,7 @@
             <h1>Buzón: {{$nombre_buzon}}</h1>
         </div>
         <div class="col-2">
-            <button type="button" class="btn btn-success nuevo_documento" disabled>Nuevo Documento</button>
+            <button type="button" class="btn btn-success nuevo_documento">Nuevo Documento</button>
         </div>
     </div>
     <div class="linea_content_header"></div>
@@ -98,10 +98,6 @@
                                     </tbody>
                                 </table>
                                 {{-- Pagination --}}
-
-
-
-
 
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
@@ -206,12 +202,11 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" id="card_ver_documento" style="display:none">
         <div class="col-12">
-
             <div class="card" id="documento">
                 <div class="card-header">
-                    <h4 class="card-title">Documento</h4>
+                    <h4>Documento</h4>
                     <div class="linea_content_header"></div>
                 </div>
                 <div class="card-body">
@@ -223,45 +218,489 @@
 
         </div>
     </div>
+    
+    <!-- **DOCUMENTOS** GRILLA CREAR DOCUMENTOS -->
+    <div class="row" id="card_crear_documento" style="display:none">
+        <div class="col-12">
+            <div class="card">            
+                <div class="card-header" >
+                    <h4>Nuevo Documento</h4>
+                    <div class="linea_content_header"></div>
+                </div>
+                <div class="card-body">
+                    
+                    <form class="needs-validation" id="form_crear_editar" method="POST" action="">
+                        @csrf
+                        <div class="container">
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+                                <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
+                                <div class="form-control">ID: <i>No Asignado</i></div>
+                                <div class="form-control">Folio: <i>No Asignado</i></div>
+                                <div class="form-control">Fecha: <i>No Asignado</i></div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Tipo Documento:</label>
+                                <select id="form_tipo_documento" name="tipo_documento" class="form-control">
+                                    <option selected>Seleccionar</option>
+                                    @foreach($listado_tiposdoc as $list)
+                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Nivel Acceso</label>
+                                <select class="form-control" id="form_nivel_acceso" name="nivel_acceso" required>
+                                    <option value="">Seleccionar</option>
+                                    @foreach($nivel_acceso as $dato)
+                                    <option value="{{$dato['id_nivel_acceso']}}">{{$dato['nombre']}}</option>
+                                    @endforeach
+                                </select>
+                                
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Efectos sobre terceros</label>
+                                <select id="form_efectos_terceros" name="efectos_terceros" class="form-control">
+                                    <option selected>Seleccionar</option>
+                                    <option value="true">Si</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Contestar/Hasta</label>
+                                <input type="date" class="form-control" id="form_contestar_hasta" name="contestar_hasta">
+                            </div>        
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputState">Respuesta a:</label>
+                                <select id="form_respuesta_a" name="respuesta_a" class="form-control">
+                                    <option selected>Seleccionar</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="inputState">Materia:</label>
+                                <input type="text" class="form-control" id="form_materia" name="materia">
+                            </div>      
+                        </div>
+            
+                        <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                                <label for="inputState">Anterior:</label>
+                                <input type="text" class="form-control" id="form_anterior" name="anterior">
+                            </div>      
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <label for="floatingTextarea">Descripción o Extracto</label>
+                                <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>   
+                            </div>  
+                        </div>
+                        <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
+                        <div class="form-row row_cuerpo" style="display:none">
+                            <div class="col-md-12">
+                                <label for="exampleFormControlTextarea1">Cuerpo:</label>
+                                <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>                                
+                                <input type="hidden" id="form_encabezado" name="encabezado">
+                            </div>  
+                        </div>
+                
+                        <div class="form-group row_anexo">
+                            <label for="exampleFormControlTextarea1">Anexo:</label>
+                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disabled"></textarea>
+                            <div class="card-body" id="cargar_anexo" style="display:none">
+                                <form action="{{route('files.store')}}" 
+                                    method="POST" 
+                                    class="dropzone"
+                                    id="dropzone-anexo">  
+                                </form>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="form-group row_arch_ppal">
+                            <label for="exampleFormControlTextarea1">Archivo Principal</label>
+                            <textarea class="form-control" id="form_archivo_principal_el" rows="4" disabled="disable"></textarea>
+                            
+                            <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
+                                <form action="{{route('files.store')}}" 
+                                    method="POST" 
+                                    class="dropzone"
+                                    id="dropzone-archivo-ppal">  
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Otros Archivos</label>
+                            <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>   
+            
+                            <div class="card-body" id="cargar_otros_archivos" style="display:none">
+                                <form action="{{route('files.store')}}" 
+                                    method="POST" 
+                                    class="dropzone"
+                                    id="dropzone-otros-archivos">  
+                                </form>
+                            </div>
+                        </div>
+            
+                        <div class="form-row">
+                            
+                            <div class="col-md-8 mb-3">
+                                <label for="inputState">Destinatario Principal:</label>
+                                <input type="text" class="form-control" id="form_destinatario_principal_el" disabled="false">
+                            </div>  
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="inputState">Acciones Solicitadas:</label>
+                                <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
+                                    <option selected>Seleccionar acciones</option>
+                                    <option>...</option>
+                                </select>   
+                                </div>
+                        </div>
+                        <div class="form-floating">
+                            <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
+                            <textarea class="form-control"  id="form_comentario_el" disabled="false"></textarea>   
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                                <label for="inputState">Otro(s) Destinatario(s):</label>
+                                <input type="text" class="form-control" id="form_otros_destinatarios_el" disabled="false">
+                            </div>      
+                        </div>
+                        <div class="form-floating">
+                            <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
+                            <textarea class="form-control"  id="form_comentario_otro_el" disabled="false"></textarea>   
+                        </div>
+                        <br>
+                        
+                        <div class="form-row">
+                            <div class="col-md-10"> </div>
+                            <div class="col-md-1">
+                                <button type="button"  class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button"  class="btn btn-success btn-submit w-100">Guardar</button>
+                                <input type="text" name="hiddIdDocumento" id="hiddIdDocumento" value="">
+                                <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
+                                <input type="hidden" name="hiddIdUsuario" id="hiddIdUsuario" value="">
+                                <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
+                            </div>
+                        </div>     
+                    </form>   
+                </div>
 
-<!--</div>-->
+            </div>
+
+        </div>
+    </div>
+    <!-- **DOCUMENTOS** GRILLA CREAR DOCUMENTOS -->
 
 @stop
 
 @section('css')
 
     <link rel="stylesheet" href="/css/admin_custom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <style type="text/css">
 
+        .flex-container {
+            display: flex;
+            flex-wrap: nowrap;
+            background-color: rgb(208, 228, 191);
+            border: 1px solid #5a8fc7;
+        }
+        
+        .flex-container > div {
+            background-color: #b5e4b9;
+            border: 1px solid #5a8fc7;
+            width: 100px;
+            margin: 15px;
+            text-align: center;
+            line-height: 20px;
+            font-size: 15px;
+        }
+
+     </style>
 @stop
 
 @section('js')
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
 
 <script>
+
+    //dropzone
+
+    //desactivar opciones de el formulario documento
+
+    form_anexo.disabled=true;
+    form_archivo_principal_el.disabled=true;
+    form_otros_archivos_el.disabled=true;
+    form_destinatario_principal_el.disabled=true;
+    form_acciones_solicitadas_el.disabled=true;
+    form_comentario_el.disabled=true;
+    form_otros_destinatarios_el.disabled=true;
+    form_comentario_otro_el.disabled=true;
+
+    //dropzone   
+    Dropzone.options.dropzoneAnexo = {
+        headers:{
+            'X-CSRF-TOKEN' : "{{csrf_token()}}"
+        },
+        dictDefaultMessage: "Arrastre y suelte archivos aquí",
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        params: {id_documento_buzon: 30, 'id_tipo_archivo' : 2},
+        createImageThumbnails: true,
+        timeout: 50000,
+    };
+
+    Dropzone.options.dropzoneOtrosArchivos = {
+        headers:{
+            'X-CSRF-TOKEN' : "{{csrf_token()}}"
+        },
+        dictDefaultMessage: "Arrastre y suelte archivos aquí",
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        params: {id_documento_buzon: 30, 'id_tipo_archivo' : 3},
+        createImageThumbnails: true,
+        timeout: 50000,
+           
+    };
+
+    Dropzone.options.dropzoneArchivoPpal = {
+        headers:{
+            'X-CSRF-TOKEN' : "{{csrf_token()}}"
+        },
+        maxFiles: 1,
+        dictDefaultMessage: "Arrastre y suelte archivos aquí",
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        params: {'id_documento_buzon': 30, 'id_tipo_archivo' : 1},
+        createImageThumbnails: true,
+            timeout: 50000,
+            
+    };
+
+
+    $(".boton_desplegar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').show();
+        $('#card_desplegar_versiones').hide();                        
+    });
+
+    $(".boton_ocultar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+
+    });
+
+    /* **DOCUMENTOS** SCRIPT */
+
+    const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
+
+    $(".nuevo_documento").click(function(e){
+        
+        $('#card_crear_documento').show();
+                
+    });
+
+    $("#form_tipo_documento").change(function(){
+        datosTipoDoc($(this).val());
+    });
+
+    function datosTipoDoc(id)
+    { 
+        $.ajax({
+                url: "../tipos_documentos/"+id, 
+                type:'GET', 
+                dataType: 'json',
+                success: function(data) { 
+                    if(data.status=='400') { 
+                        toastr.error(data.data.comentario,"Aviso!");                        
+                    }
+                    else { 
+                        if(data.status=='200' || data.status=='201')
+                        {
+                            $("input[name='encabezado']").val(data.data.plantilla_encabezado);
+                            $("input[name='hiddIdOrigen']").val(data.data.id_tipo_origen);
+                            
+                            //editor_encabezado.setData(data.data.plantilla_encabezado);   
+                            editor_cuerpo.setData(data.data.plantilla_cuerpo); 
+                            
+                            if (data.data.id_tipo_origen == 1) //interno
+                            {
+                                $('.row_cuerpo').show();  
+                                $('.row_arch_ppal').hide(); 
+                                $('.row_anexo').show();                                 
+                            }
+                            if (data.data.id_tipo_origen == 2) //externo
+                            {
+                                $('.row_cuerpo').hide();  
+                                $('.row_arch_ppal').show(); 
+                                $('.row_anexo').hide();  
+                            }
+                        } 
+                    } 
+                    $('.btn-submit').prop("disabled", false); 
+                }, 
+                error: function (jqXHR, textStatus, errorThrown) {                                                      
+                    toastr.error("Falla al obtener datos","Aviso!");
+                    $('.btn-submit').prop("disabled", false); 
+
+                }  
+            }); 
+    }
+
+    //SUBMIT
+    $(".btn-submit").click(function(e)
+    {
+        e.preventDefault();
+
+        $('.btn-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
+        );
+        
+        $(".print-error-msg").hide();
+        var _token = $("input[name='_token']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        var efectos_terceros = $("select[name='efectos_terceros']").val();
+        var contestar_hasta = $("input[name='contestar_hasta']").val();
+        var materia = $("input[name='materia']").val();
+        var anterior = $("input[name='anterior']").val();
+        var descripcion = $("textarea[name='descripcion']").val();
+
+        var encabezado = $("input[name='encabezado']").val();
+        var cuerpo = editor_cuerpo.getData();
+
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+
+        if (hiddIdDocumento == '') //crear
+        {
+            var urlAccion = "{{route('buzones.store_documento')}}";
+            var typeAccion = 'POST';
+        }
+        else //editar
+        {
+            var urlAccion = "";
+            var typeAccion = 'PUT';
+        }    
+
+        $.ajax({
+            url: urlAccion,
+            type: typeAccion,
+            dataType: 'json',
+            data: { 
+                _token:_token, 
+                tipo_documento:tipo_documento, 
+                nivel_acceso:nivel_acceso, 
+                descripcion:descripcion,
+                efectos_terceros:efectos_terceros,
+                contestar_hasta:contestar_hasta,
+                materia:materia,
+                anterior:anterior,
+                encabezado:encabezado,
+                cuerpo:cuerpo,
+                buzon:hiddIdBuzon,
+                hiddIdDocumento:hiddIdDocumento
+            },
+            success: function(data) 
+            {
+           
+                if(data.status == '200')
+                {
+                    toastr.success("Tipo de Documento actualizado","Aviso!");
+                    
+                }
+                else if(data.status == '201')
+                {
+                    Swal.fire({
+                    icon: 'info',
+                    title: 'Borrador guardado',
+                    html: "Se ha guardado exitosamente el borrador del documento: <br>" +
+                          "<b>ID: </b><br>" +
+                          "<b>Materia: " + data.data.materia + "</b>",
+                    }); 
+
+                    $('#form_tipo_documento').prop("disabled", true); 
+
+                    console.log(data.data.rel_documento_buzon[0]['id_documento_buzon']);  
+                    
+                    $("input[name='hiddIdDocumento']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
+
+                    console.log($("input[name='hiddIdDocumento']").val());
+
+                    //habilita para guardar documentos
+
+                    if ($("input[name='hiddIdOrigen']").val() == 1)
+                    {
+                        //$('#form_anexo').prop("disabled", false);
+                        //$('#cargar_anexo').prop("disabled", false);   
+                        $('#form_anexo').hide();
+                        $('#cargar_anexo').show();                 
+    
+                    }
+
+                    if ($("input[name='hiddIdOrigen']").val() == 2)
+                    {
+                        //$('#form_archivo_principal_el').prop("disabled", false);
+                        //$('#cargar_archivo_principal_el').prop("disabled", false); 
+
+                        $('#form_archivo_principal_el').hide();
+                        $('#cargar_archivo_principal_el').show();
+                    }
+                    
+
+                    
+                    $('#form_otros_archivos_el').hide();
+                    $('#cargar_otros_archivos').show();
+                    
+
+                   
+                    //$('#form_otros_archivos_el').prop("disabled", false);
+                    //$('#cargar_otros_archivos').prop("disabled", false);
+                    
+                    $('#form_destinatario_principal_el').prop("disabled", false);
+                    $('#form_acciones_solicitadas_el').prop("disabled", false);
+                    $('#form_comentario_el').prop("disabled", false);
+                    $('#form_otros_destinatarios_el').prop("disabled", false);
+                    $('#form_comentario_otro_el').prop("disabled", false);
+
+                   
+                }
+                else
+                {
+                    toastr.error(data.data.comentario,"Aviso!");                    
+                }
+
+                $('.btn-submit').html( 'Guardar' );
+            },
+            error: function (jqXHR, textStatus, errorThrown) {                                                      
+
+                toastr.error("Falla en el tipo de documento","Aviso!");
+
+                $('.btn-submit').html( 'Guardar' );
+            } 
+            
+        });             
+    });
+
+    /* **DOCUMENTOS** SCRIPT */
+
  $(document).ready(function () {
-    $(".nuevo_documento").prop("disabled", true);
+    
     var token='Nw5CrZrQBg2qPaTLhtXnwxjixAX5Sm8dPKGvKrhQ';
     $(function() {
 
-       /* var settings = {
-        "url": "https://127.0.0.1:451/api/sgd-documentos/listar",
-        "method": "GET",
-        "timeout": 0,
-        "headers": {
-            "Content-Type": "application/json",
-            "key": "3tt0gejsxEVb1JMwEB170enrBfTUhKf3qZyO4UeR"
-        },
-        "data": JSON.stringify({
-            "id_buzon": "107",
-            "id_carpeta": "3"
-        }),
-        };
-
-        $.ajax(settings).done(function (response) {
-        console.log(response);
-        });
-*/
         $('#tabla_despachados_grilla').DataTable({
             processing: true,
             serverSide: true,

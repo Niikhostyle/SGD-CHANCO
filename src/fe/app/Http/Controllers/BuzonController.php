@@ -271,17 +271,76 @@ class BuzonController extends Controller
             }
         }
 
+        /* NUEVO-DOCUMENTOS */
 
-        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon,
-        'lista_por_recibir'=>$lista_por_recibir,
-        'perfiles'=>$perfiles_datos,
-        'estados_usuario'=>$estados_usuario,
-        'n_docs_por_recibir'=>$n_docs_por_recibir,
-        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes
+        //tipos de documentos
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];           
+
+        }
+        //parametros
+        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+        
+        if($listado_parametros->failed()){
+            toast("Error al mostrar datos",'error');
+        }else{
+            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
+        }
+
+        $datosBuzon = $this->show($id);
+
+        /* NUEVO-DOCUMENTOS */
+        
+        return View::make('buzon.carpetas',[
+            //'nombre_buzon' => $nombre_buzon,
+            'lista_por_recibir' => $lista_por_recibir,
+            'perfiles' => $perfiles_datos,
+            'estados_usuario' => $estados_usuario,
+            'n_docs_por_recibir' => $n_docs_por_recibir,
+            'n_docs_recibidos_pendientes' => $n_docs_recibidos_pendientes,
+            'nivel_acceso' => $datosNivelAcceso,
+            'nombre_buzon' => $datosBuzon['data']['nombre'],
+            'listado_tiposdoc'=>$datosTipoDoc,
+            'id_buzon' => $id
         ]);
     }
 
+    public function store_documento(Request $request)
+    {
 
+        $sesion_key =  AppServiceProvider::session_key_general();
 
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->post('http://sgd_ms_documentos:3333/api/sgd-documentos/crear', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id
+        ]);
 
+        return $accionDocumento->json();
+
+    } 
+ 
 }
