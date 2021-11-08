@@ -14,7 +14,9 @@ class DocumentoBuzonArchivoController extends Controller
 {
     public function store (Request $request)
     {
-        
+        //obetener el primer registro
+        //$file = File::where('id', $file)->first();
+
         $numero = rand(100000,9999999);
         $imagenes = $request->file('file')->store('public/imagenes');
         $nombre = $request->file('file')->getClientOriginalName();
@@ -37,10 +39,11 @@ class DocumentoBuzonArchivoController extends Controller
 
     public function destroy (DocumentoBuzonArchivo $file)
     {
-        
+        //elimina el registro de la carpeta local
         $url = str_replace('storage', 'public', $file->url);
         Storage::delete($url);
         
+        //elimina el registro de la base de datos
         $file->delete();
         return redirect()->route('buscador.index');
     }
