@@ -288,6 +288,7 @@ class BuzonController extends Controller
             $datosTipoDoc = $listado_tiposdoc['data'];           
 
         }
+
         //parametros
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
@@ -299,7 +300,56 @@ class BuzonController extends Controller
             $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
         }
 
-        $datosBuzon = $this->show($id);
+        $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
+        $datosAccion = $listado_parametros['data']['accion'];
+
+        //acciones
+        $aAcciones = [];
+        foreach ($datosAccion as $dato)
+            $aAcciones[$dato['id_accion']] = $dato['nombre'];
+
+        //acciones-flujo
+        
+        foreach ($datosFlujoAccion as $dato)
+        {
+            if ($dato['id_tipo_flujo'] == 2) //Controlado
+            {
+                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);    
+            }
+
+            if ($dato['id_tipo_flujo'] == 3) //Mixto
+            {
+                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);      
+            }  
+        }
+
+
+        $datosBuzon = $this->show($id); //muestra metodo show
+
+        //listado de buzones
+
+        $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'texto_busqueda' => '',
+        ]), 'json')
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+
+        if($listado_buzones->failed()){
+            $listado_buzones->json()['data']['comentario'];
+
+            $listado_buzones=['data'=>[
+                0=>['id'=>'0','nombre'=>'Sin Datos']
+            ]];
+            toast($mensaje,'error');
+        }else{
+
+            foreach ($listado_buzones['data'] as $dato)
+            {
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];    
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon'] 
+            }  
+        }
 
         /* NUEVO-DOCUMENTOS */
         
@@ -313,13 +363,16 @@ class BuzonController extends Controller
             'nivel_acceso' => $datosNivelAcceso,
             'nombre_buzon' => $datosBuzon['data']['nombre'],
             'listado_tiposdoc'=>$datosTipoDoc,
-            'id_buzon' => $id
+            'id_buzon' => $id,
+            'acciones_tipoflujo2'=>$aFlujoAccionT2,
+            'acciones_tipoflujo3'=>$aFlujoAccionT3,
+            'listadoBuzones'=>$aBuzones,
+            'allBuzones'=>$aAllBuzones 
         ]);
     }
 
     public function store_documento(Request $request)
     {
-
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -342,5 +395,36 @@ class BuzonController extends Controller
         return $accionDocumento->json();
 
     } 
- 
+
+    public function update_documento(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'comentarioPrincipal'=>$request->comentarioPrincipal,
+            'comentarioOtros'=>$request->comentarioOtros
+        ]);
+
+        return $accionDocumento->json();
+        
+    } 
+
 }

@@ -234,7 +234,7 @@
                         <div class="container">
                             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                                 <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
-                                <div class="form-control">ID: <i>No Asignado</i></div>
+                                <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
                                 <div class="form-control">Folio: <i>No Asignado</i></div>
                                 <div class="form-control">Fecha: <i>No Asignado</i></div>
                             </div>
@@ -300,6 +300,7 @@
                                 <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>   
                             </div>  
                         </div>
+                        
                         <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
                         <div class="form-row row_cuerpo" style="display:none">
                             <div class="col-md-12">
@@ -352,14 +353,13 @@
                             
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Destinatario Principal:</label>
-                                <input type="text" class="form-control" id="form_destinatario_principal_el" disabled="false">
+                                <input type="text" class="form-control" id="form_destinatario_principal_el" data-role="tagsinput" disabled="false">
                             </div>  
                             
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Acciones Solicitadas:</label>
-                                <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
-                                    <option selected>Seleccionar acciones</option>
-                                    <option>...</option>
+                                <select id="form_acciones_solicitadas_el" class="form-control">
+                                    <option>Seleccionar acciones</option>
                                 </select>   
                                 </div>
                         </div>
@@ -370,7 +370,7 @@
                         <div class="form-row">
                             <div class="col-md-12 mb-3">
                                 <label for="inputState">Otro(s) Destinatario(s):</label>
-                                <input type="text" class="form-control" id="form_otros_destinatarios_el" disabled="false">
+                                <input type="text" class="form-control" id="form_otros_destinatarios_el" data-role="tagsinput"  disabled="false">
                             </div>      
                         </div>
                         <div class="form-floating">
@@ -380,13 +380,16 @@
                         <br>
                         
                         <div class="form-row">
-                            <div class="col-md-10"> </div>
+                            <div class="col-md-9"> </div>
                             <div class="col-md-1">
                                 <button type="button"  class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
                             </div>
-                            <div class="col-md-1">
-                                <button type="button"  class="btn btn-success btn-submit w-100">Guardar</button>
-                                <input type="text" name="hiddIdDocumento" id="hiddIdDocumento" value="">
+                            <div class="col-md-2 btn-toolbar">
+                                <button type="button" class="btn btn-success btn-guardar-submit w-50">Guardar</button>
+                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>
+
+                                <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
+                                <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                 <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                 <input type="hidden" name="hiddIdUsuario" id="hiddIdUsuario" value="">
                                 <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
@@ -407,6 +410,8 @@
 
     <link rel="stylesheet" href="/css/admin_custom.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
+    <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 
     <style type="text/css">
 
@@ -427,6 +432,27 @@
             font-size: 15px;
         }
 
+        .label-info {
+            background-color:#5bc0de
+        }
+        .label-info[href]:focus,
+        .label-info[href]:hover {
+            background-color:#31b0d5
+        }
+        .label {
+            display: inline-block;
+            padding: .25em .4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+
+        }
+
      </style>
 @stop
 
@@ -434,8 +460,49 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+<script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 
 <script>
+
+    //globales
+
+    const accionesFlujo2 = @json($acciones_tipoflujo2);
+    const accionesFlujo3 = @json($acciones_tipoflujo3);
+    var allBuzones = @json($allBuzones);
+    const listadoBuzones = @json($listadoBuzones);
+
+    var idTipoFlujo = "";
+    
+    //tags input
+
+    var allBuzones = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: allBuzones
+    });
+    allBuzones.initialize();    
+
+    $('#form_destinatario_principal_el').tagsinput({
+        maxTags: 1,
+        itemValue: 'value',
+        itemText: 'text',
+        typeaheadjs: {
+            name: 'allBuzones',
+            displayKey: 'text',            
+            source: allBuzones.ttAdapter()
+        }
+    });
+
+    $('#form_otros_destinatarios_el').tagsinput({
+        itemValue: 'value',
+        itemText: 'text',
+        typeaheadjs: {
+            name: 'allBuzones',
+            displayKey: 'text',            
+            source: allBuzones.ttAdapter()
+        }
+    });
 
     //dropzone
 
@@ -450,7 +517,11 @@
     form_otros_destinatarios_el.disabled=true;
     form_comentario_otro_el.disabled=true;
 
-    //dropzone   
+
+    //dropzone 
+
+    var idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();  
+        
     Dropzone.options.dropzoneAnexo = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
@@ -458,7 +529,7 @@
         dictDefaultMessage: "Arrastre y suelte archivos aquí",
         acceptedFiles: "image/*",
         addRemoveLinks: true,
-        params: {id_documento_buzon: 30, 'id_tipo_archivo' : 2},
+        params: {id_documento_buzon: idDocumentoBuzon, 'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
     };
@@ -470,10 +541,10 @@
         dictDefaultMessage: "Arrastre y suelte archivos aquí",
         acceptedFiles: "image/*",
         addRemoveLinks: true,
-        params: {id_documento_buzon: 30, 'id_tipo_archivo' : 3},
+        params: {id_documento_buzon: idDocumentoBuzon, 'id_tipo_archivo' : 3},
         createImageThumbnails: true,
         timeout: 50000,
-           
+        
     };
 
     Dropzone.options.dropzoneArchivoPpal = {
@@ -484,7 +555,7 @@
         dictDefaultMessage: "Arrastre y suelte archivos aquí",
         acceptedFiles: "image/*",
         addRemoveLinks: true,
-        params: {'id_documento_buzon': 30, 'id_tipo_archivo' : 1},
+        params: {'id_documento_buzon': idDocumentoBuzon, 'id_tipo_archivo' : 1},
         createImageThumbnails: true,
             timeout: 50000,
             
@@ -532,6 +603,9 @@
                             $("input[name='encabezado']").val(data.data.plantilla_encabezado);
                             $("input[name='hiddIdOrigen']").val(data.data.id_tipo_origen);
                             
+                            idTipoFlujo = data.data.id_tipo_flujo;
+
+                            console.log(idTipoFlujo);
                             //editor_encabezado.setData(data.data.plantilla_encabezado);   
                             editor_cuerpo.setData(data.data.plantilla_cuerpo); 
                             
@@ -549,26 +623,48 @@
                             }
                         } 
                     } 
-                    $('.btn-submit').prop("disabled", false); 
+                    $('.btn-guardar-submit').prop("disabled", false); 
                 }, 
                 error: function (jqXHR, textStatus, errorThrown) {                                                      
                     toastr.error("Falla al obtener datos","Aviso!");
-                    $('.btn-submit').prop("disabled", false); 
+                    $('.btn-guardar-submit').prop("disabled", false); 
 
                 }  
             }); 
     }
 
     //SUBMIT
-    $(".btn-submit").click(function(e)
+    $(".btn-guardar-submit").click(function(e)
     {
         e.preventDefault();
 
-        $('.btn-submit').html(
+        $('.btn-guardar-submit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
         );
         
         $(".print-error-msg").hide();
+        
+        guarda_documento();       
+        
+    });
+
+    $(".btn-enviar-submit").click(function(e)
+    {
+        e.preventDefault();
+
+        $('.btn-enviar-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviar'
+        );
+        
+        $(".print-error-msg").hide();
+        
+        guarda_documento();   
+        enviar_documento();    
+        
+    });
+
+    function guarda_documento()
+    {
         var _token = $("input[name='_token']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -583,7 +679,14 @@
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
+
+        var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();//.tagsinput('items')
+        var comentarioPrincipal = $('#form_comentario_el').val();
+        var comentarioOtros = $('#form_comentario_otro_el').val();
+        
         if (hiddIdDocumento == '') //crear
         {
             var urlAccion = "{{route('buzones.store_documento')}}";
@@ -591,7 +694,7 @@
         }
         else //editar
         {
-            var urlAccion = "";
+            var urlAccion = "{{route('buzones.update_documento')}}";
             var typeAccion = 'PUT';
         }    
 
@@ -611,7 +714,12 @@
                 encabezado:encabezado,
                 cuerpo:cuerpo,
                 buzon:hiddIdBuzon,
-                hiddIdDocumento:hiddIdDocumento
+                destinatarioPrincipal:destinatarioPrincipal,
+                destinatarioOtros:otrosDestinatarios,
+                comentarioPrincipal:comentarioPrincipal,
+                comentarioOtros:comentarioOtros,
+                hiddIdDocumento:hiddIdDocumento,
+                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon
             },
             success: function(data) 
             {
@@ -627,15 +735,15 @@
                     icon: 'info',
                     title: 'Borrador guardado',
                     html: "Se ha guardado exitosamente el borrador del documento: <br>" +
-                          "<b>ID: </b><br>" +
+                          "<b>ID: " + data.data.identificador + "</b><br>" +
                           "<b>Materia: " + data.data.materia + "</b>",
                     }); 
 
                     $('#form_tipo_documento').prop("disabled", true); 
 
-                    console.log(data.data.rel_documento_buzon[0]['id_documento_buzon']);  
-                    
-                    $("input[name='hiddIdDocumento']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
+                    $("input[name='hiddIdDocumentoBuzon']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
+                    $("input[name='hiddIdDocumento']").val(data.data.id_documento);
+                    $("#idAsignado").text(data.data.identificador);
 
                     console.log($("input[name='hiddIdDocumento']").val());
 
@@ -643,56 +751,92 @@
 
                     if ($("input[name='hiddIdOrigen']").val() == 1)
                     {
-                        //$('#form_anexo').prop("disabled", false);
-                        //$('#cargar_anexo').prop("disabled", false);   
                         $('#form_anexo').hide();
                         $('#cargar_anexo').show();                 
-    
                     }
 
                     if ($("input[name='hiddIdOrigen']").val() == 2)
                     {
-                        //$('#form_archivo_principal_el').prop("disabled", false);
-                        //$('#cargar_archivo_principal_el').prop("disabled", false); 
-
                         $('#form_archivo_principal_el').hide();
                         $('#cargar_archivo_principal_el').show();
-                    }
-                    
+                    }                   
 
                     
                     $('#form_otros_archivos_el').hide();
                     $('#cargar_otros_archivos').show();
                     
-
-                   
-                    //$('#form_otros_archivos_el').prop("disabled", false);
-                    //$('#cargar_otros_archivos').prop("disabled", false);
-                    
                     $('#form_destinatario_principal_el').prop("disabled", false);
-                    $('#form_acciones_solicitadas_el').prop("disabled", false);
+                    //$('#form_acciones_solicitadas_el').prop("disabled", false);
                     $('#form_comentario_el').prop("disabled", false);
                     $('#form_otros_destinatarios_el').prop("disabled", false);
                     $('#form_comentario_otro_el').prop("disabled", false);
 
-                   
+                    //habilita botón enviar
+
+                    if ($("input[name='hiddIdDocumento']").val() != '')
+                        $('.btn-enviar-submit').show();
+                    
+                    //completar select form_acciones_solicitadas_el - se obtienen las acciones del orden 1 del flujo de buzones          
+
+                    var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
+                    var jsonAcciones = json_tipo_doc['buzones_flujo'];
+
+                    for (let i in jsonAcciones) {
+                        if (jsonAcciones[i].orden == 1)
+                        {
+                            var aAcciones = jsonAcciones[i].acciones;
+                            var idBuzonAccion = jsonAcciones[i].id_buzon;
+                        }
+                    }
+
+                    //obtener todas las acciones asociadas al tipo de flujo asociado al tipo de documento => idTipoFlujo
+
+                    if (idTipoFlujo == 2)
+                    {
+                        for (let i in accionesFlujo2)
+                        {
+                            if (accionesFlujo2[i][0] == aAcciones[0]['id_accion'])
+                                $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo2[i][0]+"' >"+accionesFlujo2[i][1]+"</option>");                            
+                        }
+                    }   
+                    if (idTipoFlujo == 3)
+                    {
+                        for (let i in accionesFlujo3)
+                        {
+                            if (accionesFlujo3[i][0] == aAcciones[0]['id_accion'])
+                                $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo3[i][0]+"' >"+accionesFlujo3[i][1]+"</option>"); 
+                        }
+                    }  
+
+                    //agrega primer elemento en destinatario principal
+                    var nombreBuzon = listadoBuzones[idBuzonAccion];
+                    $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});              
+
+                 
                 }
                 else
                 {
                     toastr.error(data.data.comentario,"Aviso!");                    
                 }
 
-                $('.btn-submit').html( 'Guardar' );
+                $('.btn-guardar-submit').html( 'Guardar' );
             },
             error: function (jqXHR, textStatus, errorThrown) {                                                      
 
                 toastr.error("Falla en el tipo de documento","Aviso!");
 
-                $('.btn-submit').html( 'Guardar' );
+                $('.btn-guardar-submit').html( 'Guardar' );
             } 
             
         });             
-    });
+
+
+    }
+
+    function enviar_documento()
+    {
+        console.log('envia documento');
+    }
 
     /* **DOCUMENTOS** SCRIPT */
 
