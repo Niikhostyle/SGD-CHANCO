@@ -4,6 +4,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\BuzonController;
 use App\Http\Controllers\TipoDocumentoController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FavoritoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +49,6 @@ Route::middleware(['auth:sanctum', 'verified'])->put('tipos_documentos',[Tipodoc
 Route::middleware(['auth:sanctum', 'verified'])->get('tipos_documentos/{id}',[TipodocumentoController::class,'show'])->name('tipos_documentos.show');
 Route::middleware(['auth:sanctum', 'verified'])->delete('tipos_documentos/{id}',[TipodocumentoController::class,'delete'])->name('tipos_documentos.delete');
 
+//favorito
+Route::middleware(['auth:sanctum', 'verified'])->get('favoritos',[FavoritoController::class,'index'])->name('favoritos.index');
+Route::middleware(['auth:sanctum', 'verified'])->get('favoritos/{id}',[FavoritoController::class,'show'])->name('favoritos.show');
