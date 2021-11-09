@@ -246,7 +246,7 @@
                                 <select id="form_tipo_documento" name="tipo_documento" class="form-control">
                                     <option selected>Seleccionar</option>
                                     @foreach($listado_tiposdoc as $list)
-                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                    <option id="tipo_documento" value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -309,15 +309,16 @@
                                 <input type="hidden" id="form_encabezado" name="encabezado">
                             </div>  
                         </div>
-                
-                        <div class="form-group row_anexo">
+                                               
+                       <div class="form-group row_anexo" style="display:none">
                             <label for="exampleFormControlTextarea1">Anexo:</label>
-                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disabled"></textarea>
-                            <div class="card-body" id="cargar_anexo" style="display:none">
+                            <textarea class="form-control" id="form_anexo" rows="4" ></textarea>
+                            
+                            <div class="card-body" id="cargar_anexo" >
                                 <form action="{{route('files.store')}}" 
                                     method="POST" 
                                     class="dropzone"
-                                    id="dropzone-anexo">  
+                                    id="dropzone-pruebas-archivos">  
                                 </form>
                             </div>
                             
@@ -336,6 +337,19 @@
                             </div>
                         </div>
                         
+                        <div class="form-group row_pruebas">
+                            <label for="exampleFormControlTextarea1">Anexo</label>
+                            <textarea class="form-control" id="form_pruebas_archivos" rows="4" disabled="disable"></textarea>
+                            
+                            <div class="card-body" id="cargar_pruebas_archivos" style="display:none">
+                                <form action="{{route('files.store')}}" 
+                                    method="POST" 
+                                    class="dropzone"
+                                    id="dropzone-pruebas-archivos">  
+                                </form>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Otros Archivos</label>
                             <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>   
@@ -348,6 +362,8 @@
                                 </form>
                             </div>
                         </div>
+
+                       
             
                         <div class="form-row">
                             
@@ -508,7 +524,7 @@
 
     //desactivar opciones de el formulario documento
 
-    form_anexo.disabled=true;
+    //form_anexo.disabled=true;
     form_archivo_principal_el.disabled=true;
     form_otros_archivos_el.disabled=true;
     form_destinatario_principal_el.disabled=true;
@@ -516,6 +532,7 @@
     form_comentario_el.disabled=true;
     form_otros_destinatarios_el.disabled=true;
     form_comentario_otro_el.disabled=true;
+    form_pruebas_archivos=true;
 
 
     //dropzone 
@@ -561,6 +578,17 @@
             
     };
 
+    Dropzone.options.dropzonePruebasArchivos = {
+        headers:{
+            'X-CSRF-TOKEN' : "{{csrf_token()}}"
+        },
+        dictDefaultMessage: "Arrastre y suelte archivos aquí",
+        acceptedFiles: "image/*",
+        addRemoveLinks: true,
+        params: {id_documento_buzon: 30, 'id_tipo_archivo' : 2},
+        createImageThumbnails: true,
+        timeout: 50000,
+    };
 
     $(".boton_desplegar_versiones_anteriores").click(function(e){
         $('#card_ocultar_versiones').show();
@@ -613,13 +641,13 @@
                             {
                                 $('.row_cuerpo').show();  
                                 $('.row_arch_ppal').hide(); 
-                                $('.row_anexo').show();                                 
+                                $('.row_pruebas').show();                                 
                             }
                             if (data.data.id_tipo_origen == 2) //externo
                             {
                                 $('.row_cuerpo').hide();  
                                 $('.row_arch_ppal').show(); 
-                                $('.row_anexo').hide();  
+                                $('.row_pruebas').hide();  
                             }
                         } 
                     } 
