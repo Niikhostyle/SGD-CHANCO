@@ -288,7 +288,7 @@
 
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Acciones Solicitadas:</label>
-                                <select id="form_acciones_solicitadas_el" class="form-control">
+                                <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
                                     <option>Seleccionar acciones</option>
                                 </select>
                                 </div>
@@ -316,177 +316,7 @@
                             </div>
                             <div class="col-md-2 btn-toolbar">
                                 <button type="button" class="btn btn-success btn-guardar-submit w-50">Guardar</button>
-                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>
-
-    <!-- **DOCUMENTOS** GRILLA CREAR DOCUMENTOS -->
-    <div class="row" id="card_crear_documento" style="display:none">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header" >
-                    <h4>Nuevo Documento</h4>
-                    <div class="linea_content_header"></div>
-                </div>
-                <div class="card-body">
-
-                    <form class="needs-validation" id="form_crear_editar" method="POST" action="">
-                        @csrf
-                        <div class="container">
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                                <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
-                                <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
-                                <div class="form-control">Folio: <i>No Asignado</i></div>
-                                <div class="form-control">Fecha: <i>No Asignado</i></div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="form-row">
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Tipo Documento:</label>
-                                <select id="form_tipo_documento" name="tipo_documento" class="form-control">
-                                    <option selected>Seleccionar</option>
-                                    @foreach($listado_tiposdoc as $list)
-                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Nivel Acceso</label>
-                                <select class="form-control" id="form_nivel_acceso" name="nivel_acceso" required>
-                                    <option value="">Seleccionar</option>
-                                    @foreach($nivel_acceso as $dato)
-                                    <option value="{{$dato['id_nivel_acceso']}}">{{$dato['nombre']}}</option>
-                                    @endforeach
-                                </select>
-
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Efectos sobre terceros</label>
-                                <select id="form_efectos_terceros" name="efectos_terceros" class="form-control">
-                                    <option selected>Seleccionar</option>
-                                    <option value="true">Si</option>
-                                    <option value="false">No</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Contestar/Hasta</label>
-                                <input type="date" class="form-control" id="form_contestar_hasta" name="contestar_hasta">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-4 mb-3">
-                                <label for="inputState">Respuesta a:</label>
-                                <select id="form_respuesta_a" name="respuesta_a" class="form-control">
-                                    <option selected>Seleccionar</option>
-                                    <option>...</option>
-                                </select>
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label for="inputState">Materia:</label>
-                                <input type="text" class="form-control" id="form_materia" name="materia">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-12 mb-3">
-                                <label for="inputState">Anterior:</label>
-                                <input type="text" class="form-control" id="form_anterior" name="anterior">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Descripción o Extracto</label>
-                                <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>
-                            </div>
-                        </div>
-
-                        <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
-                        <div class="form-row row_cuerpo" style="display:none">
-                            <div class="col-md-12">
-                                <label for="exampleFormControlTextarea1">Cuerpo:</label>
-                                <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
-                                <input type="hidden" id="form_encabezado" name="encabezado">
-                            </div>
-                        </div>
-
-                        <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexo:</label>
-                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disabled"></textarea>
-                            <div class="card-body" id="cargar_anexo" style="display:none">
-                                <form action="{{route('files.store')}}"
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-anexo">
-                                </form>
-                            </div>
-
-                        </div>
-
-                        <div class="form-group row_arch_ppal">
-                            <label for="exampleFormControlTextarea1">Archivo Principal</label>
-                            <textarea class="form-control" id="form_archivo_principal_el" rows="4" disabled="disable"></textarea>
-
-                            <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
-                                <form action="{{route('files.store')}}"
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-archivo-ppal">
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="exampleFormControlTextarea1">Otros Archivos</label>
-                            <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>
-
-                            <div class="card-body" id="cargar_otros_archivos" style="display:none">
-                                <form action="{{route('files.store')}}"
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-otros-archivos">
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-
-                            <div class="col-md-8 mb-3">
-                                <label for="inputState">Destinatario Principal:</label>
-                                <input type="text" class="form-control" id="form_destinatario_principal_el" data-role="tagsinput" disabled="false">
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="inputState">Acciones Solicitadas:</label>
-                                <select id="form_acciones_solicitadas_el" class="form-control">
-                                    <option>Seleccionar acciones</option>
-                                </select>
-                                </div>
-                        </div>
-                        <div class="form-floating">
-                            <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
-                            <textarea class="form-control"  id="form_comentario_el" disabled="false"></textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12 mb-3">
-                                <label for="inputState">Otro(s) Destinatario(s):</label>
-                                <input type="text" class="form-control" id="form_otros_destinatarios_el" data-role="tagsinput"  disabled="false">
-                            </div>
-                        </div>
-                        <div class="form-floating">
-                            <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                            <textarea class="form-control"  id="form_comentario_otro_el" disabled="false"></textarea>
-                        </div>
-                        <br>
-
-                        <div class="form-row">
-                            <div class="col-md-9"> </div>
-                            <div class="col-md-1">
-                                <button type="button"  class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
-                            </div>
-                            <div class="col-md-2 btn-toolbar">
-                                <button type="button" class="btn btn-success btn-guardar-submit w-50">Guardar</button>
-                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>
-
+                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>  
                                 <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                 <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                 <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
@@ -563,10 +393,11 @@
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 
 <script>
+    //globales
+    
     var grilla_por_recibir;
     var grilla_recibidos;
     var grilla_despachados;
-    //globales
 
     const accionesFlujo2 = @json($acciones_tipoflujo2);
     const accionesFlujo3 = @json($acciones_tipoflujo3);
@@ -678,7 +509,7 @@
     $(".nuevo_documento").click(function(e){
 
         $('#card_crear_documento').show();
-
+        $('#form_crear_editar').trigger("reset");
     });
 
     $("#form_tipo_documento").change(function(){
@@ -784,6 +615,7 @@
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();//.tagsinput('items')
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
+
         if (hiddIdDocumento == '') //crear
         {
             var urlAccion = "{{route('buzones.store_documento')}}";
@@ -841,8 +673,6 @@
                     $("input[name='hiddIdDocumentoBuzon']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
                     $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                     $("#idAsignado").text(data.data.identificador);
-
-                    console.log($("input[name='hiddIdDocumento']").val());
 
                     //habilita para guardar documentos
 
@@ -909,6 +739,10 @@
                     var nombreBuzon = listadoBuzones[idBuzonAccion];
                     $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
 
+                    //actualiza grilla despachados
+
+                    fn_grilla_despachados();
+
 
                 }
                 else
@@ -940,172 +774,172 @@
 
 
 
-function cambio_texto_boton_carpetas(texto){
-    $('#documento').hide();
-
-    if(texto.length>20 || texto.length==0 ){
-        texto='';
-    }
-    $('#boton_carpetas_texto').html('Carpetas - '+texto);
-    if(texto=='Recibidos'){
-        $('#grilla_recibidos').DataTable().draw();
-    }
-    if(texto=='Despachados'){
-        $('#grilla_despachados').DataTable().draw();
-        $(".nuevo_documento").removeAttr('disabled');
-    }else{
-        $(".nuevo_documento").prop("disabled", true);
-    }
-}
-
-function mostrar_documento(texto){
-    $('#documento .card-title').html('Documento: '+texto);
-    $('#documento').show();
-}
-
-function ver_recibidos(identificador){
-    alert(identificador)
-}
-function responder_recibidos(identificador){
-    alert(identificador)
-}
-function derivar_recibidos(identificador){
-    alert(identificador)
-}
-function archivar_recibidos(identificador){
-    alert(identificador)
-}
-function bitacora_recibidos(identificador){
-    alert(identificador)
-}
-function favorito_recibidos(identificador){
-    alert(identificador)
-}
-
-function ver_despachados(identificador){
-    alert(identificador)
-}
-function editar_despachados(identificador){
-    alert(identificador)
-}
-function eliminar_despachados(identificador){
-    alert(identificador)
-}
-
-
-
-async function fn_grilla_por_recibir(){
+    function cambio_texto_boton_carpetas(texto){
         $('#documento').hide();
-        if ( $.fn.DataTable.isDataTable('#grilla_por_recibir') ) {
-            $('#grilla_por_recibir').DataTable().destroy();
+
+        if(texto.length>20 || texto.length==0 ){
+            texto='';
         }
-    $('#grilla_por_recibir tbody').empty();
-
-      grilla_por_recibir=  $('#grilla_por_recibir').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
-            type:'json',
-            responsive: true,
-            language: lenguaje_datatable,
-            columns: [
-                { data: 'id_documento', name: 'id_documento' },
-                { data: 'fecha_despacho', name: 'fecha_despacho' },
-                { data: 'contestas_hasta', name: 'contestas_hasta' },
-                { data: 'tipo_documento', name: 'tipo_documento' },
-                { data: 'tipo_envio', name: 'tipo_envio' },
-                { data: 'origen', name: 'origen' },
-                { data: 'materia', name: 'materia' },
-            ]
-        });
-}
-
-
-
-
-async function fn_grilla_recibidos(){
-
-    $('#documento').hide();
-    if ( $.fn.DataTable.isDataTable('#grilla_recibidos') ) {
-            $('#grilla_recibidos').DataTable().destroy();
+        $('#boton_carpetas_texto').html('Carpetas - '+texto);
+        if(texto=='Recibidos'){
+            $('#grilla_recibidos').DataTable().draw();
+        }
+        if(texto=='Despachados'){
+            $('#grilla_despachados').DataTable().draw();
+            $(".nuevo_documento").removeAttr('disabled');
+        }else{
+            $(".nuevo_documento").prop("disabled", true);
+        }
     }
-    $('#grilla_recibidos tbody').empty();
 
-    grilla_recibidos = $('#grilla_recibidos').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
-            type:'json',
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            responsive: true,
-            language: lenguaje_datatable,
-            columns: [
-                { data: 'recibido',
-                  render: function(data, type) {
-                    if (type === 'display') {
-                        if(data==null){
-                            return '';
-                        }else{
-                            if(data==true){
-                                return '<span class="fas fa-check text-green"></span>';
+    function mostrar_documento(texto){
+        $('#documento .card-title').html('Documento: '+texto);
+        $('#documento').show();
+    }
+
+    function ver_recibidos(identificador){
+        alert(identificador)
+    }
+    function responder_recibidos(identificador){
+        alert(identificador)
+    }
+    function derivar_recibidos(identificador){
+        alert(identificador)
+    }
+    function archivar_recibidos(identificador){
+        alert(identificador)
+    }
+    function bitacora_recibidos(identificador){
+        alert(identificador)
+    }
+    function favorito_recibidos(identificador){
+        alert(identificador)
+    }
+
+    function ver_despachados(identificador){
+        alert(identificador)
+    }
+    function editar_despachados(identificador){
+        alert(identificador)
+    }
+    function eliminar_despachados(identificador){
+        alert(identificador)
+    }
+
+
+
+    async function fn_grilla_por_recibir(){
+            $('#documento').hide();
+            if ( $.fn.DataTable.isDataTable('#grilla_por_recibir') ) {
+                $('#grilla_por_recibir').DataTable().destroy();
+            }
+        $('#grilla_por_recibir tbody').empty();
+
+        grilla_por_recibir=  $('#grilla_por_recibir').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
+                type:'json',
+                responsive: true,
+                language: lenguaje_datatable,
+                columns: [
+                    { data: 'id_documento', name: 'id_documento' },
+                    { data: 'fecha_despacho', name: 'fecha_despacho' },
+                    { data: 'contestas_hasta', name: 'contestas_hasta' },
+                    { data: 'tipo_documento', name: 'tipo_documento' },
+                    { data: 'tipo_envio', name: 'tipo_envio' },
+                    { data: 'origen', name: 'origen' },
+                    { data: 'materia', name: 'materia' },
+                ]
+            });
+    }
+
+
+
+
+    async function fn_grilla_recibidos(){
+
+        $('#documento').hide();
+        if ( $.fn.DataTable.isDataTable('#grilla_recibidos') ) {
+                $('#grilla_recibidos').DataTable().destroy();
+        }
+        $('#grilla_recibidos tbody').empty();
+
+        grilla_recibidos = $('#grilla_recibidos').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
+                type:'json',
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
+                },
+                responsive: true,
+                language: lenguaje_datatable,
+                columns: [
+                    { data: 'recibido',
+                    render: function(data, type) {
+                        if (type === 'display') {
+                            if(data==null){
+                                return '';
+                            }else{
+                                if(data==true){
+                                    return '<span class="fas fa-check text-green"></span>';
+                                }
                             }
                         }
+                        return '';
                     }
-                    return '';
-                  }
-                },
-                { data: 'estado_documento', name: 'estado_documento' },
-                { data: 'id_documento', name: 'id_documento' },
-                { data: 'fecha_recepcion', name: 'fecha_recepcion' },
-                { data: 'contestas_hasta', name: 'contestas_hasta' },
-                { data: 'tipo_documento', name: 'tipo_documento' },
-                { data: 'tipo_envio', name: 'tipo_envio' },
-                { data: 'origen', name: 'origen' },
-                { data: 'materia', name: 'materia' },
-                { data: 'id_buzon',
-                  render: function(data, type) {
-                    if (type === 'display') {
-                        if(data==null){
-                            return '';
-                        }else{
-                            let botonera = '<div class="dropdown">';
-                                botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                    botonera +=' <i class="fas fa-bars"></i>';
-                                    botonera +=' </button>';
-                                    botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                    },
+                    { data: 'estado_documento', name: 'estado_documento' },
+                    { data: 'id_documento', name: 'id_documento' },
+                    { data: 'fecha_recepcion', name: 'fecha_recepcion' },
+                    { data: 'contestas_hasta', name: 'contestas_hasta' },
+                    { data: 'tipo_documento', name: 'tipo_documento' },
+                    { data: 'tipo_envio', name: 'tipo_envio' },
+                    { data: 'origen', name: 'origen' },
+                    { data: 'materia', name: 'materia' },
+                    { data: 'id_buzon',
+                    render: function(data, type) {
+                        if (type === 'display') {
+                            if(data==null){
+                                return '';
+                            }else{
+                                let botonera = '<div class="dropdown">';
+                                    botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                        botonera +=' <i class="fas fa-bars"></i>';
+                                        botonera +=' </button>';
+                                        botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                        botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#">';
-                                               // if($list['id_doc']==1)
-                                               botonera +='<i class="far fa-star text-green"></i> ( + ) Favoritos';
-                                               // endif
-                                               // if($list['id_doc']==2)
-                                                  //  <i class="fas fa-star text-green"></i>  ( - ) Favoritos
-                                                //endif
-                                        botonera +='</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#">';
+                                                // if($list['id_doc']==1)
+                                                botonera +='<i class="far fa-star text-green"></i> ( + ) Favoritos';
+                                                // endif
+                                                // if($list['id_doc']==2)
+                                                    //  <i class="fas fa-star text-green"></i>  ( - ) Favoritos
+                                                    //endif
+                                            botonera +='</a>';
 
 
-                                botonera += '</div>';
-                                botonera += '</div>';
-                            return botonera;
+                                    botonera += '</div>';
+                                    botonera += '</div>';
+                                return botonera;
+                            }
                         }
+                        return '';
                     }
-                    return '';
-                  }
-                }
-            ]
-    });
-}
+                    }
+                ]
+        });
+    }
 
 
 
-async function fn_grilla_despachados(){
+    async function fn_grilla_despachados(){
     $('#documento').hide();
     if ( $.fn.DataTable.isDataTable('#grilla_despachados') ) {
             $('#grilla_despachados').DataTable().destroy();
@@ -1169,7 +1003,7 @@ async function fn_grilla_despachados(){
                 }
             ]
         });
-}
+    }
 
 $(document).ready(function () {
     $(".nuevo_documento").prop("disabled", true);
