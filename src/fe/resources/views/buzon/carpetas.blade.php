@@ -78,10 +78,6 @@
                                 {{-- Pagination --}}
 
                             </div>
-                            </div>
-
-
-
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                     <thead>
@@ -132,6 +128,7 @@
 
         </div>
     </div>
+
 
     <div class="row" id="card_ver_documento" style="display:none">
         <div class="col-12">
@@ -316,7 +313,7 @@
                             </div>
                             <div class="col-md-2 btn-toolbar">
                                 <button type="button" class="btn btn-success btn-guardar-submit w-50">Guardar</button>
-                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>  
+                                <button type="button" class="btn btn-success btn-enviar-submit w-50" style="display:none">Enviar</button>
                                 <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                 <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                 <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
@@ -394,7 +391,7 @@
 
 <script>
     //globales
-    
+
     var grilla_por_recibir;
     var grilla_recibidos;
     var grilla_despachados;
@@ -512,6 +509,12 @@
         $('#form_crear_editar').trigger("reset");
     });
 
+
+
+    $(".btn_cerrar_guardar").click(function(e){
+        $('#card_crear_documento').hide();
+        $('#form_crear_editar').trigger("reset");
+    });
     $("#form_tipo_documento").change(function(){
         datosTipoDoc($(this).val());
     });
@@ -776,6 +779,7 @@
 
     function cambio_texto_boton_carpetas(texto){
         $('#documento').hide();
+        $('#card_crear_documento').hide();
 
         if(texto.length>20 || texto.length==0 ){
             texto='';
