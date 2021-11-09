@@ -29,6 +29,7 @@ class Documento extends Model{
         'finalizado'
     ];
 
+
     public function rel_tipo_documento()
     {
         return $this->belongsTo(TipoDocumento::class, 'id_tipo_documento', 'id_tipo_documento');
@@ -39,4 +40,12 @@ class Documento extends Model{
         return $this->hasMany(DocumentoBuzon::class, 'id_documento', 'id_documento');//->select(['id_tipo_documento_buzon','id_buzon','orden']);
     }
 
+
+
+    public function buzones_flujo()
+    {
+        return $this->hasMany(TipoDocumentoBuzon::class, 'id_tipo_documento', 'id_tipo_documento')->select(['id_tipo_documento_buzon','id_buzon','orden']);
+    }
+
 }
+

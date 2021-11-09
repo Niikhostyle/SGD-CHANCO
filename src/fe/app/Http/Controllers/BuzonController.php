@@ -202,7 +202,7 @@ class BuzonController extends Controller
 
 
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(33)
+        ->timeout(63)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
         if($perfiles->failed()){
             $mensaje= $perfiles->json()['data']['comentario'];
@@ -218,42 +218,42 @@ class BuzonController extends Controller
 
         }
 
-        /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(33)
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
+            /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(33)
+            ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
 
-        //return $listado_usuarios;
-        /*if($perfiles_nuevo->failed()){
-            $mensaje= $perfiles_nuevo->json()['data']['comentario'];
+            //return $listado_usuarios;
+            /*if($perfiles_nuevo->failed()){
+                $mensaje= $perfiles_nuevo->json()['data']['comentario'];
 
-            $perfiles_nuevo=['data'=>[
-                0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-            ]];
-            toast($mensaje,'error');
-        }*/
+                $perfiles_nuevo=['data'=>[
+                    0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
+                ]];
+                toast($mensaje,'error');
+            }*/
 
-        //$User = $perfiles_nuevo->json();
+            //$User = $perfiles_nuevo->json();
 
-        //$User  = User::paginate(10);
+            //$User  = User::paginate(10);
 
-                //return $perfiles_nuevo;
-             //$perfiles_nuevo->json();
+                    //return $perfiles_nuevo;
+                //$perfiles_nuevo->json();
 
-      /*$User = collect($perfiles_nuevo->json());
-      $current_page = LengthAwarePaginator::resolveCurrentPage();
-      $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
+            /*$User = collect($perfiles_nuevo->json());
+            $current_page = LengthAwarePaginator::resolveCurrentPage();
+            $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
 
-     $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
-     $link=[
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
-    ];*/
-    //return $orders_to_show;
-     // $orders_to_show = $this->paginate($User);
+            $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
+            $link=[
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
+            ];*/
+            //return $orders_to_show;
+            // $orders_to_show = $this->paginate($User);
 
 
-     $n_docs_por_recibir=0;
+        $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
         $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)
@@ -277,11 +277,67 @@ class BuzonController extends Controller
         'perfiles'=>$perfiles_datos,
         'estados_usuario'=>$estados_usuario,
         'n_docs_por_recibir'=>$n_docs_por_recibir,
-        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes
+        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes,
+        'id_buzon'=>$id
         ]);
     }
 
+    public function listar(Request $request){
 
+        $datos =  DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
+                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
+                    ->leftJoin('documento_buzon_bitacora', function ($join) {
+                        $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
+                             ->where('documento_buzon_bitacora.id_accion', '=', 1);
+                    })
+                    ->select(
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento_buzon.id_buzon as id_buzon',
+                        'documento.id_documento as id_documento',
+                        'documento_buzon.recibido as recibido',
+                        'estado_documento.nombre_corto as estado_documento',
+                        'documento_buzon.fecha as fecha_despacho',
+                        'documento_buzon_bitacora.fecha as fecha_recepcion',
+                        'tipo_documento.nombre as tipo_documento',
+                        'documento_buzon.json_acciones as destinatario',
+                        'documento.materia as materia',
+                        'documento.json_respuesta_a as respuesta_a',
+                        'documento.fecha as fecha_documento',
+                        'tipo_documento.nombre as tipo_envio',
+                        'tipo_origen.nombre as origen',
+                        'documento_buzon.contestar_hasta as contestas_hasta'
+                        )
+                    ->where('documento_buzon.id_buzon','=',$request->id_buzon)
+                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
+                    if($request->id_carpeta==3){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
+                    }
+                    if($request->id_carpeta==2){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(4,5,6,7,8,9,10,11,12)); //2- Recibido
+                    }
+                    if($request->id_carpeta==1){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
+                    }
+               return datatables( $datos )->toJson();
+
+                    /*
+                    id_buzon            documento_buzon->id_buzon
+                    palomitas           documento_buzon->recibido
+                    estado              documento_buzon->id_estado_documento / estado_documento->nombre_corto
+                    fecha_despacho      documento_buzon->fecha
+                 **   fecha_recepcion     ??? si está en (documento_buzon.id_estado_documento==4) "pendiente" La fecha se obtiene de la tabla docuento buzon bitacora campo fecha cuando esta en el id_accion
+                    tipo_decumento      documento->id_tipo_documento / tipo_documento->nombre
+                    destinatario        documento_buzon->json_acciones
+                    materia             documento->materia
+                    respuesta_a         documento->json_respuesta_a [{id_documento}]
+                    fecha_documento     documento->fecha
+                    */
+
+    }
 
 
 }

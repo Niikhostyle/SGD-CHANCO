@@ -112,8 +112,4 @@ $app->router->group([
     require __DIR__.'/../routes/web.php';
 });
 
-class_alias('Yajra\DataTables\DataTables', 'Datatables');
-$app->configure('datatables');
-$app->register('Yajra\DataTables\DataTablesServiceProvider');
-
 return $app;
