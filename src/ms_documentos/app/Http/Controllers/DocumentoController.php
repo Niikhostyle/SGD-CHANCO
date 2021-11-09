@@ -10,80 +10,20 @@ use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
-use JeroenNoten\LaravelAdminLte\Components\Tool\Datatable;
+use App\Validator\DocumentoValidator;
 
-use App\Models\Buzon;
-use App\Models\Users;
-use App\Models\BuzonUsuario;
-use App\Validator\BuzonValidator;
-
-
-use PhpParser\Node\Stmt\TryCatch;
 
 class DocumentoController extends Controller{
 
+    /**
+     * @BuzonValidator
+     */
+    private $validator;
 
-    public function listar(Request $request){
-        if($request->isJson())
-        {
-            try
-            {
-
-                $datosRequest = $request->json()->all();
-
-                //$validator = $this->validator->validateFieldBuzon($datosRequest);
-
-                return datatables(
-                    DB::table('documento_buzon')
-                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
-                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
-                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
-                    //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
-                    ->leftJoin('documento_buzon_bitacora', function ($join) {
-                        $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
-                             ->where('documento_buzon_bitacora.id_accion', '=', 3);
-                    })
-                    ->select(
-                        'documento_buzon.id_buzon as id_buzon',
-                        'documento.id_documento as id_documento',
-                        'documento_buzon.recibido as recibido',
-                        'estado_documento.nombre_corto as estado_documento',
-                        'documento_buzon.fecha as fecha_despacho',
-                        'documento_buzon_bitacora.fecha as fecha_recepcion',
-                        'tipo_documento.nombre as tipo_documento',
-                        'documento_buzon.json_acciones as destinatario',
-                        'documento.materia as materia',
-                        'documento.json_respuesta_a as respuesta_a',
-                        'documento.fecha as fecha_documento'
-                        )
-                    ->where('documento_buzon.id_buzon','=',$_GET['id_buzon'])
-                    ->where('documento_buzon.id_carpeta','=',$_GET['id_carpeta'])
-                    ->whereIn('documento_buzon.id_estado_documento',array(1,2))
-                )
-                ->toJson();
-
-                    /*
-                    id_buzon            documento_buzon->id_buzon
-                    palomitas           documento_buzon->recibido
-                    estado              documento_buzon->id_estado_documento / estado_documento->nombre_corto
-                    fecha_despacho      documento_buzon->fecha
-                 **   fecha_recepcion     ??? si está en (documento_buzon.id_estado_documento==4) "pendiente" La fecha se obtiene de la tabla docuento buzon bitacora campo fecha cuando esta en el id_accion
-                    tipo_decumento      documento->id_tipo_documento / tipo_documento->nombre
-                    destinatario        documento_buzon->json_acciones
-                    materia             documento->materia
-                    respuesta_a         documento->json_respuesta_a [{id_documento}]
-                    fecha_documento     documento->fecha
-                    */
-            }
-            catch (ModelNotFoundException $e)
-            {
-                return $this->respondError('No existe buzón', 500);
-            }
-        }
-        else
-            return $this->respondError('Json inválido', 406);
+    public function __construct(DocumentoValidator $documentoValidator)
+    {
+        $this->validator = $documentoValidator;
     }
-
 
     public function crear(Request $request)
     {
@@ -109,22 +49,23 @@ class DocumentoController extends Controller{
                 if( $datosTipoDoc->id_tipo_asignacion_folio == 1) //creación
                     $nFolio = rand(); //servicio folio
 
-                $datosTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
+                $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
                 ->withBody(json_encode([
                     'id_tipo_documento' => $nTipoDoc,
                 ]), 'json')
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
 
-                //return $datosTipoDoc->json();
-
                 $dFechaCreacion = date('Y-m-d H:i:s');
-                //$documento = Documento::create($datosDocumento);
+                
+                $jsonTipoDocumento = $msVerTipoDoc->json();
+
+               
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
                     'efectos_terceros' => $datosDocumento['efectos_terceros'],
-                    'json_tipo_documento' => null, //obtener de ms_tipos_documentos
+                    'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
                     'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
                     'materia' => $datosDocumento['materia'],
                     'anterior' => $datosDocumento['anterior'],
@@ -135,7 +76,9 @@ class DocumentoController extends Controller{
                     'folio' => $nFolio,
                     'encabezado' => $datosDocumento['encabezado']
                 ]);
-
+                
+                $documento = $documento->fresh();
+               
                 $documentoBuzon = DocumentoBuzon::create([
                     'id_documento' => $documento->id_documento,
                     'id_buzon' => $datosDocumento['id_buzon'],
@@ -175,6 +118,94 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
 
+    }
+
+    public function actualizar(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try {
+
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                //$validator = $this->validator->validateUpdate();
+
+                //if ($validator->fails())
+                //    return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
+
+                $datoDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                $datoDocumentoBuzon = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);
+                
+
+                //$datoBuzon->nombre = $datosRequest['nombre_buzon'];
+                
+              //  $datoBuzon->save();
+
+                
+                DB::commit();
+
+                return $this->respondSuccess($datoDocumento, 200);
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al actualizar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+
+
+    }
+
+    public function listarFavoritos(Request $request){
+        if($request->isJson())
+        {
+            try
+            {
+
+                $datosRequest = $request->json()->all();
+
+                $validator = $this->validator->validateFieldUser($datosRequest);
+
+                if ($validator->fails())
+                    return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
+
+
+                return datatables(
+                    DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
+                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                    ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                    ->select(
+                        'buzon.nombre as nombre_buzon',
+                        'estado_documento.nombre_corto as estado_documento',
+                        'documento.id_documento as id_documento',
+                        'documento.fecha as fecha_documento',
+                        'tipo_documento.nombre as tipo_documento',
+                        'tipo_origen.nombre as origen',
+                        'documento.materia as materia',
+                        'documento_buzon.favorito as estado_favorito'
+                        )
+                    ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
+                    ->where('documento_buzon.favorito','=',1)
+                )
+                ->toJson();
+
+            }
+            catch (ModelNotFoundException $e)
+            {
+                return $this->respondError('No existen datos', 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
     }
 
 }
