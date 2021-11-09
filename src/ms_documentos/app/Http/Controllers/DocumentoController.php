@@ -49,22 +49,23 @@ class DocumentoController extends Controller{
                 if( $datosTipoDoc->id_tipo_asignacion_folio == 1) //creación
                     $nFolio = rand(); //servicio folio
 
-                $datosTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
+                $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
                 ->withBody(json_encode([
                     'id_tipo_documento' => $nTipoDoc,
                 ]), 'json')
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
 
-                //return $datosTipoDoc->json();
-
                 $dFechaCreacion = date('Y-m-d H:i:s');
-                //$documento = Documento::create($datosDocumento);
+                
+                $jsonTipoDocumento = $msVerTipoDoc->json();
+
+               
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
                     'efectos_terceros' => $datosDocumento['efectos_terceros'],
-                    'json_tipo_documento' => null, //obtener de ms_tipos_documentos
+                    'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
                     'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
                     'materia' => $datosDocumento['materia'],
                     'anterior' => $datosDocumento['anterior'],
@@ -75,7 +76,9 @@ class DocumentoController extends Controller{
                     'folio' => $nFolio,
                     'encabezado' => $datosDocumento['encabezado']
                 ]);
-
+                
+                $documento = $documento->fresh();
+               
                 $documentoBuzon = DocumentoBuzon::create([
                     'id_documento' => $documento->id_documento,
                     'id_buzon' => $datosDocumento['id_buzon'],
@@ -114,6 +117,47 @@ class DocumentoController extends Controller{
         }
         else
             return $this->respondError('Json inválido', 406);
+
+    }
+
+    public function actualizar(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try {
+
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                //$validator = $this->validator->validateUpdate();
+
+                //if ($validator->fails())
+                //    return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
+
+                $datoDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                $datoDocumentoBuzon = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);
+                
+
+                //$datoBuzon->nombre = $datosRequest['nombre_buzon'];
+                
+              //  $datoBuzon->save();
+
+                
+                DB::commit();
+
+                return $this->respondSuccess($datoDocumento, 200);
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al actualizar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+
 
     }
 
