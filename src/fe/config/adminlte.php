@@ -342,19 +342,19 @@ return [
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdn.datatables.net/1.11.1/js/jquery.dataTables.min.js',
+                    'asset' => true,
+                    'location' => '/js/jquery.dataTables.min.js',
                 ],
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     //'location' => '//cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js',
-                    'location' => 'https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js'
+                    'location' => '/js/dataTables.rowReorder.min.js'
                 ],
                 [
                     'type' => 'js',
-                    'asset' => false,
-                    'location' => 'https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js',
+                    'asset' => true,
+                    'location' => '/js/dataTables.responsive.min.js',
                 ],
                /* [
                     'type' => 'js',
@@ -368,18 +368,18 @@ return [
                 ],*/
                 [
                     'type' => 'css',
-                    'asset' => false,
-                    'location' => 'https://cdn.datatables.net/1.11.1/css/jquery.dataTables.min.css',
+                    'asset' => true,
+                    'location' => '/css/jquery.dataTables.min.css',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
-                    'location' => 'https://cdn.datatables.net/rowreorder/1.2.8/css/rowReorder.dataTables.min.css',
+                    'asset' => true,
+                    'location' => '/css/rowReorder.dataTables.min.css',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
-                    'location' => 'https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css',
+                    'asset' => true,
+                    'location' => '/css/responsive.dataTables.min.css',
                 ],
             ],
 
@@ -390,12 +390,12 @@ return [
                 [
                     'type' => 'js',
                     'asset' => true,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
+                    'location' => '/js/select2.min.js',
                 ],
                 [
                     'type' => 'css',
                     'asset' => true,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',
+                    'location' => '/css/select2.css',
                 ],
             ],
         ],
@@ -404,7 +404,7 @@ return [
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js',
                 ],
             ],
@@ -415,7 +415,7 @@ return [
                 [
                     'type' => 'js',
                     'asset' => true,
-                    'location' => '//cdn.jsdelivr.net/npm/sweetalert2@8',
+                    'location' => '/js/sweetalert2_8.js',
                 ],
             ],
         ],

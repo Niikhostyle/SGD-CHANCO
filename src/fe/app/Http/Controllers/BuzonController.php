@@ -218,42 +218,42 @@ class BuzonController extends Controller
 
         }
 
-        /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(33)
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
+            /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(33)
+            ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
 
-        //return $listado_usuarios;
-        /*if($perfiles_nuevo->failed()){
-            $mensaje= $perfiles_nuevo->json()['data']['comentario'];
+            //return $listado_usuarios;
+            /*if($perfiles_nuevo->failed()){
+                $mensaje= $perfiles_nuevo->json()['data']['comentario'];
 
-            $perfiles_nuevo=['data'=>[
-                0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-            ]];
-            toast($mensaje,'error');
-        }*/
+                $perfiles_nuevo=['data'=>[
+                    0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
+                ]];
+                toast($mensaje,'error');
+            }*/
 
-        //$User = $perfiles_nuevo->json();
+            //$User = $perfiles_nuevo->json();
 
-        //$User  = User::paginate(10);
+            //$User  = User::paginate(10);
 
-                //return $perfiles_nuevo;
-             //$perfiles_nuevo->json();
+                    //return $perfiles_nuevo;
+                //$perfiles_nuevo->json();
 
-      /*$User = collect($perfiles_nuevo->json());
-      $current_page = LengthAwarePaginator::resolveCurrentPage();
-      $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
+            /*$User = collect($perfiles_nuevo->json());
+            $current_page = LengthAwarePaginator::resolveCurrentPage();
+            $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
 
-     $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
-     $link=[
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
-         ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
-    ];*/
-    //return $orders_to_show;
-     // $orders_to_show = $this->paginate($User);
+            $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
+            $link=[
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
+                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
+            ];*/
+            //return $orders_to_show;
+            // $orders_to_show = $this->paginate($User);
 
 
-     $n_docs_por_recibir=0;
+        $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
         $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)
@@ -271,17 +271,209 @@ class BuzonController extends Controller
             }
         }
 
+        /* NUEVO-DOCUMENTOS */
 
-        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon,
-        'lista_por_recibir'=>$lista_por_recibir,
-        'perfiles'=>$perfiles_datos,
-        'estados_usuario'=>$estados_usuario,
-        'n_docs_por_recibir'=>$n_docs_por_recibir,
-        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes
-        ]);
+        //tipos de documentos
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];           
+
+        }
+
+        //parametros
+        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+        
+        if($listado_parametros->failed()){
+            toast("Error al mostrar datos",'error');
+        }else{
+            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
+        }
+
+        $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
+        $datosAccion = $listado_parametros['data']['accion'];
+
+        //acciones
+        $aAcciones = [];
+        foreach ($datosAccion as $dato)
+            $aAcciones[$dato['id_accion']] = $dato['nombre'];
+
+        //acciones-flujo
+        
+        foreach ($datosFlujoAccion as $dato)
+        {
+            if ($dato['id_tipo_flujo'] == 2) //Controlado
+            {
+                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);    
+            }
+
+            if ($dato['id_tipo_flujo'] == 3) //Mixto
+            {
+                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);      
+            }  
+        }
+
+
+        $datosBuzon = $this->show($id); //muestra metodo show
+
+        //listado de buzones
+
+        $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'texto_busqueda' => '',
+        ]), 'json')
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+
+        if($listado_buzones->failed()){
+            $listado_buzones->json()['data']['comentario'];
+
+            $listado_buzones=['data'=>[
+                0=>['id'=>'0','nombre'=>'Sin Datos']
+            ]];
+            toast($mensaje,'error');
+        }else{
+
+            foreach ($listado_buzones['data'] as $dato)
+            {
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];    
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon'] 
+            }  
+        }
+
+        /* NUEVO-DOCUMENTOS */
+        
+        return View::make('buzon.carpetas',[
+            'lista_por_recibir' => $lista_por_recibir,
+            'perfiles' => $perfiles_datos,
+            'estados_usuario' => $estados_usuario,
+            'n_docs_por_recibir' => $n_docs_por_recibir,
+            'n_docs_recibidos_pendientes' => $n_docs_recibidos_pendientes,
+            'nivel_acceso' => $datosNivelAcceso,
+            'nombre_buzon' => $datosBuzon['data']['nombre'],
+            'listado_tiposdoc'=>$datosTipoDoc,
+            'id_buzon' => $id,
+            'acciones_tipoflujo2'=>$aFlujoAccionT2,
+            'acciones_tipoflujo3'=>$aFlujoAccionT3,
+            'listadoBuzones'=>$aBuzones,
+            'allBuzones'=>$aAllBuzones 
+        ]);    
+
     }
 
+    public function store_documento(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
 
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->post('http://sgd_ms_documentos:3333/api/sgd-documentos/crear', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id
+        ]);
 
+        return $accionDocumento->json();
+
+    } 
+
+    public function update_documento(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'comentarioPrincipal'=>$request->comentarioPrincipal,
+            'comentarioOtros'=>$request->comentarioOtros
+        ]);
+
+        return $accionDocumento->json();
+    }
+
+    public function listar(Request $request)
+    {
+
+        $datos =  DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
+                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
+                    ->leftJoin('documento_buzon_bitacora', function ($join) {
+                        $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
+                             ->where('documento_buzon_bitacora.id_accion', '=', 1);
+                    })
+                    ->select(
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento_buzon.id_buzon as id_buzon',
+                        'documento.id_documento as id_documento',
+                        'documento_buzon.recibido as recibido',
+                        'estado_documento.nombre_corto as estado_documento',
+                        'documento_buzon.fecha as fecha_despacho',
+                        'documento_buzon_bitacora.fecha as fecha_recepcion',
+                        'tipo_documento.nombre as tipo_documento',
+                        'documento_buzon.json_acciones as destinatario',
+                        'documento.materia as materia',
+                        'documento.json_respuesta_a as respuesta_a',
+                        'documento.fecha as fecha_documento',
+                        'tipo_documento.nombre as tipo_envio',
+                        'tipo_origen.nombre as origen',
+                        'documento_buzon.contestar_hasta as contestas_hasta'
+                        )
+                    ->where('documento_buzon.id_buzon','=',$request->id_buzon)
+                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
+                    if($request->id_carpeta==3){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
+                    }
+                    if($request->id_carpeta==2){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(4,5,6,7,8,9,10,11,12)); //2- Recibido
+                    }
+                    if($request->id_carpeta==1){
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
+                    }
+               return datatables( $datos )->toJson();
+
+                    
+    }
+
+        
+        
+    
 
 }
