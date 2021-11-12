@@ -54,7 +54,7 @@
                                      <i class="fas fa-bars"></i>
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario()"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn-menu-editar" onclick="editar_usuario()"  href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
                                      
                                  </div>
@@ -124,54 +124,54 @@
             <div class="form-row">
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Tipo Documento:</label>
-                    <select id="id_documento" class="form-control"  disabled="disabled">
+                    <select id="form_documento" name="id_documento" class="form-control"  required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Nivel Acceso</label>
-                    <select id="id_nivel_acceso" class="form-control" disabled="disabled">
+                    <select id="form_nivel_acceso"  name="id_nivel_acceso" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Efectos sobre terceros</label>
-                    <select id="id_efectos_terceros" class="form-control" disabled="disabled">
+                    <select id="form_efectos_terceros"  name="id_efectos_terceros" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Contestar/Hasta</label>
-                    <input type="date" class="form-control" id="id_contestar_hasta" disabled="disabled">
+                    <input type="date" class="form-control" id="form_contestar_hasta"  name="contestar_hasta" required>
                 </div>        
             </div>
             <div class="form-row">
                 <div class="col-md-4 mb-3">
                     <label for="inputState">Respuesta a:</label>
-                    <select id="id_respuesta" class="form-control" disabled="disabled">
+                    <select id="form_respuesta"  name="id_respuesta" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-8 mb-3">
                     <label for="inputState">Materia:</label>
-                    <input type="text" class="form-control" id="inputCity" disabled="disabled">
+                    <input type="text" class="form-control" id="form_materia"  name="materia" required>
                 </div>      
             </div>
     
             <div class="form-row">
                 <div class="col-md-12 mb-3">
                     <label for="inputState">Anterior:</label>
-                    <input type="text" class="form-control" id="inputCity" disabled="disabled">
+                    <input type="text" class="form-control" id="form_anterior"  name="anterior" required>
                 </div>      
             </div>
             
             <div class="form-floating">
                 <label for="floatingTextarea">Descripción o Extracto</label>
-                <textarea class="form-control" placeholder="comment" id="floatingTextarea" disabled="disabled"></textarea>   
+                <textarea class="form-control" placeholder="comment" id="form_descripcion_extracto"  name="descripcion_extracto" required></textarea>   
             </div>
             <br>
             <div class="card" id="card_desplegar_versiones" style="display:true" >
@@ -225,12 +225,12 @@
                 
                 <div class="col-md-8 mb-3">
                     <label for="inputState">Destinatario Principal:</label>
-                    <input type="text" class="form-control" id="form_destinatario_principal_el" disabled="false">
+                    <input type="text" class="form-control" id="form_destinatario_principal"  name="destinatario_principal" required>
                 </div>  
                 
                 <div class="col-md-4 mb-3">
                     <label for="inputState">Acciones Solicitadas:</label>
-                    <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
+                    <select id="form_acciones_solicitadas"  name="id_acciones_solicitadas" class="form-control" required>
                         <option selected>Seleccionar acciones</option>
                         <option>...</option>
                     </select>   
@@ -238,17 +238,17 @@
             </div>
             <div class="form-floating">
                 <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
-                <textarea class="form-control"  id="form_comentario_el" disabled="false"></textarea>   
+                <textarea class="form-control"  id="form_comentario"  name="comentario" required></textarea>   
             </div>
             <div class="form-row">
                 <div class="col-md-12 mb-3">
                     <label for="inputState">Otro(s) Destinatario(s):</label>
-                    <input type="text" class="form-control" id="form_otros_destinatarios_el" disabled="false">
+                    <input type="text" class="form-control" id="form_otros_destinatarios"  name="otros_destinatarios" required>
                 </div>      
             </div>
             <div class="form-floating">
                 <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                <textarea class="form-control"  id="form_comentario_otro_el" disabled="false"></textarea>   
+                <textarea class="form-control"  id="form_comentario_otro"  name="comentario_otro" required></textarea>   
             </div>
             <br>
             <div class="row">
@@ -353,62 +353,7 @@
 @section('js')
 
 <script>
-function visualizar_usuario(identificador){
-        //$('#cargando').show();
-        $(".print-error-msg").hide();
-        if(identificador>0){
-            $('#form_documento_ver').trigger("reset");
-            $('#card_documento_ver').hide();
-            $.ajax({
-                        url: "favoritos/"+identificador,
-                        type:'GET',
-                        success: function(data) {
-                            if(data.status==400){
-                                toastr.error(data.data.comentario,"Oops...");
 
-                            }else{
-                                console.log(data);
-                                if(data.status==200 || data.status==201){
-                                    $('#form_documento_ver').trigger("reset");
-                                    $("select[name='id_perfil']").val(data.data.id_perfil);
-                                    $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
-                                    $("input[name='run']").val(data.data.run);
-                                    $("input[name='nombres']").val(data.data.nombres);
-                                    $("input[name='primer_apellido']").val(data.data.primer_apellido);
-                                    $("input[name='segundo_apellido']").val(data.data.segundo_apellido);
-                                    $("input[name='email']").val(data.data.email);
-                                    if(data.data.aplica_fea==true){
-                                        $("select[name='aplica_fea']").val('true');
-                                    }else if(data.data.aplica_fea==false){
-                                        $("select[name='aplica_fea']").val('false');
-                                    }
-                                    if(data.data.genera_pdf==true){
-                                        $("select[name='aplica_genera_pdf']").val('true');
-                                    }else if(data.data.genera_pdf==false){
-                                        $("select[name='aplica_genera_pdf']").val('false');
-                                    }
-                                }
-                            }
-                            $('#cargando').hide();
-                            $('.btn-acciones-guardar-editar').hide();
-                            $('#titulo_usuario_crear_editar').html('Visualizar Usuario');
-                            $('#form_run').focus();
-                            $('.form-control').prop("disabled", true);
-                            $('#card_usuario_crear_editar').show();
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                            $('#cargando').hide();
-                        }
-                    });
-
-        }
-    }
 
 $(document).ready(function(){
 
@@ -433,6 +378,60 @@ $(document).ready(function(){
 	});
 
 });
+
+    function visualizar_usuario(identificador){
+        //$('#cargando').show();
+        $(".print-error-msg").hide();
+        if(identificador>0){
+            $('#form_documento_ver').trigger("reset");
+            $('#card_documento_ver').hide();
+            $.ajax({
+                        url: "favoritos/"+identificador,
+                        type:'GET',
+                        success: function(data) {
+                            if(data.status==400){
+                                toastr.error(data.data.comentario,"Oops...");
+
+                            }else{
+                                console.log(data);
+                                if(data.status==200 || data.status==201){
+                                    
+                                    $('#form_documento_ver').trigger("reset");
+                                    $("select[name='id_documento']").val(data.data.id_documento);
+                                    $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
+                                    $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
+                                    $("input[name='contestar_hasta']").val(data.data.contestar_hasta);
+                                    $("select[name='id_respuesta']").val(data.data.id_respuesta);
+                                    $("input[name='materia']").val(data.data.materia);
+                                    $("input[name='anterior']").val(data.data.anterior);
+                                    $("input[name='destinatario_principal']").val(data.data.destinatario_principal);
+                                    $("select[name='id_acciones_solicitadas']").val(data.data.id_acciones_solicitadas);
+                                    $("input[name='comentario']").val(data.data.comentario);
+                                    $("input[name='otros_destinatarios']").val(data.data.otros_destinatarios);
+                                    $("input[name='comentario_otro']").val(data.data.comentario_otro);
+                                }
+                            }
+                            $('#cargando').hide();
+                            //$('.btn-acciones-guardar-editar').hide();
+                            //$('#titulo_usuario_crear_editar').html('Visualizar Usuario');
+                            //$('#form_run').focus();
+                            $('.form-control').prop("disabled", true);
+                            $('#card_documento_ver').show();
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                            $('#cargando').hide();
+                        }
+                    });
+
+        }
+    }
+
 
 </script>
 

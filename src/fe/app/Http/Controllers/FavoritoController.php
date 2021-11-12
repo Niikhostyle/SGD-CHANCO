@@ -72,14 +72,15 @@ class FavoritoController extends Controller
      */
     public function show($id)
     {
+
         $sesion_key =  AppServiceProvider::session_key_general();
         $documento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
         ->withBody(json_encode([
-            'id_usuario' => $id,
+            'id_documento' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver/');
-
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
+        //return $documento;
         return $documento->json();
     }
 

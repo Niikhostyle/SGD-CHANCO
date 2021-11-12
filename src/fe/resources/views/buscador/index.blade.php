@@ -128,7 +128,7 @@
                                         <i class="fas fa-bars"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                        <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                         <a class="dropdown-item" href="#"><i class="fas fa-download text-blue"></i> Descargar</a>
                                     </div>
                                 </div>
@@ -141,6 +141,71 @@
     </div>
     
     <ul></ul>
+
+    <div class="card" id="card_ver_documento" style="display:none">
+    <h4 id="titulo_ver_documento"class="card-header " >Bitácora</h5>
+        <br>
+        <div class="col">ID: </div>
+        <div class="col">Materia: </div>
+        <br>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+            <label class="form-check-label" for="defaultCheck1">
+              Derivaciones destinatarios principales ()DDP
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+            <label class="form-check-label" for="defaultCheck1">
+              Dereivaciones otros destinatarios (DOO)
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+            <label class="form-check-label" for="defaultCheck1">
+              Cambios Archivos Principal (CAP)
+            </label>
+          </div>
+          <div class="card" id="card_favorito_grilla">
+            <div class="card-body">
+                <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Buzón Origen</th>
+                            <th>Acción </th>
+                            <th>Mensaje</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                       
+                        <tr >
+                            <td style="background-color: #b0f785;">DDP</td>
+                            <td>08-07-2021</td>
+                            <td>Alejandra Nuñez</td>
+                            <td>Derivación a buzón "Juridica"</td>
+                            <td>Envio para revisión</td>
+                            
+    
+                            
+                        </tr>
+                      
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          <div class="row">
+                <div class="col-md-10"> </div>
+                <div class="col-md-2">
+                    <button type="button"  class="btn btn-secondary w-100 btn_cerrar_ver_documento">Cerrar</button>
+                </div>
+               
+            </div>  
+
+    </div>
+
     
 @stop
 
@@ -176,6 +241,17 @@
 
             $('#buzon_origen').select2();
             $('#tipo_documento').select2();
+
+            $(".btn-menu-ver").click(function(e){
+                $('#card_ver_documento').show();
+                
+                
+            });
+            $(".btn_cerrar_ver_documento").click(function(e){
+                $('#card_ver_documento').hide();
+                
+
+	});
             
         })
 </script>

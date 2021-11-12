@@ -164,4 +164,30 @@ class DocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
     }
 
+    public function ver(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+                
+                $validator = $this->validator->validateFieldUser($datosRequest);
+                if ($validator->fails())
+                    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
+
+                $datosDocumento = Documento::findOrFail($datosRequest['id_documento'],['id_tipo_documento', 'id_nivel_acceso', 'efectos_terceros', 'json_tipo_documento', 'json_respuesta_a',
+                                                                                    'materia', 'anterior', 'descripcion', 'cuerpo', 'fecha', 'hash_validacion', 'folio', 'encabezado']);
+                
+                return $this->respondSuccess($datosDocumento, 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Documento no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+    }  
+
 }
