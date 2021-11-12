@@ -15,7 +15,8 @@
 $router->group(['middleware' => ['auth']], function () use ($router){
     $router->get('/api/sgd-documentos/listarFavoritos', 'DocumentoController@listarFavoritos');
     $router->post('/api/sgd-documentos/crear', 'DocumentoController@crear');
-    $router->post('/api/sgd-documentos/actualizar', 'DocumentoController@actualizar');
+    $router->put('/api/sgd-documentos/actualizar', 'DocumentoController@actualizar');
+    $router->put('/api/sgd-documentos/enviar', 'DocumentoController@enviar');
 });
 
 //$router->get('/api/sgd-documentos', function () use ($router) {
