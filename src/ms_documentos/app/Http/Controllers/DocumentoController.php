@@ -319,7 +319,6 @@ class DocumentoController extends Controller{
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
                 $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                                     ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
                                                      ->where('id_estado_documento', '3')
                                                      ->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);              
 
