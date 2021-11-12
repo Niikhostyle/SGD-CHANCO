@@ -1256,6 +1256,7 @@ function visualizar_documento_por_recibir(id_documento){
         $('.btn-enviar-submit').hide();
 
         var buttonRecibir = '<button onClick="recibir_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Recibir</button>';
+        $('#addButton').html('');
         $('#addButton').append(buttonRecibir);
 
         $("#card_crear_documento input").prop("disabled", true);
