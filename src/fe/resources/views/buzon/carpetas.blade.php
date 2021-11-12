@@ -79,6 +79,38 @@
 
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
+                                <table border="0" cellspacing="5" cellpadding="5">
+                                    <tbody>
+                                        <tr>
+                                            <td>ID Doc:</td>
+                                            <td>Tipo Documento:</td>
+                                            <td>Estado:</td>
+                                            <td>Texto Libre:</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><input class="form-control"  type="text" id="gr_buscar_id_doc" name="gr_buscar_id_doc"></td>
+                                            <td>
+                                                <select id="gr_buscar_tipo_doc" name="gr_buscar_tipo_doc" class="form-control">
+                                                    <option value=''>Todos</option>
+                                                    @foreach($listado_tiposdoc as $list)
+                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
+                                                    <option value=''> Todos </option>
+                                                    @foreach($listado_parametros['estado_documento'] as $estado_documento)
+                                                        <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td><input type="search" aria-controls="grilla_recibidos" class="form-control"  id="gr_buscar_origen_materia" name="gr_buscar_origen_materia"></td>
+                                            <td id="botones_grilla_recibidos">
+                                            </td>
+                                        </tr>
+                                </tbody></table>
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                     <thead>
                                         <tr>
@@ -99,6 +131,38 @@
 
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab"  style="width: 100%;">
+                                <table border="0" cellspacing="5" cellpadding="5">
+                                    <tbody>
+                                        <tr>
+                                            <td>ID Doc:</td>
+                                            <td>Tipo Documento:</td>
+                                            <td>Estado:</td>
+                                            <td>Texto Libre:</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td><input class="form-control"  type="text" id="gd_buscar_id_doc" name="gd_buscar_id_doc"></td>
+                                            <td>
+                                                <select id="gd_buscar_tipo_doc" name="gd_buscar_tipo_doc" class="form-control">
+                                                    <option value=''>Todos</option>
+                                                    @foreach($listado_tiposdoc as $list)
+                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select class="form-control"  id="gd_buscar_estado" name="gd_buscar_estado" >
+                                                    <option value=''> Todos </option>
+                                                    @foreach($listado_parametros['estado_documento'] as $estado_documento)
+                                                        <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                    @endforeach
+                                                </select>
+                                            </td>
+                                            <td><input type="search" aria-controls="grilla_despachados" class="form-control"  id="gd_buscar_destino_materia" name="gd_buscar_destino_materia"></td>
+                                            <td id="botones_grilla_despachados">
+                                            </td>
+                                        </tr>
+                                    </tbody></table>
                                     <table id="grilla_despachados"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
                                             <tr>
@@ -946,13 +1010,13 @@
                 responsive: true,
                 language: lenguaje_datatable,
                 columns: [
-                    { data: 'id_documento', name: 'id_documento' },
-                    { data: 'fecha_despacho', name: 'fecha_despacho' },
-                    { data: 'contestas_hasta', name: 'contestas_hasta' },
-                    { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'tipo_envio', name: 'tipo_envio' },
-                    { data: 'origen', name: 'origen' },
-                    { data: 'materia', name: 'materia' },
+                    { data: 'identificador', name: 'documento.identificador' },
+                    { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
+                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'tipo_documento', name: 'tipo_documento.nombre' },
+                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },
+                    { data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'materia', name: 'documento.materia' },
                 ]
             });
     }
@@ -969,6 +1033,7 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
+                //searching : false,
                 processing: true,
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
@@ -993,14 +1058,14 @@
                         return '';
                     }
                     },
-                    { data: 'estado_documento', name: 'estado_documento' },
-                    { data: 'id_documento', name: 'id_documento' },
-                    { data: 'fecha_recepcion', name: 'fecha_recepcion' },
-                    { data: 'contestas_hasta', name: 'contestas_hasta' },
-                    { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'tipo_envio', name: 'tipo_envio' },
-                    { data: 'origen', name: 'origen' },
-                    { data: 'materia', name: 'materia' },
+                    { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
+                    { data: 'identificador', name: 'documento.identificador' },
+                    { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },
+                    { data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'materia', name: 'documento.materia' },
                     { data: 'id_buzon',
                     render: function(data, type) {
                         if (type === 'display') {
@@ -1036,19 +1101,42 @@
                         return '';
                     }
                     }
-                ]
+                ],
+                initComplete : function() {
+                    var input = $('#gr_buscar_origen_materia input').unbind(),
+                    self = this.api(),
+                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
+                            .text('Limpiar')
+                            .click(function() {
+                                $('#gr_buscar_origen_materia').val('');
+                                $('#gr_buscar_estado').find('option:eq(0)').prop('selected', true);
+                                $('#gr_buscar_tipo_doc').find('option:eq(0)').prop('selected', true);
+                                $('#gr_buscar_id_doc').val('');
+                                $searchButton.click();
+                            }),
+                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
+                            .text('Buscar')
+                            .click(function() {
+                                grilla_recibidos.columns(1).search($('#gr_buscar_estado').val()).draw();
+                                grilla_recibidos.columns(2).search($('#gr_buscar_id_doc').val()).draw();
+                                grilla_recibidos.columns(5).search($('#gr_buscar_tipo_doc').val()).draw();
+                                self.search($('#gr_buscar_origen_materia').val()).draw();
+                            })
+                    $('#botones_grilla_recibidos').append($clearButton,$searchButton);
+                    $('#grilla_recibidos_filter').html('');
+                }
         });
     }
 
 
 
     async function fn_grilla_despachados(){
-    $('#documento').hide();
-    if ( $.fn.DataTable.isDataTable('#grilla_despachados') ) {
+        $('#documento').hide();
+        if ( $.fn.DataTable.isDataTable('#grilla_despachados') ) {
             $('#grilla_despachados').DataTable().destroy();
-    }
-    $('#grilla_despachados tbody').empty();
-    grilla_despachados=  $('#grilla_despachados').DataTable({
+        }
+        $('#grilla_despachados tbody').empty();
+        grilla_despachados=  $('#grilla_despachados').DataTable({
             processing: true,
             serverSide: true,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
@@ -1073,15 +1161,15 @@
                     return '';
                   }
                 },
-                { data: 'estado_documento', name: 'estado_documento' },
-                { data: 'id_documento', name: 'id_documento' },
-                { data: 'fecha_despacho', name: 'fecha_despacho' },
-                { data: 'fecha_recepcion', name: 'fecha_recepcion' },
-                { data: 'tipo_documento', name: 'tipo_documento' },
-                { data: 'destinatario', name: 'destinatario' },
-                { data: 'materia', name: 'materia' },
-                { data: 'respuesta_a', name: 'respuesta_a' },
-                { data: 'fecha_documento', name: 'fecha_documento' },
+                { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
+                { data: 'identificador', name: 'documento.identificador' },
+                { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
+                { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                { data: 'destinatario', name: 'documento_buzon.json_acciones' },
+                { data: 'materia', name: 'documento.materia' },
+                { data: 'respuesta_a', name: 'documento.json_respuesta_a' },
+                { data: 'fecha_documento', name: 'documento.fecha' },
                 { data: 'id_buzon',
                   render: function(data, type) {
                     if (type === 'display') {
@@ -1104,9 +1192,36 @@
                     return '';
                   }
                 }
-            ]
+            ],
+            initComplete : function() {
+                    var input = $('#gd_buscar_destino_materia input').unbind(),
+                    self = this.api(),
+                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
+                            .text('Limpiar')
+                            .click(function() {
+                                $('#gd_buscar_destino_materia').val('');
+                                $('#gd_buscar_estado').find('option:eq(0)').prop('selected', true);
+                                $('#gd_buscar_tipo_doc').find('option:eq(0)').prop('selected', true);
+                                $('#gd_buscar_id_doc').val('');
+                                $searchButton.click();
+                            }),
+                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
+                            .text('Buscar')
+                            .click(function() {
+                                grilla_despachados.columns(1).search($('#gd_buscar_estado').val()).draw();
+                                grilla_despachados.columns(2).search($('#gd_buscar_id_doc').val()).draw();
+                                grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
+                                self.search($('#gd_buscar_destino_materia').val()).draw();
+                            })
+                    $('#botones_grilla_despachados').append($clearButton,$searchButton);
+                    $('#grilla_despachados_filter').html('');
+                }
+
         });
     }
+
+
+
 
 $(document).ready(function () {
     $(".nuevo_documento").prop("disabled", true);
