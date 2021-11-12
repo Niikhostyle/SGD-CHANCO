@@ -285,7 +285,7 @@ class BuzonController extends Controller
         }
         else
         {
-            $datosTipoDoc = $listado_tiposdoc['data'];           
+            $datosTipoDoc = $listado_tiposdoc['data'];
 
         }
 
@@ -293,11 +293,11 @@ class BuzonController extends Controller
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        
+
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');
         }else{
-            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
+            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         }
 
         $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
@@ -309,18 +309,18 @@ class BuzonController extends Controller
             $aAcciones[$dato['id_accion']] = $dato['nombre'];
 
         //acciones-flujo
-        
+
         foreach ($datosFlujoAccion as $dato)
         {
             if ($dato['id_tipo_flujo'] == 2) //Controlado
             {
-                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);    
+                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
             }
 
             if ($dato['id_tipo_flujo'] == 3) //Mixto
             {
-                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);      
-            }  
+                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
+            }
         }
 
 
@@ -346,13 +346,13 @@ class BuzonController extends Controller
 
             foreach ($listado_buzones['data'] as $dato)
             {
-                $aBuzones[$dato['id_buzon']] = $dato['nombre'];    
-                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon'] 
-            }  
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon']
+            }
         }
 
         /* NUEVO-DOCUMENTOS */
-        
+
         return View::make('buzon.carpetas',[
             'lista_por_recibir' => $lista_por_recibir,
             'perfiles' => $perfiles_datos,
@@ -366,8 +366,9 @@ class BuzonController extends Controller
             'acciones_tipoflujo2'=>$aFlujoAccionT2,
             'acciones_tipoflujo3'=>$aFlujoAccionT3,
             'listadoBuzones'=>$aBuzones,
-            'allBuzones'=>$aAllBuzones 
-        ]);    
+            'allBuzones'=>$aAllBuzones,
+            'listado_parametros'=>$listado_parametros['data']
+        ]);
 
     }
 
@@ -388,13 +389,13 @@ class BuzonController extends Controller
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
             'id_buzon'=>$request->buzon,
-            'contestar_hasta'=>$request->contestar_hasta,          
+            'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id
         ]);
 
         return $accionDocumento->json();
 
-    } 
+    }
 
     public function update_documento(Request $request)
     {
@@ -415,7 +416,7 @@ class BuzonController extends Controller
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
             'id_buzon'=>$request->buzon,
-            'contestar_hasta'=>$request->contestar_hasta,          
+            'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
             'destinatarioOtros'=>$request->destinatarioOtros,
@@ -434,6 +435,7 @@ class BuzonController extends Controller
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
                     ->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
@@ -443,6 +445,7 @@ class BuzonController extends Controller
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
+                        'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
                         'estado_documento.nombre_corto as estado_documento',
                         'documento_buzon.fecha as fecha_despacho',
@@ -452,7 +455,7 @@ class BuzonController extends Controller
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento',
-                        'tipo_documento.nombre as tipo_envio',
+                        'tipo_destino.nombre as tipo_envio',
                         'tipo_origen.nombre as origen',
                         'documento_buzon.contestar_hasta as contestas_hasta'
                         )
@@ -469,11 +472,11 @@ class BuzonController extends Controller
                     }
                return datatables( $datos )->toJson();
 
-                    
+
     }
 
-        
-        
-    
+
+
+
 
 }
