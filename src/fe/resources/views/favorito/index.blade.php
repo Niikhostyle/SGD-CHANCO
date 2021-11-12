@@ -115,9 +115,9 @@
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                     <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
-                    <div class="form-control">ID: <i>No Aignado</i></div>
-                    <div class="form-control">Folio: <i>No Asignado</i></div>
-                    <div class="form-control">Fecha: <i>No Asignado</i></div>
+                    <input type="text" class="form-control" id="form_identificador" name="identificador" required>
+                    <input type="text" class="form-control" id="form_folio" name="folio" required>
+                    <input type="text" class="form-control" id="form_fecha" name="fecha" required>
                 </div>
             </div>
             <br>
@@ -173,7 +173,12 @@
                 <label for="floatingTextarea">Descripción o Extracto</label>
                 <textarea class="form-control" placeholder="comment" id="form_descripcion_extracto"  name="descripcion_extracto" required></textarea>   
             </div>
-            <br>
+            
+            <div class="form-floating">
+                <label for="floatingTextarea">Archivo Principal</label>
+                <textarea class="form-control"  raw="4" id=""  name="" required></textarea>   
+            </div>
+            <!--
             <div class="card" id="card_desplegar_versiones" style="display:true" >
                 <div class="card-body">
                     <div class="form-row">
@@ -196,7 +201,7 @@
                     </div>
                 </div>
             </div>
-            
+            -->
         
             <div class="card" id="card_ocultar_versiones" style="display:none" >
                 <div class="card-body">
@@ -397,6 +402,9 @@ $(document).ready(function(){
                                 if(data.status==200 || data.status==201){
                                     
                                     $('#form_documento_ver').trigger("reset");
+                                    $("input[name='identificador']").val(data.data.identificador);
+                                    $("input[name='folio']").val(data.data.folio);
+                                    $("input[name='fecha']").val(data.data.fecha);
                                     $("select[name='id_documento']").val(data.data.id_documento);
                                     $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
                                     $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
