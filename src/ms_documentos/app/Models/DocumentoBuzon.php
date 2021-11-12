@@ -19,7 +19,7 @@ class DocumentoBuzon extends Model{
         'fecha',
         'anterior',
         'comentario_principal',
-        'comentario_secuendario',
+        'comentario_secundario',
         'notificado',
         'recibido',
         'contestar_hasta',
