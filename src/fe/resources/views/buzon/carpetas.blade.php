@@ -236,10 +236,14 @@
                                 <input type="hidden" id="form_encabezado" name="encabezado">
                             </div>
                         </div>
-
+                        <div style="display:none">
+                            <div class="col-md-12">
+                                <form> </form>
+                            </div>
+                        </div>
                         <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexo:</label>
-                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disabled"></textarea>
+                            <label for="exampleFormControlTextarea1">Anexos:</label>
+                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disable"></textarea>
                             <div class="card-body" id="cargar_anexo" style="display:none">
                                 <form action="{{route('files.store')}}"
                                     method="POST"
@@ -317,7 +321,6 @@
                                 <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                 <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                 <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
-                                <input type="hidden" name="hiddIdUsuario" id="hiddIdUsuario" value="">
                                 <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                             </div>
                         </div>
@@ -340,6 +343,10 @@
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 
     <style type="text/css">
+
+        .disabled {
+            background-color: #e9ecef;
+        }
 
         .flex-container {
             display: flex;
@@ -434,8 +441,6 @@
 
     //dropzone
 
-    //desactivar opciones de el formulario documento
-
     form_anexo.disabled=true;
     form_archivo_principal_el.disabled=true;
     form_otros_archivos_el.disabled=true;
@@ -445,21 +450,34 @@
     form_otros_destinatarios_el.disabled=true;
     form_comentario_otro_el.disabled=true;
 
+    $(".bootstrap-tagsinput").addClass("disabled");   
 
     //dropzone
 
-    var idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+    idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
     Dropzone.options.dropzoneAnexo = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
         },
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        //maxFilesize: 10, //MB
+        //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos aquí",
         acceptedFiles: "image/*",
         addRemoveLinks: true,
-        params: {id_documento_buzon: idDocumentoBuzon, 'id_tipo_archivo' : 2},
+        params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
+        init: function() {
+            var submitButton = document.querySelector(".btn-guardar-submit")
+            dropzoneAnexo = this; // closure            
+        },
+        sending: function(file, xhr, formData){
+            var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            formData.append('id_documento_buzon', idb);
+    }        
     };
 
     Dropzone.options.dropzoneOtrosArchivos = {
@@ -472,6 +490,7 @@
         params: {id_documento_buzon: idDocumentoBuzon, 'id_tipo_archivo' : 3},
         createImageThumbnails: true,
         timeout: 50000,
+        autoProcessQueue: false
     };
 
     Dropzone.options.dropzoneArchivoPpal = {
@@ -484,32 +503,48 @@
         addRemoveLinks: true,
         params: {'id_documento_buzon': idDocumentoBuzon, 'id_tipo_archivo' : 1},
         createImageThumbnails: true,
-            timeout: 50000,
+        timeout: 50000,
+        autoProcessQueue: false
     };
-
-
-    $(".boton_desplegar_versiones_anteriores").click(function(e){
-        $('#card_ocultar_versiones').show();
-        $('#card_desplegar_versiones').hide();
-    });
-
-    $(".boton_ocultar_versiones_anteriores").click(function(e){
-        $('#card_ocultar_versiones').hide();
-        $('#card_desplegar_versiones').show();
-
-    });
 
     /* **DOCUMENTOS** SCRIPT */
 
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
 
-    $(".nuevo_documento").click(function(e){
+    $(".nuevo_documento").click(function(e)
+    {
+        $('#card_crear_documento').show();        
+        clear_form();
+   });
 
-        $('#card_crear_documento').show();
+
+    function clear_form()
+    {
         $('#form_crear_editar').trigger("reset");
-    });
 
+        $('#form_destinatario_principal_el').tagsinput('removeAll');
+        $('#form_otros_destinatarios_el').tagsinput('removeAll');
 
+        $('#form_tipo_documento').prop("disabled", false);
+
+        $("input[name='hiddIdDocumentoBuzon']").val('');
+        $("input[name='hiddIdDocumento']").val('');        
+        
+        $("#idAsignado").text('No Asignado');
+        
+        $('#row_anexo').hide();
+       // $('#form_archivo_principal_el').hide();
+
+        form_anexo.disabled=true;
+        form_archivo_principal_el.disabled=true;
+        form_otros_archivos_el.disabled=true;
+        form_destinatario_principal_el.disabled=true;
+        form_acciones_solicitadas_el.disabled=true;
+        form_comentario_el.disabled=true;
+        form_otros_destinatarios_el.disabled=true;
+        form_comentario_otro_el.disabled=true;
+        
+    }
 
     $(".btn_cerrar_guardar").click(function(e){
         $('#card_crear_documento').hide();
@@ -537,7 +572,6 @@
 
                             idTipoFlujo = data.data.id_tipo_flujo;
 
-                            console.log(idTipoFlujo);
                             //editor_encabezado.setData(data.data.plantilla_encabezado);
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
 
@@ -623,11 +657,13 @@
         {
             var urlAccion = "{{route('buzones.store_documento')}}";
             var typeAccion = 'POST';
+            console.log('crea');
         }
         else //editar
         {
             var urlAccion = "{{route('buzones.update_documento')}}";
             var typeAccion = 'PUT';
+            console.log('actualiza');
         }
 
         $.ajax({
@@ -658,8 +694,8 @@
 
                 if(data.status == '200')
                 {
+                    dropzoneAnexo.processQueue();
                     toastr.success("Tipo de Documento actualizado","Aviso!");
-
                 }
                 else if(data.status == '201')
                 {
@@ -691,15 +727,17 @@
                         $('#cargar_archivo_principal_el').show();
                     }
 
-
                     $('#form_otros_archivos_el').hide();
                     $('#cargar_otros_archivos').show();
 
-                    $('#form_destinatario_principal_el').prop("disabled", false);
-                    //$('#form_acciones_solicitadas_el').prop("disabled", false);
+                    //$('#form_destinatario_principal_el').prop("disabled", false);
+                    //$('#form_acciones_solicitadas_el').prop("disabled", false);                    
+
                     $('#form_comentario_el').prop("disabled", false);
                     $('#form_otros_destinatarios_el').prop("disabled", false);
                     $('#form_comentario_otro_el').prop("disabled", false);
+
+                    $(".bootstrap-tagsinput").removeClass("disabled");
 
                     //habilita botón enviar
 
@@ -738,14 +776,22 @@
                         }
                     }
 
-                    //agrega primer elemento en destinatario principal
-                    var nombreBuzon = listadoBuzones[idBuzonAccion];
-                    $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
-
+                    //agrega primer elemento en destinatario principal, solo si es flujo mixto/controlado
+                    
+                    if (idTipoFlujo == 1) //libre
+                    {
+                        $('#form_destinatario_principal_el').prop("disabled", false);
+                        $('#form_acciones_solicitadas_el').prop("disabled", false);
+                    }
+                    else
+                    {
+                        var nombreBuzon = listadoBuzones[idBuzonAccion];
+                        $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
+                    }
+                    
                     //actualiza grilla despachados
 
                     fn_grilla_despachados();
-
 
                 }
                 else
@@ -757,25 +803,78 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
 
-                toastr.error("Falla en el tipo de documento","Aviso!");
+                toastr.error("Falla en el documento","Aviso!");
 
                 $('.btn-guardar-submit').html( 'Guardar' );
             }
 
         });
-
-
     }
 
     function enviar_documento()
     {
-        console.log('envia documento');
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+
+        var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+
+        Swal.fire({
+            title: 'Enviar Documento',
+            text: "¿Está seguro(a) que desea enviar este documento?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) 
+            {
+                $.ajax({
+                    url: "../buzonesCarpetas/"+hiddIdDocumento,
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: {
+                        _token:_token,
+                        hiddIdDocumento:hiddIdDocumento,
+                        buzon:hiddIdBuzon,
+                        destinatarioPrincipal:destinatarioPrincipal,
+                        destinatarioOtros:otrosDestinatarios                
+                    },
+                    success: function(data)
+                    {
+                        if(data.status == '200')
+                        {
+                            toastr.success("Documento enviado","Aviso!");
+
+                            $('#card_crear_documento').hide();        
+                            clear_form();
+                            fn_grilla_despachados();
+                            //autoRefresh();
+                        }
+                        else
+                        {
+                            toastr.error(data.data.comentario,"Aviso!");
+                        }
+
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        toastr.error("Falla en el documento","Aviso!");
+
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    }
+                });
+            }
+        })        
+       
     }
 
     /* **DOCUMENTOS** SCRIPT */
-
-
-
 
     function cambio_texto_boton_carpetas(texto){
         $('#documento').hide();

@@ -17,11 +17,12 @@ class DocumentoBuzonArchivoController extends Controller
         //obetener el primer registro
         //$file = File::where('id', $file)->first();
 
+        $sPath = 'public/imagenes';
         $numero = rand(100000,9999999);
-        $imagenes = $request->file('file')->store('public/imagenes');
+        //$imagenes = $request->file('file')->store('public/imagenes');
         $nombre = $request->file('file')->getClientOriginalName();
-
-        $url = Storage::url($imagenes);
+        $request->file('file')->move($sPath, $nombre); 
+        //$url = Storage::url($imagenes);
         
         $id_documento_buzon = $request->id_documento_buzon;
         $id_tipo_archivo = $request->id_tipo_archivo;
