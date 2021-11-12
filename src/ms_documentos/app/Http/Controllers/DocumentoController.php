@@ -306,6 +306,67 @@ class DocumentoController extends Controller{
 
     }
 
+    public function recibir(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                $dFechaCreacion = date('Y-m-d H:i:s');
+                
+                $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                                     ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
+                                                     ->where('id_estado_documento', '3')
+                                                     ->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);              
+
+                DB::commit();
+
+                return $this->respondSuccess("Documento recepcionado", 200);
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al recepcionar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
+    public function ver(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+                
+                //$validator = $this->validator->validateField($datosRequest);
+                //if ($validator->fails())
+                //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
+
+                $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                $datosDocumento->rel_documento_buzon; 
+                $datosDocumento->rel_tipo_documento;
+                                
+                return $this->respondSuccess($datosDocumento, 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Documento no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+    }
+
+
+
     public function listarFavoritos(Request $request){
         if($request->isJson())
         {
