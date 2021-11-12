@@ -514,7 +514,7 @@
     form_otros_destinatarios_el.disabled=true;
     form_comentario_otro_el.disabled=true;
 
-    $(".bootstrap-tagsinput").addClass("disabled");   
+    $(".bootstrap-tagsinput").addClass("disabled");
 
     //dropzone
 
@@ -536,12 +536,12 @@
         timeout: 50000,
         init: function() {
             var submitButton = document.querySelector(".btn-guardar-submit")
-            dropzoneAnexo = this; // closure            
+            dropzoneAnexo = this; // closure
         },
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
             formData.append('id_documento_buzon', idb);
-    }        
+    }
     };
 
     Dropzone.options.dropzoneOtrosArchivos = {
@@ -577,7 +577,7 @@
 
     $(".nuevo_documento").click(function(e)
     {
-        $('#card_crear_documento').show();        
+        $('#card_crear_documento').show();
         clear_form();
    });
 
@@ -592,10 +592,10 @@
         $('#form_tipo_documento').prop("disabled", false);
 
         $("input[name='hiddIdDocumentoBuzon']").val('');
-        $("input[name='hiddIdDocumento']").val('');        
-        
+        $("input[name='hiddIdDocumento']").val('');
+
         $("#idAsignado").text('No Asignado');
-        
+
         $('#row_anexo').hide();
        // $('#form_archivo_principal_el').hide();
 
@@ -607,7 +607,7 @@
         form_comentario_el.disabled=true;
         form_otros_destinatarios_el.disabled=true;
         form_comentario_otro_el.disabled=true;
-        
+
     }
 
     $(".btn_cerrar_guardar").click(function(e){
@@ -795,7 +795,7 @@
                     $('#cargar_otros_archivos').show();
 
                     //$('#form_destinatario_principal_el').prop("disabled", false);
-                    //$('#form_acciones_solicitadas_el').prop("disabled", false);                    
+                    //$('#form_acciones_solicitadas_el').prop("disabled", false);
 
                     $('#form_comentario_el').prop("disabled", false);
                     $('#form_otros_destinatarios_el').prop("disabled", false);
@@ -841,7 +841,7 @@
                     }
 
                     //agrega primer elemento en destinatario principal, solo si es flujo mixto/controlado
-                    
+
                     if (idTipoFlujo == 1) //libre
                     {
                         $('#form_destinatario_principal_el').prop("disabled", false);
@@ -852,7 +852,7 @@
                         var nombreBuzon = listadoBuzones[idBuzonAccion];
                         $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
                     }
-                    
+
                     //actualiza grilla despachados
 
                     fn_grilla_despachados();
@@ -878,7 +878,7 @@
     function enviar_documento()
     {
         var _token = $("input[name='_token']").val();
-        
+
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
 
@@ -895,7 +895,7 @@
             confirmButtonText: 'Aceptar'
             }).then((result) => {
                 console.log(result);
-            if (result.value==true) 
+            if (result.value==true)
             {
                 $.ajax({
                     url: "../buzonesCarpetas/"+hiddIdDocumento,
@@ -906,7 +906,7 @@
                         hiddIdDocumento:hiddIdDocumento,
                         buzon:hiddIdBuzon,
                         destinatarioPrincipal:destinatarioPrincipal,
-                        destinatarioOtros:otrosDestinatarios                
+                        destinatarioOtros:otrosDestinatarios
                     },
                     success: function(data)
                     {
@@ -914,7 +914,7 @@
                         {
                             toastr.success("Documento enviado","Aviso!");
 
-                            $('#card_crear_documento').hide();        
+                            $('#card_crear_documento').hide();
                             clear_form();
                             fn_grilla_despachados();
                             //autoRefresh();
@@ -934,8 +934,8 @@
                     }
                 });
             }
-        })        
-       
+        })
+
     }
 
     /* **DOCUMENTOS** SCRIPT */
@@ -1122,6 +1122,7 @@
                                 grilla_recibidos.columns(5).search($('#gr_buscar_tipo_doc').val()).draw();
                                 self.search($('#gr_buscar_origen_materia').val()).draw();
                             })
+                    $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
                     $('#grilla_recibidos_filter').html('');
                 }
@@ -1213,6 +1214,7 @@
                                 grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
                                 self.search($('#gd_buscar_destino_materia').val()).draw();
                             })
+                    $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#grilla_despachados_filter').html('');
                 }
