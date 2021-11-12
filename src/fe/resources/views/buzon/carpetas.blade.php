@@ -595,6 +595,9 @@
 
     function clear_form()
     {
+        $('#addButton').html('');
+        $('.btn-guardar-submit').show();
+        //$('.btn-enviar-submit').show();
         $('#form_crear_editar').trigger("reset");
 
         $('#form_destinatario_principal_el').tagsinput('removeAll');
