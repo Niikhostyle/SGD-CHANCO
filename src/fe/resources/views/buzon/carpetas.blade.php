@@ -196,14 +196,24 @@
 
     <div class="row" id="card_ver_documento" style="display:none">
         <div class="col-12">
-
-            <div class="card" id="documento" style="display: none">
+            <div class="card">
                 <div class="card-header">
-                    <h4>Documento</h4>
+                    <h4>Ver Documento</h4>
                     <div class="linea_content_header"></div>
                 </div>
                 <div class="card-body">
 
+
+                </div>
+                <div class="card-footer">
+                    <div class="form-row">
+                        <div class="col-md-9"> </div>
+                        <div class="col-md-1">
+                            <button type="button"  class="btn btn-secondary w-100 btn_cerrar_ver">Cerrar</button>
+                        </div>
+                        <div class="col-md-2 ">
+                        </div>
+                    </div>
                 </div>
               </div>
 
@@ -614,6 +624,13 @@
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
     });
+
+    $(".btn_cerrar_ver").click(function(e){
+        $('#card_ver_documento').hide();
+        $("#collapseOne").collapse('show');
+
+    });
+
     $("#form_tipo_documento").change(function(){
         datosTipoDoc($(this).val());
     });
@@ -943,6 +960,7 @@
     function cambio_texto_boton_carpetas(texto){
         $('#documento').hide();
         $('#card_crear_documento').hide();
+        $('#card_ver_documento').hide();
 
         if(texto.length>20 || texto.length==0 ){
             texto='';
@@ -1017,7 +1035,13 @@
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                     { data: 'origen', name: 'tipo_origen.nombre' },
                     { data: 'materia', name: 'documento.materia' },
-                ]
+                ],
+                rowCallback: function (row, data, index ) {
+                    $(row).on("click", function (e) {
+                        visualizar_documento_por_recibir(data['id_documento']);
+
+                    });
+                }
             });
     }
 
@@ -1222,7 +1246,11 @@
         });
     }
 
-
+function visualizar_documento_por_recibir(id_documento){
+    $('#card_ver_documento .card-body').html('Documento ID ->'+id_documento);
+    $('#card_ver_documento').show();
+    $("#collapseOne").collapse('hide');
+}
 
 
 $(document).ready(function () {
