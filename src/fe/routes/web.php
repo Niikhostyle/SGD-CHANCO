@@ -45,6 +45,8 @@ Route::middleware(['auth:sanctum', 'verified'])->post('buzonesCarpetas',[BuzonCo
 Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas',[BuzonController::class,'update_documento'])->name('buzones.update_documento');
 Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas/{id}',[BuzonController::class,'enviar_documento'])->name('buzones.enviar_documento');
 Route::middleware(['auth:sanctum', 'verified'])->get('buzonesListar/',[BuzonController::class,'listar'])->name('buzones.listar');
+Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
+Route::middleware(['auth:sanctum', 'verified'])->put('recibir_documento/{id}',[BuzonController::class,'recibir_documento'])->name('documentos.recibir');
 
 
 //tipos de documentos

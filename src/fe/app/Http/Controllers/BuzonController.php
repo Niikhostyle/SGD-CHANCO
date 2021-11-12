@@ -218,41 +218,6 @@ class BuzonController extends Controller
 
         }
 
-            /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-            ->timeout(33)
-            ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
-
-            //return $listado_usuarios;
-            /*if($perfiles_nuevo->failed()){
-                $mensaje= $perfiles_nuevo->json()['data']['comentario'];
-
-                $perfiles_nuevo=['data'=>[
-                    0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-                ]];
-                toast($mensaje,'error');
-            }*/
-
-            //$User = $perfiles_nuevo->json();
-
-            //$User  = User::paginate(10);
-
-                    //return $perfiles_nuevo;
-                //$perfiles_nuevo->json();
-
-            /*$User = collect($perfiles_nuevo->json());
-            $current_page = LengthAwarePaginator::resolveCurrentPage();
-            $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
-
-            $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
-            $link=[
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
-            ];*/
-            //return $orders_to_show;
-            // $orders_to_show = $this->paginate($User);
-
-
         $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
         $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
@@ -442,6 +407,36 @@ class BuzonController extends Controller
         ]);
 
         return $accionDocumento->json();
+    }
+
+    public function ver_documento($id)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_documento' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
+
+        return $datosDocumento->json();
+
+    }
+
+    public function recibir_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/recibir', [            
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon
+        ]);
+
+        return $datosDocumento->json();
+
     }
 
     public function listar(Request $request)
