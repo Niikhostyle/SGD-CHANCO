@@ -189,6 +189,40 @@ class DocumentoController extends Controller{
         }
         else 
             return $this->respondError('Json inválido', 406);
-    }  
+    }
+    
+    public function estado_favorito(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+                
+                $validator = $this->validator->validateFieldUser($datosRequest);
+                if ($validator->fails())
+                    return $this->respondFail('Falla del servicio, usuario inválido');
+
+                $datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_usuario']);      
+                
+                if ($datosDocumento->favorito == 1)
+                    $datosDocumento->favorito = 2;
+                //else if ($datosDocumento->favorito == 2)
+                  //  $datosDocumento->favorito = 1;
+                    
+                $datosDocumento->save();
+                
+                return $this->respondSuccess(array('comentario' => "Actualizado"), 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Documento no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+
+
+    }
 
 }

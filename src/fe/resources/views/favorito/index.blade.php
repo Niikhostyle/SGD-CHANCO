@@ -56,7 +56,9 @@
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn-menu-editar" onclick="editar_usuario()"  href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
-                                     
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id_documento']}})" href="#">
+                                       
+                                    </a>
                                  </div>
                             </div>
                         </td>
@@ -124,7 +126,7 @@
             <div class="form-row">
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Tipo Documento:</label>
-                    <select id="form_documento" name="id_documento" class="form-control"  required>
+                    <select id="form_documento" name="id_tipo_documento" class="form-control"  required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
@@ -405,13 +407,16 @@ $(document).ready(function(){
                                     $("input[name='identificador']").val(data.data.identificador);
                                     $("input[name='folio']").val(data.data.folio);
                                     $("input[name='fecha']").val(data.data.fecha);
-                                    $("select[name='id_documento']").val(data.data.id_documento);
+                                    $("select[name='id_tipo_documento']").val(data.data.id_tipo_documento);
                                     $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
                                     $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
                                     $("input[name='contestar_hasta']").val(data.data.contestar_hasta);
                                     $("select[name='id_respuesta']").val(data.data.id_respuesta);
                                     $("input[name='materia']").val(data.data.materia);
                                     $("input[name='anterior']").val(data.data.anterior);
+
+                                    $("textarea[name='descripcion_extracto']").val(data.data.descripcion);
+                                    
                                     $("input[name='destinatario_principal']").val(data.data.destinatario_principal);
                                     $("select[name='id_acciones_solicitadas']").val(data.data.id_acciones_solicitadas);
                                     $("input[name='comentario']").val(data.data.comentario);
@@ -440,7 +445,52 @@ $(document).ready(function(){
         }
     }
 
+    function estado_usuario(id)
+    {
+        Swal.fire({
+            title: 'Usuario',
+            text: "¿Quiere cambiar el estado del usuario?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) {
+                console.log(result.isConfirmed);
+                $(".print-error-msg").hide();
+                var token = $("input[name='_token']").val();
+                $.ajax({
+                        url: "usuarios/"+id,
+                        type:'PUT',
+                        dataType: 'json',
+                        data: {_token :token},
+                        success: function(data) {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Usuario Actualizado","Aviso!");
+                                autoRefresh();
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            //if (typeof data.errors !== 'undefined') {
+                            // printErrorMsg(data.errors);
+                            console.log(e);
+                                printErrorMsg(data);
+                        }
+                    //}
+                });
+            }
+        })
 
+
+    }
 </script>
 
 
