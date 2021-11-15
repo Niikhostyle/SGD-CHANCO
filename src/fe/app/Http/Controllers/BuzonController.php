@@ -271,18 +271,163 @@ class BuzonController extends Controller
             }
         }
 
+        /* NUEVO-DOCUMENTOS */
 
-        return View::make('buzon.carpetas',['nombre_buzon'=>$nombre_buzon,
-        'lista_por_recibir'=>$lista_por_recibir,
-        'perfiles'=>$perfiles_datos,
-        'estados_usuario'=>$estados_usuario,
-        'n_docs_por_recibir'=>$n_docs_por_recibir,
-        'n_docs_recibidos_pendientes'=>$n_docs_recibidos_pendientes,
-        'id_buzon'=>$id
-        ]);
+        //tipos de documentos
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];           
+
+        }
+
+        //parametros
+        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+        
+        if($listado_parametros->failed()){
+            toast("Error al mostrar datos",'error');
+        }else{
+            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
+        }
+
+        $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
+        $datosAccion = $listado_parametros['data']['accion'];
+
+        //acciones
+        $aAcciones = [];
+        foreach ($datosAccion as $dato)
+            $aAcciones[$dato['id_accion']] = $dato['nombre'];
+
+        //acciones-flujo
+        
+        foreach ($datosFlujoAccion as $dato)
+        {
+            if ($dato['id_tipo_flujo'] == 2) //Controlado
+            {
+                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);    
+            }
+
+            if ($dato['id_tipo_flujo'] == 3) //Mixto
+            {
+                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);      
+            }  
+        }
+
+
+        $datosBuzon = $this->show($id); //muestra metodo show
+
+        //listado de buzones
+
+        $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'texto_busqueda' => '',
+        ]), 'json')
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+
+        if($listado_buzones->failed()){
+            $listado_buzones->json()['data']['comentario'];
+
+            $listado_buzones=['data'=>[
+                0=>['id'=>'0','nombre'=>'Sin Datos']
+            ]];
+            toast($mensaje,'error');
+        }else{
+
+            foreach ($listado_buzones['data'] as $dato)
+            {
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];    
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon'] 
+            }  
+        }
+
+        /* NUEVO-DOCUMENTOS */
+        
+        return View::make('buzon.carpetas',[
+            'lista_por_recibir' => $lista_por_recibir,
+            'perfiles' => $perfiles_datos,
+            'estados_usuario' => $estados_usuario,
+            'n_docs_por_recibir' => $n_docs_por_recibir,
+            'n_docs_recibidos_pendientes' => $n_docs_recibidos_pendientes,
+            'nivel_acceso' => $datosNivelAcceso,
+            'nombre_buzon' => $datosBuzon['data']['nombre'],
+            'listado_tiposdoc'=>$datosTipoDoc,
+            'id_buzon' => $id,
+            'acciones_tipoflujo2'=>$aFlujoAccionT2,
+            'acciones_tipoflujo3'=>$aFlujoAccionT3,
+            'listadoBuzones'=>$aBuzones,
+            'allBuzones'=>$aAllBuzones 
+        ]);    
+
     }
 
-    public function listar(Request $request){
+    public function store_documento(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->post('http://sgd_ms_documentos:3333/api/sgd-documentos/crear', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id
+        ]);
+
+        return $accionDocumento->json();
+
+    } 
+
+    public function update_documento(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(20)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar', [
+            'id_tipo_documento'=>$request->tipo_documento,
+            'id_nivel_acceso'=>$request->nivel_acceso,
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'efectos_terceros'=>$request->efectos_terceros,
+            'json_respuesta_a'=>"[]",
+            'materia'=>$request->materia,
+            'anterior'=>$request->anterior,
+            'descripcion'=>$request->descripcion,
+            'encabezado'=>$request->encabezado,
+            'cuerpo'=>$request->cuerpo,
+            'id_buzon'=>$request->buzon,
+            'contestar_hasta'=>$request->contestar_hasta,          
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'comentarioPrincipal'=>$request->comentarioPrincipal,
+            'comentarioOtros'=>$request->comentarioOtros
+        ]);
+
+        return $accionDocumento->json();
+    }
+
+    public function listar(Request $request)
+    {
 
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
@@ -324,20 +469,11 @@ class BuzonController extends Controller
                     }
                return datatables( $datos )->toJson();
 
-                    /*
-                    id_buzon            documento_buzon->id_buzon
-                    palomitas           documento_buzon->recibido
-                    estado              documento_buzon->id_estado_documento / estado_documento->nombre_corto
-                    fecha_despacho      documento_buzon->fecha
-                 **   fecha_recepcion     ??? si está en (documento_buzon.id_estado_documento==4) "pendiente" La fecha se obtiene de la tabla docuento buzon bitacora campo fecha cuando esta en el id_accion
-                    tipo_decumento      documento->id_tipo_documento / tipo_documento->nombre
-                    destinatario        documento_buzon->json_acciones
-                    materia             documento->materia
-                    respuesta_a         documento->json_respuesta_a [{id_documento}]
-                    fecha_documento     documento->fecha
-                    */
-
+                    
     }
 
+        
+        
+    
 
 }

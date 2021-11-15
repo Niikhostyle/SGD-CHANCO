@@ -18,7 +18,7 @@ class CreateDocumentoTable extends Migration
             $table->integer('id_tipo_documento');
             $table->integer('id_nivel_acceso');
             $table->jsonb('json_tipo_documento')->nullable();
-            $table->BigInteger('identificador')->nullable();
+            $table->bigIncrements('identificador');
             $table->BigInteger('folio')->nullable();
             $table->dateTime('fecha')->nullable();
             $table->jsonb('json_respuesta_a')->nullable();

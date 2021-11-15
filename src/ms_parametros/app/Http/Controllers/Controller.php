@@ -81,7 +81,7 @@ class Controller extends BaseController
                 $datosTipoFolio = TipoFolio::all('id_tipo_folio', 'nombre');
                 $aJsonSalida["tipo_folio"] = $datosTipoFolio;
 
-                $datosTipoFlujoAccion = TipoFlujoAccion::all('id_tipo_flujo_accion', 'id_tipo_flujo', 'id_accion');
+                $datosTipoFlujoAccion = TipoFlujoAccion::all('id_tipo_flujo_accion', 'id_tipo_flujo', 'id_accion')->sortBy('id_accion');
                 $aJsonSalida["tipo_flujo_accion"] = $datosTipoFlujoAccion;
                 
                 $datosTipoAsignacionFolio = TipoAsignacionFolio::all('id_tipo_asignacion_folio', 'nombre');
