@@ -117,4 +117,15 @@ class FavoritoController extends Controller
     {
         //
     }
+
+    public function estado($id)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/estado_favorito',['id_usuario' => $id]);
+
+        $response_json=response()->json($response->json());
+        return $response_json;
+    }
 }

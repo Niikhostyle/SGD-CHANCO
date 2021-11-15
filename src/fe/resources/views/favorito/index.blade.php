@@ -56,8 +56,13 @@
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn-menu-editar" onclick="editar_usuario()"  href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
-                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id_documento']}})" href="#">
-                                       
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento']}})" href="#">
+                                        @if($list['favorito']==1)
+                                            <i class="fas fa-trash-alt text-red"></i> Deshabilitar
+                                        @endif
+                                        @if($list['favorito']==2)
+                                            <i class="fas fa-plus-circle text-green"></i> Habilitar
+                                        @endif
                                     </a>
                                  </div>
                             </div>
@@ -445,11 +450,11 @@ $(document).ready(function(){
         }
     }
 
-    function estado_usuario(id)
+    function estado_favorito(id)
     {
         Swal.fire({
-            title: 'Usuario',
-            text: "¿Quiere cambiar el estado del usuario?",
+            title: 'Documento',
+            text: "¿Quiere quitar de favortios?",
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
@@ -462,14 +467,14 @@ $(document).ready(function(){
                 $(".print-error-msg").hide();
                 var token = $("input[name='_token']").val();
                 $.ajax({
-                        url: "usuarios/"+id,
+                        url: "favoritos/"+id,
                         type:'PUT',
                         dataType: 'json',
                         data: {_token :token},
                         success: function(data) {
                             if(data.status == '200')
                             {
-                                toastr.success("Usuario Actualizado","Aviso!");
+                                toastr.success("Documento Actualizado","Aviso!");
                                 autoRefresh();
                             }
                             else
