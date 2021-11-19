@@ -28,7 +28,7 @@
                   <div class="card-header" id="headingOne">
                     <h2 class="mb-0">
                       <button class="btn btn-block text-left buzones_carpetas_btn_colapsable_text" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <span id="boton_carpetas_texto"> Carpetas - Por Recibir </span>
+                        <span id="boton_carpetas_texto"> Carpetas - <i><b>Por Recibir</b></i> </span>
                         <i class="fa fa-chevron-circle-up" style="float:right;margin-top: 8px;"></i>
                         <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
                       </button>
@@ -225,7 +225,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header" >
-                    <h4>Nuevo Documento</h4>
+                    <h4 id="titulo_accion">Nuevo Documento</h4>
                     <div class="linea_content_header"></div>
                 </div>
                 <div class="card-body">
@@ -278,8 +278,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Respuesta a:</label>
                                 <select id="form_respuesta_a" name="respuesta_a" class="form-control">
-                                    <option selected>Seleccionar</option>
-                                    <option>...</option>
+                                    <option selected>Seleccionar</option>                                    
                                 </select>
                             </div>
                             <div class="col-md-8 mb-3">
@@ -362,9 +361,13 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label for="inputState">Acciones Solicitadas:</label>
-                                <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
-                                    <option>Seleccionar acciones</option>
+                                <label for="inputState">Acciones Solicitadas:</label><br>
+                                <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" disabled="false">                                    
+                                    @foreach($listadoAcciones as $accion)
+                                        @if($accion['id_tipo_accion'] == 1)
+                                            <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
+                                        @endif    
+                                    @endforeach    
                                 </select>
                                 </div>
                         </div>
@@ -380,10 +383,12 @@
                         </div>
                         <div class="form-floating">
                             <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                            <textarea class="form-control"  id="form_comentario_otro_el" disabled="false"></textarea>
+                            <textarea class="form-control" id="form_comentario_otro_el" disabled="false"></textarea>
                         </div>
-                        <br>
-
+                        <div class="form-floating row_archivar">
+                            <label for="floatingTextarea">Ingrese fundamentación para archivar</label>
+                            <textarea class="form-control" id="form_comentario_archivar"></textarea>
+                        </div>
                         <div class="form-row">
                             <div class="col-md-9"> </div>
                             <div class="col-md-1">
@@ -416,11 +421,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
+    <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
 
     <style type="text/css">
 
         .disabled {
             background-color: #e9ecef;
+        }
+
+        .row_archivar {
+            display:none;
         }
 
         .flex-container {
@@ -450,7 +460,7 @@
         .label {
             display: inline-block;
             padding: .25em .4em;
-            font-size: 75%;
+            font-size: 90%;
             font-weight: 700;
             line-height: 1;
             text-align: center;
@@ -470,6 +480,7 @@
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
+<script src="/js/bootstrap-multiselect.js"></script>
 
 <script>
     //globales
@@ -478,6 +489,7 @@
     var grilla_recibidos;
     var grilla_despachados;
 
+    const accionesFlujo1 = @json($acciones_tipoflujo1);
     const accionesFlujo2 = @json($acciones_tipoflujo2);
     const accionesFlujo3 = @json($acciones_tipoflujo3);
     var allBuzones = @json($allBuzones);
@@ -485,6 +497,8 @@
 
     var idTipoFlujo = "";
     //tags input
+
+    $('#form_acciones_solicitadas_el').multiselect();
 
     var allBuzones = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
@@ -588,30 +602,49 @@
 
     $(".nuevo_documento").click(function(e)
     {
+        $("#collapseOne").collapse('hide');
+        $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();        
         clear_form();
-   });
-
+    });
 
     function clear_form()
     {
-        $('#addButton').html('');
+        ///botones
         $('.btn-guardar-submit').show();
-        //$('.btn-enviar-submit').show();
-        $('#form_crear_editar').trigger("reset");
+        $('.btn-enviar-submit').hide();
+        $('#addButton').html('');
 
-        $('#form_destinatario_principal_el').tagsinput('removeAll');
-        $('#form_otros_destinatarios_el').tagsinput('removeAll');
+        //inicializa formulario
+
+        $('#form_crear_editar').trigger("reset");
+        $("#form_crear_editar :input").prop("disabled", false);
+        $("input[name='encabezado']").val('');
+        editor_cuerpo.setReadOnly(false);
+        editor_cuerpo.setData('');
+        $("textarea[id='form_comentario_el']").val('');
+        $("textarea[id='form_comentario_otro_el']").val('');
 
         $('#form_tipo_documento').prop("disabled", false);
 
+        $('#row_cuerpo').hide();
+        $('#row_anexo').hide();     
+        $(".row_archivar").hide();    
+        
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        $('#form_destinatario_principal_el').tagsinput('removeAll');
+        $('#form_otros_destinatarios_el').tagsinput('removeAll');
+        $(".bootstrap-tagsinput").addClass("disabled");       
+
+        $('#form_comentario_el').prop("disabled", false);        
+        $('#form_otros_destinatarios_el').prop("disabled", false);
+        $('#form_comentario_otro_el').prop("disabled", false);
+
         $("input[name='hiddIdDocumentoBuzon']").val('');
-        $("input[name='hiddIdDocumento']").val('');        
+        $("input[name='hiddIdDocumento']").val('');
+        $("input[name='hiddIdOrigen']").val('');
         
         $("#idAsignado").text('No Asignado');
-        
-        $('#row_anexo').hide();
-       // $('#form_archivo_principal_el').hide();
 
         form_anexo.disabled=true;
         form_archivo_principal_el.disabled=true;
@@ -657,7 +690,6 @@
 
                             idTipoFlujo = data.data.id_tipo_flujo;
 
-                            //editor_encabezado.setData(data.data.plantilla_encabezado);
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
 
                             if (data.data.id_tipo_origen == 1) //interno
@@ -696,7 +728,6 @@
         $(".print-error-msg").hide();
 
         guarda_documento();
-
     });
 
     $(".btn-enviar-submit").click(function(e)
@@ -724,7 +755,6 @@
         var materia = $("input[name='materia']").val();
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
-
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
 
@@ -732,23 +762,21 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
-
         var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
-        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();//.tagsinput('items')
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
 
         if (hiddIdDocumento == '') //crear
         {
             var urlAccion = "{{route('buzones.store_documento')}}";
             var typeAccion = 'POST';
-            console.log('crea');
         }
         else //editar
         {
             var urlAccion = "{{route('buzones.update_documento')}}";
             var typeAccion = 'PUT';
-            console.log('actualiza');
         }
 
         $.ajax({
@@ -771,6 +799,7 @@
                 destinatarioOtros:otrosDestinatarios,
                 comentarioPrincipal:comentarioPrincipal,
                 comentarioOtros:comentarioOtros,
+                acciones_solicitadas:acciones_solicitadas,
                 hiddIdDocumento:hiddIdDocumento,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon
             },
@@ -779,8 +808,8 @@
 
                 if(data.status == '200')
                 {
-                    dropzoneAnexo.processQueue();
-                    toastr.success("Tipo de Documento actualizado","Aviso!");
+                    //dropzoneAnexo.processQueue();
+                    toastr.success("Documento actualizado","Aviso!");
                 }
                 else if(data.status == '201')
                 {
@@ -815,9 +844,6 @@
                     $('#form_otros_archivos_el').hide();
                     $('#cargar_otros_archivos').show();
 
-                    //$('#form_destinatario_principal_el').prop("disabled", false);
-                    //$('#form_acciones_solicitadas_el').prop("disabled", false);                    
-
                     $('#form_comentario_el').prop("disabled", false);
                     $('#form_otros_destinatarios_el').prop("disabled", false);
                     $('#form_comentario_otro_el').prop("disabled", false);
@@ -831,18 +857,30 @@
 
                     //completar select form_acciones_solicitadas_el - se obtienen las acciones del orden 1 del flujo de buzones
 
+
                     var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
                     var jsonAcciones = json_tipo_doc['buzones_flujo'];
 
-                    for (let i in jsonAcciones) {
+                    for (let i in jsonAcciones) 
+                    {
                         if (jsonAcciones[i].orden == 1)
                         {
                             var aAcciones = jsonAcciones[i].acciones;
                             var idBuzonAccion = jsonAcciones[i].id_buzon;
                         }
                     }
-
+/*
                     //obtener todas las acciones asociadas al tipo de flujo asociado al tipo de documento => idTipoFlujo
+
+                    $('#form_acciones_solicitadas_el').html('');
+
+                    if (idTipoFlujo == 1)
+                    {
+                        for (let i in accionesFlujo1)
+                        {
+                            $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo1[i][0]+"' >"+accionesFlujo1[i][1]+"</option>");
+                        }
+                    }
 
                     if (idTipoFlujo == 2)
                     {
@@ -852,6 +890,7 @@
                                 $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo2[i][0]+"' >"+accionesFlujo2[i][1]+"</option>");
                         }
                     }
+                    
                     if (idTipoFlujo == 3)
                     {
                         for (let i in accionesFlujo3)
@@ -860,13 +899,13 @@
                                 $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo3[i][0]+"' >"+accionesFlujo3[i][1]+"</option>");
                         }
                     }
-
+*/
                     //agrega primer elemento en destinatario principal, solo si es flujo mixto/controlado
                     
                     if (idTipoFlujo == 1) //libre
                     {
                         $('#form_destinatario_principal_el').prop("disabled", false);
-                        $('#form_acciones_solicitadas_el').prop("disabled", false);
+                        $('#form_acciones_solicitadas_el').multiselect('enable');
                     }
                     else
                     {
@@ -888,6 +927,8 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
 
+                console.log(textStatus);
+                console.log(errorThrown);
                 toastr.error("Falla en el documento","Aviso!");
 
                 $('.btn-guardar-submit').html( 'Guardar' );
@@ -902,6 +943,7 @@
         
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
@@ -925,6 +967,7 @@
                     data: {
                         _token:_token,
                         hiddIdDocumento:hiddIdDocumento,
+                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                         buzon:hiddIdBuzon,
                         destinatarioPrincipal:destinatarioPrincipal,
                         destinatarioOtros:otrosDestinatarios                
@@ -938,7 +981,7 @@
                             $('#card_crear_documento').hide();        
                             clear_form();
                             fn_grilla_despachados();
-                            //autoRefresh();
+                            location.reload();
                         }
                         else
                         {
@@ -959,7 +1002,7 @@
        
     }
 
-    function recibir_documento()
+    function derivar_documento()
     {
         var _token = $("input[name='_token']").val();
         
@@ -968,6 +1011,71 @@
 
         var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        var comentarioPrincipal = $('#form_comentario_el').val();
+        var comentarioOtros = $('#form_comentario_otro_el').val();
+
+        Swal.fire({
+            title: 'Derivar',
+            text: "Se realizará la derivación del documento:",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) 
+            {
+                $.ajax({
+                    url: "/derivarOpcion1/"+hiddIdDocumento,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        _token:_token,
+                        hiddIdDocumento:hiddIdDocumento,
+                        buzon:hiddIdBuzon,
+                        destinatarioPrincipal:destinatarioPrincipal,
+                        destinatarioOtros:otrosDestinatarios,
+                        comentarioPrincipal:comentarioPrincipal,
+                        comentarioOtros:comentarioOtros                
+                    },
+                    success: function(data)
+                    {
+                        if(data.status == '200')
+                        {
+                            toastr.success("Documento derivado","Aviso!");
+
+                            $('#card_crear_documento').hide();        
+                            clear_form();
+                            fn_grilla_despachados();
+                            location.reload();
+                        }
+                        else
+                        {
+                            toastr.error(data.data.comentario,"Aviso!");
+                        }
+
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        toastr.error("Falla en la derivación del documento","Aviso!");
+
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    }
+                });
+            }
+        })        
+       
+    }
+
+    function recibir_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
         Swal.fire({
             title: 'Recibir',
@@ -982,7 +1090,7 @@
             if (result.value==true) 
             {
                 $.ajax({
-                    url: "/recibir_documento/"+hiddIdDocumento,
+                    url: "/recibir_documento/"+hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -999,7 +1107,68 @@
                             $('#card_crear_documento').hide();        
                             clear_form();
                             fn_grilla_recibidos();
+                            location.reload();
+                        }
+                        else
+                        {
+                            toastr.error(data.data.comentario,"Aviso!");
+                        }
 
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        toastr.error("Falla en el documento","Aviso!");
+
+                        $('.btn-enviar-submit').html( 'Enviar' );
+                    }
+                });
+            }
+        })        
+       
+    }
+
+    function archivar_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var comentario = $("textarea[id='form_comentario_archivar']").val();
+
+        Swal.fire({
+            title: 'Archivar',
+            text: "Se archivará el documento:",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) 
+            {
+                $.ajax({
+                    url: "/archivar_documento/"+hiddIdDocumentoBuzon,
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: {
+                        _token:_token,
+                        hiddIdDocumento:hiddIdDocumento,
+                        buzon:hiddIdBuzon,
+                        comentario:comentario                
+                    },
+                    success: function(data)
+                    {
+                        if(data.status == '200')
+                        {
+                            toastr.success("Documento Archivado","Aviso!");
+
+                            $('#card_crear_documento').hide();        
+                            clear_form();
+                            fn_grilla_recibidos();
+                            location.reload();
                         }
                         else
                         {
@@ -1030,7 +1199,7 @@
         if(texto.length>20 || texto.length==0 ){
             texto='';
         }
-        $('#boton_carpetas_texto').html('Carpetas - '+texto);
+        $('#boton_carpetas_texto').html('Carpetas - <i><b>'+texto+'</b></i>');
         if(texto=='Recibidos'){
             $('#grilla_recibidos').DataTable().draw();
         }
@@ -1047,59 +1216,43 @@
         $('#documento').show();
     }
 
-    function ver_recibidos(identificador){
-        alert(identificador)
-    }
-    function responder_recibidos(identificador){
-        alert(identificador)
-    }
-    function derivar_recibidos(identificador){
-        alert(identificador)
-    }
-    function archivar_recibidos(identificador){
-        alert(identificador)
-    }
-    function bitacora_recibidos(identificador){
-        alert(identificador)
-    }
-    function favorito_recibidos(identificador){
-        alert(identificador)
-    }
+    function ver_recibidos(id_documento, tipo_destino)
+    {           
+        $('#titulo_accion').html('Ver Documento'); 
+        $("#collapseOne").collapse('hide');
+        
+        clear_form();
+        
+        $("#form_crear_editar :input").prop("disabled", true);
+        editor_cuerpo.setReadOnly(true);
 
-    function ver_despachados(identificador){
-        alert(identificador)
-    }
-    function editar_despachados(identificador)
-    {        
-        $('#form_crear_editar').trigger("reset"); 
         $('#card_crear_documento').show();  
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
-
-        var buttonRecibir = '<button onClick="recibir_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Recibir</button>';
-        $('#addButton').append(buttonRecibir);
-
-        $("#card_crear_documento input").prop("disabled", true); 
-        $("#card_crear_documento select").prop("disabled", true);
-        
-        $('textarea[id="form_comentario_el"]').prop('disabled', true);
-        $('textarea[id="form_comentario_otro_el"]').prop('disabled', true);
-
-        $.ajax({ 
-            url: "/documentos/"+identificador,
-            type:'GET', 
+/*
+        if (tipo_destino == 1)
+        {
+            var buttonArchivarEnviar = '<button onClick="archivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Archivar</button> ';
+            buttonArchivarEnviar += '<button onClick="derivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Enviar</button>';
+            $('#addButton').html('');
+            $('#addButton').append(buttonArchivarEnviar);
+        }
+    */
+        $.ajax({
+            url: "/documentos/"+id_documento,
+            type:'GET',
             dataType: 'json',
-            success: function(data) { 
-                if(data.status=='400') { 
-                    toastr.error(data.data.comentario,"Aviso!");                        
+            success: function(data) {
+                if(data.status=='400') {
+                    toastr.error(data.data.comentario,"Aviso!");
                 }
                 else
-                { 
+                {
                     if(data.status=='200')
-                    { 
-                        console.log(data);
-
-                        $('#form_tipo_documento').prop("disabled", true);   
+                    {
+                        $('#form_tipo_documento').prop("disabled", true);
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
                         $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
                         $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
@@ -1134,22 +1287,293 @@
                         }
 
                         $('#form_otros_archivos_el').hide();
+                        $('#cargar_otros_archivos').show();                    
+
+                        if (data.data.rel_tipo_documento['id_tipo_flujo'] == 1 && tipo_destino == 1) //libre
+                        {
+                            $('#form_destinatario_principal_el').prop("disabled", false);  
+                            $('#form_otros_destinatarios_el').prop("disabled", false);  
+
+                            $(".bootstrap-tagsinput-max").removeClass("disabled");    
+                            $(".bootstrap-tagsinput").removeClass("disabled");
+
+                            $('#form_comentario_el').prop("disabled", false);        
+                            $('#form_comentario_otro_el').prop("disabled", false);
+
+                        }
+
+                        /*
+                            var relDocumentoBuzon = data.data.rel_documento_buzon;
+                            $.each(relDocumentoBuzon, function(i, item)
+                            {
+                                if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != null)
+                                {
+                                    $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                    $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+                                }
+
+                                if (item.id_tipo_destino == 2)
+                                {
+                                    $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                    $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
+                                }
+
+                            });
+                        */
+                    }
+                }
+                //$('.btn-guardar-submit').prop("disabled", false);
+            },
+            error: function (e) {
+                data = e.responseJSON;
+                if (typeof data.errors !== 'undefined') {
+                    printErrorMsg(data.errors);
+                }
+                //$('.btn-submit').prop("disabled", false);
+            }
+        });
+
+    }
+
+    function responder_recibidos(identificador){
+        alert(identificador)
+    }
+
+    function derivar_recibidos(identificador){
+        alert(identificador)
+    }
+
+    function archivar_recibidos(identificador,id_documento_buzon){
+
+        $('#titulo_accion').html('Ver Documento'); 
+        $("#collapseOne").collapse('hide');
+        
+        clear_form();
+        
+        $("#form_crear_editar :input").prop("disabled", true);
+        editor_cuerpo.setReadOnly(true);
+
+        $('#card_crear_documento').show();  
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        
+        $('.btn-guardar-submit').hide();
+        $('.btn-enviar-submit').hide();
+
+        var buttonArchivar = '<button onClick="archivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Archivar</button> ';
+        $('#addButton').html('');
+        $('#addButton').append(buttonArchivar);
+
+        $(".row_archivar").show();
+
+
+        $.ajax({
+            url: "/documentos/"+identificador,
+            type:'GET',
+            dataType: 'json',
+            success: function(data) {
+                if(data.status=='400') {
+                    toastr.error(data.data.comentario,"Aviso!");
+                }
+                else
+                {
+                    if(data.status=='200')
+                    {
+                        $('#form_tipo_documento').prop("disabled", true);
+                        $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
+                        $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
+                        $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
+                        $("input[name='materia']").val(data.data.materia);
+                        $("input[name='anterior']").val(data.data.anterior);
+                        $("textarea[name='descripcion']").val(data.data.descripcion);
+
+                        $("input[name='encabezado']").val(data.data.encabezado);
+
+                        $("input[name='hiddIdOrigen']").val(data.data.rel_tipo_documento['id_tipo_origen']);
+                        editor_cuerpo.setData(data.data.cuerpo);
+
+                        $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
+                        $("input[name='hiddIdDocumento']").val(data.data.id_documento);
+                        $("#idAsignado").text(data.data.identificador);
+
+                        if (data.data.rel_tipo_documento['id_tipo_origen'] == 1) //interno
+                        {
+                            $('.row_cuerpo').show();
+                            $('.row_arch_ppal').hide();
+                            $('.row_anexo').show();
+                            $('#form_anexo').hide();
+                            $('#cargar_anexo').show();
+                        }
+                        if (data.data.rel_tipo_documento['id_tipo_origen'] == 2) //externo
+                        {
+                            $('.row_cuerpo').hide();
+                            $('.row_arch_ppal').show();
+                            $('.row_anexo').hide();
+                            $('#form_archivo_principal_el').hide();
+                            $('#cargar_archivo_principal_el').show();
+                        }
+
+                        $('#form_otros_archivos_el').hide();
+                        $('#cargar_otros_archivos').show();                    
+
+                        /*
+                            var relDocumentoBuzon = data.data.rel_documento_buzon;
+                            $.each(relDocumentoBuzon, function(i, item)
+                            {
+                                if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != null)
+                                {
+                                    $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                    $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+                                }
+
+                                if (item.id_tipo_destino == 2)
+                                {
+                                    $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                    $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
+                                }
+
+                            });
+                        */
+                    }
+                }
+                //$('.btn-guardar-submit').prop("disabled", false);
+            },
+            error: function (e) {
+                data = e.responseJSON;
+                if (typeof data.errors !== 'undefined') {
+                    printErrorMsg(data.errors);
+                }
+                //$('.btn-submit').prop("disabled", false);
+            }
+        });
+
+        
+        
+    }
+
+    function bitacora_recibidos(identificador){
+        alert(identificador)
+    }
+
+    function favorito_recibidos(identificador){
+        alert(identificador)
+    }
+
+    function ver_despachados(identificador){
+        alert(identificador)
+    }
+
+    function editar_despachados(identificador, estado, id_documento_buzon)
+    {       
+        $('#titulo_accion').html('Editar Documento'); 
+        $("#collapseOne").collapse('hide');
+        
+        clear_form();
+
+        $('#form_tipo_documento').prop("disabled", true); 
+
+        $('#form_comentario_el').prop("disabled", false);        
+        $('#form_otros_destinatarios_el').prop("disabled", false);
+        $('#form_comentario_otro_el').prop("disabled", false);
+        $(".bootstrap-tagsinput").removeClass("disabled");
+
+        $('#card_crear_documento').show();  
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        
+        if (estado == 1)
+        {
+            $('.btn-guardar-submit').show();
+            $('.btn-enviar-submit').show();
+        }
+
+        if (estado == 2)
+        {
+            $('.btn-guardar-submit').hide();
+            $('.btn-enviar-submit').hide();
+        }
+
+        $.ajax({ 
+            url: "/documentos/"+identificador,
+            type:'GET', 
+            dataType: 'json',
+            success: function(data) { 
+                if(data.status=='400') { 
+                    toastr.error(data.data.comentario,"Aviso!");                        
+                }
+                else
+                { 
+                    if(data.status=='200')
+                    { 
+                        var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
+                        var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+
+                        $('#form_tipo_documento').prop("disabled", true);   
+                        $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
+                        $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
+                        $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
+                        $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                        $("input[name='materia']").val(data.data.materia);
+                        $("input[name='anterior']").val(data.data.anterior);
+                        $("textarea[name='descripcion']").val(data.data.descripcion);
+                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
+                        $("input[name='encabezado']").val(data.data.encabezado);
+                        editor_cuerpo.setData(data.data.cuerpo);
+
+                        $("input[name='hiddIdDocumento']").val(data.data.id_documento);
+                        $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
+
+                        $("#idAsignado").text(data.data.identificador);
+
+                        if (json_tipo_doc['id_tipo_origen'] == 1) //interno
+                        {
+                            $('.row_cuerpo').show();
+                            $('.row_arch_ppal').hide();
+                            $('.row_anexo').show();
+                            $('#form_anexo').hide();
+                            $('#cargar_anexo').show();
+                        }
+                        if (json_tipo_doc['id_tipo_origen'] == 2) //externo
+                        {
+                            $('.row_cuerpo').hide();
+                            $('.row_arch_ppal').show();
+                            $('.row_anexo').hide();
+                            $('#form_archivo_principal_el').hide();
+                            $('#cargar_archivo_principal_el').show();
+                        }
+
+                        $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();
 
-                        $('#form_comentario_el').prop("disabled", false);
-                        $('#form_otros_destinatarios_el').prop("disabled", false);
-                        $('#form_comentario_otro_el').prop("disabled", false);
+                        if (json_tipo_doc['id_tipo_flujo'] == 1) //libre
+                        {
+                            $('#form_destinatario_principal_el').prop("disabled", false);  
+                            $(".bootstrap-tagsinput-max").removeClass("disabled");                             
+                            $('#form_acciones_solicitadas_el').multiselect('enable');
+                        }
 
-                        $(".bootstrap-tagsinput").removeClass("disabled");
+                        if (json_tipo_doc['id_tipo_flujo'] == 2) //controlado/mixto
+                        {
+                            $('#form_destinatario_principal_el').prop("disabled", true);  
+                            $(".bootstrap-tagsinput-max").addClass("disabled");        
+                        }
 
                         var relDocumentoBuzon = data.data.rel_documento_buzon;
                         $.each(relDocumentoBuzon, function(i, item)
-                        {                         
-                            
-                            if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != '')
+                        {                       
+                            if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != null)
                             {
                                 $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
                                 $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+
+                                //seleccionar acciones
+
+                                var accionesSolicitadas = $.parseJSON(item.json_acciones);
+                                    
+                                $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                                for (let i in accionesSolicitadas)
+                                {
+                                    console.log(accionesSolicitadas[i]['id_accion']);
+                                    $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
+                                }
                             }
 
                             if (item.id_tipo_destino == 2)
@@ -1175,11 +1599,10 @@
 
 
     }
+    
     function eliminar_despachados(identificador){
         alert(identificador)
     }
-
-
 
     async function fn_grilla_por_recibir(){
             $('#documento').hide();
@@ -1206,15 +1629,11 @@
                 ],
                 rowCallback: function (row, data, index ) {
                     $(row).on("click", function (e) {
-                        visualizar_documento_por_recibir(data['id_documento']);
-
+                        visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon']);
                     });
                 }
             });
     }
-
-
-
 
     async function fn_grilla_recibidos(){
 
@@ -1258,8 +1677,8 @@
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                     { data: 'origen', name: 'tipo_origen.nombre' },
                     { data: 'materia', name: 'documento.materia' },
-                    { data: 'id_buzon',
-                    render: function(data, type) {
+                    { data: 'id_documento',
+                    render: function(data, type, row) {
                         if (type === 'display') {
                             if(data==null){
                                 return '';
@@ -1270,20 +1689,21 @@
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
+                                        if (row.id_tipo_destino == 1) //principal
+                                        {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
-                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
-                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_tipo_destino+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
                                             botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#">';
-                                                // if($list['id_doc']==1)
-                                                botonera +='<i class="far fa-star text-green"></i> ( + ) Favoritos';
-                                                // endif
-                                                // if($list['id_doc']==2)
-                                                    //  <i class="fas fa-star text-green"></i>  ( - ) Favoritos
-                                                    //endif
+                                            botonera +='<i class="far fa-star text-green"></i> ( + ) Favoritos';
                                             botonera +='</a>';
-
+                                        }
+                                        else{
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                        }
 
                                     botonera += '</div>';
                                     botonera += '</div>';
@@ -1314,13 +1734,12 @@
                                 grilla_recibidos.columns(5).search($('#gr_buscar_tipo_doc').val()).draw();
                                 self.search($('#gr_buscar_origen_materia').val()).draw();
                             })
+                    $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
                     $('#grilla_recibidos_filter').html('');
                 }
         });
     }
-
-
 
     async function fn_grilla_despachados(){
         $('#documento').hide();
@@ -1363,7 +1782,7 @@
                 { data: 'respuesta_a', name: 'documento.json_respuesta_a' },
                 { data: 'fecha_documento', name: 'documento.fecha' },
                 { data: 'id_documento',
-                  render: function(data, type) {
+                  render: function(data, type, row) {
                     if (type === 'display') {
                         if(data==null){
                             return '';
@@ -1373,9 +1792,18 @@
                                     botonera +=' <i class="fas fa-bars"></i>';
                                     botonera +='                 </button>';
                                     botonera +='                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-                                    botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                    botonera +='                    <a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
-                                    botonera +='                     <a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+
+                                    if (row.id_estado_documento == 1) //B
+                                    {
+                                        botonera +='                    <a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_estado_documento+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                        botonera +='                     <a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+                                    }    
+
+                                    if (row.id_estado_documento == 2) //E
+                                    {
+                                        botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                    }  
+
                                     botonera +='</div>';
                                 botonera += '</div>';
                             return botonera;
@@ -1405,6 +1833,7 @@
                                 grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
                                 self.search($('#gd_buscar_destino_materia').val()).draw();
                             })
+                    $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#grilla_despachados_filter').html('');
                 }
@@ -1412,24 +1841,28 @@
         });
     }
 
-function visualizar_documento_por_recibir(id_documento){
-    //$('#card_ver_documento .card-body').html('Documento ID ->'+id_documento);
-    //$('#card_ver_documento').show();
-    $("#collapseOne").collapse('hide');
-        $('#form_crear_editar').trigger("reset");
-        $('#card_crear_documento').show();
+    function visualizar_documento_por_recibir(id_documento,id_documento_buzon)
+    {
+           
+        console.log(id_documento_buzon);
+        $('#titulo_accion').html('Ver Documento'); 
+        $("#collapseOne").collapse('hide');
+        
+        clear_form();
+
+        $('#form_tipo_documento').prop("disabled", true); 
+        $("#form_crear_editar :input").prop("disabled", true);
+        editor_cuerpo.setReadOnly(true);
+
+        $('#card_crear_documento').show();  
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
 
         var buttonRecibir = '<button onClick="recibir_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Recibir</button>';
         $('#addButton').html('');
         $('#addButton').append(buttonRecibir);
-
-        $("#card_crear_documento input").prop("disabled", true);
-        $("#card_crear_documento select").prop("disabled", true);
-
-        $('textarea[id="form_comentario_el"]').prop('disabled', true);
-        $('textarea[id="form_comentario_otro_el"]').prop('disabled', true);
 
         $.ajax({
             url: "/documentos/"+id_documento,
@@ -1458,7 +1891,7 @@ function visualizar_documento_por_recibir(id_documento){
                         $("input[name='hiddIdOrigen']").val(data.data.rel_tipo_documento['id_tipo_origen']);
                         editor_cuerpo.setData(data.data.cuerpo);
 
-                        //$("input[name='hiddIdDocumentoBuzon']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
+                        $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("#idAsignado").text(data.data.identificador);
 
@@ -1480,19 +1913,13 @@ function visualizar_documento_por_recibir(id_documento){
                         }
 
                         $('#form_otros_archivos_el').hide();
-                        $('#cargar_otros_archivos').show();
-
-                        $('#form_comentario_el').prop("disabled", false);
-                        $('#form_otros_destinatarios_el').prop("disabled", false);
-                        $('#form_comentario_otro_el').prop("disabled", false);
-
-                        $(".bootstrap-tagsinput").removeClass("disabled");
+                        $('#cargar_otros_archivos').show();                    
 
                         var relDocumentoBuzon = data.data.rel_documento_buzon;
                         $.each(relDocumentoBuzon, function(i, item)
                         {
 
-                            if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != '')
+                            if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre != null)
                             {
                                 $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
                                 $("textarea[id='form_comentario_el']").val(item.comentario_principal);
@@ -1518,92 +1945,30 @@ function visualizar_documento_por_recibir(id_documento){
                 //$('.btn-submit').prop("disabled", false);
             }
         });
-}
-
-function recibir_documento()
-    {
-        var _token = $("input[name='_token']").val();
-
-        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
-        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
-
-        var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
-        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
-
-        Swal.fire({
-            title: 'Recibir',
-            text: "Se recepcionará el documento:",
-            showCancelButton: true,
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                console.log(result);
-            if (result.value==true)
-            {
-                $.ajax({
-                    url: "/recibir_documento/"+hiddIdDocumento,
-                    type: 'PUT',
-                    dataType: 'json',
-                    data: {
-                        _token:_token,
-                        hiddIdDocumento:hiddIdDocumento,
-                        buzon:hiddIdBuzon
-                    },
-                    success: function(data)
-                    {
-                        if(data.status == '200')
-                        {
-                            toastr.success("Documento Recepcionado","Aviso!");
-
-                            $('#card_crear_documento').hide();
-                            clear_form();
-                            fn_grilla_recibidos();
-
-                        }
-                        else
-                        {
-                            toastr.error(data.data.comentario,"Aviso!");
-                        }
-
-                        $('.btn-enviar-submit').html( 'Enviar' );
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-
-                        toastr.error("Falla en el documento","Aviso!");
-
-                        $('.btn-enviar-submit').html( 'Enviar' );
-                    }
-                });
-            }
-        })
-
     }
 
+    $(document).ready(function () {
+        $(".nuevo_documento").prop("disabled", true);
 
-$(document).ready(function () {
-    $(".nuevo_documento").prop("disabled", true);
+        //var div_por_recibir_width = document.getElementById('nav-por-recibir').getBoundingClientRect().width;
+        //$('#nav-despachados').attr("style","width:"+div_por_recibir_width+'px');
+        //$('#nav-recibidos').attr("style","width:"+div_por_recibir_width+'px');
 
-    //var div_por_recibir_width = document.getElementById('nav-por-recibir').getBoundingClientRect().width;
-    //$('#nav-despachados').attr("style","width:"+div_por_recibir_width+'px');
-    //$('#nav-recibidos').attr("style","width:"+div_por_recibir_width+'px');
+        $(function() {
 
-    $(function() {
+            fn_grilla_por_recibir();
 
-        fn_grilla_por_recibir();
+            $('#grilla_por_recibir tbody').on( 'click', 'tr', function () {
+                td_seleccionado=grilla_por_recibir.row( this ).data();
+                mostrar_documento(td_seleccionado['materia']);
+            });
 
-        $('#grilla_por_recibir tbody').on( 'click', 'tr', function () {
-            td_seleccionado=grilla_por_recibir.row( this ).data();
-            mostrar_documento(td_seleccionado['materia']);
+            fn_grilla_recibidos();
+
+            fn_grilla_despachados();
+
         });
-
-        fn_grilla_recibidos();
-
-        fn_grilla_despachados();
-
     });
- });
 
 
 </script>

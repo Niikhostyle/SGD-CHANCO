@@ -199,8 +199,6 @@ class BuzonController extends Controller
             $lista_por_recibir->json();
         }
 
-
-
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(63)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
@@ -264,14 +262,22 @@ class BuzonController extends Controller
         }else{
             $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         }
-
+        
         $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
         $datosAccion = $listado_parametros['data']['accion'];
 
         //acciones
         $aAcciones = [];
         foreach ($datosAccion as $dato)
+        {
             $aAcciones[$dato['id_accion']] = $dato['nombre'];
+
+            if ($dato['id_tipo_accion'] == 1) //requerida
+            {
+                $aFlujoAccionT1[] = array($dato['id_accion'], $dato['nombre']);
+            }     
+        
+        }
 
         //acciones-flujo
 
@@ -328,6 +334,8 @@ class BuzonController extends Controller
             'nombre_buzon' => $datosBuzon['data']['nombre'],
             'listado_tiposdoc'=>$datosTipoDoc,
             'id_buzon' => $id,
+            'listadoAcciones' => $datosAccion,
+            'acciones_tipoflujo1'=>$aFlujoAccionT1,
             'acciones_tipoflujo2'=>$aFlujoAccionT2,
             'acciones_tipoflujo3'=>$aFlujoAccionT3,
             'listadoBuzones'=>$aBuzones,
@@ -372,7 +380,7 @@ class BuzonController extends Controller
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'id_documento'=>$request->hiddIdDocumento,
-            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            //'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'efectos_terceros'=>$request->efectos_terceros,
             'json_respuesta_a'=>"[]",
             'materia'=>$request->materia,
@@ -385,6 +393,7 @@ class BuzonController extends Controller
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
             'destinatarioOtros'=>$request->destinatarioOtros,
+            'acciones_solicitadas'=>$request->acciones_solicitadas,
             'comentarioPrincipal'=>$request->comentarioPrincipal,
             'comentarioOtros'=>$request->comentarioOtros
         ]);
@@ -400,6 +409,7 @@ class BuzonController extends Controller
         ->timeout(30)
         ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/enviar', [
             'id_documento'=>$request->hiddIdDocumento,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
@@ -430,13 +440,51 @@ class BuzonController extends Controller
 
         $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/recibir', [            
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/recibir', [  
+            'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon
         ]);
 
         return $datosDocumento->json();
 
+    }
+
+    public function archivar_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/archivar', [            
+            'id_documento_buzon'=>$id,          
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon,
+            'id_usuario'=>Auth::user()->id,
+            'comentario'=>$request->comentario
+        ]);
+
+        return $datosDocumento->json();
+
+    }
+
+    public function derivarOpcion1($id, Request $request)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/derivar', [
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon,
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'comentarioPrincipal'=>$request->comentarioPrincipal,
+            'comentarioOtros'=>$request->comentarioOtros
+        ]);
+
+        return $accionDocumento->json();
     }
 
     public function listar(Request $request)
@@ -455,6 +503,7 @@ class BuzonController extends Controller
                     })
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento_buzon.id_estado_documento as id_estado_documento',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
                         'documento.identificador as identificador',
@@ -468,6 +517,7 @@ class BuzonController extends Controller
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento',
                         'tipo_destino.nombre as tipo_envio',
+                        'tipo_destino.id_tipo_destino as id_tipo_destino',
                         'tipo_origen.nombre as origen',
                         'documento_buzon.contestar_hasta as contestas_hasta'
                         )
@@ -482,39 +532,10 @@ class BuzonController extends Controller
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
+
                return datatables( $datos )->toJson();
 
 
-    }
-
-    public function ver_documento($id)
-    {
-        $sesion_key =  AppServiceProvider::session_key_general();
-
-        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30)
-        ->withBody(json_encode([
-            'id_documento' => $id,
-        ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
-
-        return $datosDocumento->json();
-
-    }
-
-    public function recibir_documento($id, Request $request)
-    {
-        $sesion_key =  AppServiceProvider::session_key_general();
-
-        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/recibir', [
-            'id_documento'=>$request->hiddIdDocumento,
-            'id_buzon'=>$request->buzon
-        ]);
-
-        return $datosDocumento->json();
-
-    }
+    }    
 
 }
