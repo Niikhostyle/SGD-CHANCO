@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioCon
 
 //Documentos
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
+
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
 

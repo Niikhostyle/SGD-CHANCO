@@ -40,7 +40,7 @@
                         <td>{{$list['nombre_buzon']}}</td>
                         <td> {{$list['estado_documento']}} </td>
                         <td>
-                            <button type="button" class="btn btn-link">{{$list['id_documento']}}</button>
+                            <button type="button" class="btn btn-link" style="align-content: center;">{{$list['id_documento']}}</button>
                         </td>
                         <td>{{$list['fecha_documento']}}</td>
                         <td>{{$list['tipo_documento']}}</td>
@@ -55,13 +55,9 @@
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                      <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario()"  href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
-                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento']}})" href="#">
-                                        @if($list['favorito']==1)
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento_buzon']}})" href="#">
+                                        @if($list['estado_favorito']==true)
                                             <i class="fas fa-trash-alt text-red"></i> Deshabilitar
-                                        @endif
-                                        @if($list['favorito']==2)
-                                            <i class="fas fa-plus-circle text-green"></i> Habilitar
                                         @endif
                                     </a>
                                  </div>
@@ -122,9 +118,9 @@
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                     <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
-                    <input type="text" class="form-control" id="form_identificador" name="identificador" required>
-                    <input type="text" class="form-control" id="form_folio" name="folio" required>
-                    <input type="text" class="form-control" id="form_fecha" name="fecha" required>
+                    <div class="form-control">ID: <i>1</i></div>
+                    <div class="form-control">Folio: <i>840683374</i></div>
+                    <div class="form-control">Fecha: <i>2021-11-05 </i></div>
                 </div>
             </div>
             <br>
@@ -496,6 +492,13 @@ $(document).ready(function(){
 
 
     }
+
+    function autoRefresh() {
+        window.setTimeout(function(){
+                            location.reload();
+                        },2000);
+    }
+
 </script>
 
 

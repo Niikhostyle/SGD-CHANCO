@@ -350,8 +350,8 @@ class DocumentoController extends Controller{
                 //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datosDocumento->rel_documento_buzon; 
-                $datosDocumento->rel_tipo_documento;
+                //$datosDocumento->rel_documento_buzon; 
+                //$datosDocumento->rel_tipo_documento;
                                 
                 return $this->respondSuccess($datosDocumento, 200);
             }  
@@ -396,7 +396,9 @@ class DocumentoController extends Controller{
                         'tipo_documento.nombre as tipo_documento',
                         'tipo_origen.nombre as origen',
                         'documento.materia as materia',
-                        'documento_buzon.favorito as estado_favorito'
+                        'documento_buzon.favorito as estado_favorito',
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento.folio as folio',
                         )
                     ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
                     ->where('documento_buzon.favorito','=',1)
@@ -413,7 +415,7 @@ class DocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
     }
 
-    public function ver(Request $request)
+    public function verFavorito(Request $request)
     {
         if($request->isJson())
         {
@@ -440,7 +442,7 @@ class DocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
     }
     
-    public function estado_favorito(Request $request)
+    public function estadoFavorito(Request $request)
     {
         if($request->isJson())
         {
@@ -448,14 +450,14 @@ class DocumentoController extends Controller{
             {
                 $datosRequest = $request->json()->all();
                 
-                $validator = $this->validator->validateFieldUser($datosRequest);
-                if ($validator->fails())
-                    return $this->respondFail('Falla del servicio, usuario inválido');
+                //$validator = $this->validator->validateFieldUser($datosRequest);
+               // if ($validator->fails())
+                 //   return $this->respondFail('Falla del servicio, documento inválido');
 
-                $datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_usuario']);      
+                $datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);      
                 
-                if ($datosDocumento->favorito == 1)
-                    $datosDocumento->favorito = 2;
+                if ($datosDocumento->favorito == true)
+                    $datosDocumento->favorito = false;
                 //else if ($datosDocumento->favorito == 2)
                   //  $datosDocumento->favorito = 1;
                     
