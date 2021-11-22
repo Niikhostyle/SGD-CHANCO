@@ -8,6 +8,8 @@ class DocumentoBuzonBitacora extends Model{
     protected $table = "documento_buzon_bitacora";
     protected $primaryKey = 'id_documento_buzon_bitacora';
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     protected $fillable = [
         'id_documento_buzon',
         'id_accion',
