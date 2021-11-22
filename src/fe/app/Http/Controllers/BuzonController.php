@@ -15,6 +15,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
 
 class BuzonController extends Controller
@@ -177,27 +178,11 @@ class BuzonController extends Controller
 
     public function carpetas($id){
 
-        $nombre_buzon="Personal";
+        $nombre_buzon = "";
 
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos="";
         $estados_usuario="";
-        $lista_por_recibir = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
-        ->get('https://run.mocky.io/v3/6e00ebbb-7878-4b61-93c4-18e8b4d5e720');
-
-        //https://run.mocky.io/v3/6e00ebbb-7878-4b61-93c4-18e8b4d5e720
-
-        if($lista_por_recibir->failed()){
-            $mensaje= $lista_por_recibir->json()['data']['comentario'];
-
-            $lista_por_recibir=['data'=>[
-                0=>['id'=>'0','nombres'=>'Sin Datos','primer_apellido'=>'','segundo_apellido'=>'','run'=>'','email'=>'','id_estado_usuario'=>'']
-            ]];
-            toast($mensaje,'error');
-        }else{
-            $lista_por_recibir->json();
-        }
 
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(63)
@@ -325,7 +310,6 @@ class BuzonController extends Controller
         /* NUEVO-DOCUMENTOS */
 
         return View::make('buzon.carpetas',[
-            'lista_por_recibir' => $lista_por_recibir,
             'perfiles' => $perfiles_datos,
             'estados_usuario' => $estados_usuario,
             'n_docs_por_recibir' => $n_docs_por_recibir,
@@ -395,7 +379,8 @@ class BuzonController extends Controller
             'destinatarioOtros'=>$request->destinatarioOtros,
             'acciones_solicitadas'=>$request->acciones_solicitadas,
             'comentarioPrincipal'=>$request->comentarioPrincipal,
-            'comentarioOtros'=>$request->comentarioOtros
+            'comentarioOtros'=>$request->comentarioOtros,
+            'carpeta'=>$request->carpeta
         ]);
 
         return $accionDocumento->json();
@@ -413,7 +398,8 @@ class BuzonController extends Controller
             'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
-            'destinatarioOtros'=>$request->destinatarioOtros
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'carpeta'=>$request->carpeta
         ]);
 
         return $accionDocumento->json();
@@ -513,6 +499,7 @@ class BuzonController extends Controller
                         'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as destinatario',
+                        'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento',

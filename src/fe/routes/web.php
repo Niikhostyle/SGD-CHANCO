@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonCon
 Route::middleware(['auth:sanctum', 'verified'])->put('recibir_documento/{id}',[BuzonController::class,'recibir_documento'])->name('documentos.recibir');
 Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
 Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
+Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
 
 //tipos de documentos
 
