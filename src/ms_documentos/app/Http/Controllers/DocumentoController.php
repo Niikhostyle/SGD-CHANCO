@@ -42,19 +42,17 @@ class DocumentoController extends Controller{
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
 
-                $datosTipoDoc = TipoDocumento::findOrFail($datosDocumento['id_tipo_documento']);
-
-                $nFolio = null;
-
-                if( $datosTipoDoc->id_tipo_asignacion_folio == 1) //creación
-                    $nFolio = rand(); //servicio folio
-
                 $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
                 ->withBody(json_encode([
                     'id_tipo_documento' => $nTipoDoc,
                 ]), 'json')
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
+
+                $nFolio = null;
+
+                if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
+                    $nFolio = rand(); //servicio folio
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
@@ -69,11 +67,11 @@ class DocumentoController extends Controller{
                     'materia' => $datosDocumento['materia'],
                     'anterior' => $datosDocumento['anterior'],
                     'descripcion' => $datosDocumento['descripcion'],
+                    'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
                     'fecha' => $dFechaCreacion,
                     'hash_validacion' => 'XyZ987',
-                    'folio' => $nFolio,
-                    'encabezado' => $datosDocumento['encabezado']
+                    'folio' => $nFolio                    
                 ]);
                 
                 $documento = $documento->fresh();
@@ -84,7 +82,7 @@ class DocumentoController extends Controller{
                     'id_carpeta' => 3,
                     'id_estado_documento' => 1,
                     'id_tipo_destino' => 1,
-                    //'id_documento_buzon_padre' => '',
+                    'id_documento_buzon_padre' => null,
                     'fecha' => $dFechaCreacion,
                     'contestar_hasta' => $datosDocumento['contestar_hasta'],
                     'notificado' => false,
@@ -122,78 +120,53 @@ class DocumentoController extends Controller{
     {
         if ($request->isJson())
         {
-            try {
-
+            try 
+            {
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-                
+
                 //$validator = $this->validator->validateUpdate();
 
                 //if ($validator->fails())
                 //    return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
 
+                //1: actualiza documento
+                //2: crea o actualiza dest principal
+                //3: elimina dest secundario y crea nuevamente
+
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datoDocumentoBuzon = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);
-                
-                if ($datosDocumento)
+
+                if ($datosDocumento->id_documento != '')
                 {   
                     $datosDocumento->update($datosRequest);
-                   
+                    
                     $dFechaCreacion = date('Y-m-d H:i:s');
+                   
+                    $jsonAcciones = array();                    
+                    foreach($datosRequest['acciones_solicitadas'] as $accion)
+                        $jsonAcciones[] = array("id_accion" => $accion);
 
                     //si viene destinatario principal se agrega un registro
                     
                     if ($datosRequest['destinatarioPrincipal'] != "")
                     {
-                        //verificar si se crea o actualiza
-
-                        //busca y crea sino encuentra por id documento, tipo destinatario, buzon padre 
-                        $documentoBuzon = DocumentoBuzon::updateOrCreate([
-                            'id_documento' => $datosRequest['id_documento'],
-                            'id_tipo_destino' => 1,
-                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],
-                            'id_estado_documento' => 1,
-                        ],[
-                            'id_buzon' => $datosRequest['destinatarioPrincipal'],
-                            'id_carpeta' => 1,
-                            'id_estado_documento' => 1,
-                            'fecha' => $dFechaCreacion,
-                            //'json_acciones'=>
-                            'comentario_principal' => $datosRequest['comentarioPrincipal'], 
-                            'contestar_hasta' => $datosRequest['contestar_hasta'],
-                            'notificado' => false,
-                            'recibido' => false,
-                            'favorito' => false    
-                        ]);
-
-                        //pendiente - crear orden 0 en flujo
-                    }
-
-                    //si viene destinatario secundario se agrega registro
-
-                    if ($datosRequest['destinatarioOtros'] != "")
-                    {
-                        //verificar si se crea o actualiza
-
-                        //busca y crea sino encuentra por id documento, tipo destinatario, buzon padre, id_buzon 
-
-                        $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
-
-                        foreach ($aOtrosDestinatarios as $destinatario)
+                        //verificar si se crea o actualiza   
+                        
+                        if ($datosRequest['carpeta'] == 3) //despachados
                         {
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
-                                'id_tipo_destino' => 2,
+                                'id_tipo_destino' => 1,
                                 'id_documento_buzon_padre' => $datosRequest['id_buzon'],
-                                'id_buzon' => $destinatario,
                                 'id_estado_documento' => 1,
-                            ],[                                                
-                                'id_carpeta' => 1,                                
-                                'id_buzon' => $destinatario,                                
+                            ],[
+                                'id_buzon' => $datosRequest['destinatarioPrincipal'],
+                                'id_carpeta' => 1,
+                                'id_estado_documento' => 1,
                                 'fecha' => $dFechaCreacion,
-                                //'json_acciones'=>
-                                'comentario_secundario' => $datosRequest['comentarioOtros'], 
+                                'json_acciones'=> json_encode($jsonAcciones),
+                                'comentario_principal' => $datosRequest['comentarioPrincipal'], 
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
                                 'notificado' => false,
                                 'recibido' => false,
@@ -201,25 +174,123 @@ class DocumentoController extends Controller{
                             ]);
                         }
 
-                        // pendiente eliminar
-                    }                    
-                    
+                        if ($datosRequest['carpeta'] == 2) //recibidos
+                        {
+                            $documentoBuzon = DocumentoBuzon::updateOrCreate([
+                                'id_documento' => $datosRequest['id_documento'],
+                                'id_tipo_destino' => 1,
+                                'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                'id_carpeta' => 1,
+                                'id_estado_documento' => 4
+                            ],[
+                                'id_buzon' => $datosRequest['destinatarioPrincipal'],                                
+                                'id_estado_documento' => 4,
+                                'fecha' => $dFechaCreacion,
+                                'json_acciones'=> json_encode($jsonAcciones),
+                                'comentario_principal' => $datosRequest['comentarioPrincipal'], 
+                                'contestar_hasta' => $datosRequest['contestar_hasta'],
+                                'notificado' => false,
+                                'recibido' => false,
+                                'favorito' => false    
+                            ]);
+                            /*
+                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                                'id_documento_buzon' => $documentoBuzon["id_documento_buzon"],
+                                'id_accion' => 4,
+                                'fecha' => $dFechaCreacion,
+                                'id_usuario' => $datosRequest['id_usuario']
+                            ]); 
+                            */
+                        }
+
+                        //pendiente - crear orden 0 en flujo controlado/mixto
+                    }
+
+                    //si viene destinatario secundario se agrega registro
+
+                    $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
+
+                    if ($datosRequest['carpeta'] == 2) //recibidos
+                    {
+                        //eliminar segun criterios y crear nuevamente
+                        DocumentoBuzon::where([
+                            'id_documento' => $datosRequest['id_documento'],
+                            'id_tipo_destino' => 2,
+                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],                                
+                            'id_estado_documento' => 4,
+                            'id_carpeta' => 1
+                        ])->delete();
+
+                        if ($datosRequest['destinatarioOtros'] != "")
+                        {
+                            foreach ($aOtrosDestinatarios as $destinatario)
+                            {
+                                $documentoBuzon = DocumentoBuzon::create([
+                                    'id_documento' => $datosRequest['id_documento'],
+                                    'id_buzon' => $destinatario,
+                                    'id_carpeta' => 1,
+                                    'id_estado_documento' => 4,
+                                    'id_tipo_destino' => 2,
+                                    'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                    'json_acciones'=> json_encode($jsonAcciones),
+                                    'comentario_secundario' => $datosRequest['comentarioOtros'], 
+                                    'fecha' => $dFechaCreacion,
+                                    'contestar_hasta' => $datosRequest['contestar_hasta'],
+                                    'notificado' => false,
+                                    'recibido' => false,
+                                    'favorito' => false
+                                ]);
+                            } 
+                        }
+                    }
+                        
+                    if ($datosRequest['carpeta'] == 3) //despachados
+                    {
+                        //eliminar segun criterios y crear nuevamente
+                        DocumentoBuzon::where([
+                            'id_documento' => $datosRequest['id_documento'],
+                            'id_tipo_destino' => 2,
+                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],                                
+                            'id_estado_documento' => 1,
+                            'id_carpeta' => 1
+                        ])->delete();
+
+                        if ($datosRequest['destinatarioOtros'] != "")
+                        {
+                            foreach ($aOtrosDestinatarios as $destinatario)
+                            {
+                                $documentoBuzon = DocumentoBuzon::create([
+                                    'id_documento' => $datosRequest['id_documento'],
+                                    'id_buzon' => $destinatario,
+                                    'id_carpeta' => 1,
+                                    'id_estado_documento' => 1,
+                                    'id_tipo_destino' => 2,
+                                    'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                    'json_acciones'=> json_encode($jsonAcciones),
+                                    'comentario_secundario' => $datosRequest['comentarioOtros'], 
+                                    'fecha' => $dFechaCreacion,
+                                    'contestar_hasta' => $datosRequest['contestar_hasta'],
+                                    'notificado' => false,
+                                    'recibido' => false,
+                                    'favorito' => false
+                                ]);
+                            } 
+                        }
+                    }
+
                     DB::commit();
 
-                    return $this->respondSuccess($datosDocumento, 200);
+                    return $this->respondSuccess('Documento actualizado', 200);
 
                 }
                 else
                 {
-                    return $this->respondError('Falla al actualizar documento:', 500);
+                    return $this->respondError('Falla al editar documento:', 500);
                 }
-
-                
-                
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
 
-                return $this->respondError('Falla al actualizar documento:' . $e->getMessage(), 500);
+                return $this->respondError('Falla al editar documento:' . $e->getMessage(), 500);
             }
         }
         else
@@ -244,52 +315,135 @@ class DocumentoController extends Controller{
                 $datosRequest = $request->json()->all();
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
-                
-                $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                                     ->where('id_buzon', $datosRequest['id_buzon'])
-                                                     ->where('id_estado_documento', '1')
-                                                     ->where('id_documento_buzon_padre', null)
-                                                     ->update(['id_estado_documento' => 2]);
+
+                if ($datosRequest['carpeta'] == 3) //despachados
+                {
+                    $estadoDocumentoFinal = 2; 
+                    $estadoDocumentoActual = 1;      
+                }
+
+                if ($datosRequest['carpeta'] == 2) //recibidos
+                {
+                    $estadoDocumentoFinal = 7;        
+                    $estadoDocumentoActual = 4; //"4,9,11"; deberia ir con whereIn   
+
+                }
+
+                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal]);
               
                 $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
                                 ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
-                                ->where('id_estado_documento', '1')
+                                ->where('id_estado_documento', $estadoDocumentoActual)
                                 ->where('id_tipo_destino', '1')
                                 ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
                                 ->select('id_documento_buzon')                                
                                 ->first();
                 $datosDocumentoBuzonD1->update(['id_estado_documento' => 3]);
 
-                $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
-                $datosDocumentoBuzonD2 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                ->whereIn('id_buzon', $aOtrosDestinatarios)
-                                ->where('id_estado_documento', '1')
-                                ->where('id_tipo_destino', '2')
-                                ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
-                                ->select('id_documento_buzon')   
-                                ->get();  
-                foreach ($datosDocumentoBuzonD2 as $dato)
-                {
-                    DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3]);
-                }                   
-                                 
                 $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
                                     'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
                                     'id_accion' => 2,
                                     'fecha' => $dFechaCreacion,
                                     'id_usuario' => $datosRequest['id_usuario']
-                ]);              
-                
-                foreach ($datosDocumentoBuzonD2 as $dato)
+                ]);   
+
+                if ($datosRequest['destinatarioOtros'] != "")
                 {
-                    $documentoBuzonBitacoraD2 = DocumentoBuzonBitacora::create([
-                                'id_documento_buzon' => $dato["id_documento_buzon"],
-                                'id_accion' => 2,
-                                'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datosRequest['id_usuario']
-                    ]);
-                    
+                    $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
+                    $datosDocumentoBuzonD2 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                    ->whereIn('id_buzon', $aOtrosDestinatarios)
+                                    ->where('id_estado_documento', $estadoDocumentoActual) 
+                                    ->where('id_tipo_destino', '2')
+                                    ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
+                                    ->select('id_documento_buzon')   
+                                    ->get();  
+                    foreach ($datosDocumentoBuzonD2 as $dato)
+                    {
+                        DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3]);
+                    } 
+                
+                    foreach ($datosDocumentoBuzonD2 as $dato)
+                    {
+                        $documentoBuzonBitacoraD2 = DocumentoBuzonBitacora::create([
+                                    'id_documento_buzon' => $dato["id_documento_buzon"],
+                                    'id_accion' => 2,
+                                    'fecha' => $dFechaCreacion,
+                                    'id_usuario' => $datosRequest['id_usuario']
+                        ]);                        
+                    }
                 }
+
+                DB::commit();
+
+                return $this->respondSuccess("Documento enviado", 200);
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al enviar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
+    public function derivar(Request $request)
+    {
+        
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                $dFechaCreacion = date('Y-m-d H:i:s');
+                
+                if ($datosRequest['destinatarioPrincipal'] != "")
+                {
+                    $documentoBuzon = DocumentoBuzon::create([
+                        'id_documento' => $datosRequest->id_documento,
+                        'id_buzon' => $datosRequest['destinatarioPrincipal'],
+                        'id_carpeta' => 1,
+                        'id_estado_documento' => 3,
+                        'id_tipo_destino' => 1,
+                        'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                        'fecha' => $dFechaCreacion,
+                        //'contestar_hasta' => $datosDocumento['contestar_hasta'],
+                        'notificado' => false,
+                        'recibido' => false,
+                        'favorito' => false
+                    ]);                    
+                   
+                }
+
+                //si viene destinatario secundario se agrega registro
+
+                if ($datosRequest['destinatarioOtros'] != "")
+                {
+                    $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
+
+                    foreach ($aOtrosDestinatarios as $destinatario)
+                    {
+                        $documentoBuzon = DocumentoBuzon::create([
+                            'id_documento' => $datosRequest->id_documento,
+                            'id_buzon' => $destinatario,
+                            'id_carpeta' => 1,
+                            'id_estado_documento' => 3,
+                            'id_tipo_destino' => 2,
+                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                            'fecha' => $dFechaCreacion,
+                            //'contestar_hasta' => $datosDocumento['contestar_hasta'],
+                            'notificado' => false,
+                            'recibido' => false,
+                            'favorito' => false
+                        ]);                        
+                                            
+                    }                      
+                   
+                }          
 
                 DB::commit();
 
@@ -317,11 +471,15 @@ class DocumentoController extends Controller{
                 $datosRequest = $request->json()->all();
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
-                
-                $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                                     ->where('id_estado_documento', '3')
-                                                     ->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);              
 
+               /* $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                                     ->where('id_estado_documento', '3')
+                                                     ->where('id_buzon', $datosRequest['id_buzon'])
+                                                     ->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);              
+                */
+
+                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);
+                
                 DB::commit();
 
                 return $this->respondSuccess("Documento recepcionado", 200);
@@ -330,6 +488,53 @@ class DocumentoController extends Controller{
                 DB::rollBack();
 
                 return $this->respondError('Falla al recepcionar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
+    public function archivar(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();
+
+                $dFechaCreacion = date('Y-m-d H:i:s');
+
+                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 6]);
+
+               /* 
+                $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                                     ->where('id_estado_documento', '4')
+                                                     ->where('id_carpeta', '2')
+                                                     ->where('id_buzon', $datosRequest['id_buzon'])
+                                                     ->select('id_documento_buzon') 
+                                                     ->first();
+                $datosDocumentoBuzon->update(['id_estado_documento' => 6]);  
+                */
+
+                $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                                            'id_documento_buzon' => $datosRequest["id_documento_buzon"],
+                                            'id_accion' => 12,
+                                            'fecha' => $dFechaCreacion,
+                                            'id_usuario' => $datosRequest['id_usuario'],
+                                            'comentario' => $datosRequest['comentario']
+                                            ]);                                        
+                                            
+                DB::commit();
+
+                return $this->respondSuccess("Documento archivado", 200);
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al archivar documento:' . $e->getMessage(), 500);
             }
         }
         else
