@@ -19,6 +19,8 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->put('/api/sgd-documentos/enviar', 'DocumentoController@enviar');
     $router->get('/api/sgd-documentos/ver', 'DocumentoController@ver');
     $router->put('/api/sgd-documentos/recibir', 'DocumentoController@recibir');
+    $router->put('/api/sgd-documentos/archivar', 'DocumentoController@archivar');
+    $router->put('/api/sgd-documentos/derivar', 'DocumentoController@derivar');
 
 });
 
