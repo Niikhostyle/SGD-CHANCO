@@ -127,3 +127,12 @@
 background-color: #007bff;
 color: #ffffff;
 }
+
+.w-10 {
+  width: 10%!important;
+}
+
+.group-button-align {
+  margin-top: 15px;
+  text-align: right;
+}

@@ -364,7 +364,7 @@ class BuzonController extends Controller
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'id_documento'=>$request->hiddIdDocumento,
-            //'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'efectos_terceros'=>$request->efectos_terceros,
             'json_respuesta_a'=>"[]",
             'materia'=>$request->materia,
@@ -380,7 +380,8 @@ class BuzonController extends Controller
             'acciones_solicitadas'=>$request->acciones_solicitadas,
             'comentarioPrincipal'=>$request->comentarioPrincipal,
             'comentarioOtros'=>$request->comentarioOtros,
-            'carpeta'=>$request->carpeta
+            'carpeta'=>$request->carpeta,
+            'opcionGuardar'=>$request->opcionGuardar
         ]);
 
         return $accionDocumento->json();
@@ -420,16 +421,17 @@ class BuzonController extends Controller
 
     }
 
-    public function recibir_documento($id, Request $request)
+    public function actualizar_estado_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/recibir', [  
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar_estado', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
-            'id_buzon'=>$request->buzon
+            'id_buzon'=>$request->buzon,
+            'estado'=>$request->estado
         ]);
 
         return $datosDocumento->json();
@@ -492,6 +494,7 @@ class BuzonController extends Controller
                         'documento_buzon.id_estado_documento as id_estado_documento',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
+                        'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
                         'estado_documento.nombre_corto as estado_documento',
