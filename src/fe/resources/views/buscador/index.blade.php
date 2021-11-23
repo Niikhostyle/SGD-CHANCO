@@ -185,10 +185,14 @@
             </ul>
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                    <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
+                    <!--<div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
                     <input type="text" class="form-control" id="form_identificador" name="identificador" required>
                     <input type="text" class="form-control" id="form_folio" name="folio" required>
-                    <input type="text" class="form-control" id="form_fecha" name="fecha" required>
+                    <input type="text" class="form-control" id="form_fecha" name="fecha" required>-->
+                    <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
+                    <div class="form-control">ID: <i>1</i></div>
+                    <div class="form-control">Folio: <i>840683374</i></div>
+                    <div class="form-control">Fecha: <i>2021-11-05 </i></div>
                 </div>
             </div>
             <br>
