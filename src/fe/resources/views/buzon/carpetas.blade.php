@@ -315,6 +315,8 @@
 
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Otros Archivos</label>
+                            
+
                             <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>
 
                             <div class="card-body" id="cargar_otros_archivos" style="display:none">
@@ -371,7 +373,7 @@
                         <div class="form-row">                                
                                 <div class="col-md-12 group-button-align">
                                     <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
-                                    <button type="button" class="btn btn-success btn-guardar-submit w-10">Guardar</button>
+                                    <button type="button" id="submit-all" class="btn btn-success btn-guardar-submit w-10">Guardar</button>
                                     <button type="button" class="btn btn-success btn-enviar-submit w-10" style="display:none">Enviar</button>
                                     <span class="w-10" id="addButton"></span>
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
@@ -472,7 +474,6 @@
     const listadoBuzones = @json($listadoBuzones);
 
     var idTipoFlujo = "";
-    //tags input
 
     $('#form_acciones_solicitadas_el').multiselect();
 
@@ -521,6 +522,48 @@
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
+    //prueba
+/* <div class="dropzone" id="myDropzone"></div>
+    Dropzone.options.myDropzone= {
+        headers:{
+            'X-CSRF-TOKEN' : "{{csrf_token()}}"
+        },
+    url: '/dropzone/store',
+    autoProcessQueue: false,
+    uploadMultiple: true,
+    parallelUploads: 5,
+    maxFiles: 5,
+    maxFilesize: 1,
+    acceptedFiles: 'image/*',
+    addRemoveLinks: true,
+    init: function() {
+        dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
+
+        // for Dropzone to process the queue (instead of default form behavior):
+        document.getElementById("submit-all").addEventListener("click", function(e) {
+            // Make sure that the form isn't actually being sent.
+            e.preventDefault();
+            e.stopPropagation();
+            dzClosure.processQueue();
+        });
+        this.on("addedfile", function(file) {
+                    alert("file uploaded");
+                });
+        //send all the form data along with the files:
+        this.on("sendingmultiple", function(data, xhr, formData) {
+           // formData.append("firstname", jQuery("#firstname").val());
+           // formData.append("lastname", jQuery("#lastname").val());
+        });
+    },
+    sending: function(file, xhr, formData){
+            var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            formData.append('id_documento_buzon', idb);
+    }        
+    }
+*/
+    //prueba
+
+
     Dropzone.options.dropzoneAnexo = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
@@ -537,9 +580,11 @@
         timeout: 50000,
         init: function() {
             var submitButton = document.querySelector(".btn-guardar-submit")
-            dropzoneAnexo = this; // closure            
+            dropzoneAnexo = this; // closure  
+            console.log("upload ini");          
         },
         sending: function(file, xhr, formData){
+            console.log("upload");
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
             formData.append('id_documento_buzon', idb);
     }        
@@ -809,7 +854,7 @@
 
                 if(data.status == '200')
                 {
-                    //dropzoneAnexo.processQueue();
+                    dropzoneAnexo.processQueue();
                     toastr.success("Documento actualizado","Aviso!");
                 }
                 else if(data.status == '201')
@@ -1466,7 +1511,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
         
-        var buttonArchivar = '<button onClick="archivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-50">Archivar</button> ';
+        var buttonArchivar = '<button onClick="archivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Archivar</button> ';
         $('#addButton').append(buttonArchivar);
 
         $(".row_archivar").show();       

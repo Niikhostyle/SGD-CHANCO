@@ -16,6 +16,25 @@ class DocumentoBuzonArchivoController extends Controller
     {
         //obetener el primer registro
         //$file = File::where('id', $file)->first();
+        
+        $id_documento_buzon = $request->id_documento_buzon;
+        $id_tipo_archivo = $request->id_tipo_archivo;
+        $numero = rand(100000,9999999);
+        $path = 'public/imagenes';
+        $files = $request->file('file');
+        foreach($files as $file){
+            $fileName = $file->getClientOriginalName();
+            $file->move($path, $fileName);
+        
+            DocumentoBuzonArchivo::create([
+                //'url' => $url,
+                'id_documento_buzon' => $id_documento_buzon,
+                'id_tipo_archivo' => $id_tipo_archivo,
+                'nombre_archivo_original' => $fileName,
+                'nombre_archivo_codificado' => $fileName . '-' . $numero 
+            ]);
+        }
+/*
 
         $sPath = 'public/imagenes';
         $numero = rand(100000,9999999);
@@ -24,6 +43,7 @@ class DocumentoBuzonArchivoController extends Controller
         $request->file('file')->move($sPath, $nombre); 
         //$url = Storage::url($imagenes);
         
+       
         $id_documento_buzon = $request->id_documento_buzon;
         $id_tipo_archivo = $request->id_tipo_archivo;
         
@@ -34,7 +54,7 @@ class DocumentoBuzonArchivoController extends Controller
             'nombre_archivo_original' => $nombre,
             'nombre_archivo_codificado' => $nombre . '-' . $numero 
         ]);
-        
+       */ 
     }
 
 
