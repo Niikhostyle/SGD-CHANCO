@@ -40,7 +40,26 @@ class FavoritoController extends Controller
             $lista_favoritos->json();
         }
 
-        return View::make('favorito.index',['lista_favoritos'=>$lista_favoritos]);
+        /* NUEVO-DOCUMENTOS */
+
+        //tipos de documentos
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        //return $listado_tiposdoc;
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];           
+
+        }
+
+        return View::make('favorito.index',['lista_favoritos'=>$lista_favoritos, 'listado_tiposdoc'=>$listado_tiposdoc, ]);
     }
 
     /**

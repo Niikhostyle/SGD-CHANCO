@@ -379,6 +379,9 @@
                             
                             @foreach($lista_bitacora['data'] as $list)
                                 <tr>
+                                    @if($list['accion']==1 ) 
+                                    <td style="background-color: #b0f785;">DDP</td>
+                                    @endif
                                     @if($list['accion']==2 && $list['tipo_destino']==1) 
                                     <td style="background-color: #b0f785;">DDP</td>
                                     @endif
@@ -386,8 +389,7 @@
                                     <td style="background-color: #b3eccb;">DOO</td>
                                     @endif
                                     @if($list['accion']==4 ) 
-                                    <td style="background-color: #edf495;">CAP</td>
-                                    @elseif($list['accion']==1 )  
+                                    <td style="background-color: #edf495;">CAP</td> 
                                     @endif
                                     
                                     <td>{{$list['fecha_documento']}}</td>
@@ -448,6 +450,13 @@
 
     $(document).ready(function(){
 
+           /**$('#tabla_favorito_grilla').DataTable({
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true,
+            language: lenguaje_datatable
+        });**/
         
         $(".desplegar_opciones_avanzadas").click(function(e){
             $('#card_opciones_avanzadas').show();
@@ -461,13 +470,7 @@
             $(".desplegar_opciones_avanzadas").show();
         });
 
-        /**$('#tabla_favorito_grilla').DataTable({
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            responsive: true,
-            language: lenguaje_datatable
-        });**/
+     
 
         $('#buzon_origen').select2();
         $('#tipo_documento').select2();

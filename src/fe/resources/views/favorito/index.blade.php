@@ -40,7 +40,7 @@
                         <td>{{$list['nombre_buzon']}}</td>
                         <td> {{$list['estado_documento']}} </td>
                         <td>
-                            <button type="button" class="btn btn-link" style="align-content: center;">{{$list['id_documento']}}</button>
+                            <button type="button" class="btn btn-link" style="margin-top: -6px;">{{$list['id_documento']}}</button>
                         </td>
                         <td>{{$list['fecha_documento']}}</td>
                         <td>{{$list['tipo_documento']}}</td>
@@ -127,9 +127,11 @@
             <div class="form-row">
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Tipo Documento:</label>
-                    <select id="form_documento" name="id_tipo_documento" class="form-control"  required>
+                    <select id="form_tipo_documento" name="tipo_documento" class="form-control"  required>
                         <option selected>Seleccionar</option>
-                        <option>...</option>
+                        @foreach($listado_tiposdoc as $list)
+                        <option value=""></option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
@@ -408,7 +410,7 @@ $(document).ready(function(){
                                     $("input[name='identificador']").val(data.data.identificador);
                                     $("input[name='folio']").val(data.data.folio);
                                     $("input[name='fecha']").val(data.data.fecha);
-                                    $("select[name='id_tipo_documento']").val(data.data.id_tipo_documento);
+                                    $("select[name='tipo_documento']").val(data.data.tipo_documento);
                                     $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
                                     $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
                                     $("input[name='contestar_hasta']").val(data.data.contestar_hasta);

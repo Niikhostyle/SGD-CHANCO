@@ -350,8 +350,8 @@ class DocumentoController extends Controller{
                 //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                //$datosDocumento->rel_documento_buzon; 
-                //$datosDocumento->rel_tipo_documento;
+                $datosDocumento->rel_documento_buzon; 
+                $datosDocumento->rel_tipo_documento;
                                 
                 return $this->respondSuccess($datosDocumento, 200);
             }  
