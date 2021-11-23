@@ -139,26 +139,30 @@ class DocumentoController extends Controller{
 
                 if ($datosDocumento->id_documento != '')
                 {   
-                    $datosDocumento->update($datosRequest);
+                    if ($datosRequest['opcionGuardar'] != 1 || $datosRequest['opcionGuardar'] == null || $datosRequest['opcionGuardar'] == '')
+                        $datosDocumento->update($datosRequest);
                     
-                    $dFechaCreacion = date('Y-m-d H:i:s');
-                   
-                    $jsonAcciones = array();                    
-                    foreach($datosRequest['acciones_solicitadas'] as $accion)
-                        $jsonAcciones[] = array("id_accion" => $accion);
-
+                    $dFechaCreacion = date('Y-m-d H:i:s');                   
+                    
                     //si viene destinatario principal se agrega un registro
+                    
+                    $jsonAcciones = array();                    
+                    
+                    if ($datosRequest['acciones_solicitadas'] != "" || $datosRequest['acciones_solicitadas'] != null)
+                    {    foreach($datosRequest['acciones_solicitadas'] as $accion)
+                            $jsonAcciones[] = array("id_accion" => $accion);
+                    }
                     
                     if ($datosRequest['destinatarioPrincipal'] != "")
                     {
                         //verificar si se crea o actualiza   
-                        
+
                         if ($datosRequest['carpeta'] == 3) //despachados
                         {
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
                                 'id_tipo_destino' => 1,
-                                'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                 'id_estado_documento' => 1,
                             ],[
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],
@@ -179,7 +183,7 @@ class DocumentoController extends Controller{
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
                                 'id_tipo_destino' => 1,
-                                'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                 'id_carpeta' => 1,
                                 'id_estado_documento' => 4
                             ],[
@@ -193,14 +197,6 @@ class DocumentoController extends Controller{
                                 'recibido' => false,
                                 'favorito' => false    
                             ]);
-                            /*
-                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                                'id_documento_buzon' => $documentoBuzon["id_documento_buzon"],
-                                'id_accion' => 4,
-                                'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datosRequest['id_usuario']
-                            ]); 
-                            */
                         }
 
                         //pendiente - crear orden 0 en flujo controlado/mixto
@@ -216,7 +212,7 @@ class DocumentoController extends Controller{
                         DocumentoBuzon::where([
                             'id_documento' => $datosRequest['id_documento'],
                             'id_tipo_destino' => 2,
-                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],                                
+                            'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],                                
                             'id_estado_documento' => 4,
                             'id_carpeta' => 1
                         ])->delete();
@@ -231,7 +227,7 @@ class DocumentoController extends Controller{
                                     'id_carpeta' => 1,
                                     'id_estado_documento' => 4,
                                     'id_tipo_destino' => 2,
-                                    'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                    'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
                                     'fecha' => $dFechaCreacion,
@@ -250,7 +246,7 @@ class DocumentoController extends Controller{
                         DocumentoBuzon::where([
                             'id_documento' => $datosRequest['id_documento'],
                             'id_tipo_destino' => 2,
-                            'id_documento_buzon_padre' => $datosRequest['id_buzon'],                                
+                            'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],                                
                             'id_estado_documento' => 1,
                             'id_carpeta' => 1
                         ])->delete();
@@ -265,7 +261,7 @@ class DocumentoController extends Controller{
                                     'id_carpeta' => 1,
                                     'id_estado_documento' => 1,
                                     'id_tipo_destino' => 2,
-                                    'id_documento_buzon_padre' => $datosRequest['id_buzon'],
+                                    'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
                                     'fecha' => $dFechaCreacion,
@@ -300,6 +296,8 @@ class DocumentoController extends Controller{
 
     public function enviar(Request $request)
     {
+        //DERIVAR
+
         //1: actualizar en documento_buzon el registro Borrador(1) a Enviado(2)
         
         //2: actualizar en documento_buzon registro principal y secundarios de estado 1 a 3
@@ -319,27 +317,26 @@ class DocumentoController extends Controller{
                 if ($datosRequest['carpeta'] == 3) //despachados
                 {
                     $estadoDocumentoFinal = 2; 
-                    $estadoDocumentoActual = 1;      
+                    $estadoDocumentoActual = array('1');      
                 }
 
                 if ($datosRequest['carpeta'] == 2) //recibidos
                 {
                     $estadoDocumentoFinal = 7;        
-                    $estadoDocumentoActual = 4; //"4,9,11"; deberia ir con whereIn   
-
+                    $estadoDocumentoActual = array('4','9','11'); //"4,9,11"; deberia ir con whereIn   
                 }
-
+                
                 DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal]);
-              
+                
                 $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
-                                ->where('id_estado_documento', $estadoDocumentoActual)
+                                ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
                                 ->where('id_tipo_destino', '1')
-                                ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
+                                ->whereIn('id_estado_documento', $estadoDocumentoActual)
+                                ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
                                 ->select('id_documento_buzon')                                
                                 ->first();
                 $datosDocumentoBuzonD1->update(['id_estado_documento' => 3]);
-
+ 
                 $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
                                     'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
                                     'id_accion' => 2,
@@ -347,14 +344,14 @@ class DocumentoController extends Controller{
                                     'id_usuario' => $datosRequest['id_usuario']
                 ]);   
 
-                if ($datosRequest['destinatarioOtros'] != "")
+                if ($datosRequest['destinatarioOtros'] != "" || $datosRequest['destinatarioOtros'] != null)
                 {
                     $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
                     $datosDocumentoBuzonD2 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                    ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
                                     ->whereIn('id_buzon', $aOtrosDestinatarios)
-                                    ->where('id_estado_documento', $estadoDocumentoActual) 
-                                    ->where('id_tipo_destino', '2')
-                                    ->where('id_documento_buzon_padre', $datosRequest['id_buzon'])
+                                    ->whereIn('id_estado_documento', $estadoDocumentoActual) 
+                                    ->where('id_tipo_destino', '2')                                    
                                     ->select('id_documento_buzon')   
                                     ->get();  
                     foreach ($datosDocumentoBuzonD2 as $dato)
@@ -388,7 +385,7 @@ class DocumentoController extends Controller{
 
     }
 
-    public function derivar(Request $request)
+/*    public function derivar(Request $request)
     {
         
         if ($request->isJson())
@@ -459,8 +456,8 @@ class DocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
 
     }
-
-    public function recibir(Request $request)
+*/
+    public function actualizar_estado(Request $request)
     {
         if ($request->isJson())
         {
@@ -472,14 +469,12 @@ class DocumentoController extends Controller{
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-               /* $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                                     ->where('id_estado_documento', '3')
-                                                     ->where('id_buzon', $datosRequest['id_buzon'])
-                                                     ->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);              
-                */
-
-                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);
+                if ($request->estado == 3) // por recibir
+                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4, 'id_carpeta' => 2]);
                 
+                if ($request->estado == 11) // visar
+                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 11]);
+
                 DB::commit();
 
                 return $this->respondSuccess("Documento recepcionado", 200);
@@ -494,6 +489,8 @@ class DocumentoController extends Controller{
             return $this->respondError('Json inválido', 406);
 
     }
+
+
 
     public function archivar(Request $request)
     {
@@ -556,7 +553,6 @@ class DocumentoController extends Controller{
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
                 $datosDocumento->rel_documento_buzon; 
-                $datosDocumento->rel_tipo_documento;
                                 
                 return $this->respondSuccess($datosDocumento, 200);
             }  
