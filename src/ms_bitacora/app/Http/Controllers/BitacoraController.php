@@ -54,7 +54,7 @@ class BitacoraController extends Controller{
 
 
 
-    public function listarDocumentos(Request $request){
+    public function listarDocumentosBitacora(Request $request){
         if($request->isJson())
         {
             try
@@ -62,19 +62,24 @@ class BitacoraController extends Controller{
 
                 $datosRequest = $request->json()->all();
 
-                $validator = $this->validator->validateFieldUser($datosRequest);
-
-                if ($validator->fails())
-                    return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
-
-
                 return datatables(
                     DB::table('documento_buzon_bitacora')
                     ->join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
                     ->join('accion', 'documento_buzon_bitacora.id_accion', '=', 'accion.id_accion')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                    ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                    ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                    ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     ->select(
+                        'documento_buzon_bitacora.id_accion as accion',
+                        'documento.fecha as fecha_documento',
+                        'buzon.nombre as buzon_origen',
+                        'accion.nombre as nombre_accion',
+                        'mensaje_respuesta as mensaje_respuesta',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
-                        'accion.nombre as nombre',
+                        'tipo_documento.nombre as tipo_documento',
+                        'tipo_destino.id_tipo_destino as tipo_destino'
                         )
                     ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
                     

@@ -377,16 +377,25 @@
                         </thead>
                         <tbody>
                             
-                            <tr >
-                                <td style="background-color: #b0f785;">DDP</td>
-                                <td>08-07-2021</td>
-                                <td>Alejandra Nuñez</td>
-                                <td>Derivación a buzón "Juridica"</td>
-                                <td>Envio para revisión</td>
-                                
-
-                                
-                            </tr>
+                            @foreach($lista_bitacora['data'] as $list)
+                                <tr>
+                                    @if($list['accion']==2 && $list['tipo_destino']==1) 
+                                    <td style="background-color: #b0f785;">DDP</td>
+                                    @endif
+                                    @if($list['accion']==2 && $list['tipo_destino']==2) 
+                                    <td style="background-color: #b3eccb;">DOO</td>
+                                    @endif
+                                    @if($list['accion']==4 ) 
+                                    <td style="background-color: #edf495;">CAP</td>
+                                    @elseif($list['accion']==1 )  
+                                    @endif
+                                    
+                                    <td>{{$list['fecha_documento']}}</td>
+                                    <td>{{$list['buzon_origen']}}</td>
+                                    <td>{{$list['nombre_accion']}}</td>
+                                    <td>{{$list['mensaje_respuesta']}}</td>
+                                </tr>
+                            @endforeach
                             
                         </tbody>
                     </table>

@@ -15,6 +15,9 @@
 
 $router->group(['middleware' => ['auth']], function () use ($router){
     $router->get('/api/sgd-documentos/listarFavoritos', 'DocumentoController@listarFavoritos');
+
+    $router->get('/api/sgd-documentos/listarDocumentosBitacora', 'DocumentoController@listarDocumentosBitacora');
+
     $router->post('/api/sgd-documentos/crear', 'DocumentoController@crear');
    
     $router->get('/api/sgd-documentos/verFavorito', 'DocumentoController@ver');

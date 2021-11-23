@@ -13,7 +13,7 @@
 |
 */
 $router->group(['middleware' => ['auth']], function () use ($router){
-    $router->get('/api/sgd-buscador/listarDocumentos', 'BitacoraController@listarDocumentos'); 
+    $router->get('/api/sgd-bitacora/listarDocumentos', 'BitacoraController@listarDocumentos'); 
 });
 //$router->get('/api/sgd-bitacora', function () use ($router) {
     //return $router->app->version();
