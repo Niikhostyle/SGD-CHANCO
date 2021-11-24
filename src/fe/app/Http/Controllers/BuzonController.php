@@ -13,8 +13,10 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Models\DocumentoBuzonArchivo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
 
 class BuzonController extends Controller
@@ -177,29 +179,11 @@ class BuzonController extends Controller
 
     public function carpetas($id){
 
-        $nombre_buzon="Personal";
+        $nombre_buzon = "";
 
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos="";
         $estados_usuario="";
-        $lista_por_recibir = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
-        ->get('https://run.mocky.io/v3/6e00ebbb-7878-4b61-93c4-18e8b4d5e720');
-
-        //https://run.mocky.io/v3/6e00ebbb-7878-4b61-93c4-18e8b4d5e720
-
-        if($lista_por_recibir->failed()){
-            $mensaje= $lista_por_recibir->json()['data']['comentario'];
-
-            $lista_por_recibir=['data'=>[
-                0=>['id'=>'0','nombres'=>'Sin Datos','primer_apellido'=>'','segundo_apellido'=>'','run'=>'','email'=>'','id_estado_usuario'=>'']
-            ]];
-            toast($mensaje,'error');
-        }else{
-            $lista_por_recibir->json();
-        }
-
-
 
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(63)
@@ -217,41 +201,6 @@ class BuzonController extends Controller
             $estados_usuario = $perfiles->json()['data']['estado_usuario'];
 
         }
-
-            /*$listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-            ->timeout(33)
-            ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado');*/
-
-            //return $listado_usuarios;
-            /*if($perfiles_nuevo->failed()){
-                $mensaje= $perfiles_nuevo->json()['data']['comentario'];
-
-                $perfiles_nuevo=['data'=>[
-                    0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-                ]];
-                toast($mensaje,'error');
-            }*/
-
-            //$User = $perfiles_nuevo->json();
-
-            //$User  = User::paginate(10);
-
-                    //return $perfiles_nuevo;
-                //$perfiles_nuevo->json();
-
-            /*$User = collect($perfiles_nuevo->json());
-            $current_page = LengthAwarePaginator::resolveCurrentPage();
-            $current_page_orders = $User->slice(($current_page - 1) * 10, 10)->all(); // slice($offset, $number_of_item)
-
-            $orders_to_show = new LengthAwarePaginator($current_page_orders, count($User), 10);
-            $link=[
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=1",'label'=> "1",'active'=> true],
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=2",'label'=> "2",'active'=> false],
-                ['url'=>"http://sgd_ms_usuarios:3333/api/sgd-usuarios/listado?page=3",'label'=> "3",'active'=> false]
-            ];*/
-            //return $orders_to_show;
-            // $orders_to_show = $this->paginate($User);
-
 
         $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
@@ -285,7 +234,7 @@ class BuzonController extends Controller
         }
         else
         {
-            $datosTipoDoc = $listado_tiposdoc['data'];           
+            $datosTipoDoc = $listado_tiposdoc['data'];
 
         }
 
@@ -293,34 +242,42 @@ class BuzonController extends Controller
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        
+
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');
         }else{
-            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];            
+            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         }
-
+        
         $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
         $datosAccion = $listado_parametros['data']['accion'];
 
         //acciones
         $aAcciones = [];
         foreach ($datosAccion as $dato)
+        {
             $aAcciones[$dato['id_accion']] = $dato['nombre'];
 
-        //acciones-flujo
+            if ($dato['id_tipo_accion'] == 1) //requerida
+            {
+                $aFlujoAccionT1[] = array($dato['id_accion'], $dato['nombre']);
+            }     
         
+        }
+
+        //acciones-flujo
+
         foreach ($datosFlujoAccion as $dato)
         {
             if ($dato['id_tipo_flujo'] == 2) //Controlado
             {
-                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);    
+                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
             }
 
             if ($dato['id_tipo_flujo'] == 3) //Mixto
             {
-                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);      
-            }  
+                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
+            }
         }
 
 
@@ -346,15 +303,14 @@ class BuzonController extends Controller
 
             foreach ($listado_buzones['data'] as $dato)
             {
-                $aBuzones[$dato['id_buzon']] = $dato['nombre'];    
-                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon'] 
-            }  
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon']
+            }
         }
 
         /* NUEVO-DOCUMENTOS */
-        
+
         return View::make('buzon.carpetas',[
-            'lista_por_recibir' => $lista_por_recibir,
             'perfiles' => $perfiles_datos,
             'estados_usuario' => $estados_usuario,
             'n_docs_por_recibir' => $n_docs_por_recibir,
@@ -363,11 +319,14 @@ class BuzonController extends Controller
             'nombre_buzon' => $datosBuzon['data']['nombre'],
             'listado_tiposdoc'=>$datosTipoDoc,
             'id_buzon' => $id,
+            'listadoAcciones' => $datosAccion,
+            'acciones_tipoflujo1'=>$aFlujoAccionT1,
             'acciones_tipoflujo2'=>$aFlujoAccionT2,
             'acciones_tipoflujo3'=>$aFlujoAccionT3,
             'listadoBuzones'=>$aBuzones,
-            'allBuzones'=>$aAllBuzones 
-        ]);    
+            'allBuzones'=>$aAllBuzones,
+            'listado_parametros'=>$listado_parametros['data']
+        ]);
 
     }
 
@@ -388,13 +347,13 @@ class BuzonController extends Controller
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
             'id_buzon'=>$request->buzon,
-            'contestar_hasta'=>$request->contestar_hasta,          
+            'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id
         ]);
 
         return $accionDocumento->json();
 
-    } 
+    }
 
     public function update_documento(Request $request)
     {
@@ -415,7 +374,98 @@ class BuzonController extends Controller
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
             'id_buzon'=>$request->buzon,
-            'contestar_hasta'=>$request->contestar_hasta,          
+            'contestar_hasta'=>$request->contestar_hasta,
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'acciones_solicitadas'=>$request->acciones_solicitadas,
+            'comentarioPrincipal'=>$request->comentarioPrincipal,
+            'comentarioOtros'=>$request->comentarioOtros,
+            'carpeta'=>$request->carpeta,
+            'opcionGuardar'=>$request->opcionGuardar
+        ]);
+
+        return $accionDocumento->json();
+    }
+
+    public function enviar_documento($id, Request $request)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/enviar', [
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'id_buzon'=>$request->buzon,
+            'id_usuario'=>Auth::user()->id,
+            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioOtros'=>$request->destinatarioOtros,
+            'carpeta'=>$request->carpeta
+        ]);
+
+        return $accionDocumento->json();
+    }
+
+    public function ver_documento($id)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_documento' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
+
+        return $datosDocumento->json();
+
+    }
+
+    public function actualizar_estado_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar_estado', [  
+            'id_documento_buzon'=>$id,          
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon,
+            'estado'=>$request->estado
+        ]);
+
+        return $datosDocumento->json();
+
+    }
+
+    public function archivar_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/archivar', [            
+            'id_documento_buzon'=>$id,          
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon,
+            'id_usuario'=>Auth::user()->id,
+            'comentario'=>$request->comentario
+        ]);
+
+        return $datosDocumento->json();
+
+    }
+
+    public function derivarOpcion1($id, Request $request)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/derivar', [
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
             'destinatarioOtros'=>$request->destinatarioOtros,
@@ -434,6 +484,7 @@ class BuzonController extends Controller
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
                     ->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
@@ -441,18 +492,23 @@ class BuzonController extends Controller
                     })
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento_buzon.id_estado_documento as id_estado_documento',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
+                        'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
+                        'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
                         'estado_documento.nombre_corto as estado_documento',
                         'documento_buzon.fecha as fecha_despacho',
                         'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as destinatario',
+                        'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento',
-                        'tipo_documento.nombre as tipo_envio',
+                        'tipo_destino.nombre as tipo_envio',
+                        'tipo_destino.id_tipo_destino as id_tipo_destino',
                         'tipo_origen.nombre as origen',
                         'documento_buzon.contestar_hasta as contestas_hasta'
                         )
@@ -467,13 +523,11 @@ class BuzonController extends Controller
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
+
                return datatables( $datos )->toJson();
 
-                    
-    }
 
-        
-        
+    }     
     
 
 }

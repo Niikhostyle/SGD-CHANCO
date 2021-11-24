@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorControl
 
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
-
+Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
 
 
 //buzones
@@ -43,11 +43,18 @@ Route::middleware(['auth:sanctum', 'verified'])->post('buzones',[BuzonController
 Route::middleware(['auth:sanctum', 'verified'])->get('buzones/{id}',[BuzonController::class,'show'])->name('buzones.show');
 Route::middleware(['auth:sanctum', 'verified'])->put('buzones',[BuzonController::class,'update'])->name('buzones.update');
 Route::middleware(['auth:sanctum', 'verified'])->delete('buzones/{id}',[BuzonController::class,'delete'])->name('buzones.delete');
+
+//documentos carpetas
 Route::middleware(['auth:sanctum', 'verified'])->get('buzonesCarpetas/{id}',[BuzonController::class,'carpetas'])->name('buzones.carpetas');
 Route::middleware(['auth:sanctum', 'verified'])->post('buzonesCarpetas',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
 Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas',[BuzonController::class,'update_documento'])->name('buzones.update_documento');
+Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas/{id}',[BuzonController::class,'enviar_documento'])->name('buzones.enviar_documento');
 Route::middleware(['auth:sanctum', 'verified'])->get('buzonesListar/',[BuzonController::class,'listar'])->name('buzones.listar');
-
+Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
+Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_documento/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
+Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
+Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
+Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
 
 //tipos de documentos
 
@@ -60,4 +67,7 @@ Route::middleware(['auth:sanctum', 'verified'])->delete('tipos_documentos/{id}',
 //favorito
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos',[FavoritoController::class,'index'])->name('favoritos.index');
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos/{id}',[FavoritoController::class,'show'])->name('favoritos.show');
+<<<<<<< HEAD
 Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoController::class,'estado'])->name('favoritos.estado');
+=======
+>>>>>>> Develop

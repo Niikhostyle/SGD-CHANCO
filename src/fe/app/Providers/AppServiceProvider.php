@@ -185,7 +185,7 @@ class AppServiceProvider extends ServiceProvider
                             'text'       => 'Favoritos',
                             'icon'    => 'fas fa-fw fa-star',
                             'icon_color' => 'yellow',
-                            'url'        => '#',
+                            'url'        => '/favoritos',
                         ],
                     ],
                 ]

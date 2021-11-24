@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DocumentoBuzonArchivo;
@@ -13,31 +14,60 @@ use SebastianBergmann\Environment\Console;
 class DocumentoBuzonArchivoController extends Controller
 {
     public function store (Request $request)
-    {
-        //obetener el primer registro
-        //$file = File::where('id', $file)->first();
+    {  
+        try 
+            {
+                DB::beginTransaction();
 
-        $numero = rand(100000,9999999);
-        $imagenes = $request->file('file')->store('public/imagenes');
-        $nombre = $request->file('file')->getClientOriginalName();
+                $id_documento_buzon = $request->id_documento_buzon;
+                $id_tipo_archivo = $request->id_tipo_archivo;
+                
+                $numero = rand(100000,9999999);
+                $path = 'public/imagenes';
+                $files = $request->file('file');
+                foreach($files as $file){
+                    $fileName = $file->getClientOriginalName();
+                    $file->move(storage_path('app/public/imagenes'), $fileName);
+                
+                    DocumentoBuzonArchivo::create([
+                        //'url' => storage_path('app/public/imagenes'),
+                        'id_documento_buzon' => $id_documento_buzon,
+                        'id_tipo_archivo' => $id_tipo_archivo,
+                        'nombre_archivo_original' => $fileName,
+                        'nombre_archivo_codificado' => $fileName . '-' . $numero 
+                    ]);
+                }
 
-        $url = Storage::url($imagenes);
-        
-        $id_documento_buzon = $request->id_documento_buzon;
-        $id_tipo_archivo = $request->id_tipo_archivo;
-        
-        DocumentoBuzonArchivo::create([
-            //'url' => $url,
-            'id_documento_buzon' => $id_documento_buzon,
-            'id_tipo_archivo' => $id_tipo_archivo,
-            'nombre_archivo_original' => $nombre,
-            'nombre_archivo_codificado' => $nombre . '-' . $numero 
-        ]);
-        
+                DB::commit();
+
+                return response()->json([
+                    'status' => 200
+                ], 200);
+
+            }
+            catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 500, 
+                    'data' => [
+                        'comentario' => 'Error al guardar documentos'
+                ]], 500);
+            }
+    
     }
 
+    public function ver(Request $request)
+    {
+        $datosDocumentos = DocumentoBuzonArchivo::where('id_documento_buzon', $request['id_documento_buzon'])
+                                                ->where('id_tipo_archivo', 2)
+                                                ->select('nombre_archivo_original')
+                                                ->get();                                           
 
-    public function destroy (DocumentoBuzonArchivo $file)
+        return response()->json($datosDocumentos);
+    }
+
+   /* public function destroy (DocumentoBuzonArchivo $file)
     {
         //elimina el registro de la carpeta local
         $url = str_replace('storage', 'public', $file->url);
@@ -46,5 +76,5 @@ class DocumentoBuzonArchivoController extends Controller
         //elimina el registro de la base de datos
         $file->delete();
         return redirect()->route('buscador.index');
-    }
+    }*/
 }
