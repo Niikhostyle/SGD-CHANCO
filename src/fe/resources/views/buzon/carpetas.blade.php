@@ -1736,7 +1736,6 @@
                     },
                     { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                     { data: 'identificador', name: 'documento.identificador' },
-                    //{ data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
                     { data: 'fecha_despacho', name: 'documento_buzon_bitacora.fecha' },
                     { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
