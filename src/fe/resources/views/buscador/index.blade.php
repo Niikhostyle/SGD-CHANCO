@@ -383,23 +383,30 @@
                             
                             @foreach($lista_bitacora['data'] as $list)
                                 <tr>
-                                    @if($list['accion']==1 ) 
-                                    <td style="background-color: #b0f785;">DDP</td>
-                                    @endif
+                                    
                                     @if($list['accion']==2 && $list['tipo_destino']==1) 
                                     <td style="background-color: #b0f785;">DDP</td>
-                                    @endif
-                                    @if($list['accion']==2 && $list['tipo_destino']==2) 
-                                    <td style="background-color: #b3eccb;">DOO</td>
-                                    @endif
-                                    @if($list['accion']==4 ) 
-                                    <td style="background-color: #edf495;">CAP</td> 
-                                    @endif
-                                    
                                     <td>{{$list['fecha_documento']}}</td>
                                     <td>{{$list['buzon_origen']}}</td>
                                     <td>{{$list['nombre_accion']}}</td>
                                     <td>{{$list['mensaje_respuesta']}}</td>
+                                    @endif
+                                    @if($list['accion']==2 && $list['tipo_destino']==2) 
+                                    <td style="background-color: #b3eccb;">DOO</td>
+                                    <td>{{$list['fecha_documento']}}</td>
+                                    <td>{{$list['buzon_origen']}}</td>
+                                    <td>{{$list['nombre_accion']}}</td>
+                                    <td>{{$list['mensaje_respuesta']}}</td>
+                                    @endif
+                                    @if($list['accion']==4 ) 
+                                    <td style="background-color: #edf495;">CAP</td> 
+                                    <td>{{$list['fecha_documento']}}</td>
+                                    <td>{{$list['buzon_origen']}}</td>
+                                    <td>{{$list['nombre_accion']}}</td>
+                                    <td>{{$list['mensaje_respuesta']}}</td>
+                                    @endif
+                                    
+                                    
                                 </tr>
                             @endforeach
                             
