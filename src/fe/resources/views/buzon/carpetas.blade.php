@@ -475,7 +475,9 @@
 
     var idTipoFlujo = "";
 
-    $('#form_acciones_solicitadas_el').multiselect();
+    $('#form_acciones_solicitadas_el').multiselect({
+        nonSelectedText: 'Seleccione Acciones'
+    });
 
     var allBuzones = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
@@ -521,48 +523,6 @@
     //dropzone
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-
-    //prueba
-/* <div class="dropzone" id="myDropzone"></div>
-    Dropzone.options.myDropzone= {
-        headers:{
-            'X-CSRF-TOKEN' : "{{csrf_token()}}"
-        },
-    url: '/dropzone/store',
-    autoProcessQueue: false,
-    uploadMultiple: true,
-    parallelUploads: 5,
-    maxFiles: 5,
-    maxFilesize: 1,
-    acceptedFiles: 'image/*',
-    addRemoveLinks: true,
-    init: function() {
-        dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
-
-        // for Dropzone to process the queue (instead of default form behavior):
-        document.getElementById("submit-all").addEventListener("click", function(e) {
-            // Make sure that the form isn't actually being sent.
-            e.preventDefault();
-            e.stopPropagation();
-            dzClosure.processQueue();
-        });
-        this.on("addedfile", function(file) {
-                    alert("file uploaded");
-                });
-        //send all the form data along with the files:
-        this.on("sendingmultiple", function(data, xhr, formData) {
-           // formData.append("firstname", jQuery("#firstname").val());
-           // formData.append("lastname", jQuery("#lastname").val());
-        });
-    },
-    sending: function(file, xhr, formData){
-            var idb = $("input[name='hiddIdDocumentoBuzon']").val();
-            formData.append('id_documento_buzon', idb);
-    }        
-    }
-*/
-    //prueba
-
 
     Dropzone.options.dropzoneAnexo = {
         headers:{
@@ -860,8 +820,8 @@
 
                 if(data.status == '200')
                 {
-                    var myDropzone = Dropzone.forElement("#dropzone-anexo");
-                    myDropzone.processQueue();
+                    //var myDropzone = Dropzone.forElement("#dropzone-anexo");
+                    // myDropzone.processQueue();
                     
                     toastr.success("Documento actualizado","Aviso!");
 
@@ -1776,7 +1736,8 @@
                     },
                     { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                     { data: 'identificador', name: 'documento.identificador' },
-                    { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                    //{ data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                    { data: 'fecha_despacho', name: 'documento_buzon_bitacora.fecha' },
                     { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
