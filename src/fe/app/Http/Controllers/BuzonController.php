@@ -13,6 +13,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Models\DocumentoBuzonArchivo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
@@ -526,6 +527,7 @@ class BuzonController extends Controller
                return datatables( $datos )->toJson();
 
 
-    }    
+    }     
+    
 
 }

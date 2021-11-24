@@ -33,7 +33,8 @@ Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioCon
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
-Route::middleware(['auth:sanctum', 'verified'])->post('dropzone/store',[DocumentoBuzonArchivoController::class, 'store']);
+Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
+
 
 //buzones
 Route::middleware(['auth:sanctum', 'verified'])->get('buzones',[BuzonController::class,'index'])->name('buzones.index');

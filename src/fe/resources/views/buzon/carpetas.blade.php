@@ -574,14 +574,20 @@
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos aquí",
         acceptedFiles: "image/*",
+        //acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
         init: function() {
-            var submitButton = document.querySelector(".btn-guardar-submit")
+            //var submitButton = document.querySelector(".btn-guardar-submit")
             dropzoneAnexo = this; // closure  
-            console.log("upload ini");          
+            /*
+            var mockFile = { name: "t1.jpg", size: 12345 };
+            //var myDropzone = new Dropzone("#dropzoneAnexo");
+            dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
+            dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "http://localhost/test/drop/uploads/banner2.jpg");
+            */         
         },
         sending: function(file, xhr, formData){
             console.log("upload");
@@ -854,8 +860,15 @@
 
                 if(data.status == '200')
                 {
-                    dropzoneAnexo.processQueue();
+                    var myDropzone = Dropzone.forElement("#dropzone-anexo");
+                    myDropzone.processQueue();
+                    
                     toastr.success("Documento actualizado","Aviso!");
+
+                    $('#card_crear_documento').hide();
+                    $("#collapseOne").collapse('show');     
+                    fn_grilla_despachados();
+
                 }
                 else if(data.status == '201')
                 {
