@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\DocumentoBuzonArchivo;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use SebastianBergmann\Environment\Console;
 
 class DocumentoBuzonArchivoController extends Controller
@@ -21,21 +23,36 @@ class DocumentoBuzonArchivoController extends Controller
 
                 $id_documento_buzon = $request->id_documento_buzon;
                 $id_tipo_archivo = $request->id_tipo_archivo;
-                
+                //agregar version
+
                 $numero = rand(100000,9999999);
                 $path = 'public/imagenes';
                 $files = $request->file('file');
-                foreach($files as $file){
+
+                foreach($files as $file)
+                {
                     $fileName = $file->getClientOriginalName();
-                    $file->move(storage_path('app/public/imagenes'), $fileName);
+                    $uploadSuccess = $file->move(storage_path('app/public/imagenes'), $fileName);
                 
-                    DocumentoBuzonArchivo::create([
-                        //'url' => storage_path('app/public/imagenes'),
-                        'id_documento_buzon' => $id_documento_buzon,
-                        'id_tipo_archivo' => $id_tipo_archivo,
-                        'nombre_archivo_original' => $fileName,
-                        'nombre_archivo_codificado' => $fileName . '-' . $numero 
-                    ]);
+                    if ($uploadSuccess)
+                    {
+                        DocumentoBuzonArchivo::create([
+                            'id_documento_buzon' => $id_documento_buzon,
+                            'id_tipo_archivo' => $id_tipo_archivo,
+                            'nombre_archivo_original' => $fileName,
+                            'nombre_archivo_codificado' => $fileName . '-' . $numero 
+                        ]);
+                    }
+                    else
+                    {
+                        return response()->json([
+                            'status' => 500, 
+                            'data' => [
+                                'comentario' => 'Error al guardar documento'
+                        ]], 500);
+
+                    }
+
                 }
 
                 DB::commit();
@@ -51,7 +68,7 @@ class DocumentoBuzonArchivoController extends Controller
                 return response()->json([
                     'status' => 500, 
                     'data' => [
-                        'comentario' => 'Error al guardar documentos'
+                        'comentario' => 'Error al guardar documento'
                 ]], 500);
             }
     
@@ -65,6 +82,26 @@ class DocumentoBuzonArchivoController extends Controller
                                                 ->get();                                           
 
         return response()->json($datosDocumentos);
+    }
+
+    public function displayImage($filename)
+    {
+
+       // storage_path('app/public/imagenes')
+        
+        $path = storage_path('app/public/imagenes/' . $filename);
+        
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+        
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
     }
 
    /* public function destroy (DocumentoBuzonArchivo $file)

@@ -407,7 +407,7 @@ class BuzonController extends Controller
         return $accionDocumento->json();
     }
 
-    public function ver_documento($id)
+    public function ver_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
@@ -415,6 +415,7 @@ class BuzonController extends Controller
         ->timeout(30)
         ->withBody(json_encode([
             'id_documento' => $id,
+            'id_documento_buzon' => $request['hiddIdDocumentoBuzon']
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
 

@@ -289,43 +289,48 @@
                         </div>
                         <div class="form-group row_anexo">
                             <label for="exampleFormControlTextarea1">Anexos:</label>
-                            <textarea class="form-control" id="form_anexo" rows="4" disabled="disable"></textarea>
-                            <div class="card-body" id="cargar_anexo" style="display:none">
-                                <form action="{{route('files.store')}}"
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-anexo">
-                                </form>
+                            
+                            <div class="card-body card-archivos" id="cargar_anexo">
+                                <div id="dropzone-anexo-view" class="dropzone-view"></div>
+                                <div id="dropzone-anexo" class="dropzone dropzone-files"></div>                                                          
                             </div>
 
                         </div>
 
                         <div class="form-group row_arch_ppal">
                             <label for="exampleFormControlTextarea1">Archivo Principal</label>
-                            <textarea class="form-control" id="form_archivo_principal_el" rows="4" disabled="disable"></textarea>
+                            
+                            <div class="card-body card-archivos" id="cargar_principal">
+                                <div id="dropzone-principal-view" class="dropzone-view"></div>
+                                <div id="dropzone-principal" class="dropzone dropzone-files"></div>                                                          
+                            </div>
 
-                            <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
-                                <form action="{{route('files.store')}}"
+                        <!--    <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
+                                <form action=""
                                     method="POST"
                                     class="dropzone"
                                     id="dropzone-archivo-ppal">
                                 </form>
-                            </div>
+                            </div>-->
                         </div>
 
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Otros Archivos</label>
                             
-
+                            <div class="card-body card-archivos" id="cargar_otros">
+                                <div id="dropzone-otros-view" class="dropzone-view"></div>
+                                <div id="dropzone-otros" class="dropzone dropzone-files"></div>                                                          
+                            </div>
+                            <!--
                             <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>
 
                             <div class="card-body" id="cargar_otros_archivos" style="display:none">
-                                <form action="{{route('files.store')}}"
+                                <form action=""
                                     method="POST"
                                     class="dropzone"
                                     id="dropzone-otros-archivos">
                                 </form>
-                            </div>
+                            </div> -->
                         </div>
 
                         <div class="form-row">
@@ -403,6 +408,29 @@
 
     <style type="text/css">
 
+        
+        .dropzone {
+            border: 2px dashed #ced4da;
+        }
+
+        .card-archivos {
+            display: flex;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+        .dropzone-files {
+            flex:1;
+        }
+
+        .dz-max-files-reached {
+            pointer-events: none;
+            cursor: default;
+        }
+        .dz-remove { 
+            pointer-events: all; cursor: default; 
+        }
+
         .disabled {
             background-color: #e9ecef;
         }
@@ -472,6 +500,7 @@
     const accionesFlujo3 = @json($acciones_tipoflujo3);
     var allBuzones = @json($allBuzones);
     const listadoBuzones = @json($listadoBuzones);
+    const pathFiles = "";
 
     var idTipoFlujo = "";
 
@@ -509,9 +538,9 @@
 
     //dropzone
 
-    form_anexo.disabled=true;
-    form_archivo_principal_el.disabled=true;
-    form_otros_archivos_el.disabled=true;
+    //form_anexo.disabled=true;
+    //form_archivo_principal_el.disabled=true;
+    //form_otros_archivos_el.disabled=true;
     form_destinatario_principal_el.disabled=true;
     form_acciones_solicitadas_el.disabled=true;
     form_comentario_el.disabled=true;
@@ -524,105 +553,128 @@
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
-    //prueba
-/* <div class="dropzone" id="myDropzone"></div>
-    Dropzone.options.myDropzone= {
+    Dropzone.options.dropzonePrincipal = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
         },
-    url: '/dropzone/store',
-    autoProcessQueue: false,
-    uploadMultiple: true,
-    parallelUploads: 5,
-    maxFiles: 5,
-    maxFilesize: 1,
-    acceptedFiles: 'image/*',
-    addRemoveLinks: true,
-    init: function() {
-        dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
+        url: "{{route('files.store')}}",
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        maxFilesize: 10, //MB
+        maxFiles: 1,
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        //acceptedFiles: "image/*",
+        acceptedFiles: "application/pdf",
+        addRemoveLinks: true,
+        params: {'id_tipo_archivo' : 1},
+        createImageThumbnails: true,
+        timeout: 50000,
+        init: function() {
+            dropzonePrincipal = this; // closure              
 
-        // for Dropzone to process the queue (instead of default form behavior):
-        document.getElementById("submit-all").addEventListener("click", function(e) {
-            // Make sure that the form isn't actually being sent.
-            e.preventDefault();
-            e.stopPropagation();
-            dzClosure.processQueue();
-        });
-        this.on("addedfile", function(file) {
-                    alert("file uploaded");
-                });
-        //send all the form data along with the files:
-        this.on("sendingmultiple", function(data, xhr, formData) {
-           // formData.append("firstname", jQuery("#firstname").val());
-           // formData.append("lastname", jQuery("#lastname").val());
-        });
-    },
-    sending: function(file, xhr, formData){
+            if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
+            {
+                var _this = this;
+                // Remove all files
+                _this.removeAllFiles();
+            }
+
+            $(".btn-delete").click(function () {
+                console.log('delete');
+                //Dropzone.forElement("#dropzoneAnexo").removeAllFiles(true);
+                dropzoneAnexo.removeAllFiles(true);
+                //console.log(Dropzone.forElement("#dropzoneAnexo"));
+                        }
+                ); 
+
+            this.on("queuecomplete", function (file) {
+                console.log('completado');
+            });     
+        },        
+        sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
             formData.append('id_documento_buzon', idb);
-    }        
-    }
-*/
-    //prueba
-
+        }        
+    };
 
     Dropzone.options.dropzoneAnexo = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
         },
+        url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        //maxFilesize: 10, //MB
+        maxFilesize: 10, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos aquí",
-        acceptedFiles: "image/*",
-        //acceptedFiles: "application/pdf",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        //acceptedFiles: "image/*",
+        acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
         init: function() {
-            //var submitButton = document.querySelector(".btn-guardar-submit")
-            dropzoneAnexo = this; // closure  
-            /*
-            var mockFile = { name: "t1.jpg", size: 12345 };
-            //var myDropzone = new Dropzone("#dropzoneAnexo");
-            dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
-            dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "http://localhost/test/drop/uploads/banner2.jpg");
-            */         
-        },
+            dropzoneAnexo = this; // closure              
+
+            if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
+            {
+                var _this = this;
+                // Remove all files
+                _this.removeAllFiles();
+            }
+
+            $(".btn-delete").click(function () {
+                console.log('delete');
+                //Dropzone.forElement("#dropzoneAnexo").removeAllFiles(true);
+                dropzoneAnexo.removeAllFiles(true);
+                //console.log(Dropzone.forElement("#dropzoneAnexo"));
+                        }
+                ); 
+
+            this.on("queuecomplete", function (file) {
+                console.log('completado');
+            });     
+        },        
         sending: function(file, xhr, formData){
-            console.log("upload");
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
             formData.append('id_documento_buzon', idb);
-    }        
+        }        
     };
 
-    Dropzone.options.dropzoneOtrosArchivos = {
+    Dropzone.options.dropzoneOtros = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
         },
-        dictDefaultMessage: "Arrastre y suelte archivos aquí",
-        acceptedFiles: "image/*",
+        url: "{{route('files.store')}}",
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        maxFilesize: 10, //MB
+        //maxFiles: 2,
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        //acceptedFiles: "image/*",
+        acceptedFiles: "application/pdf",
         addRemoveLinks: true,
-        params: {id_documento_buzon: idDocumentoBuzon, 'id_tipo_archivo' : 3},
+        params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
         timeout: 50000,
-        autoProcessQueue: false
-    };
+        init: function() {
+            dropzoneOtros = this; // closure              
 
-    Dropzone.options.dropzoneArchivoPpal = {
-        headers:{
-            'X-CSRF-TOKEN' : "{{csrf_token()}}"
-        },
-        maxFiles: 1,
-        dictDefaultMessage: "Arrastre y suelte archivos aquí",
-        acceptedFiles: "image/*",
-        addRemoveLinks: true,
-        params: {'id_documento_buzon': idDocumentoBuzon, 'id_tipo_archivo' : 1},
-        createImageThumbnails: true,
-        timeout: 50000,
-        autoProcessQueue: false
+            if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
+            {
+                var _this = this;
+                // Remove all files
+                _this.removeAllFiles();
+            }           
+
+            this.on("queuecomplete", function (file) {
+                console.log('completado');
+            });     
+        },        
+        sending: function(file, xhr, formData){
+            var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            formData.append('id_documento_buzon', idb);
+        }        
     };
 
     /* **DOCUMENTOS** SCRIPT */
@@ -648,6 +700,7 @@
 
     function deshabilita_campos()
     {
+        console.log('desabilita');
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
         editor_cuerpo.setReadOnly(true);
@@ -658,10 +711,18 @@
         $(".bootstrap-tagsinput-max").addClass("disabled");
         $(".bootstrap-tagsinput").addClass("disabled");  
         $('#form_acciones_solicitadas_el').multiselect('disable');
+        $('#dropzone-principal').prop("disabled", true);
+        $('#dropzone-otros').prop("disabled", true);
+        $('#dropzone-anexo').prop("disabled", true);
+        
+        //dropzoneAnexo.removeEventListeners();
+        //$('#dropzone-anexo').removeClass('dz-clickable');
 
-        form_anexo.disabled=true;
-        form_archivo_principal_el.disabled=true;
-        form_otros_archivos_el.disabled=true;
+        $(".dz-hidden-input").prop("disabled",true);
+
+        //form_anexo.disabled=true;
+        //form_archivo_principal_el.disabled=true;
+        //form_otros_archivos_el.disabled=true;
         form_destinatario_principal_el.disabled=true;
         form_acciones_solicitadas_el.disabled=true;
         form_comentario_el.disabled=true;
@@ -671,6 +732,7 @@
 
     function habilita_campos()
     {
+        console.log('habilita');
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
         editor_cuerpo.setReadOnly(false);
@@ -680,7 +742,12 @@
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
         $(".bootstrap-tagsinput-max").removeClass("disabled");
-        $(".bootstrap-tagsinput").removeClass("disabled");  
+        $(".bootstrap-tagsinput").removeClass("disabled"); 
+
+        $('#dropzone-principal').prop("disabled", false);
+        $('#dropzone-anexo').prop("disabled", false);
+        $('#dropzone-otros').prop("disabled", false);
+        $(".dz-hidden-input").prop("disabled", false); 
     }
  
     function clear_form()
@@ -712,7 +779,20 @@
         $("input[name='hiddIdOrigen']").val('');
         
         $("#idAsignado").text('No Asignado');
-       
+
+        //vaciar archivos pre cargados
+
+        $('#dropzone-anexo-view').html('');
+        $('#dropzone-otros-view').html('');
+        $('#dropzone-principal-view').html('');
+
+        dropzoneAnexo.removeAllFiles();
+        dropzoneAnexo.removeAllFiles(true);
+        dropzoneOtros.removeAllFiles();
+        dropzoneOtros.removeAllFiles(true);
+        dropzonePrincipal.removeAllFiles();
+        dropzonePrincipal.removeAllFiles(true);
+
     }
 
     $(".btn_cerrar_guardar").click(function(e){
@@ -779,6 +859,10 @@
         );
 
         $(".print-error-msg").hide();
+
+        //var submitButton = document.querySelector("#submit-all");
+        //var myDropzone = Dropzone.forElement("#dropzone-anexo");
+        //myDropzone.processQueue();
 
         guarda_documento();
     });
@@ -862,11 +946,15 @@
 
                 if(data.status == '200')
                 {
-                    var myDropzone = Dropzone.forElement("#dropzone-anexo");
-                    myDropzone.processQueue();
-                    
-                    toastr.success("Documento actualizado","Aviso!");
+                    //var myDropzone = Dropzone.forElement("#dropzone-anexo");
+                    //myDropzone.processQueue();
 
+                    dropzonePrincipal.processQueue();   
+                    dropzoneOtros.processQueue();   
+                    dropzoneAnexo.processQueue();  
+
+                    toastr.success("Documento actualizado","Aviso!");
+                    
                     $('#card_crear_documento').hide();
                     $("#collapseOne").collapse('show');     
                     fn_grilla_despachados();
@@ -895,8 +983,7 @@
                     $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
 
                     if (json_tipo_doc['id_tipo_origen'] == 1)
-                    {
-                        $('#form_anexo').hide();
+                    {                       
                         $('#cargar_anexo').show();
                     }
 
@@ -975,7 +1062,14 @@
                         var nombreBuzon = listadoBuzones[idBuzonAccion];
                         $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
                     }
-                    
+
+                    //habilita carga de archivos
+
+                    $('#dropzone-principal').prop("disabled", false);
+                    $('#dropzone-anexo').prop("disabled", false);
+                    $('#dropzone-otros').prop("disabled", false);
+                    $(".dz-hidden-input").prop("disabled", false); 
+                                
                     //actualiza grilla despachados
 
                     fn_grilla_despachados();
@@ -1109,7 +1203,12 @@
             {
                 if(data.status == '200')
                 {
+                    dropzoneAnexo.processQueue(); 
+                    dropzoneOtros.processQueue(); 
+                    dropzonePrincipal.processQueue(); 
+                    
                     toastr.success("Documento actualizado","Aviso!");
+
                     fn_grilla_recibidos();
                     $('#card_crear_documento').hide();
                     $("#collapseOne").collapse('show');
@@ -1515,12 +1614,12 @@
         
     }
 
-    function archivar_recibidos(id_documento,id_documento_buzon){
+    function archivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){
 
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre); 
 
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
@@ -1541,19 +1640,24 @@
         alert(identificador)
     }
 
-    function cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,carpeta)
+    function cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,carpeta,accion)
     {
         clear_form();
         $("#collapseOne").collapse('hide');
         $('#card_crear_documento').show();        
-        console.log(id_documento_buzon);
-        console.log(id_documento_buzon_padre);
-        console.log(carpeta);
+
+        if (carpeta == 2)
+            var docBuzon = id_documento_buzon_padre;
+        else
+            var docBuzon = id_documento_buzon; 
 
         $.ajax({
             url: "/documentos/"+id_documento,
             type:'GET',
             dataType: 'json',
+            data: {
+                    hiddIdDocumentoBuzon:docBuzon
+                  },
             success: function(data) {
                 if(data.status=='400') {
                     toastr.error(data.data.comentario,"Aviso!");
@@ -1589,7 +1693,7 @@
                             $('.row_cuerpo').show();
                             $('.row_arch_ppal').hide();
                             $('.row_anexo').show();
-                            $('#form_anexo').hide();
+                            //$('#form_anexo').hide();
                             $('#cargar_anexo').show();
                         }
                         if (json_tipo_doc['id_tipo_origen'] == 2) //externo
@@ -1602,14 +1706,15 @@
                         }
 
                         $('#form_otros_archivos_el').hide();
-                        $('#cargar_otros_archivos').show();                    
+                        $('#cargar_otros_archivos').show();   
 
+                        var relDocumentoBuzon = data.data.rel_documento_buzon;
+                        
                         if (carpeta == 3 || carpeta == 2)
                             var buzon_padre = id_documento_buzon;
                         else
                             var buzon_padre = id_documento_buzon_padre; 
-
-                        var relDocumentoBuzon = data.data.rel_documento_buzon;
+                            
                         $.each(relDocumentoBuzon, function(i, item)
                         {                       
                             if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
@@ -1633,6 +1738,74 @@
                                 $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
                             }  
                         });
+
+                        var relDocumentoBuzonArchivo = data.data.rel_archivos;
+                        console.log(relDocumentoBuzonArchivo);
+
+                        let htmlFile = "";
+                        let htmlFileAnexo = '<div class="col-md-12 group-button-align">';
+                        let htmlFileOtros = '<div class="col-md-12 group-button-align">';
+                        let htmlFilePrincipal = '<div class="col-md-12 group-button-align">';
+
+                        aFilesAnexo = [];
+                        aFilesOtros = [];
+                        
+
+                        $.each(relDocumentoBuzonArchivo, function(key,value){
+                            
+                            //let mockFile = { name: value.nombre_archivo_original, size: 1024 };
+
+                            //dropzoneAnexo.displayExistingFile(mockFile, "{{ asset('/vendor/ckeditor/ckeditor.js') }}");
+                            /*
+                            dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
+                            dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg");
+                            //dropzoneAnexo.emit('complete', mockFile);
+                            mockFile.previewElement.classList.add('dz-complete');
+
+                            var a = document.createElement('a');
+                            a.setAttribute('href',"{{ asset('/vendor/ckeditor/ckeditor.js') }}");
+                            a.setAttribute('target',"_blank");
+                            a.innerHTML = "<i class='fas fa-download'></i>";
+                            //a.innerHTML = "Descargar";
+                            mockFile.previewTemplate.appendChild(a);
+                           
+*/
+                            
+                            /*
+                            htmlFile = '<img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                           '<a href="/imagenes/'+value.nombre_archivo_original+'" class="btn-descargar" target="_blank"><i class="fas fa-eye"></i></a>';
+                            */
+
+                            htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
+
+                            //habilitar cuando esté operativo el eliminar
+                            //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
+                            //    htmlFile += '<a href="#"><i class="fas fa-trash-alt"></i></a>';
+                            
+                            //if (carpeta == 3 && accion == 1)               
+                            //    htmlFile += '<a href="#"><i class="fas fa-trash-alt"></i></a>';
+                            
+                            //if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
+                            //    htmlFile = "";                                 
+                             
+                            if (value.id_tipo_archivo == 2) //anexo
+                                htmlFileAnexo += htmlFile;       
+
+                            if (value.id_tipo_archivo == 3) //otros
+                                htmlFileOtros += htmlFile; 
+                            
+                            if (value.id_tipo_archivo == 1) //principal
+                                htmlFilePrincipal += htmlFile; 
+
+                            //llenar array con id documento 
+                            //aFilesAnexo.push(value.id_documento_buzon_archivo);
+
+                        });
+
+                        $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
+                        $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
+                        $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+
                     }
                 }
             },
@@ -1664,7 +1837,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,1); 
         
         $('#form_tipo_documento').prop("disabled", true); 
        
@@ -1679,7 +1852,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
-        cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2);
+        cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2,1);
 
         $('#form_tipo_documento').prop("disabled", true); 
        
@@ -1821,18 +1994,17 @@
                                             
                                             
                                             if(row.id_estado_documento != 6 && row.id_estado_documento != 7)
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#">';
-                                            botonera +='<i class="far fa-star text-green"></i> ( + ) Favoritos';
-                                            botonera +='</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
                                         else{
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                            
                                             if(row.id_estado_documento != 6)
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
 
                                     botonera += '</div>';
@@ -1933,6 +2105,9 @@
                                     {
                                         botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                     }  
+
+                                    botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                    botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
 
                                     botonera +='</div>';
                                 botonera += '</div>';
