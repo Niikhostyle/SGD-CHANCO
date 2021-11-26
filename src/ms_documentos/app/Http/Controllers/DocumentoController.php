@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Documento;
 use App\Models\DocumentoBuzon;
+use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
@@ -546,14 +547,30 @@ class DocumentoController extends Controller{
             try 
             {
                 $datosRequest = $request->json()->all();
-                
+
                 //$validator = $this->validator->validateField($datosRequest);
                 //if ($validator->fails())
                 //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datosDocumento->rel_documento_buzon; 
-                                
+                $datosDocumento->rel_documento_buzon;  
+
+                //$datosDocumentoBuzon = DocumentoBuzonArchivo::where('id_documento_buzon', $request['id_documento_buzon'])->get();  
+                //
+                $datosDocumentoBuzon = DocumentoBuzon::join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+                                                    ->where('documento_buzon.id_documento', $request['id_documento'])
+                                                    ->select(
+                                                        'documento_buzon_archivo.id_documento_buzon_archivo',
+                                                        'documento_buzon_archivo.id_documento_buzon',
+                                                        'documento_buzon_archivo.id_tipo_archivo',
+                                                        'documento_buzon_archivo.nombre_archivo_original',
+                                                        'documento_buzon_archivo.nombre_archivo_codificado',
+                                                        'documento_buzon_archivo.fecha',
+                                                        'documento_buzon_archivo.version')
+                                                    ->get();
+                            
+                $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
+                              
                 return $this->respondSuccess($datosDocumento, 200);
             }  
             catch (ModelNotFoundException $e) 
