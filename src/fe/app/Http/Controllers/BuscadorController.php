@@ -19,7 +19,7 @@ class BuscadorController extends Controller
         ->withBody(json_encode([
             'id_usuario' => Auth::user()->id,
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarFavoritos');
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentos');
         //->get('http://sgd_ms_buscador:3333/api/sgd-buscador/listarDocumentos');
 
         //return $lista_documento;
