@@ -83,7 +83,7 @@ class UsuarioController extends Controller
         $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
         ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
-            'nombre_buzon'=>'Personal',
+            'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
             'nombre_corto_buzon'=>'PRSNAL',
             'tipo_buzon'=>'1',
             'usuarios_asignados'=> $aUsuarios
