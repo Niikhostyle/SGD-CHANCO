@@ -150,7 +150,7 @@
         <div class="card-body">
         <form class="needs-validation" id="form_documento_ver"   >
             @csrf
-
+            
             <ul class="pagination">
                 <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 15px; border-right: 0px;">
                     <i class="fas fa-angle-double-left"></i>
@@ -348,27 +348,58 @@
             <div class="col">ID: </div>
             <div class="col">Materia: </div>
             <br>
+            
+                <!--<table border="0" cellspacing="5" cellpadding="5">
+                    <tbody>
+                        <tr>
+                            <td>ID Doc:</td>
+                            <td>Tipo Documento:</td>
+                            <td>Estado:</td>
+                            <td>Texto Libre:</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><input class="form-control"  type="text" id="gr_buscar_id_doc" name="gr_buscar_id_doc"></td>
+                            <td>
+                                <select id="gr_buscar_tipo_doc" name="gr_buscar_tipo_doc" class="form-control">
+                                    <option value=''>Todos</option>
+                                    
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
+                                    <option value=''> Todos </option>
+                                    
+                                </select>
+                            </td>
+                            <td><input type="search" aria-controls="grilla_recibidos" class="form-control"  id="gr_buscar_origen_materia" name="gr_buscar_origen_materia"></td>
+                            <td id="botones_grilla_recibidos">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>-->
+           
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                <input class="form-check-input" type="checkbox" value="1" id="id_buscar_ddp" name="buscar_ddp" checked="checked" >
                 <label class="form-check-label" for="defaultCheck1">
                     Derivaciones destinatarios principales (DDP)
                 </label>
             </div>
                 <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                <input class="form-check-input" type="checkbox" value="2" id="id_buscar_doo" name="buscar_doo" checked="checked">
                 <label class="form-check-label" for="defaultCheck1">
                     Dereivaciones otros destinatarios (DOO)
                 </label>
                 </div>
                 <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                <input class="form-check-input" type="checkbox" value="3" id="id_buscar_cap" name="buscar_cap" checked="checked">
                 <label class="form-check-label" for="defaultCheck1">
                     Cambios Archivos Principal (CAP)
                 </label>
                 </div>
-                <div class="card" id="card_favorito_grilla">
+               
                 <div class="card-body">
-                    <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Tipo</th>
@@ -385,12 +416,16 @@
                                 <tr>
                                     
                                     @if($list['accion']==2 && $list['tipo_destino']==1) 
-                                    <td style="background-color: #b0f785;">DDP</td>
+                                   
+                                    <td style=" background-color: #b0f785;">DDP</td>
                                     <td>{{$list['fecha_documento']}}</td>
                                     <td>{{$list['buzon_origen']}}</td>
                                     <td>{{$list['nombre_accion']}}</td>
                                     <td>{{$list['mensaje_respuesta']}}</td>
+                                    
                                     @endif
+                                    
+                                    
                                     @if($list['accion']==2 && $list['tipo_destino']==2) 
                                     <td style="background-color: #b3eccb;">DOO</td>
                                     <td>{{$list['fecha_documento']}}</td>
@@ -413,7 +448,7 @@
                         </tbody>
                     </table>
                 </div>
-                </div>
+                
             <div class="row">
                 <div class="col-md-10"> </div>
                 <div class="col-md-2">
@@ -457,7 +492,16 @@
 
 @section('js')
 <script>
-        
+       /** function myFunction() {
+            var checkBox = document.getElementById("id_buscar_ddp");
+            var text = document.getElementById("text");
+            if (checkBox.checked == true){
+                text.style.display = "block";
+            } else {
+                text.style.display = "none";
+            }
+        } */
+    var grilla_bitacora;
 
     $(document).ready(function(){
 
@@ -494,9 +538,8 @@
         $(".btn_cerrar_ver_documento").click(function(e){
             $('#card_ver_documento').hide();
         });
-
-                        
         
+        //fn_grilla_bitacora();
     });
 
     function visualizar_usuario(identificador){
@@ -557,6 +600,9 @@
 
         }
     }
+
+
+
 
         
 </script>
