@@ -1,4 +1,4 @@
-<?php   
+<?php
 namespace App\Validator;
 
 use Illuminate\Http\Request;
@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\Validator;
 
 class BuzonValidator
 {
-    private $request; 
+    private $request;
     private $validator;
-    
+
     public function __construct(Request $request)
     {
         $this->request = $request;
@@ -16,29 +16,29 @@ class BuzonValidator
 
     public function validateInsert()
     {
-        return Validator::make($this->request->all(), $this->rules1(), $this->messages());        
+        return Validator::make($this->request->all(), $this->rules1(), $this->messages());
     }
 
     public function validateUpdate()
     {
-        return Validator::make($this->request->all(), $this->rules2(), $this->messages());        
+        return Validator::make($this->request->all(), $this->rules2(), $this->messages());
     }
 
     public function validateFieldUser($campo)
     {
-        return Validator::make($campo, $this->rules3(), $this->messages());        
+        return Validator::make($campo, $this->rules3(), $this->messages());
     }
 
     public function validateFieldBuzon($campo)
     {
-        return Validator::make($campo, $this->rules4(), $this->messages());        
+        return Validator::make($campo, $this->rules4(), $this->messages());
     }
 
 
     private function rules1()
     {
         return [
-            'nombre_buzon' => 'required|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
+            'nombre_buzon' => 'required|max:255|regex:/^[a-zA-Z-0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
             'nombre_corto_buzon' => 'required|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
             'tipo_buzon' => 'required|integer'
         ];
@@ -48,11 +48,11 @@ class BuzonValidator
     {
         return [
             'id_buzon' => 'required|integer|exists:buzon',
-            'nombre_buzon' => 'required|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
+            'nombre_buzon' => 'required|max:255|regex:/^[a-zA-Z-0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
             'nombre_corto_buzon' => 'required|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/'
         ];
     }
-    
+
     private function rules3()
     {
         return [
