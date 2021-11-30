@@ -376,7 +376,7 @@
                         </div>
                         
                         <div class="form-row">                                
-                                <div class="col-md-12 group-button-align">
+                                <div class="col-md-12 group-button-align">                                    
                                     <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
                                     <button type="button" id="submit-all" class="btn btn-success btn-guardar-submit w-10">Guardar</button>
                                     <button type="button" class="btn btn-success btn-enviar-submit w-10" style="display:none">Enviar</button>
@@ -385,6 +385,8 @@
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
+                                    <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+
                                 </div>                          
                         </div>
                     </form>
@@ -408,7 +410,10 @@
 
     <style type="text/css">
 
-        
+        .card {
+            overflow: visible !important;
+        }
+
         .dropzone {
             border: 2px dashed #ced4da;
         }
@@ -476,6 +481,12 @@
             transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 
         }
+
+        .file-container-all { display: flex; }
+        .file-container { position: relative; }
+        .file-container img { display: block; }
+        .fa-icon1 { position: absolute; bottom:0; left:0; }
+        .fa-icon2 { position: absolute; bottom:0; left:30px; }
 
      </style>
 @stop
@@ -665,15 +676,19 @@
                 var _this = this;
                 // Remove all files
                 _this.removeAllFiles();
+
             }           
 
             this.on("queuecomplete", function (file) {
                 console.log('completado');
-            });     
+            }); 
+               
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
             formData.append('id_documento_buzon', idb);
+
+           // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
     };
 
@@ -777,7 +792,8 @@
         $("input[name='hiddIdDocumentoBuzon']").val('');
         $("input[name='hiddIdDocumento']").val('');
         $("input[name='hiddIdOrigen']").val('');
-        
+        $("input[name='hiddIdFileDelete']").val('');
+
         $("#idAsignado").text('No Asignado');
 
         //vaciar archivos pre cargados
@@ -898,6 +914,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var hiddIdFileDelete = $("input[name='hiddIdFileDelete']").val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
@@ -939,16 +956,17 @@
                 acciones_solicitadas:acciones_solicitadas,
                 hiddIdDocumento:hiddIdDocumento,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                hiddIdFileDelete:hiddIdFileDelete,
                 carpeta:3
             },
             success: function(data)
             {
-
+                
                 if(data.status == '200')
                 {
                     //var myDropzone = Dropzone.forElement("#dropzone-anexo");
                     //myDropzone.processQueue();
-
+                    
                     dropzonePrincipal.processQueue();   
                     dropzoneOtros.processQueue();   
                     dropzoneAnexo.processQueue();  
@@ -1165,14 +1183,13 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var hiddIdFileDelete = $("input[name='hiddIdFileDelete']").val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
-
-        console.log(hiddIdDocumentoBuzon);
 
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
@@ -1197,6 +1214,7 @@
                 acciones_solicitadas:acciones_solicitadas,
                 hiddIdDocumento:hiddIdDocumento,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                hiddIdFileDelete:hiddIdFileDelete,
                 carpeta:2
             },
             success: function(data)
@@ -1693,7 +1711,6 @@
                             $('.row_cuerpo').show();
                             $('.row_arch_ppal').hide();
                             $('.row_anexo').show();
-                            //$('#form_anexo').hide();
                             $('#cargar_anexo').show();
                         }
                         if (json_tipo_doc['id_tipo_origen'] == 2) //externo
@@ -1743,64 +1760,66 @@
                         console.log(relDocumentoBuzonArchivo);
 
                         let htmlFile = "";
-                        let htmlFileAnexo = '<div class="col-md-12 group-button-align">';
-                        let htmlFileOtros = '<div class="col-md-12 group-button-align">';
-                        let htmlFilePrincipal = '<div class="col-md-12 group-button-align">';
+                        let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
+                        let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
+                        let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
 
-                        aFilesAnexo = [];
-                        aFilesOtros = [];
                         
+                        aFilesPrincipal = [];
+                        aFilesDelete = [];   
+
+                        var listDelete                      
 
                         $.each(relDocumentoBuzonArchivo, function(key,value){
                             
-                            //let mockFile = { name: value.nombre_archivo_original, size: 1024 };
+                          /*  let mockFile = { name: value.nombre_archivo_original, size: 1024 };
 
                             //dropzoneAnexo.displayExistingFile(mockFile, "{{ asset('/vendor/ckeditor/ckeditor.js') }}");
-                            /*
+                            
                             dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
                             dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg");
                             //dropzoneAnexo.emit('complete', mockFile);
                             mockFile.previewElement.classList.add('dz-complete');
 
                             var a = document.createElement('a');
-                            a.setAttribute('href',"{{ asset('/vendor/ckeditor/ckeditor.js') }}");
+                            a.setAttribute('href',"#");
                             a.setAttribute('target',"_blank");
                             a.innerHTML = "<i class='fas fa-download'></i>";
                             //a.innerHTML = "Descargar";
                             mockFile.previewTemplate.appendChild(a);
                            
-*/
+*/                            
                             
-                            /*
-                            htmlFile = '<img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/imagenes/'+value.nombre_archivo_original+'" class="btn-descargar" target="_blank"><i class="fas fa-eye"></i></a>';
-                            */
+                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                           '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                            
+                          // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
 
-                            htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
-
-                            //habilitar cuando esté operativo el eliminar
-                            //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                            //    htmlFile += '<a href="#"><i class="fas fa-trash-alt"></i></a>';
+                           /// habilitar cuando esté operativo el eliminar
+                            if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
+                                htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                             
-                            //if (carpeta == 3 && accion == 1)               
-                            //    htmlFile += '<a href="#"><i class="fas fa-trash-alt"></i></a>';
+                            if (carpeta == 3 && accion == 1)               
+                                htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                             
-                            //if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                            //    htmlFile = "";                                 
+                            if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
+                                htmlFile = "";                                 
                              
                             if (value.id_tipo_archivo == 2) //anexo
-                                htmlFileAnexo += htmlFile;       
+                                htmlFileAnexo += htmlFile + '</div>';       
 
                             if (value.id_tipo_archivo == 3) //otros
-                                htmlFileOtros += htmlFile; 
+                                htmlFileOtros += htmlFile + '</div>'; 
                             
                             if (value.id_tipo_archivo == 1) //principal
-                                htmlFilePrincipal += htmlFile; 
+                                htmlFilePrincipal += htmlFile + '</div>'; 
 
                             //llenar array con id documento 
                             //aFilesAnexo.push(value.id_documento_buzon_archivo);
 
                         });
+                       
 
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
                         $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
@@ -1816,6 +1835,22 @@
                 }
             }
         });
+    }
+
+    function deleteFile(codFile){
+        //obtener datos y eliminar el seleccionado
+        
+        var listDelete = [];
+        var valDelete = $('#hiddIdFileDelete').val();
+
+        if (valDelete.length != 0)
+            listDelete = valDelete.split(",");
+        
+        listDelete.push(codFile);
+
+        $('#hiddIdFileDelete').val(listDelete.join(","));
+
+        $('.'+codFile+'').hide();
     }
 
     function ver_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre)

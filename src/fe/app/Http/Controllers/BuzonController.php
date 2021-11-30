@@ -366,6 +366,7 @@ class BuzonController extends Controller
             'id_nivel_acceso'=>$request->nivel_acceso,
             'id_documento'=>$request->hiddIdDocumento,
             'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
+            'fileDelete'=>$request->hiddIdFileDelete,
             'efectos_terceros'=>$request->efectos_terceros,
             'json_respuesta_a'=>"[]",
             'materia'=>$request->materia,

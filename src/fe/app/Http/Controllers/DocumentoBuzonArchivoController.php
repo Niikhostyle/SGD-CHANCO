@@ -20,19 +20,22 @@ class DocumentoBuzonArchivoController extends Controller
         try 
             {
                 DB::beginTransaction();
-
+                
                 $id_documento_buzon = $request->id_documento_buzon;
                 $id_tipo_archivo = $request->id_tipo_archivo;
+
                 //agregar version
 
+                $dFechaCreacion = date('Y-m-d H:i:s');
+
                 $numero = rand(100000,9999999);
-                $path = 'public/imagenes';
                 $files = $request->file('file');
 
                 foreach($files as $file)
                 {
                     $fileName = $file->getClientOriginalName();
-                    $uploadSuccess = $file->move(storage_path('app/public/imagenes'), $fileName);
+                    $nNombreArchivoCargar = $fileName . '-' . $numero;  
+                    $uploadSuccess = $file->move(storage_path('app/public/imagenes'), $nNombreArchivoCargar);
                 
                     if ($uploadSuccess)
                     {
@@ -40,7 +43,8 @@ class DocumentoBuzonArchivoController extends Controller
                             'id_documento_buzon' => $id_documento_buzon,
                             'id_tipo_archivo' => $id_tipo_archivo,
                             'nombre_archivo_original' => $fileName,
-                            'nombre_archivo_codificado' => $fileName . '-' . $numero 
+                            'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                            'fecha' => $dFechaCreacion
                         ]);
                     }
                     else
