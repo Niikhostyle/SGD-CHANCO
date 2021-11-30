@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioCon
 
 //Documentos
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
+
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
 Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
@@ -67,3 +68,5 @@ Route::middleware(['auth:sanctum', 'verified'])->delete('tipos_documentos/{id}',
 //favorito
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos',[FavoritoController::class,'index'])->name('favoritos.index');
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos/{id}',[FavoritoController::class,'show'])->name('favoritos.show');
+Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoController::class,'estado'])->name('favoritos.estado');
+

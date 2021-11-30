@@ -12,8 +12,10 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
-
-$router->get('/api/sgd-bitacora', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen bitacora";
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->get('/api/sgd-bitacora/listarDocumentos', 'BitacoraController@listarDocumentos'); 
 });
+//$router->get('/api/sgd-bitacora', function () use ($router) {
+    //return $router->app->version();
+  //  return "prueba lumen bitacora";
+//});

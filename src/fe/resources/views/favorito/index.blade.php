@@ -40,7 +40,7 @@
                         <td>{{$list['nombre_buzon']}}</td>
                         <td> {{$list['estado_documento']}} </td>
                         <td>
-                            <button type="button" class="btn btn-link">{{$list['id_documento']}}</button>
+                            <button type="button" class="btn btn-link" style="margin-top: -6px;">{{$list['id_documento']}}</button>
                         </td>
                         <td>{{$list['fecha_documento']}}</td>
                         <td>{{$list['tipo_documento']}}</td>
@@ -54,9 +54,12 @@
                                      <i class="fas fa-bars"></i>
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario()"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario()"  href="#"><i class="fas fa-trash-alt text-red"></i> Deshabilitar</a>
-                                     
+                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento_buzon']}})" href="#">
+                                        @if($list['estado_favorito']==true)
+                                            <i class="fas fa-trash-alt text-red"></i> Deshabilitar
+                                        @endif
+                                    </a>
                                  </div>
                             </div>
                         </td>
@@ -115,65 +118,72 @@
             <div class="container">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                     <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
-                    <div class="form-control">ID: <i>No Aignado</i></div>
-                    <div class="form-control">Folio: <i>No Asignado</i></div>
-                    <div class="form-control">Fecha: <i>No Asignado</i></div>
+                    <div class="form-control">ID: <i>1</i></div>
+                    <div class="form-control">Folio: <i>840683374</i></div>
+                    <div class="form-control">Fecha: <i>2021-11-05 </i></div>
                 </div>
             </div>
             <br>
             <div class="form-row">
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Tipo Documento:</label>
-                    <select id="id_documento" class="form-control"  disabled="disabled">
+                    <select id="form_tipo_documento" name="tipo_documento" class="form-control"  required>
                         <option selected>Seleccionar</option>
-                        <option>...</option>
+                        @foreach($listado_tiposdoc as $list)
+                        <option value=""></option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Nivel Acceso</label>
-                    <select id="id_nivel_acceso" class="form-control" disabled="disabled">
+                    <select id="form_nivel_acceso"  name="id_nivel_acceso" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Efectos sobre terceros</label>
-                    <select id="id_efectos_terceros" class="form-control" disabled="disabled">
+                    <select id="form_efectos_terceros"  name="id_efectos_terceros" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="inputState">Contestar/Hasta</label>
-                    <input type="date" class="form-control" id="id_contestar_hasta" disabled="disabled">
+                    <input type="date" class="form-control" id="form_contestar_hasta"  name="contestar_hasta" required>
                 </div>        
             </div>
             <div class="form-row">
                 <div class="col-md-4 mb-3">
                     <label for="inputState">Respuesta a:</label>
-                    <select id="id_respuesta" class="form-control" disabled="disabled">
+                    <select id="form_respuesta"  name="id_respuesta" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
                 </div>
                 <div class="col-md-8 mb-3">
                     <label for="inputState">Materia:</label>
-                    <input type="text" class="form-control" id="inputCity" disabled="disabled">
+                    <input type="text" class="form-control" id="form_materia"  name="materia" required>
                 </div>      
             </div>
     
             <div class="form-row">
                 <div class="col-md-12 mb-3">
                     <label for="inputState">Anterior:</label>
-                    <input type="text" class="form-control" id="inputCity" disabled="disabled">
+                    <input type="text" class="form-control" id="form_anterior"  name="anterior" required>
                 </div>      
             </div>
             
             <div class="form-floating">
                 <label for="floatingTextarea">Descripción o Extracto</label>
-                <textarea class="form-control" placeholder="comment" id="floatingTextarea" disabled="disabled"></textarea>   
+                <textarea class="form-control" placeholder="comment" id="form_descripcion_extracto"  name="descripcion_extracto" required></textarea>   
             </div>
-            <br>
+            
+            <div class="form-floating">
+                <label for="floatingTextarea">Archivo Principal</label>
+                <textarea class="form-control"  raw="4" id=""  name="" required></textarea>   
+            </div>
+            <!--
             <div class="card" id="card_desplegar_versiones" style="display:true" >
                 <div class="card-body">
                     <div class="form-row">
@@ -196,7 +206,7 @@
                     </div>
                 </div>
             </div>
-            
+            -->
         
             <div class="card" id="card_ocultar_versiones" style="display:none" >
                 <div class="card-body">
@@ -225,12 +235,12 @@
                 
                 <div class="col-md-8 mb-3">
                     <label for="inputState">Destinatario Principal:</label>
-                    <input type="text" class="form-control" id="form_destinatario_principal_el" disabled="false">
+                    <input type="text" class="form-control" id="form_destinatario_principal"  name="destinatario_principal" required>
                 </div>  
                 
                 <div class="col-md-4 mb-3">
                     <label for="inputState">Acciones Solicitadas:</label>
-                    <select id="form_acciones_solicitadas_el" class="form-control" disabled="false">
+                    <select id="form_acciones_solicitadas"  name="id_acciones_solicitadas" class="form-control" required>
                         <option selected>Seleccionar acciones</option>
                         <option>...</option>
                     </select>   
@@ -238,17 +248,17 @@
             </div>
             <div class="form-floating">
                 <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
-                <textarea class="form-control"  id="form_comentario_el" disabled="false"></textarea>   
+                <textarea class="form-control"  id="form_comentario"  name="comentario" required></textarea>   
             </div>
             <div class="form-row">
                 <div class="col-md-12 mb-3">
                     <label for="inputState">Otro(s) Destinatario(s):</label>
-                    <input type="text" class="form-control" id="form_otros_destinatarios_el" disabled="false">
+                    <input type="text" class="form-control" id="form_otros_destinatarios"  name="otros_destinatarios" required>
                 </div>      
             </div>
             <div class="form-floating">
                 <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                <textarea class="form-control"  id="form_comentario_otro_el" disabled="false"></textarea>   
+                <textarea class="form-control"  id="form_comentario_otro"  name="comentario_otro" required></textarea>   
             </div>
             <br>
             <div class="row">
@@ -353,62 +363,7 @@
 @section('js')
 
 <script>
-function visualizar_usuario(identificador){
-        //$('#cargando').show();
-        $(".print-error-msg").hide();
-        if(identificador>0){
-            $('#form_documento_ver').trigger("reset");
-            $('#card_documento_ver').hide();
-            $.ajax({
-                        url: "favoritos/"+identificador,
-                        type:'GET',
-                        success: function(data) {
-                            if(data.status==400){
-                                toastr.error(data.data.comentario,"Oops...");
 
-                            }else{
-                                console.log(data);
-                                if(data.status==200 || data.status==201){
-                                    $('#form_documento_ver').trigger("reset");
-                                    $("select[name='id_perfil']").val(data.data.id_perfil);
-                                    $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
-                                    $("input[name='run']").val(data.data.run);
-                                    $("input[name='nombres']").val(data.data.nombres);
-                                    $("input[name='primer_apellido']").val(data.data.primer_apellido);
-                                    $("input[name='segundo_apellido']").val(data.data.segundo_apellido);
-                                    $("input[name='email']").val(data.data.email);
-                                    if(data.data.aplica_fea==true){
-                                        $("select[name='aplica_fea']").val('true');
-                                    }else if(data.data.aplica_fea==false){
-                                        $("select[name='aplica_fea']").val('false');
-                                    }
-                                    if(data.data.genera_pdf==true){
-                                        $("select[name='aplica_genera_pdf']").val('true');
-                                    }else if(data.data.genera_pdf==false){
-                                        $("select[name='aplica_genera_pdf']").val('false');
-                                    }
-                                }
-                            }
-                            $('#cargando').hide();
-                            $('.btn-acciones-guardar-editar').hide();
-                            $('#titulo_usuario_crear_editar').html('Visualizar Usuario');
-                            $('#form_run').focus();
-                            $('.form-control').prop("disabled", true);
-                            $('#card_usuario_crear_editar').show();
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                            $('#cargando').hide();
-                        }
-                    });
-
-        }
-    }
 
 $(document).ready(function(){
 
@@ -433,6 +388,118 @@ $(document).ready(function(){
 	});
 
 });
+
+    function visualizar_usuario(identificador){
+        //$('#cargando').show();
+        $(".print-error-msg").hide();
+        if(identificador>0){
+            $('#form_documento_ver').trigger("reset");
+            $('#card_documento_ver').hide();
+            $.ajax({
+                        url: "favoritos/"+identificador,
+                        type:'GET',
+                        success: function(data) {
+                            if(data.status==400){
+                                toastr.error(data.data.comentario,"Oops...");
+
+                            }else{
+                                console.log(data);
+                                if(data.status==200 || data.status==201){
+                                    
+                                    $('#form_documento_ver').trigger("reset");
+                                    $("input[name='identificador']").val(data.data.identificador);
+                                    $("input[name='folio']").val(data.data.folio);
+                                    $("input[name='fecha']").val(data.data.fecha);
+                                    $("select[name='tipo_documento']").val(data.data.tipo_documento);
+                                    $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
+                                    $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
+                                    $("input[name='contestar_hasta']").val(data.data.contestar_hasta);
+                                    $("select[name='id_respuesta']").val(data.data.id_respuesta);
+                                    $("input[name='materia']").val(data.data.materia);
+                                    $("input[name='anterior']").val(data.data.anterior);
+
+                                    $("textarea[name='descripcion_extracto']").val(data.data.descripcion);
+                                    
+                                    $("input[name='destinatario_principal']").val(data.data.destinatario_principal);
+                                    $("select[name='id_acciones_solicitadas']").val(data.data.id_acciones_solicitadas);
+                                    $("input[name='comentario']").val(data.data.comentario);
+                                    $("input[name='otros_destinatarios']").val(data.data.otros_destinatarios);
+                                    $("input[name='comentario_otro']").val(data.data.comentario_otro);
+                                }
+                            }
+                            $('#cargando').hide();
+                            //$('.btn-acciones-guardar-editar').hide();
+                            //$('#titulo_usuario_crear_editar').html('Visualizar Usuario');
+                            //$('#form_run').focus();
+                            $('.form-control').prop("disabled", true);
+                            $('#card_documento_ver').show();
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            if (typeof data.errors !== 'undefined') {
+                                printErrorMsg(data.errors);
+                            }
+                            $('.btn-submit').prop("disabled", false);
+                            $('.btn-submit').html( 'Guardar' );
+                            $('#cargando').hide();
+                        }
+                    });
+
+        }
+    }
+
+    function estado_favorito(id)
+    {
+        Swal.fire({
+            title: 'Documento',
+            text: "¿Quiere quitar de favortios?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) {
+                console.log(result.isConfirmed);
+                $(".print-error-msg").hide();
+                var token = $("input[name='_token']").val();
+                $.ajax({
+                        url: "favoritos/"+id,
+                        type:'PUT',
+                        dataType: 'json',
+                        data: {_token :token},
+                        success: function(data) {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento Actualizado","Aviso!");
+                                autoRefresh();
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            //if (typeof data.errors !== 'undefined') {
+                            // printErrorMsg(data.errors);
+                            console.log(e);
+                                printErrorMsg(data);
+                        }
+                    //}
+                });
+            }
+        })
+
+
+    }
+
+    function autoRefresh() {
+        window.setTimeout(function(){
+                            location.reload();
+                        },2000);
+    }
 
 </script>
 

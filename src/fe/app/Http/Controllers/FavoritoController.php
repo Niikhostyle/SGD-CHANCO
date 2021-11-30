@@ -40,7 +40,26 @@ class FavoritoController extends Controller
             $lista_favoritos->json();
         }
 
-        return View::make('favorito.index',['lista_favoritos'=>$lista_favoritos]);
+        /* NUEVO-DOCUMENTOS */
+
+        //tipos de documentos
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        //return $listado_tiposdoc;
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];           
+
+        }
+
+        return View::make('favorito.index',['lista_favoritos'=>$lista_favoritos, 'listado_tiposdoc'=>$listado_tiposdoc, ]);
     }
 
     /**
@@ -72,14 +91,15 @@ class FavoritoController extends Controller
      */
     public function show($id)
     {
+
         $sesion_key =  AppServiceProvider::session_key_general();
         $documento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
         ->withBody(json_encode([
-            'id_usuario' => $id,
+            'id_documento' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver/');
-
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
+        //return $documento;
         return $documento->json();
     }
 
@@ -115,5 +135,17 @@ class FavoritoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function estado($id)
+    {
+        //return $id;
+        $sesion_key = AppServiceProvider::session_key_general();
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito',['id_documento_buzon' => $id]);
+
+        $response_json=response()->json($response->json());
+        return $response_json;
     }
 }

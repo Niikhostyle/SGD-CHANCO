@@ -12,15 +12,22 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+
 $router->group(['middleware' => ['auth']], function () use ($router){
     $router->get('/api/sgd-documentos/listarFavoritos', 'DocumentoController@listarFavoritos');
+
+    $router->get('/api/sgd-documentos/listarDocumentosBitacora', 'DocumentoController@listarDocumentosBitacora');
+
     $router->post('/api/sgd-documentos/crear', 'DocumentoController@crear');
-    $router->put('/api/sgd-documentos/actualizar', 'DocumentoController@actualizar');
-    $router->put('/api/sgd-documentos/enviar', 'DocumentoController@enviar');
+   
+    $router->get('/api/sgd-documentos/verFavorito', 'DocumentoController@ver');
+    $router->put('/api/sgd-documentos/estadoFavorito', 'DocumentoController@estadoFavorito'); 
     $router->get('/api/sgd-documentos/ver', 'DocumentoController@ver');
+
     $router->put('/api/sgd-documentos/actualizar_estado', 'DocumentoController@actualizar_estado');
     $router->put('/api/sgd-documentos/archivar', 'DocumentoController@archivar');
     $router->put('/api/sgd-documentos/derivar', 'DocumentoController@derivar');
+
 
 });
 
