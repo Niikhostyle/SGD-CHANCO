@@ -275,6 +275,16 @@ class DocumentoController extends Controller{
                         }
                     }
 
+                    //elimina archivos asociados
+
+                    if ($datosRequest['fileDelete'] != null)
+                    {
+                        $aFilesDelete = explode (',', $datosRequest['fileDelete']);
+                
+                        DocumentoBuzonArchivo::whereIn('id_documento_buzon_archivo', $aFilesDelete)->delete();
+
+                    }
+
                     DB::commit();
 
                     return $this->respondSuccess('Documento actualizado', 200);
