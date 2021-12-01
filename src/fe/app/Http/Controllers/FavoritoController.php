@@ -27,8 +27,6 @@ class FavoritoController extends Controller
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarFavoritos');
 
 
-        //return $lista_favoritos;
-
         if($lista_favoritos->failed()){
             $mensaje= $lista_favoritos->json()['data']['comentario'];
 
@@ -40,26 +38,48 @@ class FavoritoController extends Controller
             $lista_favoritos->json();
         }
 
-        /* NUEVO-DOCUMENTOS */
+        //parametros
+        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
 
-        //tipos de documentos
-        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        if($listado_parametros->failed()){
+            toast("Error al mostrar datos",'error');
+        }
+        
+        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
+        $datosAccion = $listado_parametros['data']['accion'];
+
+        //listado de buzones
+
+        $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+        ->withBody(json_encode([
+            'texto_busqueda' => '',
+        ]), 'json')
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
 
-        //return $listado_tiposdoc;
-        if($listado_tiposdoc->failed()){
-            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+        if($listado_buzones->failed()){
+            $listado_buzones->json()['data']['comentario'];
 
+            $listado_buzones=['data'=>[
+                0=>['id'=>'0','nombre'=>'Sin Datos']
+            ]];
             toast($mensaje,'error');
-        }
-        else
-        {
-            $datosTipoDoc = $listado_tiposdoc['data'];           
+        }else{
 
+            foreach ($listado_buzones['data'] as $dato)
+            {
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];                  
+            }
         }
 
-        return View::make('favorito.index',['lista_favoritos'=>$lista_favoritos, 'listado_tiposdoc'=>$listado_tiposdoc, ]);
+        return View::make('favorito.index', [
+            'lista_favoritos'=>$lista_favoritos,
+            'listadoBuzones'=>$aBuzones,
+            'listadoAcciones' => $datosAccion,
+            'nivel_acceso' => $datosNivelAcceso
+        ]);
     }
 
     /**
