@@ -13,7 +13,14 @@
 |
 */
 
-$router->get('/api/sgd-buscador', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen buscador";
+
+
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->get('/api/sgd-buscador/ver', 'BuscadorController@ver');
+    $router->get('/api/sgd-buscador/listarDocumentos', 'BuscadorController@listarDocumentos'); 
 });
+
+//$router->get('/api/sgd-buscador', function () use ($router) {
+    //return $router->app->version();
+  //  return "prueba lumen buscador";
+//});

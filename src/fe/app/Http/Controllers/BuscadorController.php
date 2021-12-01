@@ -2,37 +2,95 @@
 
 namespace App\Http\Controllers;
 
+use App\Providers\AppServiceProvider;
+use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class BuscadorController extends Controller
 {
     public function index(){
         //return view(‘buscador/buscador’, compact(‘buscador’));
-        $lista_usuarios=['data'=>[
-            0=>['id'=>'1234','fecha'=>'01-07-2021','td'=>'MEM','folio'=>'3455','buzon_origen'=>'Calidad y Gestión de Servicios',
-                'buzon_actual'=>'Alcadía','materia'=>'Solicita Informe de auditoria 2020'],
-            1=>['id'=>'1235','fecha'=>'02-07-2021','td'=>'ORD','folio'=>'587','buzon_origen'=>'Alcadía',
-            'buzon_actual'=>'Oficina de Partes','materia'=>'Comunica inicio sesiones de consejo especial']
-        ]];
-        return view('buscador.index', ['lista_usuarios'=>$lista_usuarios]);
+        //return "hola";
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_documento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->withBody(json_encode([
+            'id_usuario' => Auth::user()->id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentos');
+        //->get('http://sgd_ms_buscador:3333/api/sgd-buscador/listarDocumentos');
+
+        //return $lista_documento;
+
+        if($lista_documento->failed()){
+            $mensaje= $lista_documento->json()['data']['comentario'];
+
+            $lista_documento=['data'=>[
+                0=>['id_documento'=>'','rel_documento_buzon'=>'','id_tipo_documento'=>'','folio'=>'','rel_documento_buzon'=>'','rel_documento_buzon'=>'','materia'=>'']
+            ]];
+            toast($mensaje,'error');
+        }else{
+            $lista_documento->json();
+        }
+
+        //listar documento bitacora
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->withBody(json_encode([
+            'id_usuario' => Auth::user()->id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora');
+        //->get('http://sgd_ms_bitacora:3333/api/sgd-bitacora/listarDocumentosBitacora');
+
+        //return $lista_documento;
+
+        if($lista_bitacora->failed()){
+            $mensaje= $lista_bitacora->json()['data']['comentario'];
+
+            $lista_bitacora=['data'=>[
+                0=>['accion'=>'','fecha_documento'=>'','buzon_origen'=>'','nombre_accion'=>'','mensaje_respuesta'=>'', 'tipo_destino'=>'']
+            ]];
+            toast($mensaje,'error');
+        }else{
+            $lista_bitacora->json();
+        }
+
+        return View::make('buscador.index',['lista_documento'=>$lista_documento, 'lista_bitacora'=>$lista_bitacora]);
+        
     }
 
-    public function buscador_documentos_get(){
-        //data.append([
-            //utc_to_timezone(i.fecha).strftime('%d/%m/%Y %H:%M:%S'),
-            //i.documento.id,
-            //i.documento.doc,
-           // i.td,
-         //   i.folio,
-       //     accion
-     //   ]);
-    //response = {
-        //'draw'; draw;
-        //'recordsTotal'; documentos.count();
-       // 'recordsFiltered'; documentos.count();
-     //   'data'; data
-   // }
-    //return JsonResponse(response);
+    public function listarBitacora(){
+
+         //return view(‘buscador/buscador’, compact(‘buscador’));
+        //return "hola";
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->withBody(json_encode([
+            'id_usuario' => Auth::user()->id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora');
+        //->get('http://sgd_ms_bitacora:3333/api/sgd-bitacora/listarDocumentosBitacora');
+
+        //return $lista_documento;
+
+        if($lista_bitacora->failed()){
+            $mensaje= $lista_bitacora->json()['data']['comentario'];
+
+            $lista_bitacora=['data'=>[
+                0=>['accion'=>'','fecha_documento'=>'','buzon_origen'=>'','nombre_accion'=>'','mensaje_respuesta'=>'']
+            ]];
+            toast($mensaje,'error');
+        }else{
+            $lista_bitacora->json();
+        }
+
+        return View::make('buscador.index',['lista_bitacora'=>$lista_bitacora]);
     }
+
+   
 }
 

@@ -624,7 +624,9 @@ class DocumentoController extends Controller{
                         'tipo_documento.nombre as tipo_documento',
                         'tipo_origen.nombre as origen',
                         'documento.materia as materia',
-                        'documento_buzon.favorito as estado_favorito'
+                        'documento_buzon.favorito as estado_favorito',
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento.folio as folio',
                         )
                     ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
                     ->where('documento_buzon.favorito','=',1)
@@ -742,8 +744,8 @@ class DocumentoController extends Controller{
         }
         else
             return $this->respondError('Json inválido', 406);
-    }    
-
+    }
+           
     public function listarDocumentos(Request $request){
         if($request->isJson())
         {
