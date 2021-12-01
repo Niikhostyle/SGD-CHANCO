@@ -21,6 +21,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->put('/api/sgd-documentos/actualizar_estado', 'DocumentoController@actualizar_estado');
     $router->put('/api/sgd-documentos/archivar', 'DocumentoController@archivar');
     $router->put('/api/sgd-documentos/derivar', 'DocumentoController@derivar');
+    $router->get('/api/sgd-documentos/listarDocumentos', 'DocumentoController@listarDocumentos'); 
 
 });
 
