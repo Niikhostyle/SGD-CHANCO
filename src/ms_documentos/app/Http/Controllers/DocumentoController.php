@@ -686,8 +686,8 @@ class DocumentoController extends Controller{
                 
                 if ($datosDocumento->favorito == true)
                     $datosDocumento->favorito = false;
-                //else if ($datosDocumento->favorito == 2)
-                  //  $datosDocumento->favorito = 1;
+                else if ($datosDocumento->favorito == false)
+                    $datosDocumento->favorito = true;
                     
                 $datosDocumento->save();
                 
@@ -744,8 +744,8 @@ class DocumentoController extends Controller{
         }
         else
             return $this->respondError('Json inválido', 406);
-    }
-           
+    }    
+
     public function listarDocumentos(Request $request){
         if($request->isJson())
         {
@@ -794,8 +794,5 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
     }
-
-
-
 
 }
