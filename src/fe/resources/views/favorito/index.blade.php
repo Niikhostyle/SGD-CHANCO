@@ -388,6 +388,11 @@ $('#form_otros_destinatarios_el').tagsinput({
     itemText: 'text'
 });
 
+$(".btn_cerrar_guardar").click(function(e){
+    $('#card_documento').hide();
+    $("#collapseOne").collapse('show');
+});
+
 function visualizar_documento(id_documento, id_documento_buzon)
 {
     $(".print-error-msg").hide();
