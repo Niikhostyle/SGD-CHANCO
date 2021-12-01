@@ -684,12 +684,7 @@ class DocumentoController extends Controller{
 
                 $datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);      
                 
-                if ($datosDocumento->favorito == true)
-                    $datosDocumento->favorito = false;
-                else if ($datosDocumento->favorito == false)
-                    $datosDocumento->favorito = true;
-                    
-                $datosDocumento->save();
+                $datosDocumento->update(['favorito' => $datosRequest['estado']]);                
                 
                 return $this->respondSuccess(array('comentario' => "Actualizado"), 200);
             }  
