@@ -684,8 +684,8 @@ class DocumentoController extends Controller{
                 
                 if ($datosDocumento->favorito == true)
                     $datosDocumento->favorito = false;
-                //else if ($datosDocumento->favorito == 2)
-                  //  $datosDocumento->favorito = 1;
+                else if ($datosDocumento->favorito == false)
+                    $datosDocumento->favorito = true;
                     
                 $datosDocumento->save();
                 
