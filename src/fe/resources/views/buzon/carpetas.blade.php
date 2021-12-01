@@ -1656,8 +1656,8 @@
 
     function favorito_recibidos(id_documento_buzon){
         Swal.fire({
-            title: 'Documento',
-            text: "¿Quiere agregar a favoritos?",
+            title: 'Agregar a favoritos',
+            text: "¿Quiere agregar este documento a sus favoritos?",
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
