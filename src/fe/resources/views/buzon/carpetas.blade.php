@@ -1654,8 +1654,51 @@
         alert(identificador)
     }
 
-    function favorito_recibidos(identificador){
-        alert(identificador)
+    function favorito_recibidos(id_documento_buzon){
+        Swal.fire({
+            title: 'Documento',
+            text: "¿Quiere agregar a favoritos?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) {
+                console.log(result.isConfirmed);
+                $(".print-error-msg").hide();
+                var token = $("input[name='_token']").val();
+                $.ajax({
+                        url: "/favoritos/"+id_documento_buzon,
+                        type:'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:token,
+                            estado:true                        
+                        },
+                        success: function(data) {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Favorito Actualizado","Aviso!");
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (e) {
+                            data = e.responseJSON;
+                            //if (typeof data.errors !== 'undefined') {
+                            // printErrorMsg(data.errors);
+                            console.log(e);
+                                printErrorMsg(data);
+                        }
+                    //}
+                });
+            }
+        })
+ 
     }
 
     function cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,carpeta,accion)
@@ -1920,6 +1963,8 @@
         alert(identificador)
     }
 
+
+
     async function fn_grilla_por_recibir(){
             $('#documento').hide();
             if ( $.fn.DataTable.isDataTable('#grilla_por_recibir') ) {
@@ -2032,14 +2077,14 @@
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
                                         else{
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                             if(row.id_estado_documento != 6)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
 
                                     botonera += '</div>';
@@ -2142,7 +2187,7 @@
                                     }  
 
                                     botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                    botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                    botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
 
                                     botonera +='</div>';
                                 botonera += '</div>';

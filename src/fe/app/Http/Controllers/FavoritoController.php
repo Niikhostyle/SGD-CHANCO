@@ -137,13 +137,15 @@ class FavoritoController extends Controller
         //
     }
 
-    public function estado($id)
+    public function estado($id, Request $request)
     {
-        //return $id;
         $sesion_key = AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito',['id_documento_buzon' => $id]);
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito', [
+            'id_documento_buzon' => $id,
+            'estado' => $request->estado
+        ]);
 
         $response_json=response()->json($response->json());
         return $response_json;

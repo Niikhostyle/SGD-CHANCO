@@ -6,12 +6,11 @@
 
 
 <div class="row">
-        <div class="col-8">
-            <h3>Favorito</h3>
-        </div>
-        
-      </div>
-    <div class="linea_content_header"></div>
+    <div class="col-10">
+        <h1>Favoritos</h1>
+    </div>    
+</div>
+<div class="linea_content_header"></div>
 
 @stop
 
@@ -57,7 +56,7 @@
                                      <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento_buzon']}})" href="#">
                                         @if($list['estado_favorito']==true)
-                                            <i class="fas fa-trash-alt text-red"></i> Deshabilitar
+                                            <i class="fas fa-trash-alt text-red"></i> Quitar
                                         @endif
                                     </a>
                                  </div>
@@ -340,6 +339,8 @@
 
 @section('css')
 
+<link rel="stylesheet" href="/css/admin_custom.css">
+
     <style type="text/css">
         .flex-container {
             display: flex;
@@ -451,8 +452,9 @@ $(document).ready(function(){
     function estado_favorito(id)
     {
         Swal.fire({
-            title: 'Documento',
-            text: "¿Quiere quitar de favortios?",
+            title: 'Quitar de favoritos',
+            html: "¿Está seguro (a) que desea quitar este <br>" +
+                  "     documento de sus favoritos?<br>",   
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
@@ -468,7 +470,10 @@ $(document).ready(function(){
                         url: "favoritos/"+id,
                         type:'PUT',
                         dataType: 'json',
-                        data: {_token :token},
+                        data: {
+                            _token:token,
+                            estado:false                        
+                        },
                         success: function(data) {
                             if(data.status == '200')
                             {
