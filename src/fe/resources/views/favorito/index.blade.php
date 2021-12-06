@@ -52,8 +52,9 @@
                                             </tr>
                                         </thead>
                                         <tbody>                                        
-                                            <tr >
+                                            
                                             @foreach($lista_favoritos['data'] as $list)
+                                            <tr >
                                                 <td>{{$list['nombre_buzon']}}</td>
                                                 <td> {{$list['estado_documento']}} </td>
                                                 <td>

@@ -112,16 +112,17 @@
 			
                     </tr>
                 </thead>
+               
                 <tbody>
-                     @foreach($lista_documento['data'] as $list)
+                    @foreach($lista_documento['data'] as $listado)
                         <tr >
-                            <td>{{$list['id_documento']}}</td>
-                            <td>{{$list['fecha_documento']}}</td>
-                            <td>{{$list['tipo_documento']}}</td>
-                            <td>{{$list['folio']}}</td>
-                            <td>{{$list['origen']}}</td>
+                            <td>{{$listado['id_documento']}}</td>
+                            <td>{{$listado['fecha_documento']}}</td>
+                            <td>{{$listado['tipo_documento']}}</td>
+                            <td>{{$listado['folio']}}</td>
+                            <td>{{$listado['origen']}}</td>
                             <td>Alcaldia</td>
-                            <td>{{$list['materia']}}</td>
+                            <td>{{$listado['materia']}}</td>
 
                             <td>
                                 <div class="dropdown">
@@ -129,7 +130,7 @@
                                         <i class="fas fa-bars"></i>
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item btn-menu-ver"  onclick="visualizar_usuario({{$list['id_documento']}})" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                        <a class="dropdown-item btn-menu-ver"  onclick="visualizar_documento({{$listado['id_documento']}})" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                         <a class="dropdown-item btn-menu-deshabilitar"  href="#" ><i class="fas fa-download text-blue"></i> Descargar</a>
                                         
                                     </div>
@@ -137,6 +138,7 @@
                             </td>
                         </tr>
                     @endforeach
+                     
                 </tbody>
             </table>
         </div>
@@ -345,40 +347,10 @@
         <h4 id="titulo_ver_documento"class="card-header " >Bitácora</h5>
         <br>
         <div class="card-body">
-            <div class="col">ID: </div>
-            <div class="col">Materia: </div>
+            <div class="col">ID: <i><span id="idAsignado"></span></i></div>
+            <div class="col">Materia: <i><span id="textMateria"></span></i></div>
             <br>
-            
-                <!--<table border="0" cellspacing="5" cellpadding="5">
-                    <tbody>
-                        <tr>
-                            <td>ID Doc:</td>
-                            <td>Tipo Documento:</td>
-                            <td>Estado:</td>
-                            <td>Texto Libre:</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td><input class="form-control"  type="text" id="gr_buscar_id_doc" name="gr_buscar_id_doc"></td>
-                            <td>
-                                <select id="gr_buscar_tipo_doc" name="gr_buscar_tipo_doc" class="form-control">
-                                    <option value=''>Todos</option>
-                                    
-                                </select>
-                            </td>
-                            <td>
-                                <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
-                                    <option value=''> Todos </option>
-                                    
-                                </select>
-                            </td>
-                            <td><input type="search" aria-controls="grilla_recibidos" class="form-control"  id="gr_buscar_origen_materia" name="gr_buscar_origen_materia"></td>
-                            <td id="botones_grilla_recibidos">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>-->
-           
+          
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="1" id="id_buscar_ddp" name="buscar_ddp" checked="checked" >
                 <label class="form-check-label" for="defaultCheck1">
@@ -399,7 +371,7 @@
                 </div>
                
                 <div class="card-body">
-                    <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
+                    <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Tipo</th>
@@ -410,42 +382,7 @@
                                 
                             </tr>
                         </thead>
-                        <tbody>
-                            
-                            @foreach($lista_bitacora['data'] as $list)
-                                <tr>
-                                    
-                                    @if($list['accion']==2 && $list['tipo_destino']==1) 
-                                   
-                                    <td style=" background-color: #b0f785;">DDP</td>
-                                    <td>{{$list['fecha_documento']}}</td>
-                                    <td>{{$list['buzon_origen']}}</td>
-                                    <td>{{$list['nombre_accion']}}</td>
-                                    <td>{{$list['mensaje_respuesta']}}</td>
-                                    
-                                    @endif
-                                    
-                                    
-                                    @if($list['accion']==2 && $list['tipo_destino']==2) 
-                                    <td style="background-color: #b3eccb;">DOO</td>
-                                    <td>{{$list['fecha_documento']}}</td>
-                                    <td>{{$list['buzon_origen']}}</td>
-                                    <td>{{$list['nombre_accion']}}</td>
-                                    <td>{{$list['mensaje_respuesta']}}</td>
-                                    @endif
-                                    @if($list['accion']==4 ) 
-                                    <td style="background-color: #edf495;">CAP</td> 
-                                    <td>{{$list['fecha_documento']}}</td>
-                                    <td>{{$list['buzon_origen']}}</td>
-                                    <td>{{$list['nombre_accion']}}</td>
-                                    <td>{{$list['mensaje_respuesta']}}</td>
-                                    @endif
-                                    
-                                    
-                                </tr>
-                            @endforeach
-                            
-                        </tbody>
+                        
                     </table>
                 </div>
                 
@@ -491,116 +428,304 @@
 @stop
 
 @section('js')
+
 <script>
-       /** function myFunction() {
-            var checkBox = document.getElementById("id_buscar_ddp");
-            var text = document.getElementById("text");
-            if (checkBox.checked == true){
-                text.style.display = "block";
-            } else {
-                text.style.display = "none";
-            }
-        } */
-    var grilla_bitacora;
 
-    $(document).ready(function(){
+$(document).ready(function(){
 
-           /**$('#tabla_favorito_grilla').DataTable({
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            responsive: true,
-            language: lenguaje_datatable
-        });**/
+/*
+    $('#tabla_bitacora_grilla').DataTable({
+        rowReorder: {
+            selector: 'td:nth-child(2)'
+        },
+        responsive: true,
+        language: lenguaje_datatable
+    });
+    */
         
-        $(".desplegar_opciones_avanzadas").click(function(e){
-            $('#card_opciones_avanzadas').show();
-            $(".desplegar_opciones_avanzadas").hide();
-            $(".cerrar_opciones_avanzadas").show();
-        });
-
-        $(".cerrar_opciones_avanzadas").click(function(e){
-            $('#card_opciones_avanzadas').hide();
-            $(".cerrar_opciones_avanzadas").hide();
-            $(".desplegar_opciones_avanzadas").show();
-        });
-
-     
-
-        $('#buzon_origen').select2();
-        $('#tipo_documento').select2();
-
-        $(".btn-menu-ver").click(function(e){
-            $('#card_ver_documento').show();
-            
-            
-        });
-        $(".btn_cerrar_ver_documento").click(function(e){
-            $('#card_ver_documento').hide();
-        });
-        
-        //fn_grilla_bitacora();
+    $(".desplegar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').show();
+        $(".desplegar_opciones_avanzadas").hide();
+        $(".cerrar_opciones_avanzadas").show();
     });
 
-    function visualizar_usuario(identificador){
-        //$('#cargando').show();
-        $(".print-error-msg").hide();
-        if(identificador>0){
-            $('#form_documento_ver').trigger("reset");
-            $('#card_documento_ver').hide();
-            $.ajax({
-                        url: "favoritos/"+identificador,
-                        type:'GET',
-                        success: function(data) {
-                            if(data.status==400){
-                                toastr.error(data.data.comentario,"Oops...");
+    $(".cerrar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').hide();
+        $(".cerrar_opciones_avanzadas").hide();
+        $(".desplegar_opciones_avanzadas").show();
+    });     
 
-                            }else{
-                                console.log(data);
-                                if(data.status==200 || data.status==201){
-                                    
-                                    $('#form_documento_ver').trigger("reset");
-                                    $("input[name='identificador']").val(data.data.identificador);
-                                    $("input[name='folio']").val(data.data.folio);
-                                    $("input[name='fecha']").val(data.data.fecha);
-                                    $("select[name='id_tipo_documento']").val(data.data.id_tipo_documento);
-                                    $("select[name='id_nivel_acceso']").val(data.data.id_nivel_acceso);
-                                    $("select[name='id_efectos_terceros']").val(data.data.id_efectos_terceros);
-                                    $("input[name='contestar_hasta']").val(data.data.contestar_hasta);
-                                    $("select[name='id_respuesta']").val(data.data.id_respuesta);
-                                    $("input[name='materia']").val(data.data.materia);
-                                    $("input[name='anterior']").val(data.data.anterior);
+    $('#buzon_origen').select2();
+    $('#tipo_documento').select2();
 
-                                    $("textarea[name='descripcion_extracto']").val(data.data.descripcion);
-                                    
-                                    $("input[name='destinatario_principal']").val(data.data.destinatario_principal);
-                                    $("select[name='id_acciones_solicitadas']").val(data.data.id_acciones_solicitadas);
-                                    $("input[name='comentario']").val(data.data.comentario);
-                                    $("input[name='otros_destinatarios']").val(data.data.otros_destinatarios);
-                                    $("input[name='comentario_otro']").val(data.data.comentario_otro);
-                                }
-                            }
-                            $('#cargando').hide();
-                            //$('.btn-acciones-guardar-editar').hide();
-                            //$('#titulo_usuario_crear_editar').html('Visualizar Usuario');
-                            //$('#form_run').focus();
-                            $('.form-control').prop("disabled", true);
-                            $('#card_documento_ver').show();
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                            $('#cargando').hide();
+    $(".btn-menu-ver").click(function(e){
+        $('#card_ver_documento').show();
+        
+        
+    });
+    $(".btn_cerrar_ver_documento").click(function(e){
+        $('#card_ver_documento').hide();
+    });
+    
+    //fn_grilla_bitacora();
+});
+
+function visualizar_documento(id_documento, id_documento_buzon)
+{
+    $(".print-error-msg").hide();
+
+    if(id_documento > 0)
+    {
+        $("#collapseOne").collapse('hide');
+        $('#card_documento').show();
+        
+        //deshabilita campos
+        $('.form-disabled').prop("disabled", true);
+        /*editor_cuerpo.setReadOnly(true);
+        $('#form_acciones_solicitadas_el').multiselect('disable');
+        $('#form_destinatario_principal_el').prop("disabled", true);
+        $('#form_otros_destinatarios_el').prop("disabled", true);
+        $(".bootstrap-tagsinput-max").addClass("disabled");
+        $(".bootstrap-tagsinput").addClass("disabled");  */
+
+        //cargar_datos_grilla(id_documento, id_documento_buzon);//,id_documento_buzon_padre);
+
+        cargar_datos_bitacora(id_documento, id_documento_buzon);
+    }
+}
+
+function cargar_datos_bitacora(id_documento, id_documento_buzon)
+{
+  
+  
+  $.getJSON('buscador/'+id_documento, function(response) {
+  $('#tabla_bitacora_grilla').dataTable({
+    processing: true,
+    data: response.data,
+    columns: [
+        { data: 'tipo_destino',
+            render: function(data, row) {
+                    
+                let textAbrv = data;
+
+                if (data == 1)
+                    return 'P'; 
+                else 
+                    return 'S';
+            }
+        },
+        {data: 'fecha_documento'},
+        {data: 'buzon_origen'},
+        {data: 'nombre_accion'},
+        {data: 'mensaje_respuesta'}
+    ]
+  });
+
+  $("#idAsignado").text(response.data[0].identificador);
+  $("#textMateria").text(response.data[0].materia);
+  //window.someGlobalOrWhatever = response.balance
+});
+
+  
+ /* 
+    $('#tabla_bitacora_grilla').dataTable( {
+        "ajax": "buscador/"+id_documento,
+        "columns":[
+            {data: 'id_documento_buzon'},
+            {data: 'fecha_documento'},
+            {data: 'buzon_origen'},
+            {data: 'nombre_accion'},
+            {data: 'mensaje_respuesta'}
+        ]                                   
+    });
+    */
+    /*
+    $.ajax({
+        url: "buscador/"+id_documento,
+        type:'GET',
+        dataType: 'json',
+        success: function(data) {
+            if(data.status=='400') {
+                toastr.error(data.data.comentario,"Aviso!");
+            }
+            else
+            {       var datos = data.data;
+                    console.log(datos);
+                    console.log(datos.buzon_origen);
+                    $('#tabla_bitacora_grilla').dataTable( {
+                        processing: true,
+                        data: datos,
+                        columns: [
+                            {"data" : "DDP"},
+                            {"data" : "datos.fecha_documento"},
+                            {"data" : "datos.buzon_origen"},
+                            {"data" : "datos.nombre_accion"},
+                            {"data" : "datos.mensaje_respuesta"}            
+                        ],
+                    });
+                if(data.status == '200')
+                {
+                    
+
+                }
+            }
+        },
+        error: function (e) {
+            console.log("ERROR");
+            data = e.responseJSON;
+            if (typeof data.errors !== 'undefined') {
+                printErrorMsg(data.errors);
+            }
+        }
+    });
+    */
+
+}
+
+function cargar_datos_grilla(id_documento, id_documento_buzon)
+{
+    $.ajax({
+        url: "/documentos/"+id_documento,
+        type:'GET',
+        dataType: 'json',
+        data: {
+            hiddIdDocumentoBuzon:id_documento_buzon
+        },
+        success: function(data) {
+            if(data.status=='400') {
+                toastr.error(data.data.comentario,"Aviso!");
+            }
+            else
+            {
+                if(data.status == '200')
+                {
+                    var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
+                    var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                    var idBuzon = $("input[name='hiddIdBuzon']").val();
+                    var carpeta = "";
+                    var idBuzonOrigen = "";
+
+                    $.each(data.data.rel_documento_buzon, function(key,value)
+                    {
+                        if (value.id_documento_buzon == id_documento_buzon)
+                        {
+                            carpeta = value.id_carpeta;
+                            idBuzonOrigen = value.id_buzon;
                         }
                     });
 
-        }
-    }
+                    $("#textBuzonorigen").text(listadoBuzones[idBuzonOrigen]);
+                    
+                    $("select[name='tipo_documento']").prepend("<option value='"+json_tipo_doc['id_tipo_documento']+"' selected='selected'>"+json_tipo_doc['nombre']+"</option>");
+                    $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
+                    $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
+                    $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                    $("input[name='materia']").val(data.data.materia);
+                    $("input[name='anterior']").val(data.data.anterior);
+                    $("textarea[name='descripcion']").val(data.data.descripcion);                     
 
+                    $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
+                    editor_cuerpo.setData(data.data.cuerpo);
+                    
+                    $("input[name='hiddIdDocumento']").val(data.data.id_documento);
+                    $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
+
+                    $("#idAsignado").text(data.data.identificador);
+
+                    if (json_tipo_doc['id_tipo_origen'] == 1) //interno
+                    {
+                        $('.row_cuerpo').show();
+                        $('.row_arch_ppal').hide();
+                        $('.row_anexo').show();
+                        $('#cargar_anexo').show();
+                    }
+                    if (json_tipo_doc['id_tipo_origen'] == 2) //externo
+                    {
+                        $('.row_cuerpo').hide();
+                        $('.row_arch_ppal').show();
+                        $('.row_anexo').hide();
+                        $('#form_archivo_principal_el').hide();
+                        $('#cargar_archivo_principal_el').show();
+                    }
+
+                    //archivos    
+                    var relDocumentoBuzonArchivo = data.data.rel_archivos;
+
+                    let htmlFile = "";
+                    let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
+                    let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
+                    let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
+
+                    $.each(relDocumentoBuzonArchivo, function(key,value)
+                    {   
+                        htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                    ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                        '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                        
+                        if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
+                            htmlFile = "";                                 
+                            
+                        if (value.id_tipo_archivo == 2) //anexo
+                            htmlFileAnexo += htmlFile + '</div>';       
+
+                        if (value.id_tipo_archivo == 3) //otros
+                            htmlFileOtros += htmlFile + '</div>'; 
+                        
+                        if (value.id_tipo_archivo == 1) //principal
+                            htmlFilePrincipal += htmlFile + '</div>'; 
+ 
+                    });
+
+                    $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
+                    $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
+                    $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+
+                    //destinatarios
+
+                    var relDocumentoBuzon = data.data.rel_documento_buzon;
+                    
+                    if (carpeta == 3 || carpeta == 2)
+                        var buzon_padre = id_documento_buzon;
+                    else
+                        var buzon_padre = id_documento_buzon_padre; 
+                        
+                    $.each(relDocumentoBuzon, function(i, item)
+                    {                       
+                        if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
+                        {
+                            $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                            $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+
+                            //seleccionar acciones
+
+                            var accionesSolicitadas = $.parseJSON(item.json_acciones);
+
+                            console.log(accionesSolicitadas);
+                                
+                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                            for (let i in accionesSolicitadas) {
+                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
+                            }
+                        }
+
+                        if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
+                        {
+                            $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                            $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
+                        }  
+                    });
+
+               }
+            }
+        },
+        error: function (e) {
+            data = e.responseJSON;
+            if (typeof data.errors !== 'undefined') {
+                printErrorMsg(data.errors);
+            }
+        }
+    });
+}
 
 
 
