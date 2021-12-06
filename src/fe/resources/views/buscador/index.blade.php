@@ -5,14 +5,13 @@
 @section('content_header')
 
     
-        <div class="row">
-            <div class="col-8">
-                <h1>Buscar Documentos</h1>
-            </div>
+    <div class="row">
+        <div class="col-8">
+            <h1>Buscar Documentos</h1>
         </div>
-        
-        <div class="linea_content_header"></div>
-        <br>
+    </div>
+    
+    <div class="linea_content_header"></div>
     <div class="card">
         <div class="card-body">
             <div class=" form-row">   
@@ -38,14 +37,14 @@
                 <div class="col-md-4 md-4">
                     <div class="form-group">
                     <label for="id_documento">ID Documento: </label>
-                        <input type="text" class="form-control" id="id_documento" >
+                        <input type="text" class="form-control" id="buscar_id_documento" name="buscar_id_documento">
                     </div>
                 </div>
                 <div class="col-md-4 md-4">
                     <div class="form-group">
                         <label for="select_tipo_documento" >Tipo Documento</label>
                         <br>
-                        <select class="form-control" id="tipo_documento" name="tipo_documento" >
+                        <select class="form-control" id="buscar_tipo_documento" name="buscar_tipo_documento" >
                             <option value="">Seleccionar</option>
                                 <option value="">----------</option>
                         </select>
@@ -55,7 +54,7 @@
                     <div class="form-group">
                         <label for="select_buzon_origen">Buzón Orígen</label>
                         <br>
-                        <select  class="form-control" id="buzon_origen" name="buzon_origen" >
+                        <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
                                 <option value="">Oficio</option>
                         </select>
@@ -68,15 +67,15 @@
                         <label for="">Rango de Fechas </label>
                     
                         <br>
-                        <input type="date" id="birthday" name="birthday">
-                        <input type="date" id="birthday" name="birthday">
+                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini">
+                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin">
                     </div>
                 </div>
                 
                 
                 <div class="col-md-4 md-4">
                     <div class="form-group">
-                        <input type="checkbox" name="Efectos_sobre_terceros" id="id_efectos_sobre_terceros" class="valign middle">
+                        <input type="checkbox" name="buscar_fectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
                         <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
                     </div>
                 </div>
@@ -85,148 +84,152 @@
                     <div class="form-group">
                         <br>
                         <button type="button" class="btn btn-success nuevo_usuario">Buscar</button>
+                        <i id="botones_grilla_recibidos"></i>
                     </div>    
                 </div>
             </div>    
         </div>
     </div>
+   
 @stop
 
 
 @section('content')
-<div class="container"> 
-    <div class="card" id="card_favorito_grilla">
-        <div class="card-body">
-            <table id="tabla_favorito_grilla" class="table dt-responsive nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Fecha</th>
-                        <th>TD</th>
-                        <th>Folio</th>
-                        <th>Buzón origen</th>
-                        <th>Buzón Actual</th>
-                        <th>Materia</th>
-                        <th>Acciones</th>
-                        <th></th>
-			
-                    </tr>
-                </thead>
-                <tbody>
-                     @foreach($lista_documento['data'] as $list)
-                        <tr >
-                            <td>{{$list['id_documento']}}</td>
-                            <td>{{$list['fecha_documento']}}</td>
-                            <td>{{$list['tipo_documento']}}</td>
-                            <td>{{$list['folio']}}</td>
-                            <td>{{$list['origen']}}</td>
-                            <td>Alcaldia</td>
-                            <td>{{$list['materia']}}</td>
-
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-bars"></i>
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item btn-menu-ver"  onclick="visualizar_usuario({{$list['id_documento']}})" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                        <a class="dropdown-item btn-menu-deshabilitar"  href="#" ><i class="fas fa-download text-blue"></i> Descargar</a>
-                                        
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
+<!--<div class="container">-->
     
-    <ul></ul>
+   
 
-    <div class="card" id="card_ver_documento" style="display:none">
-
-         <h4 id="titulo_ver_documento"class="card-header " >Ver Documento</h5>
-        <div class="card-body">
-        <form class="needs-validation" id="form_documento_ver"   >
-            @csrf
-            
-            <ul class="pagination">
-                <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 15px; border-right: 0px;">
-                    <i class="fas fa-angle-double-left"></i>
-                </button>
-                <div class="flex-container">
-                    <div>1458
-                        20/10/215
+            <div class="accordion" id="carpetas">
+                <div class="card">
+                    <div class="card-header" >
+                        <h2 class="mb-0">
+                        <!--<div class="col-md-3 md-12">  
+                            <i type="button" class="fa fa-chevron-circle-down desplegar_grilla_documento"></i> </a>
+                            <i type="button" class="fa fa-chevron-circle-up  cerrar_grilla_documento" style="display:none"></i> </a>
+                        </div>-->
+                        <button class="btn btn-block text-left buzones_carpetas_btn_colapsable_text" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <span id="boton_carpetas_texto"> Documentos  <i><b> </b></i> </span>
+                            <i class="fa fa-chevron-circle-up" style="float:right;margin-top: 8px;"></i>
+                            <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
+                        </button>
+                        </h2>
                     </div>
-                    <div>1458
-                        20/10/215</div>  
-                    <div>1458
-                        20/10/215</div>  
-                    <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 10px; border: 0px;">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div>aqui
-                        20/10/215</div>
-                    <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 10px; border: 0px;">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                    <div>1458
-                        20/10/215</div>  
+                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
+                    <div class="container">
+                        <div class="card" id="card_buscador_grilla">
+                            <div class="card-body">
+                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Fecha</th>
+                                            <th>TD</th>
+                                            <th>Folio</th>
+                                            <th>Buzón origen</th>
+                                            <th>Buzón Actual</th>
+                                            <th>Materia</th>
+                                            <th>Acciones</th>
+                                            <th></th>
+                                
+                                        </tr>
+                                    </thead>
+                                </table>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+    
+                            </div>
+    
+        <!--DOCUMENTO VER-->
+
+        <div class="card" id="card_ver_documento" style="display:none">
+
+                <h4 id="titulo_ver_documento"class="card-header " >Ver Documento</h5>
+                <div class="card-body">
+                    <form class="needs-validation" id="form_documento_ver"   >
+                        @csrf
                         
-                    <div>1458
-                        20/10/215</div>
-                    <div>1458
-                        20/10/215</div>  
-                </div>
-                <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 15px; border-left: 0px;">
-                    <i class="fas fa-angle-double-right"></i>
-                </button>
-            </ul>
-            <div class="container">
-                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                    <!--<div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
-                    <input type="text" class="form-control" id="form_identificador" name="identificador" required>
-                    <input type="text" class="form-control" id="form_folio" name="folio" required>
-                    <input type="text" class="form-control" id="form_fecha" name="fecha" required>-->
-                    <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
-                    <div class="form-control">ID: <i>1</i></div>
-                    <div class="form-control">Folio: <i>840683374</i></div>
-                    <div class="form-control">Fecha: <i>2021-11-05 </i></div>
-                </div>
-            </div>
-            <br>
-            <div class="form-row">
-                <div class="col-md-3 mb-3">
-                    <label for="inputState">Tipo Documento:</label>
-                    <select id="form_documento" name="id_tipo_documento" class="form-control"  required>
-                        <option selected>Seleccionar</option>
-                        <option>...</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="inputState">Nivel Acceso</label>
-                    <select id="form_nivel_acceso"  name="id_nivel_acceso" class="form-control" required>
-                        <option selected>Seleccionar</option>
-                        <option>...</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="inputState">Efectos sobre terceros</label>
-                    <select id="form_efectos_terceros"  name="id_efectos_terceros" class="form-control" required>
-                        <option selected>Seleccionar</option>
-                        <option>...</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="inputState">Contestar/Hasta</label>
-                    <input type="date" class="form-control" id="form_contestar_hasta"  name="contestar_hasta" required>
-                </div>        
-            </div>
-            <div class="form-row">
-                <div class="col-md-4 mb-3">
-                    <label for="inputState">Respuesta a:</label>
-                    <select id="form_respuesta"  name="id_respuesta" class="form-control" required>
+                        <ul class="pagination">
+                            <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 15px; border-right: 0px;">
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <div class="flex-container">
+                                <div>1458
+                                    20/10/215
+                                </div>
+                                <div>1458
+                                    20/10/215</div>  
+                                <div>1458
+                                    20/10/215</div>  
+                                <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 10px; border: 0px;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <div>aqui
+                                    20/10/215</div>
+                                <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 10px; border: 0px;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <div>1458
+                                    20/10/215</div>  
+                                    
+                                <div>1458
+                                    20/10/215</div>
+                                <div>1458
+                                    20/10/215</div>  
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary boton_ocultar_versiones_anteriores" style="padding: 48px 15px; border-left: 0px;">
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </ul>
+                        <div class="container">
+                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+                                <!--<div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
+                                <input type="text" class="form-control" id="form_identificador" name="identificador" required>
+                                <input type="text" class="form-control" id="form_folio" name="folio" required>
+                                <input type="text" class="form-control" id="form_fecha" name="fecha" required>-->
+                                <div class="form-control">Buzón Origen: <i>Alejandro Nuñez</i></div>
+                                <div class="form-control">ID: <i>1</i></div>
+                                <div class="form-control">Folio: <i>840683374</i></div>
+                                <div class="form-control">Fecha: <i>2021-11-05 </i></div>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-row">
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Tipo Documento:</label>
+                                <select id="form_documento" name="id_tipo_documento" class="form-control"  required>
+                                    <option selected>Seleccionar</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Nivel Acceso</label>
+                                <select id="form_nivel_acceso"  name="id_nivel_acceso" class="form-control" required>
+                                    <option selected>Seleccionar</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Efectos sobre terceros</label>
+                                <select id="form_efectos_terceros"  name="id_efectos_terceros" class="form-control" required>
+                                    <option selected>Seleccionar</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="inputState">Contestar/Hasta</label>
+                                <input type="date" class="form-control" id="form_contestar_hasta"  name="contestar_hasta" required>
+                            </div>        
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-4 mb-3">
+                                <label for="inputState">Respuesta a:</label>
+                                <select id="form_respuesta"  name="id_respuesta" class="form-control" required>
                         <option selected>Seleccionar</option>
                         <option>...</option>
                     </select>
@@ -502,8 +505,9 @@
             }
         } */
     var grilla_bitacora;
+    var grilla_recibidos;
 
-    $(document).ready(function(){
+    
 
            /**$('#tabla_favorito_grilla').DataTable({
             rowReorder: {
@@ -540,7 +544,7 @@
         });
         
         //fn_grilla_bitacora();
-    });
+    
 
     function visualizar_usuario(identificador){
         //$('#cargando').show();
@@ -601,7 +605,113 @@
         }
     }
 
+    async function fn_grilla_recibidos(){
 
+        //$('#documento').hide();
+        //if ( $.fn.DataTable.isDataTable('#grilla_recibidos') ) {
+          //      $('#grilla_recibidos').DataTable().destroy();
+       // }
+        $('#grilla_recibidos tbody').empty();
+
+        grilla_recibidos = $('#grilla_recibidos').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '/buscadorListar?11',
+                type:'json',
+                rowReorder: {
+                    selector: 'td:nth-child(2)'
+                },
+                responsive: true,
+                language: lenguaje_datatable,
+                columns: [
+                    ,
+                    { data: 'id_documento', name: 'documento.id_documento ' },
+                    { data: 'fecha_documento', name: 'documento.fecha' },
+                    { data: 'tipo_documento', name: 'tipo_documento.nombre' },
+                    { data: 'folio', name: 'documento.folio' },
+                    { data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'nombre_buzon', name: 'buzon.nombre' },
+                    { data: 'materia', name: 'documento.materia ' },
+                    { data: 'id_documento',
+                    render: function(data, type, row) {
+                        if (type === 'display') {
+                            if(data==null){
+                                return '';
+                            }else{
+                                let botonera = '<div class="dropdown">';
+                                    botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                        botonera +=' <i class="fas fa-bars"></i>';
+                                        botonera +=' </button>';
+                                        botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+                                        if (row.id_tipo_destino == 1) //principal
+                                        {
+                                            //agrega listado de acciones
+
+                                            //var jsona = JSON.parse(row.json_acciones);
+                                            
+                                            //console.log(jsona);
+                                    
+                                            //for (let i in accionesSolicitadas) {
+                                        //     botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-eye text-blue"></i>'+accionesSolicitadas[i]['id_accion']+'</a>';
+                                        // }
+                                            if(row.id_estado_documento != 7)
+                                            {
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> Visar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+
+                                            }                                          
+
+
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            
+                                            
+                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7)
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                        
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                        }
+                                        else{
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            if(row.id_estado_documento != 6)
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                        }
+
+                                    botonera += '</div>';
+                                    botonera += '</div>';
+                                return botonera;
+                            }
+                        }
+                        return '';
+                    }
+                    }
+                ],
+               
+
+        });
+        }
+
+    $(document).ready(function () {
+    
+
+        //var div_por_recibir_width = document.getElementById('nav-por-recibir').getBoundingClientRect().width;
+        //$('#nav-despachados').attr("style","width:"+div_por_recibir_width+'px');
+        //$('#nav-recibidos').attr("style","width:"+div_por_recibir_width+'px');
+
+        $(function() {
+
+            
+
+            fn_grilla_recibidos();
+
+        
+        });
+    });
 
 
         

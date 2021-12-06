@@ -6,7 +6,9 @@ use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Yajra\DataTables\DataTables;
 
 class BuscadorController extends Controller
 {
@@ -90,6 +92,36 @@ class BuscadorController extends Controller
 
         return View::make('buscador.index',['lista_bitacora'=>$lista_bitacora]);
     }
+
+    public function listar(Request $request)
+    {
+        //return "hola";
+        $datos =  DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
+                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+                    ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                    ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                    ->select(
+                        'buzon.nombre as nombre_buzon',
+                        'estado_documento.nombre_corto as estado_documento',
+                        'documento.id_documento as id_documento',
+                        'documento.fecha as fecha_documento',
+                        'tipo_documento.nombre as tipo_documento',
+                        'tipo_origen.nombre as origen',
+                        'documento.materia as materia',
+                        'documento_buzon.favorito as estado_favorito',
+                        'documento_buzon.id_documento_buzon as id_documento_buzon',
+                        'documento.folio as folio',
+                        )
+                    ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
+                    
+
+        return datatables( $datos )->toJson();
+
+
+    }     
 
    
 }
