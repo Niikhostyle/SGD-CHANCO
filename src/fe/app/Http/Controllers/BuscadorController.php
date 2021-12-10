@@ -37,7 +37,7 @@ class BuscadorController extends Controller
             $lista_documento->json();
         }
 
-        //listar documento bitacora
+        /* LISTAR DOCUMENTO BITACORA */
         $sesion_key =  AppServiceProvider::session_key_general();
         $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -60,9 +60,102 @@ class BuscadorController extends Controller
             $lista_bitacora->json();
         }
 
-        return View::make('buscador.index',['lista_documento'=>$lista_documento, 'lista_bitacora'=>$lista_bitacora]);
+        /* LISTADO TIPO DE DOCUMENTO */
+
+        $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+
+        if($listado_tiposdoc->failed()){
+            $mensaje = $listado_tiposdoc->json()['data']['comentario'];
+
+            toast($mensaje,'error');
+        }
+        else
+        {
+            $datosTipoDoc = $listado_tiposdoc['data'];
+
+        }
+
+        /* LISTADO BUZONES */
+
+        $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'texto_busqueda' => '',
+        ]), 'json')
+        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+        //return $listado_buzones;
+        if($listado_buzones->failed()){
+            $listado_buzones->json()['data']['comentario'];
+
+            $listado_buzones=['data'=>[
+                0=>['id'=>'0','nombre'=>'Sin Datos']
+            ]];
+            toast($mensaje,'error');
+        }else{
+
+            foreach ($listado_buzones['data'] as $dato)
+            {
+                $aBuzones[$dato['id_buzon']] = $dato['nombre'];                  
+            }
+        }
+        //return $aBuzones;
+        //parametros
+        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(13)
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+
+        if($listado_parametros->failed()){
+            toast("Error al mostrar datos",'error');
+        }
+        
+        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
+        $datosAccion = $listado_parametros['data']['accion'];
+
+        return View::make('buscador.index',[
+            'lista_documento'=>$lista_documento,
+            'lista_bitacora'=>$lista_bitacora,
+            'listado_tiposdoc'=>$datosTipoDoc,
+            'listadoBuzones'=>$aBuzones,
+            'listadoAcciones' => $datosAccion,
+            'nivel_acceso' => $datosNivelAcceso
+        ]);
         
     }
+
+    public function show($id)
+    {
+        
+        //listar bitacora
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->withBody(json_encode([
+            'id_documento' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora');
+        //->get('http://sgd_ms_bitacora:3333/api/sgd-bitacora/listarDocumentosBitacora');
+
+        
+
+        if($lista_bitacora->failed()){
+            $mensaje= $lista_bitacora->json()['data']['comentario'];
+
+            $lista_bitacora=['data'=>[
+                0=>['accion'=>'','fecha_documento'=>'','buzon_origen'=>'','nombre_accion'=>'','mensaje_respuesta'=>'', 'tipo_destino'=>'']
+            ]];
+            toast($mensaje,'error');
+        }else{
+            return $lista_bitacora->json();
+        }
+        
+        //return View::make('buscador.index', [
+        //    'lista_bitacora'=>$lista_bitacora,
+
+       // ]);
+        
+    }  
 
     public function listarBitacora(){
 
@@ -114,6 +207,7 @@ class BuscadorController extends Controller
                         'documento_buzon.favorito as estado_favorito',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento.folio as folio',
+                        'documento.identificador as identificador',
                         )
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
                     
