@@ -116,7 +116,7 @@
                         </h2>
                     </div>
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
-                        <div class="container">
+                        <div class="">
                             <div class="card" id="card_buscador_grilla">
                                 <div class="card-body">
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
@@ -467,7 +467,7 @@
     var grilla_bitacora;
     var grilla_recibidos;
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
-    
+    const listadoBuzones = @json($listadoBuzones);
 
     $(document).ready(function () {
     
@@ -586,7 +586,7 @@
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+data+','+row.id_documento+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+data+','+row.id_documento+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
 
                                                                                     
 
@@ -656,7 +656,7 @@
 
         // VER DOCUMENTO Y CARGAR BITACORA
 
-    function visualizar_documento(id_documento, id_documento_buzon)
+    function visualizar_documento(id_documento, id_documento_buzon_padre)
     {
         $(".print-error-msg").hide();
 
@@ -676,13 +676,13 @@
             $(".bootstrap-tagsinput-max").addClass("disabled");
             $(".bootstrap-tagsinput").addClass("disabled");  
 
-            cargar_datos_grilla(id_documento, id_documento_buzon);//,id_documento_buzon_padre);
-            cargar_datos_bitacora(id_documento, id_documento_buzon);
+            cargar_datos_grilla(id_documento, id_documento_buzon_padre);//,id_documento_buzon_padre);
+            cargar_datos_bitacora(id_documento, id_documento_buzon_padre);
 
         }
     }
    
-    function cargar_datos_bitacora(id_documento, id_documento_buzon)
+    function cargar_datos_bitacora(id_documento, id_documento_buzon_padre)
     {
     
     
@@ -713,6 +713,60 @@
     $("#textMateria").text(response.data[0].materia);
     //window.someGlobalOrWhatever = response.balance
     });
+
+    
+    /* 
+        $('#tabla_bitacora_grilla').dataTable( {
+            "ajax": "buscador/"+id_documento,
+            "columns":[
+                {data: 'id_documento_buzon'},
+                {data: 'fecha_documento'},
+                {data: 'buzon_origen'},
+                {data: 'nombre_accion'},
+                {data: 'mensaje_respuesta'}
+            ]                                   
+        });
+        */
+        /*
+        $.ajax({
+            url: "buscador/"+id_documento,
+            type:'GET',
+            dataType: 'json',
+            success: function(data) {
+                if(data.status=='400') {
+                    toastr.error(data.data.comentario,"Aviso!");
+                }
+                else
+                {       var datos = data.data;
+                        console.log(datos);
+                        console.log(datos.buzon_origen);
+                        $('#tabla_bitacora_grilla').dataTable( {
+                            processing: true,
+                            data: datos,
+                            columns: [
+                                {"data" : "DDP"},
+                                {"data" : "datos.fecha_documento"},
+                                {"data" : "datos.buzon_origen"},
+                                {"data" : "datos.nombre_accion"},
+                                {"data" : "datos.mensaje_respuesta"}            
+                            ],
+                        });
+                    if(data.status == '200')
+                    {
+                        
+
+                    }
+                }
+            },
+            error: function (e) {
+                console.log("ERROR");
+                data = e.responseJSON;
+                if (typeof data.errors !== 'undefined') {
+                    printErrorMsg(data.errors);
+                }
+            }
+        });
+        */
 
     }
 
