@@ -98,7 +98,8 @@ class BuscadorController extends Controller
             'lista_documento'=>$lista_documento,
             
             'listado_tiposdoc'=>$datosTipoDoc,
-            'listadoBuzones'=>$datosBuzones,
+            'listBuzones'=>$datosBuzones,
+            'listadoBuzones'=>$aBuzones,
             'listadoAcciones' => $datosAccion,
             'nivel_acceso' => $datosNivelAcceso
         ]);
@@ -163,6 +164,7 @@ class BuscadorController extends Controller
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         )
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
+                    
                     
 
         return datatables( $datos )->toJson();

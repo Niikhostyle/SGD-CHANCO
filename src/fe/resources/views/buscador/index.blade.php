@@ -57,7 +57,7 @@
                         <br>
                         <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
-                            @foreach($listadoBuzones as $list)
+                            @foreach($listBuzones as $list)
                             <option value="{{$list['id_buzon']}}">{{$list['nombre']}}</option>
                             @endforeach
                         </select>
@@ -545,6 +545,7 @@
     });
 
     $(".btn_cerrar_documento").click(function(e){
+        //$('#card_documento').trigger("reset");
         $('#card_documento').hide();
         $('#card_bitacora').hide();
         $("#collapseOne").collapse('show');
@@ -589,12 +590,12 @@
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+data+','+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
 
                                                                                     
 
 
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento+')"  href="#"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+row.id_documento+')"  href="#"><i class="fas fa-download text-blue"></i> Descargar</a>';
                                             
                                             
                                             
@@ -693,6 +694,8 @@
     $('#tabla_bitacora_grilla').dataTable({
         processing: true,
         data: response.data,
+        retrieve: true,
+        paging: false,
         columns: [
             { data: 'tipo_destino',
                 render: function(data, row) {
