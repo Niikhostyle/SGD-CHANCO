@@ -57,7 +57,9 @@
                         <br>
                         <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
-                                
+                            @foreach($listadoBuzones as $list)
+                            <option value="{{$list['id_buzon']}}">{{$list['nombre']}}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -103,7 +105,7 @@
             <div class="accordion" id="carpetas">
                 <div class="card">
                     <div class="card-header" >
-                        <h2 class="mb-0">
+                        <h5 class="mb-0">
                         <!--<div class="col-md-3 md-12">  
                             <i type="button" class="fa fa-chevron-circle-down desplegar_grilla_documento"></i> </a>
                             <i type="button" class="fa fa-chevron-circle-up  cerrar_grilla_documento" style="display:none"></i> </a>
@@ -113,10 +115,11 @@
                             <i class="fa fa-chevron-circle-up" style="float:right;margin-top: 8px;"></i>
                             <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
                         </button>
-                        </h2>
+                        </h5>
+                        <div class="linea_content_header"></div>
                     </div>
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
-                        <div class="">
+                        
                             <div class="card" id="card_buscador_grilla">
                                 <div class="card-body">
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
@@ -138,7 +141,7 @@
                                 
                                 </div>
                             </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -586,7 +589,7 @@
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+data+','+row.id_documento+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+data+','+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
 
                                                                                     
 
@@ -617,8 +620,8 @@
                                 $('#buscar_id_documento').val('');
                                 $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
                                 $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
-                                $('#buscar_fecha_ini').find('option:eq(0)').prop('selected', true);
-                                $('#buscar_fecha_fin').find('option:eq(0)').prop('selected', true);
+                                $('#buscar_fecha_ini').find('option:eq(0)').prop('date', true);
+                                $('#buscar_fecha_fin').find('option:eq(0)').prop('date', true);
                                 $('#buscar_fectos_sobre_terceros').find('option:eq(0)').prop('checked', true);
                                 $searchButton.click();
                             }),
@@ -627,9 +630,9 @@
                             .click(function() {
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
+                                //grilla_recibidos.columns(2).search($('#buscar_fecha_ini').val()).draw();
                                 grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
-                                grilla_recibidos.columns(2).search($('#buscar_fecha_ini').val()).draw();
-                                grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
+                                //grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
                                 grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();
                                 //self.search($('#gd_buscar_destino_materia').val()).draw();
                             })
@@ -656,7 +659,7 @@
 
         // VER DOCUMENTO Y CARGAR BITACORA
 
-    function visualizar_documento(id_documento, id_documento_buzon_padre)
+    function visualizar_documento(id_documento, id_documento_buzon, id_documento_buzon_padre)
     {
         $(".print-error-msg").hide();
 
@@ -676,13 +679,13 @@
             $(".bootstrap-tagsinput-max").addClass("disabled");
             $(".bootstrap-tagsinput").addClass("disabled");  
 
-            cargar_datos_grilla(id_documento, id_documento_buzon_padre);//,id_documento_buzon_padre);
-            cargar_datos_bitacora(id_documento, id_documento_buzon_padre);
+            cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre);//,id_documento_buzon_padre);
+            cargar_datos_bitacora(id_documento, id_documento_buzon, id_documento_buzon_padre);
 
         }
     }
    
-    function cargar_datos_bitacora(id_documento, id_documento_buzon_padre)
+    function cargar_datos_bitacora(id_documento, id_documento_buzon, id_documento_buzon_padre)
     {
     
     
