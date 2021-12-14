@@ -549,6 +549,7 @@
         $('#card_documento').hide();
         $('#card_bitacora').hide();
         $("#collapseOne").collapse('show');
+       
     });
 
     async function fn_grilla_recibidos(){
@@ -689,13 +690,15 @@
     function cargar_datos_bitacora(id_documento, id_documento_buzon, id_documento_buzon_padre)
     {
     
-    
+    //clear_form();
     $.getJSON('buscador/'+id_documento, function(response) {
     $('#tabla_bitacora_grilla').dataTable({
         processing: true,
         data: response.data,
-        retrieve: true,
-        paging: false,
+        
+        destroy: true,
+        
+        searching: false,
         columns: [
             { data: 'tipo_destino',
                 render: function(data, row) {
