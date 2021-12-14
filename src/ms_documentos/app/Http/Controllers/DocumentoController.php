@@ -726,7 +726,9 @@ class DocumentoController extends Controller{
                         'mensaje_respuesta as mensaje_respuesta',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         //'tipo_documento.nombre as tipo_documento',
-                        'documento_buzon.id_tipo_destino as tipo_destino'
+                        'documento_buzon.id_tipo_destino as tipo_destino',
+                        'documento.identificador as identificador',
+                        'documento.materia as materia'
                         )
                     //->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
                     ->where('documento_buzon.id_documento','=',$datosRequest['id_documento'])   

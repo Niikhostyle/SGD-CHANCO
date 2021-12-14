@@ -12,6 +12,7 @@
     </div>
     
     <div class="linea_content_header"></div>
+    <br>
     <div class="card">
         <div class="card-body">
             <div class=" form-row">   
@@ -116,7 +117,7 @@
                             <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
                         </button>
                         </h5>
-                        <div class="linea_content_header"></div>
+                       
                     </div>
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                         
@@ -331,23 +332,25 @@
         
         <div class="card" id="card_bitacora"  style="display:none">
         <h4 id="titulo_ver_documento"class="card-header " >Bitácora</h5>
-            <div class="col">ID: <i><span id="idAsignado"></span></i></div>
+        <br>
+        <div class="card-body">
+            <div class="col">ID: <i><span id="idAsignado2"></span></i></div>
             <div class="col">Materia: <i><span id="textMateria"></span></i></div>
             <br>
           
-            <div class="form-check">
+            <div class="form-check" style="padding-right: 5px;">
                 <input class="form-check-input" type="checkbox" value="1" id="id_buscar_ddp" name="buscar_ddp" checked="checked" >
-                <label class="form-check-label" for="defaultCheck1">
+                <label class="form-check-label" for="defaultCheck1" >
                     Derivaciones destinatarios principales (DDP)
                 </label>
             </div>
-                <div class="form-check">
+                <div class="form-check" >
                 <input class="form-check-input" type="checkbox" value="2" id="id_buscar_doo" name="buscar_doo" checked="checked">
                 <label class="form-check-label" for="defaultCheck1">
                     Dereivaciones otros destinatarios (DOO)
                 </label>
                 </div>
-                <div class="form-check">
+                <div class="form-check" >
                 <input class="form-check-input" type="checkbox" value="3" id="id_buscar_cap" name="buscar_cap" checked="checked">
                 <label class="form-check-label" for="defaultCheck1">
                     Cambios Archivos Principal (CAP)
@@ -632,8 +635,8 @@
                             .click(function() {
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                //grilla_recibidos.columns(2).search($('#buscar_fecha_ini').val()).draw();
-                                grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
+                                grilla_recibidos.columns(1).search($('#buscar_fecha_ini').val() && ('#buscar_fecha_fin').val()).draw();
+                                //grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
                                 //grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
                                 grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();
                                 //self.search($('#gd_buscar_destino_materia').val()).draw();
@@ -695,9 +698,7 @@
     $('#tabla_bitacora_grilla').dataTable({
         processing: true,
         data: response.data,
-        
-        destroy: true,
-        
+        destroy: true, 
         searching: false,
         columns: [
             { data: 'tipo_destino',
@@ -706,9 +707,10 @@
                     let textAbrv = data;
 
                     if (data == 1)
-                        return 'P'; 
+                        return ''; 
                     else 
-                        return 'S';
+                        return '';
+                    
                 }
             },
             {data: 'fecha_documento'},
@@ -718,7 +720,7 @@
         ]
     });
 
-    $("#idAsignado").text(response.data[0].identificador);
+    $("#idAsignado2").text(response.data[0].identificador);
     $("#textMateria").text(response.data[0].materia);
     //window.someGlobalOrWhatever = response.balance
     });
