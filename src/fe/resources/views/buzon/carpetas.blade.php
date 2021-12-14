@@ -715,7 +715,6 @@
 
     function deshabilita_campos()
     {
-        console.log('desabilita');
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
         editor_cuerpo.setReadOnly(true);
@@ -730,14 +729,8 @@
         $('#dropzone-otros').prop("disabled", true);
         $('#dropzone-anexo').prop("disabled", true);
         
-        //dropzoneAnexo.removeEventListeners();
-        //$('#dropzone-anexo').removeClass('dz-clickable');
-
         $(".dz-hidden-input").prop("disabled",true);
 
-        //form_anexo.disabled=true;
-        //form_archivo_principal_el.disabled=true;
-        //form_otros_archivos_el.disabled=true;
         form_destinatario_principal_el.disabled=true;
         form_acciones_solicitadas_el.disabled=true;
         form_comentario_el.disabled=true;
@@ -1809,9 +1802,7 @@
 
                         
                         aFilesPrincipal = [];
-                        aFilesDelete = [];   
-
-                        var listDelete                      
+                        aFilesDelete = [];                  
 
                         $.each(relDocumentoBuzonArchivo, function(key,value){
                             
@@ -1945,8 +1936,6 @@
     function visualizar_documento_por_recibir(id_documento,id_documento_buzon,id_documento_buzon_padre)
     {           
         $('#titulo_accion').html('Ver Documento'); 
-        console.log(id_documento_buzon);
-        console.log(id_documento_buzon_padre);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre);       
