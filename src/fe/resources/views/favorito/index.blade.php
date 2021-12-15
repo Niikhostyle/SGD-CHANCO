@@ -248,8 +248,7 @@
                         </div>
                                                 
                         <div class="form-row">                                
-                                <div class="col-md-12 group-button-align">                                    
-                                    <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
+                                <div class="col-md-12 group-button-align">
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="">
@@ -268,8 +267,64 @@
 
     <!-- Form Documentos -->
 
+    <!-- Bitacora-->   
+        
+    <div class="card" id="card_bitacora"  style="display:none">
+        <div class="card-header" >
+            <h4 id="titulo_accion">Bitácora</h4>
+            <div class="linea_content_header"></div>
+        </div>
+    <div class="card-body">
+        <div class="col">ID: <i><span id="idAsignado2"></span></i></div>
+        <div class="col">Materia: <i><span id="textMateria"></span></i></div>
+        <br>
+      
+        <div class="form-check" style="padding-right: 5px;">
+            <input class="form-check-input" type="checkbox" value="1" id="id_buscar_ddp" name="buscar_ddp">
+            <label class="form-check-label" for="defaultCheck1" >
+                Derivaciones destinatarios principales (DDP)
+            </label>
+        </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="2" id="id_buscar_doo" name="buscar_doo">
+            <label class="form-check-label" for="defaultCheck1">
+                Dereivaciones otros destinatarios (DOO)
+            </label>
+            </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="3" id="id_buscar_cap" name="buscar_cap">
+            <label class="form-check-label" for="defaultCheck1">
+                Cambios Archivos Principal (CAP)
+            </label>
+            </div>
+           
+            <div class="card-body">
+                <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Buzón Origen</th>
+                            <th>Acción </th>
+                            <th>Mensaje</th>
+                            
+                        </tr>
+                    </thead>
+                    
+                </table>
+            </div>           
+        
+    </div>
 
+   
+    <!-- Bitacora fin-->
 
+    <div class="card">
+        <div class="col-md-10"> </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
+        </div>
+    </div>  
 
 @stop
 
@@ -340,7 +395,6 @@
 
 @section('js')
 
-<script src="{{ asset('/js/funciones.js') }}"></script>
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
@@ -359,14 +413,8 @@ $(document).ready(function(){
 
 
 	$(".btn-menu-ver").click(function(e){
-		$('#card_ver_documento').show();
+		$('#card_ver_documento').show();	
 		
-		
-	});
-	$(".btn_cerrar_ver_documento").click(function(e){
-		$('#card_ver_documento').hide();
-		
-
 	});
 
 });
@@ -391,6 +439,7 @@ $('#form_otros_destinatarios_el').tagsinput({
 
 $(".btn_cerrar_guardar").click(function(e){
     $('#card_documento').hide();
+    $('#card_bitacora').hide();	
     $("#collapseOne").collapse('show');
 });
 
@@ -402,6 +451,7 @@ function visualizar_documento(id_documento, id_documento_buzon)
     {
         $("#collapseOne").collapse('hide');
         $('#card_documento').show();
+        $('#card_bitacora').show();	
         
         //deshabilita campos
         $('.form-disabled').prop("disabled", true);
@@ -413,7 +463,7 @@ function visualizar_documento(id_documento, id_documento_buzon)
         $(".bootstrap-tagsinput").addClass("disabled");  
 
         cargar_datos_grilla(id_documento, id_documento_buzon);//,id_documento_buzon_padre);
-
+        cargar_datos_bitacora(id_documento, id_documento_buzon);
     }
 }
 
@@ -561,6 +611,96 @@ function cargar_datos_grilla(id_documento, id_documento_buzon)
         }
     });
 }
+
+function cargar_datos_bitacora(id_documento, id_documento_buzon)
+{
+
+    $.getJSON('buscador/'+id_documento, function(response) {
+    $('#tabla_bitacora_grilla').dataTable({
+        processing: true,
+        data: response.data,
+        destroy: true, 
+        searching: false,
+        columns: [
+            { data: 'tipo_destino',
+                render: function(data, row) {
+                        
+                    let textAbrv = data;
+
+                    if (data == 1)
+                        return 'DO'; 
+                    else 
+                        return 'DD';
+                    
+                }
+            },
+            {data: 'fecha_documento'},
+            {data: 'buzon_origen'},
+            {data: 'nombre_accion'},
+            {data: 'mensaje_respuesta'}
+        ]
+    });
+
+    $("#idAsignado2").text(response.data[0].identificador);
+    $("#textMateria").text(response.data[0].materia);
+    //window.someGlobalOrWhatever = response.balance
+    });
+
+    
+    /* 
+        $('#tabla_bitacora_grilla').dataTable( {
+            "ajax": "buscador/"+id_documento,
+            "columns":[
+                {data: 'id_documento_buzon'},
+                {data: 'fecha_documento'},
+                {data: 'buzon_origen'},
+                {data: 'nombre_accion'},
+                {data: 'mensaje_respuesta'}
+            ]                                   
+        });
+        */
+        /*
+        $.ajax({
+            url: "buscador/"+id_documento,
+            type:'GET',
+            dataType: 'json',
+            success: function(data) {
+                if(data.status=='400') {
+                    toastr.error(data.data.comentario,"Aviso!");
+                }
+                else
+                {       var datos = data.data;
+                        console.log(datos);
+                        console.log(datos.buzon_origen);
+                        $('#tabla_bitacora_grilla').dataTable( {
+                            processing: true,
+                            data: datos,
+                            columns: [
+                                {"data" : "DDP"},
+                                {"data" : "datos.fecha_documento"},
+                                {"data" : "datos.buzon_origen"},
+                                {"data" : "datos.nombre_accion"},
+                                {"data" : "datos.mensaje_respuesta"}            
+                            ],
+                        });
+                    if(data.status == '200')
+                    {
+                        
+
+                    }
+                }
+            },
+            error: function (e) {
+                console.log("ERROR");
+                data = e.responseJSON;
+                if (typeof data.errors !== 'undefined') {
+                    printErrorMsg(data.errors);
+                }
+            }
+        });
+        */
+
+    }
 
 
 function estado_favorito(id)
