@@ -26,7 +26,6 @@ class FavoritoController extends Controller
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarFavoritos');
 
-
         if($lista_favoritos->failed()){
             $mensaje= $lista_favoritos->json()['data']['comentario'];
 
@@ -88,8 +87,9 @@ class FavoritoController extends Controller
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
         ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito', [
-            'id_documento_buzon' => $id,
-            'estado' => $request->estado
+            'id_documento' => $id,
+            'id_usuario' => Auth::user()->id,
+            'accion' => $request['accion']
         ]);
 
         $response_json=response()->json($response->json());
