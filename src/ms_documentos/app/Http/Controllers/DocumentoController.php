@@ -9,6 +9,7 @@ use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
+use App\Models\DocumentoFavoritoUsuario;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use App\Validator\DocumentoValidator;
@@ -563,10 +564,16 @@ class DocumentoController extends Controller{
                 //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datosDocumento->rel_documento_buzon;  
+                $datosDocumento->rel_documento_buzon;
 
-                //$datosDocumentoBuzon = DocumentoBuzonArchivo::where('id_documento_buzon', $request['id_documento_buzon'])->get();  
-                //
+                $datosVerDoc = Documento::join('documento_buzon', 'documento_buzon.id_documento','=','documento.id_documento')
+                                    ->where('documento.id_documento','=','155')
+                                    ->whereRaw('documento_buzon.id_documento_buzon_padre = (select id_documento_buzon_padre from documento_buzon where id_documento = 155 order by id_documento_buzon desc limit 1)')
+                                    ->select('documento_buzon.*')
+                                    ->get();
+
+                $datosDocumento['rel_documento_buzon_actual'] =  $datosVerDoc;                  
+                
                 $datosDocumentoBuzon = DocumentoBuzon::join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
                                                     ->where('documento_buzon.id_documento', $request['id_documento'])
                                                     ->select(
@@ -594,12 +601,12 @@ class DocumentoController extends Controller{
 
 
 
-    public function listarFavoritos(Request $request){
+    public function listarFavoritos(Request $request)
+    {
         if($request->isJson())
         {
             try
             {
-
                 $datosRequest = $request->json()->all();
 
                 $validator = $this->validator->validateFieldUser($datosRequest);
@@ -607,32 +614,23 @@ class DocumentoController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
 
-
-                return datatables(
-                    DB::table('documento_buzon')
-                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
-                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
-                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
-                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
-                    ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                    ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                    ->select(
-                        'buzon.nombre as nombre_buzon',
-                        'estado_documento.nombre_corto as estado_documento',
-                        'documento.id_documento as id_documento',
-                        'documento.identificador as identificador',
-                        'documento.fecha as fecha_documento',
-                        'tipo_documento.nombre as tipo_documento',
-                        'tipo_origen.nombre as origen',
-                        'documento.materia as materia',
-                        'documento_buzon.favorito as estado_favorito',
-                        'documento_buzon.id_documento_buzon as id_documento_buzon',
-                        'documento.folio as folio',
-                        )
-                    ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
-                    ->where('documento_buzon.favorito','=',1)
-                )
-                ->toJson();
+                $datosDocumentoFavorito = DocumentoFavoritoUsuario::join('documento', 'documento_favorito_usuario.id_documento', '=', 'documento.id_documento')
+                                        ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+                                        ->join('documento_buzon', 'documento_buzon.id_documento', '=', 'documento_favorito_usuario.id_documento')
+                                        ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
+                                        ->select(
+                                            'documento_favorito_usuario.id_documento as id_documento',
+                                            'tipo_documento.nombre as tipo_documento',
+                                            'documento.materia as materia',
+                                            'documento.identificador as identificador',
+                                            'documento.fecha as fecha_documento',
+                                            'buzon.nombre as buzon_origen'
+                                            )
+                                        ->where('documento_favorito_usuario.id_usuario','=',$datosRequest['id_usuario'])
+                                        ->whereNull('documento_buzon.id_documento_buzon_padre')
+                                        ->get();                                    
+                
+                return $this->respondSuccess($datosDocumentoFavorito, 200);
 
             }
             catch (ModelNotFoundException $e)
@@ -650,7 +648,6 @@ class DocumentoController extends Controller{
         {
             try 
             {
-                //return "hola";
                 $datosRequest = $request->json()->all();
                 
                 //$validator = $this->validator->validateFieldUser($datosRequest);
@@ -680,23 +677,38 @@ class DocumentoController extends Controller{
                 $datosRequest = $request->json()->all();
                 
                 //$validator = $this->validator->validateFieldUser($datosRequest);
-               // if ($validator->fails())
+                // if ($validator->fails())
                  //   return $this->respondFail('Falla del servicio, documento inválido');
 
-                $datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);      
+                //$datosDocumento = DocumentoBuzon::findOrFail($datosRequest['id_documento_buzon']);      
                 
-                $datosDocumento->update(['favorito' => $datosRequest['estado']]);                
+                //$datosDocumento->update(['favorito' => $datosRequest['estado']]);    
                 
-                return $this->respondSuccess(array('comentario' => "Actualizado"), 200);
+                if ($datosRequest['accion'] == 1) //agregar
+                {
+                    $addFavorito = DocumentoFavoritoUsuario::create([
+                        'id_documento' => $datosRequest['id_documento'],                    
+                        'id_usuario' => $datosRequest['id_usuario']
+                    ]);
+
+                    return $this->respondSuccess(array('comentario' => "Favorito agregado"), 200);
+                }
+
+                if ($datosRequest['accion'] == 2) //quitar
+                {
+                    DocumentoFavoritoUsuario::where(['id_documento' => $datosRequest['id_documento'], 'id_usuario' => $datosRequest['id_usuario']])->delete();
+
+                    return $this->respondSuccess(array('comentario' => "Favorito eliminado"), 200);
+                }
+                
             }  
             catch (ModelNotFoundException $e) 
             {
-                return $this->respondError('Documento no existe', 500);
+                return $this->respondError('Error al procesar favorito', 500);
             } 
         }
         else 
             return $this->respondError('Json inválido', 406);
-
 
     }
 
@@ -705,34 +717,31 @@ class DocumentoController extends Controller{
         {
             try
             {
-
                 $datosRequest = $request->json()->all();
                 /* buzon origen documento_buzon.id_buzon si id_documento_buzon_padre is null, sino buzon destino */
                 /* y buzon origen es documento_buzon.id_buzon donde id_documento_buzon = id_documento_buzon_padre  */
                 return datatables(
                     DB::table('documento_buzon_bitacora')
                     ->join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
-                    ->join('accion', 'documento_buzon_bitacora.id_accion', '=', 'accion.id_accion')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
-                    //->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                    //->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                    //->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     ->select(
                         'documento_buzon_bitacora.id_accion as accion',
-                        'documento.fecha as fecha_documento',
-                        'buzon.nombre as buzon_origen',
-                        'accion.nombre as nombre_accion',
-                        'mensaje_respuesta as mensaje_respuesta',
+                        'documento_buzon_bitacora.fecha as fecha_documento',
+                        'buzon.nombre as buzon_destino',
+                        'documento_buzon_bitacora.id_accion as accion',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
-                        //'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.id_tipo_destino as tipo_destino',
                         'documento.identificador as identificador',
-                        'documento.materia as materia'
+                        'documento.materia as materia',
+                        'documento_buzon.comentario_principal', 
+                        'documento_buzon.comentario_secundario',
+                        DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
                         )
-                    //->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
-                    ->where('documento_buzon.id_documento','=',$datosRequest['id_documento'])   
-                    ->orderBy('id_documento_buzon_bitacora', 'asc')                 
+                          
+                     ->where('documento_buzon.id_documento','=',$datosRequest['id_documento']) 
+                    ->where('id_accion','<>','1')  
+                    ->orderBy('id_documento_buzon_bitacora')                 
                 )
                 ->toJson();
 
