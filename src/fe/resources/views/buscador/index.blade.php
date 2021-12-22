@@ -635,8 +635,8 @@
                             .click(function() {
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                grilla_recibidos.columns(1).search($('#buscar_fecha_ini').val() && ('#buscar_fecha_fin').val()).draw();
-                                //grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
+                                //grilla_recibidos.columns(1).search($('#buscar_fecha_ini').val() && ('#buscar_fecha_fin').val()).draw();
+                                grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
                                 //grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
                                 grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();
                                 //self.search($('#gd_buscar_destino_materia').val()).draw();
