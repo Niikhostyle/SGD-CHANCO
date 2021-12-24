@@ -567,8 +567,8 @@ class DocumentoController extends Controller{
                 $datosDocumento->rel_documento_buzon;
 
                 $datosVerDoc = Documento::join('documento_buzon', 'documento_buzon.id_documento','=','documento.id_documento')
-                                    ->where('documento.id_documento','=','155')
-                                    ->whereRaw('documento_buzon.id_documento_buzon_padre = (select id_documento_buzon_padre from documento_buzon where id_documento = 155 order by id_documento_buzon desc limit 1)')
+                                    ->where('documento.id_documento','=', $datosRequest['id_documento'])
+                                    ->whereRaw('documento_buzon.id_documento_buzon_padre = (select id_documento_buzon_padre from documento_buzon where id_documento = '.$datosRequest['id_documento'].' order by id_documento_buzon desc limit 1)')
                                     ->select('documento_buzon.*')
                                     ->get();
 
