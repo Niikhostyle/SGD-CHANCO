@@ -498,6 +498,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
+<script src="/js/fglobales.js"></script>
 
 <script>
     //globales
@@ -1647,53 +1648,6 @@
         alert(identificador)
     }
 
-    function favorito_recibidos(id_documento_buzon){
-        Swal.fire({
-            title: 'Agregar a favoritos',
-            text: "¿Quiere agregar este documento a sus favoritos?",
-            showCancelButton: true,
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                console.log(result);
-            if (result.value==true) {
-                console.log(result.isConfirmed);
-                $(".print-error-msg").hide();
-                var token = $("input[name='_token']").val();
-                $.ajax({
-                        url: "/favoritos/"+id_documento_buzon,
-                        type:'PUT',
-                        dataType: 'json',
-                        data: {
-                            _token:token,
-                            estado:true                        
-                        },
-                        success: function(data) {
-                            if(data.status == '200')
-                            {
-                                toastr.success("Favorito Actualizado","Aviso!");
-                            }
-                            else
-                            {
-                                toastr.error(data.data.comentario,"Aviso!");
-                            }
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            //if (typeof data.errors !== 'undefined') {
-                            // printErrorMsg(data.errors);
-                            console.log(e);
-                                printErrorMsg(data);
-                        }
-                    //}
-                });
-            }
-        })
- 
-    }
-
     function cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,carpeta,accion)
     {
         clear_form();
@@ -2066,15 +2020,19 @@
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
                                         else{
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                             if(row.id_estado_documento != 6)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
                                         }
+
+                                        if (row.favorito == null)
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="add_favorito('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                        else
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito('+data+')" href="#"><i class="fas fa-star text-green"></i> ( - ) Favoritos</a>';
+
 
                                     botonera += '</div>';
                                     botonera += '</div>';
@@ -2172,11 +2130,16 @@
 
                                     if (row.id_estado_documento == 2) //E
                                     {
-                                        botonera +='                     <a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+
+                                        if (row.favorito == null)
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="add_favorito('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                        else
+                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito('+data+')" href="#"><i class="fas fa-star text-green"></i> ( - ) Favoritos</a>';
+
                                     }  
 
-                                    botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-                                    botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="favorito_recibidos('+row.id_documento_buzon+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
 
                                     botonera +='</div>';
                                 botonera += '</div>';

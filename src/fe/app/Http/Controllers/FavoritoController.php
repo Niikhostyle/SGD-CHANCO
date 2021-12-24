@@ -26,7 +26,6 @@ class FavoritoController extends Controller
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarFavoritos');
 
-
         if($lista_favoritos->failed()){
             $mensaje= $lista_favoritos->json()['data']['comentario'];
 
@@ -82,89 +81,15 @@ class FavoritoController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-
-        $sesion_key =  AppServiceProvider::session_key_general();
-        $documento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
-        ->withBody(json_encode([
-            'id_documento' => $id,
-        ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
-        //return $documento;
-        return $documento->json();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function estado($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
         ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito', [
-            'id_documento_buzon' => $id,
-            'estado' => $request->estado
+            'id_documento' => $id,
+            'id_usuario' => Auth::user()->id,
+            'accion' => $request['accion']
         ]);
 
         $response_json=response()->json($response->json());

@@ -41,8 +41,7 @@
                                     <table id="tabla_favorito_grilla" class="table dt-responsive nowrap" style="width:100%">
                                         <thead>
                                             <tr>
-                                                <th>Buzón</th>
-                                                <th>Estado</th>
+                                                
                                                 <th>ID Doc</th>
                                                 <th>Fecha Documento</th>
                                                 <th>TD</th>
@@ -52,18 +51,14 @@
                                             </tr>
                                         </thead>
                                         <tbody>                                        
-                                            <tr >
+                                            
                                             @foreach($lista_favoritos['data'] as $list)
-                                                <td>{{$list['nombre_buzon']}}</td>
-                                                <td> {{$list['estado_documento']}} </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-link" style="margin-top: -6px;">{{$list['identificador']}}</button>
-                                                </td>
+                                            <tr >
+                                                <td>{{$list['identificador']}}</td>
                                                 <td>{{$list['fecha_documento']}}</td>
                                                 <td>{{$list['tipo_documento']}}</td>
-                                                <td>{{$list['nombre_buzon']}}</td>
-                                                <td>{{$list['materia']}}</td>
-                                                
+                                                <td>{{$list['buzon_origen']}}</td>
+                                                <td>{{$list['materia']}}</td>                                                
 
                                                 <td>
                                                     <div class="dropdown">
@@ -71,12 +66,8 @@
                                                             <i class="fas fa-bars"></i>
                                                         </button>
                                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                            <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento({{$list['id_documento']}},{{$list['id_documento_buzon']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                                            <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_favorito({{$list['id_documento_buzon']}})" href="#">
-                                                                @if($list['estado_favorito']==true)
-                                                                    <i class="fas fa-trash-alt text-red"></i> Quitar
-                                                                @endif
-                                                            </a>
+                                                            <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                                            <a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito({{$list['id_documento']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Quitar</a>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -247,8 +238,7 @@
                         </div>
                                                 
                         <div class="form-row">                                
-                                <div class="col-md-12 group-button-align">                                    
-                                    <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
+                                <div class="col-md-12 group-button-align">
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="">
@@ -267,8 +257,63 @@
 
     <!-- Form Documentos -->
 
+    <!-- Bitacora-->  
+        
+    <div class="card" id="card_bitacora"  style="display:none">
+        <div class="card-header" >
+            <h4 id="titulo_accion">Bitácora</h4>
+            <div class="linea_content_header"></div>
+        </div>
+    <div class="card-body">
+        <div class="col"><b>ID: <span id="idAsignado2"></span></b></div>
+        <div class="col"><b>Materia: <span id="textMateria"></span></b></div>
+        <br>
+      
+        <div class="form-check" style="padding-right: 5px;">
+            <input class="form-check-input" type="checkbox" value="DDP" name="buscar_accion" id="accion_ddp">
+            <label class="form-check-label" for="defaultCheck1" >
+                Derivaciones destinatarios principales (DDP)
+            </label>
+        </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
+            <label class="form-check-label" for="defaultCheck1">
+                Dereivaciones otros destinatarios (DOO)
+            </label>
+            </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="CAP" name="buscar_accion" id="accion_cap">
+            <label class="form-check-label" for="defaultCheck1">
+                Cambios Archivos Principal (CAP)
+            </label>
+            </div>
+           
+            <div class="card-body">
+                <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Buzón Origen</th>
+                            <th>Acción </th>
+                            <th>Mensaje</th>
+                            
+                        </tr>
 
+                    </thead>                    
+                </table>
+            </div>         
+        </div>
+</div>
+   
+    <!-- Bitacora fin-->
 
+<div class="row ">
+    <div class="col-md-10"> </div>
+    <div class="col-md-2">
+        <p><button style="display:none" type="button" class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button></p>
+    </div>
+</div>  
 
 @stop
 
@@ -339,16 +384,17 @@
 
 @section('js')
 
-<script src="{{ asset('/js/funciones.js') }}"></script>
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
+<script src="/js/fglobales.js"></script>
+
 <script>
 
 $(document).ready(function(){
 
-    $('#tabla_favorito_grilla').DataTable({
+    $('#tabla_favorito_grilla').dataTable({
             rowReorder: {
                 selector: 'td:nth-child(2)'
             },
@@ -358,14 +404,8 @@ $(document).ready(function(){
 
 
 	$(".btn-menu-ver").click(function(e){
-		$('#card_ver_documento').show();
+		$('#card_ver_documento').show();	
 		
-		
-	});
-	$(".btn_cerrar_ver_documento").click(function(e){
-		$('#card_ver_documento').hide();
-		
-
 	});
 
 });
@@ -390,10 +430,22 @@ $('#form_otros_destinatarios_el').tagsinput({
 
 $(".btn_cerrar_guardar").click(function(e){
     $('#card_documento').hide();
+    $('#card_bitacora').hide();	
+    $('.btn_cerrar_guardar').hide();
     $("#collapseOne").collapse('show');
 });
 
-function visualizar_documento(id_documento, id_documento_buzon)
+$('input[name="buscar_accion"]').on('change', function () 
+{
+    var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
+        return '^' + this.value + '\$';
+    }).get().join('|');
+
+    gridBitacora.fnFilter(types, 0, true, false, false, false);
+});
+
+
+function visualizar_documento(id_documento)
 {
     $(".print-error-msg").hide();
 
@@ -401,6 +453,8 @@ function visualizar_documento(id_documento, id_documento_buzon)
     {
         $("#collapseOne").collapse('hide');
         $('#card_documento').show();
+        $('#card_bitacora').show();	
+        $('.btn_cerrar_guardar').show();
         
         //deshabilita campos
         $('.form-disabled').prop("disabled", true);
@@ -411,206 +465,9 @@ function visualizar_documento(id_documento, id_documento_buzon)
         $(".bootstrap-tagsinput-max").addClass("disabled");
         $(".bootstrap-tagsinput").addClass("disabled");  
 
-        cargar_datos_grilla(id_documento, id_documento_buzon);//,id_documento_buzon_padre);
-
+        cargar_datos_grilla(id_documento);
+        cargar_datos_bitacora(id_documento);
     }
-}
-
-function cargar_datos_grilla(id_documento, id_documento_buzon)
-{
-    $.ajax({
-        url: "/documentos/"+id_documento,
-        type:'GET',
-        dataType: 'json',
-        data: {
-                hiddIdDocumentoBuzon:id_documento_buzon
-                },
-        success: function(data) {
-            if(data.status=='400') {
-                toastr.error(data.data.comentario,"Aviso!");
-            }
-            else
-            {
-                if(data.status == '200')
-                {
-                    var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                    var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
-                    var idBuzon = $("input[name='hiddIdBuzon']").val();
-                    var carpeta = "";
-                    var idBuzonOrigen = "";
-
-                    $.each(data.data.rel_documento_buzon, function(key,value)
-                    {
-                        if (value.id_documento_buzon == id_documento_buzon)
-                        {
-                            carpeta = value.id_carpeta;
-                            idBuzonOrigen = value.id_buzon;
-                        }
-                    });
-
-                    $("#textBuzonorigen").text(listadoBuzones[idBuzonOrigen]);
-                    
-                    $("select[name='tipo_documento']").prepend("<option value='"+json_tipo_doc['id_tipo_documento']+"' selected='selected'>"+json_tipo_doc['nombre']+"</option>");
-                    $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
-                    $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                    $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
-                    $("input[name='materia']").val(data.data.materia);
-                    $("input[name='anterior']").val(data.data.anterior);
-                    $("textarea[name='descripcion']").val(data.data.descripcion);                     
-
-                    $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
-                    editor_cuerpo.setData(data.data.cuerpo);
-                    
-                    $("input[name='hiddIdDocumento']").val(data.data.id_documento);
-                    $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
-
-                    $("#idAsignado").text(data.data.identificador);
-
-                    if (json_tipo_doc['id_tipo_origen'] == 1) //interno
-                    {
-                        $('.row_cuerpo').show();
-                        $('.row_arch_ppal').hide();
-                        $('.row_anexo').show();
-                        $('#cargar_anexo').show();
-                    }
-                    if (json_tipo_doc['id_tipo_origen'] == 2) //externo
-                    {
-                        $('.row_cuerpo').hide();
-                        $('.row_arch_ppal').show();
-                        $('.row_anexo').hide();
-                        $('#form_archivo_principal_el').hide();
-                        $('#cargar_archivo_principal_el').show();
-                    }
-
-                    //archivos    
-                    var relDocumentoBuzonArchivo = data.data.rel_archivos;
-
-                    let htmlFile = "";
-                    let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
-                    let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
-                    let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
-
-                    $.each(relDocumentoBuzonArchivo, function(key,value)
-                    {   
-                        htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                    ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                        '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                        
-                        if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                            htmlFile = "";                                 
-                            
-                        if (value.id_tipo_archivo == 2) //anexo
-                            htmlFileAnexo += htmlFile + '</div>';       
-
-                        if (value.id_tipo_archivo == 3) //otros
-                            htmlFileOtros += htmlFile + '</div>'; 
-                        
-                        if (value.id_tipo_archivo == 1) //principal
-                            htmlFilePrincipal += htmlFile + '</div>'; 
- 
-                    });
-
-                    $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
-                    $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
-                    $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
-
-                    //destinatarios
-
-                    var relDocumentoBuzon = data.data.rel_documento_buzon;
-                    
-                    if (carpeta == 3 || carpeta == 2)
-                        var buzon_padre = id_documento_buzon;
-                    else
-                        var buzon_padre = id_documento_buzon_padre; 
-                        
-                    $.each(relDocumentoBuzon, function(i, item)
-                    {                       
-                        if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
-                        {
-                            $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
-                            $("textarea[id='form_comentario_el']").val(item.comentario_principal);
-
-                            //seleccionar acciones
-
-                            var accionesSolicitadas = $.parseJSON(item.json_acciones);
-
-                            console.log(accionesSolicitadas);
-                                
-                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-                            for (let i in accionesSolicitadas) {
-                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
-                            }
-                        }
-
-                        if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
-                        {
-                            $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
-                            $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
-                        }  
-                    });
-
-               }
-            }
-        },
-        error: function (e) {
-            data = e.responseJSON;
-            if (typeof data.errors !== 'undefined') {
-                printErrorMsg(data.errors);
-            }
-        }
-    });
-}
-
-
-function estado_favorito(id)
-{
-    Swal.fire({
-        title: 'Quitar de favoritos',
-        html: "¿Está seguro (a) que desea quitar este <br>" +
-                "     documento de sus favoritos?<br>",   
-        showCancelButton: true,
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Aceptar'
-        }).then((result) => {
-            console.log(result);
-        if (result.value==true) {
-            console.log(result.isConfirmed);
-            $(".print-error-msg").hide();
-            var token = $("input[name='_token']").val();
-            $.ajax({
-                    url: "favoritos/"+id,
-                    type:'PUT',
-                    dataType: 'json',
-                    data: {
-                        _token:token,
-                        estado:false                        
-                    },
-                    success: function(data) {
-                        if(data.status == '200')
-                        {
-                            toastr.success("Documento Actualizado","Aviso!");
-                            autoRefresh();
-                        }
-                        else
-                        {
-                            toastr.error(data.data.comentario,"Aviso!");
-                        }
-                    },
-                    error: function (e) {
-                        data = e.responseJSON;
-                        //if (typeof data.errors !== 'undefined') {
-                        // printErrorMsg(data.errors);
-                        console.log(e);
-                            printErrorMsg(data);
-                    }
-                //}
-            });
-        }
-    })
-
-
 }
 
 function autoRefresh() {

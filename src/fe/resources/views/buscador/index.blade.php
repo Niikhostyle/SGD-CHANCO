@@ -47,7 +47,7 @@
                         <select class="form-control" id="buscar_tipo_documento" name="buscar_tipo_documento" >
                             <option value="">Seleccionar</option>
                                 @foreach($listado_tiposdoc as $list)
-                                <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                                 @endforeach
                         </select>
                     </div>
@@ -59,7 +59,7 @@
                         <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
                             @foreach($listBuzones as $list)
-                            <option value="{{$list['id_buzon']}}">{{$list['nombre']}}</option>
+                            <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -153,236 +153,232 @@
     
         <!-- Form Documentos -->
 
-<div class="row" id="card_documento" style="display:none">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header" >
-                    <h4 id="titulo_accion">Ver Documento</h4>
-                    <div class="linea_content_header"></div>
-                </div>
-                <div class="card-body">
-
-                    <form class="needs-validation" id="form_crear_editar" method="POST" action="">
-                        @csrf
-                        <div class="container">
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                                <div class="form-control">Buzón Origen: <i><span id="textBuzonorigen"></span></i></div>
-                                <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
-                                <div class="form-control">Folio: <i>No Asignado</i></div>
-                                <div class="form-control">Fecha: <i>No Asignado</i></div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="form-row">
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Tipo Documento:</label>
-                                <select id="form_tipo_documento" name="tipo_documento" class="form-control form-disabled">                                                                       
-                                </select>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Nivel Acceso</label>
-                                <select class="form-control form-disabled" id="form_nivel_acceso" name="nivel_acceso">
-                                    @foreach($nivel_acceso as $dato)
-                                    <option value="{{$dato['id_nivel_acceso']}}">{{$dato['nombre']}}</option>
-                                    @endforeach
-                                </select>
-
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Efectos sobre terceros</label>
-                                <select id="form_efectos_terceros" name="efectos_terceros" class="form-control form-disabled">
-                                    <option selected>Seleccionar</option>
-                                    <option value="true">Si</option>
-                                    <option value="false">No</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="inputState">Contestar/Hasta</label>
-                                <input type="date" class="form-control form-disabled" id="form_contestar_hasta" name="contestar_hasta">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-4 mb-3">
-                                <label for="inputState">Respuesta a:</label>
-                                <select id="form_respuesta_a" name="respuesta_a" class="form-control form-disabled">                                  
-                                </select>
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label for="inputState">Materia:</label>
-                                <input type="text" class="form-control form-disabled" id="form_materia" name="materia">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-12 mb-3">
-                                <label for="inputState">Anterior:</label>
-                                <input type="text" class="form-control form-disabled" id="form_anterior" name="anterior">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Descripción o Extracto</label>
-                                <textarea class="form-control form-disabled" id="form_descripcion" name="descripcion"></textarea>
-                            </div>
-                        </div>
-
-                        <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
-                        <div class="form-row row_cuerpo" style="display:none">
-                            <div class="col-md-12">
-                                <label for="exampleFormControlTextarea1">Cuerpo:</label>
-                                <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
-                                <input type="hidden" id="form_encabezado" name="encabezado">
-                            </div>
-                        </div>
-                        <div style="display:none">
-                            <div class="col-md-12">
-                                <form> </form>
-                            </div>
-                        </div>
-                        <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexos:</label>
-                            
-                            <div class="card-body card-archivos" id="cargar_anexo">
-                                <div id="dropzone-anexo-view" class="dropzone-view"></div>                                                                                        
-                            </div>
-
-                        </div>
-
-                        <div class="form-group row_arch_ppal">
-                            <label for="exampleFormControlTextarea1">Archivo Principal</label>
-                            
-                            <div class="card-body card-archivos" id="cargar_principal">
-                                <div id="dropzone-principal-view" class="dropzone-view"></div>                                                                                
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-                            <label for="exampleFormControlTextarea1">Otros Archivos</label>
-                            
-                            <div class="card-body card-archivos" id="cargar_otros">
-                                <div id="dropzone-otros-view" class="dropzone-view"></div>                                                                            
-                            </div>
-
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-8 mb-3">
-                                <label for="inputState">Destinatario Principal:</label>
-                                <input type="text" class="form-control form-disabled" id="form_destinatario_principal_el" data-role="tagsinput">
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="inputState">Acciones Solicitadas:</label><br>
-                                <select id="form_acciones_solicitadas_el" class="form-control form-disabled" multiple="multiple">                                    
-                                    @foreach($listadoAcciones as $accion)
-                                    @if($accion['id_tipo_accion'] == 1)
-                                        <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
-                                    @endif    
-                                @endforeach     
-                                </select>
-                                </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
-                                <textarea class="form-control form-disabled"  id="form_comentario_el"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12 mb-3">
-                                <label for="inputState">Otro(s) Destinatario(s):</label>
-                                <input type="text" class="form-control form-disabled" id="form_otros_destinatarios_el" data-role="tagsinput">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                                <textarea class="form-control form-disabled" id="form_comentario_otro_el"></textarea>
-                            </div>
-                        </div>
-                                                
-                        <div class="form-row">                                
-                                <div class="col-md-12 group-button-align">                                    
-                                    
-                                    <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
-                                    <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
-                                    <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="">
-                                    <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
-
-                                </div>                          
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
+        <div class="row" id="card_documento" style="display:none">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header" >
+                        <h4 id="titulo_accion">Ver Documento</h4>
+                        <div class="linea_content_header"></div>
+                    </div>
+                    <div class="card-body">
     
+                        <form class="needs-validation" id="form_crear_editar" method="POST" action="">
+                            @csrf
+                            <div class="container">
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+                                    <div class="form-control">Buzón Origen: <i><span id="textBuzonorigen"></span></i></div>
+                                    <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
+                                    <div class="form-control">Folio: <i>No Asignado</i></div>
+                                    <div class="form-control">Fecha: <i>No Asignado</i></div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="inputState">Tipo Documento:</label>
+                                    <select id="form_tipo_documento" name="tipo_documento" class="form-control form-disabled">                                                                       
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="inputState">Nivel Acceso</label>
+                                    <select class="form-control form-disabled" id="form_nivel_acceso" name="nivel_acceso">
+                                        @foreach($nivel_acceso as $dato)
+                                        <option value="{{$dato['id_nivel_acceso']}}">{{$dato['nombre']}}</option>
+                                        @endforeach
+                                    </select>
+    
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="inputState">Efectos sobre terceros</label>
+                                    <select id="form_efectos_terceros" name="efectos_terceros" class="form-control form-disabled">
+                                        <option selected>Seleccionar</option>
+                                        <option value="true">Si</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="inputState">Contestar/Hasta</label>
+                                    <input type="date" class="form-control form-disabled" id="form_contestar_hasta" name="contestar_hasta">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="inputState">Respuesta a:</label>
+                                    <select id="form_respuesta_a" name="respuesta_a" class="form-control form-disabled">                                  
+                                    </select>
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="inputState">Materia:</label>
+                                    <input type="text" class="form-control form-disabled" id="form_materia" name="materia">
+                                </div>
+                            </div>
+    
+                            <div class="form-row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="inputState">Anterior:</label>
+                                    <input type="text" class="form-control form-disabled" id="form_anterior" name="anterior">
+                                </div>
+                            </div>
+    
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label for="floatingTextarea">Descripción o Extracto</label>
+                                    <textarea class="form-control form-disabled" id="form_descripcion" name="descripcion"></textarea>
+                                </div>
+                            </div>
+    
+                            <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
+                            <div class="form-row row_cuerpo" style="display:none">
+                                <div class="col-md-12">
+                                    <label for="exampleFormControlTextarea1">Cuerpo:</label>
+                                    <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
+                                    <input type="hidden" id="form_encabezado" name="encabezado">
+                                </div>
+                            </div>
+                            <div style="display:none">
+                                <div class="col-md-12">
+                                    <form> </form>
+                                </div>
+                            </div>
+                            <div class="form-group row_anexo">
+                                <label for="exampleFormControlTextarea1">Anexos:</label>
+                                
+                                <div class="card-body card-archivos" id="cargar_anexo">
+                                    <div id="dropzone-anexo-view" class="dropzone-view"></div>                                                                                        
+                                </div>
+    
+                            </div>
+    
+                            <div class="form-group row_arch_ppal">
+                                <label for="exampleFormControlTextarea1">Archivo Principal</label>
+                                
+                                <div class="card-body card-archivos" id="cargar_principal">
+                                    <div id="dropzone-principal-view" class="dropzone-view"></div>                                                                                
+                                </div>
+    
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="exampleFormControlTextarea1">Otros Archivos</label>
+                                
+                                <div class="card-body card-archivos" id="cargar_otros">
+                                    <div id="dropzone-otros-view" class="dropzone-view"></div>                                                                            
+                                </div>
+    
+                            </div>
+    
+                            <div class="form-row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="inputState">Destinatario Principal:</label>
+                                    <input type="text" class="form-control form-disabled" id="form_destinatario_principal_el" data-role="tagsinput">
+                                </div>
+    
+                                <div class="col-md-4 mb-3">
+                                    <label for="inputState">Acciones Solicitadas:</label><br>
+                                    <select id="form_acciones_solicitadas_el" class="form-control form-disabled" multiple="multiple">                                    
+                                        @foreach($listadoAcciones as $accion)
+                                        @if($accion['id_tipo_accion'] == 1)
+                                            <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
+                                        @endif    
+                                    @endforeach     
+                                    </select>
+                                    </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
+                                    <textarea class="form-control form-disabled"  id="form_comentario_el"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="inputState">Otro(s) Destinatario(s):</label>
+                                    <input type="text" class="form-control form-disabled" id="form_otros_destinatarios_el" data-role="tagsinput">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
+                                    <textarea class="form-control form-disabled" id="form_comentario_otro_el"></textarea>
+                                </div>
+                            </div>
+                                                    
+                            <div class="form-row">                                
+                                    <div class="col-md-12 group-button-align">
+                                        <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
+                                        <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
+                                        <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="">
+                                        <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
+    
+                                    </div>                          
+                            </div>
+                        </form>
+                    </div>
+    
+                </div>
+    
+            </div>
+        </div>    
 
     <!-- Form Documentos -->
 
-
-       
-   <!-- Bitacora-->
-
-   
+    <!-- Bitacora-->  
         
-        <div class="card" id="card_bitacora"  style="display:none">
-        <h4 id="titulo_ver_documento"class="card-header " >Bitácora</h5>
-        <br>
-        <div class="card-body">
-            <div class="col">ID: <i><span id="idAsignado2"></span></i></div>
-            <div class="col">Materia: <i><span id="textMateria"></span></i></div>
-            <br>
-          
-            <div class="form-check" style="padding-right: 5px;">
-                <input class="form-check-input" type="checkbox" value="1" id="id_buscar_ddp" name="buscar_ddp" checked="checked" >
-                <label class="form-check-label" for="defaultCheck1" >
-                    Derivaciones destinatarios principales (DDP)
-                </label>
-            </div>
-                <div class="form-check" >
-                <input class="form-check-input" type="checkbox" value="2" id="id_buscar_doo" name="buscar_doo" checked="checked">
-                <label class="form-check-label" for="defaultCheck1">
-                    Dereivaciones otros destinatarios (DOO)
-                </label>
-                </div>
-                <div class="form-check" >
-                <input class="form-check-input" type="checkbox" value="3" id="id_buscar_cap" name="buscar_cap" checked="checked">
-                <label class="form-check-label" for="defaultCheck1">
-                    Cambios Archivos Principal (CAP)
-                </label>
-                </div>
-               
-                <div class="card-body">
-                    <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Fecha</th>
-                                <th>Buzón Origen</th>
-                                <th>Acción </th>
-                                <th>Mensaje</th>
-                                
-                            </tr>
-                        </thead>
-                        
-                    </table>
-                </div>
-                
-            <div class="row">
-                <div class="col-md-10"> </div>
-                <div class="col-md-2">
-                    <button type="button"  class="btn btn-secondary w-100 btn_cerrar_documento">Cerrar</button>
-                </div>
-            </div>  
+    <div class="card" id="card_bitacora"  style="display:none">
+        <div class="card-header" >
+            <h4 id="titulo_accion">Bitácora</h4>
+            <div class="linea_content_header"></div>
         </div>
-    
+    <div class="card-body">
+        <div class="col"><b>ID: <span id="idAsignado2"></span></b></div>
+        <div class="col"><b>Materia: <span id="textMateria"></span></b></div>
+        <br>
+      
+        <div class="form-check" style="padding-right: 5px;">
+            <input class="form-check-input" type="checkbox" value="DDP" name="buscar_accion" id="accion_ddp">
+            <label class="form-check-label" for="defaultCheck1" >
+                Derivaciones destinatarios principales (DDP)
+            </label>
+        </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
+            <label class="form-check-label" for="defaultCheck1">
+                Dereivaciones otros destinatarios (DOO)
+            </label>
+            </div>
+            <div class="form-check" >
+            <input class="form-check-input" type="checkbox" value="CAP" name="buscar_accion" id="accion_cap">
+            <label class="form-check-label" for="defaultCheck1">
+                Cambios Archivos Principal (CAP)
+            </label>
+            </div>
+           
+            <div class="card-body">
+                <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Buzón Origen</th>
+                            <th>Acción </th>
+                            <th>Mensaje</th>
+                            
+                        </tr>
 
-   <!-- Bitacora fin-->
+                    </thead>                    
+                </table>
+            </div>         
+        </div>
+</div>
+   
+    <!-- Bitacora fin-->
+
+<div class="row ">
+    <div class="col-md-10"> </div>
+    <div class="col-md-2">
+        <p><button style="display:none" type="button" class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button></p>
+    </div>
+</div> 
 
     
 @stop
@@ -459,78 +455,37 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
+<script src="/js/fglobales.js"></script>
+
 <script>
 
-       /** function myFunction() {
-            var checkBox = document.getElementById("id_buscar_ddp");
-            var text = document.getElementById("text");
-            if (checkBox.checked == true){
-                text.style.display = "block";
-            } else {
-                text.style.display = "none";
-            }
-        } */
-    var grilla_bitacora;
     var grilla_recibidos;
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
     const listadoBuzones = @json($listadoBuzones);
 
     $(document).ready(function () {
-    
-
-        //var div_por_recibir_width = document.getElementById('nav-por-recibir').getBoundingClientRect().width;
-        //$('#nav-despachados').attr("style","width:"+div_por_recibir_width+'px');
-        //$('#nav-recibidos').attr("style","width:"+div_por_recibir_width+'px');
-
-        $(function() {
-
-            
+        $(function() {            
 
             fn_grilla_recibidos();
-
-        
+       
         });
     });
+      
+    $(".desplegar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').show();
+        $(".desplegar_opciones_avanzadas").hide();
+        $(".cerrar_opciones_avanzadas").show();
+    });
 
+    $(".cerrar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').hide();
+        $(".cerrar_opciones_avanzadas").hide();
+        $(".desplegar_opciones_avanzadas").show();
+    });     
 
-           /**$('#tabla_favorito_grilla').DataTable({
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            responsive: true,
-            language: lenguaje_datatable
-        });**/
-        
-        $(".desplegar_opciones_avanzadas").click(function(e){
-            $('#card_opciones_avanzadas').show();
-            $(".desplegar_opciones_avanzadas").hide();
-            $(".cerrar_opciones_avanzadas").show();
-        });
-
-        $(".cerrar_opciones_avanzadas").click(function(e){
-            $('#card_opciones_avanzadas').hide();
-            $(".cerrar_opciones_avanzadas").hide();
-            $(".desplegar_opciones_avanzadas").show();
-        });
-
-     
-
-        $('#buzon_origen').select2();
+    $('#buzon_origen').select2();
         $('#tipo_documento').select2();
 
-      //  $(".btn-menu-ver").click(function(e){
-        //    $('#card_ver_documento').show();
-            
-            
-        //});
-        //$(".btn_cerrar_ver_documento").click(function(e){
-          //  $('#card_ver_documento').hide();
-        //});
-        
-        //fn_grilla_bitacora();
-    
-
-    
 
     $('#form_acciones_solicitadas_el').multiselect({
             nonSelectedText: 'Seleccione Acciones'
@@ -547,12 +502,20 @@
         itemText: 'text'
     });
 
-    $(".btn_cerrar_documento").click(function(e){
-        //$('#card_documento').trigger("reset");
+    $(".btn_cerrar_guardar").click(function(e){
         $('#card_documento').hide();
-        $('#card_bitacora').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
         $("#collapseOne").collapse('show');
-       
+    });
+
+    $('input[name="buscar_accion"]').on('change', function () 
+    {
+        var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
+            return '^' + this.value + '\$';
+        }).get().join('|');
+
+        gridBitacora.fnFilter(types, 0, true, false, false, false);
     });
 
     async function fn_grilla_recibidos(){
@@ -572,16 +535,17 @@
                     selector: 'td:nth-child(2)'
                 },
                 responsive: true,
+                
                 language: lenguaje_datatable,
                 columns: [
                     
-                    { data: 'identificador', name: 'documento.identificador ' },
+                    { data: 'identificador', name: 'identificador' },
                     { data: 'fecha_documento', name: 'documento.fecha' },
-                    { data: 'tipo_documento', name: 'tipo_documento.nombre' },
-                    { data: 'folio', name: 'documento.folio' },
-                    { data: 'origen', name: 'tipo_origen.nombre' },
-                    { data: 'nombre_buzon', name: 'buzon.nombre' },
-                    { data: 'materia', name: 'documento.materia ' },
+                    { data: 'tipo_documento', name: 'tipo_documento' },
+                    { data: 'folio', name: 'folio' },
+                    { data: 'buzon_origen', name: 'buzon_origen' },
+                    { data: 'buzon_actual', name: 'buzon_actual' },
+                    { data: 'materia', name: 'materia' },
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -590,22 +554,11 @@
                             }else{
                                 let botonera = '<div class="dropdown">';
                                     botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                        botonera +=' <i class="fas fa-bars"></i>';
-                                        botonera +=' </button>';
-                                        botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-
-                                                                                    
-
-
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+row.id_documento+')"  href="#"><i class="fas fa-download text-blue"></i> Descargar</a>';
-                                            
-                                            
-                                            
-                                        
-                                        
-
+                                    botonera +=' <i class="fas fa-bars"></i>';
+                                    botonera +=' </button>';
+                                    botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                    botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                    botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+row.id_documento+')"  href="#"><i class="fas fa-download text-blue"></i> Descargar</a>';
                                     botonera += '</div>';
                                     botonera += '</div>';
                                 return botonera;
@@ -635,20 +588,14 @@
                             .click(function() {
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                //grilla_recibidos.columns(1).search($('#buscar_fecha_ini').val() && ('#buscar_fecha_fin').val()).draw();
-                                grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
-                                //grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
-                                grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();
-                                //self.search($('#gd_buscar_destino_materia').val()).draw();
+                                grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
+                                grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
+                                grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();       
                             })
                     $simpleSearchButton = $('<button class="btn btn-light" id_btn_filtrar">')
                     .text('Buscar')
                     .click(function() {
-                        //grilla_recibidos.columns(4).search($('#busqueda_simple').val()).draw();
-                        //grilla_recibidos.columns(6).search($('#busqueda_simple').val()).draw();
-                       // grilla_recibidos.columns(2).search($('#busqueda_simple').val()).draw();
-                        //grilla_recibidos.columns(3).search($('#busqueda_simple').val()).draw();
-                       // grilla_recibidos.columns(5).search($('#busqueda_simple').val()).draw();
                         self.search($('#busqueda_simple').val()).draw();
                     })
                     $('#botones_grilla_despachados').html('');
@@ -673,7 +620,7 @@
             $("#collapseOne").collapse('hide');
             $('#card_documento').show();
             $('#card_bitacora').show();
-
+            $('.btn_cerrar_guardar').show();
             
             //deshabilita campos
             $('.form-disabled').prop("disabled", true);
@@ -684,247 +631,12 @@
             $(".bootstrap-tagsinput-max").addClass("disabled");
             $(".bootstrap-tagsinput").addClass("disabled");  
 
-            cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre);//,id_documento_buzon_padre);
-            cargar_datos_bitacora(id_documento, id_documento_buzon, id_documento_buzon_padre);
+            cargar_datos_grilla(id_documento);
+            cargar_datos_bitacora(id_documento);
 
         }
     }
    
-    function cargar_datos_bitacora(id_documento, id_documento_buzon, id_documento_buzon_padre)
-    {
-    
-    //clear_form();
-    $.getJSON('buscador/'+id_documento, function(response) {
-    $('#tabla_bitacora_grilla').dataTable({
-        processing: true,
-        data: response.data,
-        destroy: true, 
-        searching: false,
-        columns: [
-            { data: 'tipo_destino',
-                render: function(data, row) {
-                        
-                    let textAbrv = data;
-
-                    if (data == 1)
-                        return ''; 
-                    else 
-                        return '';
-                    
-                }
-            },
-            {data: 'fecha_documento'},
-            {data: 'buzon_origen'},
-            {data: 'nombre_accion'},
-            {data: 'mensaje_respuesta'}
-        ]
-    });
-
-    $("#idAsignado2").text(response.data[0].identificador);
-    $("#textMateria").text(response.data[0].materia);
-    //window.someGlobalOrWhatever = response.balance
-    });
-
-    
-    /* 
-        $('#tabla_bitacora_grilla').dataTable( {
-            "ajax": "buscador/"+id_documento,
-            "columns":[
-                {data: 'id_documento_buzon'},
-                {data: 'fecha_documento'},
-                {data: 'buzon_origen'},
-                {data: 'nombre_accion'},
-                {data: 'mensaje_respuesta'}
-            ]                                   
-        });
-        */
-        /*
-        $.ajax({
-            url: "buscador/"+id_documento,
-            type:'GET',
-            dataType: 'json',
-            success: function(data) {
-                if(data.status=='400') {
-                    toastr.error(data.data.comentario,"Aviso!");
-                }
-                else
-                {       var datos = data.data;
-                        console.log(datos);
-                        console.log(datos.buzon_origen);
-                        $('#tabla_bitacora_grilla').dataTable( {
-                            processing: true,
-                            data: datos,
-                            columns: [
-                                {"data" : "DDP"},
-                                {"data" : "datos.fecha_documento"},
-                                {"data" : "datos.buzon_origen"},
-                                {"data" : "datos.nombre_accion"},
-                                {"data" : "datos.mensaje_respuesta"}            
-                            ],
-                        });
-                    if(data.status == '200')
-                    {
-                        
-
-                    }
-                }
-            },
-            error: function (e) {
-                console.log("ERROR");
-                data = e.responseJSON;
-                if (typeof data.errors !== 'undefined') {
-                    printErrorMsg(data.errors);
-                }
-            }
-        });
-        */
-
-    }
-
-    function cargar_datos_grilla(id_documento, id_documento_buzon)
-    {
-        $.ajax({
-            url: "/documentos/"+id_documento,
-            type:'GET',
-            dataType: 'json',
-            data: {
-                    hiddIdDocumentoBuzon:id_documento_buzon
-                    },
-            success: function(data) {
-                if(data.status=='400') {
-                    toastr.error(data.data.comentario,"Aviso!");
-                }
-                else
-                {
-                    if(data.status == '200')
-                    {
-                        var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                        var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
-                        var idBuzon = $("input[name='hiddIdBuzon']").val();
-                        var carpeta = "";
-                        var idBuzonOrigen = "";
-
-                        $.each(data.data.rel_documento_buzon, function(key,value)
-                        {
-                            if (value.id_documento_buzon == id_documento_buzon)
-                            {
-                                carpeta = value.id_carpeta;
-                                idBuzonOrigen = value.id_buzon;
-                            }
-                        });
-
-                        $("#textBuzonorigen").text(listadoBuzones[idBuzonOrigen]);
-                        
-                        $("select[name='tipo_documento']").prepend("<option value='"+json_tipo_doc['id_tipo_documento']+"' selected='selected'>"+json_tipo_doc['nombre']+"</option>");
-                        $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
-                        $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                        $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
-                        $("input[name='materia']").val(data.data.materia);
-                        $("input[name='anterior']").val(data.data.anterior);
-                        $("textarea[name='descripcion']").val(data.data.descripcion);                     
-
-                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
-                        editor_cuerpo.setData(data.data.cuerpo);
-                        
-                        $("input[name='hiddIdDocumento']").val(data.data.id_documento);
-                        $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
-
-                        $("#idAsignado").text(data.data.identificador);
-
-                        if (json_tipo_doc['id_tipo_origen'] == 1) //interno
-                        {
-                            $('.row_cuerpo').show();
-                            $('.row_arch_ppal').hide();
-                            $('.row_anexo').show();
-                            $('#cargar_anexo').show();
-                        }
-                        if (json_tipo_doc['id_tipo_origen'] == 2) //externo
-                        {
-                            $('.row_cuerpo').hide();
-                            $('.row_arch_ppal').show();
-                            $('.row_anexo').hide();
-                            $('#form_archivo_principal_el').hide();
-                            $('#cargar_archivo_principal_el').show();
-                        }
-
-                        //archivos    
-                        var relDocumentoBuzonArchivo = data.data.rel_archivos;
-
-                        let htmlFile = "";
-                        let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
-                        let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
-                        let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
-
-                        $.each(relDocumentoBuzonArchivo, function(key,value)
-                        {   
-                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                        ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                            '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                            
-                            if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                                htmlFile = "";                                 
-                                
-                            if (value.id_tipo_archivo == 2) //anexo
-                                htmlFileAnexo += htmlFile + '</div>';       
-
-                            if (value.id_tipo_archivo == 3) //otros
-                                htmlFileOtros += htmlFile + '</div>'; 
-                            
-                            if (value.id_tipo_archivo == 1) //principal
-                                htmlFilePrincipal += htmlFile + '</div>'; 
-    
-                        });
-
-                        $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
-                        $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
-                        $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
-
-                        //destinatarios
-
-                        var relDocumentoBuzon = data.data.rel_documento_buzon;
-                        
-                        if (carpeta == 3 || carpeta == 2)
-                            var buzon_padre = id_documento_buzon;
-                        else
-                            var buzon_padre = id_documento_buzon_padre; 
-                            
-                        $.each(relDocumentoBuzon, function(i, item)
-                        {                       
-                            if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
-                            {
-                                $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
-                                $("textarea[id='form_comentario_el']").val(item.comentario_principal);
-
-                                //seleccionar acciones
-
-                                var accionesSolicitadas = $.parseJSON(item.json_acciones);
-
-                                console.log(accionesSolicitadas);
-                                    
-                                $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-                                for (let i in accionesSolicitadas) {
-                                    $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
-                                }
-                            }
-
-                            if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
-                            {
-                                $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
-                                $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
-                            }  
-                        });
-
-                }
-                }
-            },
-            error: function (e) {
-                data = e.responseJSON;
-                if (typeof data.errors !== 'undefined') {
-                    printErrorMsg(data.errors);
-                }
-            }
-        });
-    }
-
+ 
 </script>
 @stop
