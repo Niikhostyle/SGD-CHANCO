@@ -47,7 +47,7 @@
                         <select class="form-control" id="buscar_tipo_documento" name="buscar_tipo_documento" >
                             <option value="">Seleccionar</option>
                                 @foreach($listado_tiposdoc as $list)
-                                <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                                 @endforeach
                         </select>
                     </div>
@@ -59,7 +59,7 @@
                         <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
                             @foreach($listBuzones as $list)
-                            <option value="{{$list['id_buzon']}}">{{$list['nombre']}}</option>
+                            <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -535,16 +535,17 @@
                     selector: 'td:nth-child(2)'
                 },
                 responsive: true,
+                
                 language: lenguaje_datatable,
                 columns: [
                     
-                    { data: 'identificador', name: 'documento.identificador' },
+                    { data: 'identificador', name: 'identificador' },
                     { data: 'fecha_documento', name: 'documento.fecha' },
-                    { data: 'id_tipo_documento', name: 'documento.id_tipo_documento' },
-                    { data: 'folio', name: 'documento.folio' },
+                    { data: 'tipo_documento', name: 'tipo_documento' },
+                    { data: 'folio', name: 'folio' },
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
-                    { data: 'materia', name: 'documento.materia' },
+                    { data: 'materia', name: 'materia' },
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -587,20 +588,14 @@
                             .click(function() {
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                //grilla_recibidos.columns(1).search($('#buscar_fecha_ini').val() && ('#buscar_fecha_fin').val()).draw();
-                                grilla_recibidos.columns(5).search($('#buscar_buzon_origen').val()).draw();
-                                //grilla_recibidos.columns(2).search($('#buscar_fecha_fin').val()).draw();
-                                grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();
-                                //self.search($('#gd_buscar_destino_materia').val()).draw();
+                                grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
+                                grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
+                                grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();       
                             })
                     $simpleSearchButton = $('<button class="btn btn-light" id_btn_filtrar">')
                     .text('Buscar')
                     .click(function() {
-                        //grilla_recibidos.columns(4).search($('#busqueda_simple').val()).draw();
-                        //grilla_recibidos.columns(6).search($('#busqueda_simple').val()).draw();
-                       // grilla_recibidos.columns(2).search($('#busqueda_simple').val()).draw();
-                        //grilla_recibidos.columns(3).search($('#busqueda_simple').val()).draw();
-                       // grilla_recibidos.columns(5).search($('#busqueda_simple').val()).draw();
                         self.search($('#busqueda_simple').val()).draw();
                     })
                     $('#botones_grilla_despachados').html('');
