@@ -6,6 +6,7 @@ use App\Http\Controllers\DocumentoBuzonArchivoController;
 use App\Http\Controllers\TipoDocumentoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
+use App\Http\Controllers\DocumentoValidadorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,4 +72,9 @@ Route::middleware(['auth:sanctum', 'verified'])->delete('tipos_documentos/{id}',
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos',[FavoritoController::class,'index'])->name('favoritos.index');
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos/{id}',[FavoritoController::class,'show'])->name('favoritos.show');
 Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoController::class,'estado'])->name('favoritos.estado');
+//validador
+Route::middleware(['auth:sanctum', 'verified'])->get('validador',[DocumentoValidadorController::class,'index'])->name('validador.index');
+Route::middleware(['auth:sanctum', 'verified'])->post('validadorCodigo',[DocumentoValidadorController::class,'store'])->name('validador.store');
+
+
 
