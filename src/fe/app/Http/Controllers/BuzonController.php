@@ -260,7 +260,7 @@ class BuzonController extends Controller
 
             if ($dato['id_tipo_accion'] == 1) //requerida
             {
-                $aFlujoAccionT1[] = array($dato['id_accion'], $dato['nombre']);
+                $aFlujoAccionT1[$dato['id_accion']] = $dato['nombre'];
             }     
         
         }
@@ -304,7 +304,7 @@ class BuzonController extends Controller
             foreach ($listado_buzones['data'] as $dato)
             {
                 $aBuzones[$dato['id_buzon']] = $dato['nombre'];
-                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);// "tipo" => $dato['id_tipo_buzon']
+                $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre'], "tipo" => $dato['id_tipo_buzon']);// "tipo" => $dato['id_tipo_buzon']
             }
         }
 
