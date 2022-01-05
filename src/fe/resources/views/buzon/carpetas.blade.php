@@ -1582,12 +1582,14 @@
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
 
         //flujo libre
+        /*
         $('#form_destinatario_principal_el').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
-        $('#form_comentario_el').prop("disabled", false);        
+        $(".bootstrap-tagsinput-max").removeClass("disabled");
+        
+*/      $('#form_comentario_el').prop("disabled", false);        
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
-        $(".bootstrap-tagsinput-max").removeClass("disabled");
         $(".bootstrap-tagsinput").removeClass("disabled");  
 
         $('.btn-guardar-submit').hide();
@@ -1797,12 +1799,11 @@
                             });
 
                             //definir acciones para tipo de avance
-
+console.log(jsonTipoAvance);
                             if (jsonTipoAvance == 1) //unidireccional
                             {
                                 $('#form_destinatario_principal_el').prop("disabled", true);
-                                $(".bootstrap-tagsinput-max").addClass("disabled");
-
+                                $(".bootstrap-tagsinput-max").removeClass("disabled");
                             }   
                             if (jsonTipoAvance == 2) //unidireccional con reinicio
                             {
