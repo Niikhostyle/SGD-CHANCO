@@ -1099,7 +1099,8 @@
         });
     }
 
-    function guarda_destinatarios_documento(accion) {
+    function guarda_destinatarios_documento(accion) 
+    {
 
         var _token = $("input[name='_token']").val();
         var contestar_hasta = $("input[name='contestar_hasta']").val();
@@ -1143,6 +1144,9 @@
                     
                     if (accion == 6) //visar
                         visar_documento();
+
+                    if (accion == 7) //firmar
+                        firmar_documento();    
                 }
                 else
                 {
@@ -1156,7 +1160,7 @@
         });
     }
 
-    function accion_editar_guardar()
+    function accion_editar_guardar() //**** revisar si se puede usar funcion que guarda documento ****//
     {
         var _token = $("input[name='_token']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
@@ -1408,6 +1412,44 @@
         });
     }
 
+    function firmar_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        $.ajax({
+            url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+            type: 'PUT',
+            dataType: 'json',
+            data: {
+                _token:_token,
+                hiddIdDocumento:hiddIdDocumento,
+                buzon:hiddIdBuzon,
+                estado:9                
+            },
+            success: function(data)
+            {
+                if(data.status == '200')
+                {
+                    toastr.success("Documento Firmado","Aviso!");
+
+                    $('#card_crear_documento').hide();        
+                    fn_grilla_recibidos();
+                }
+                else
+                {
+                    toastr.error(data.data.comentario,"Aviso!");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr.error("Falla en el documento","Aviso!");
+            }
+        });
+    }
+
     function recibir_documento()
     {
         var _token = $("input[name='_token']").val();
@@ -1579,15 +1621,15 @@
         $('#titulo_accion').html('Editar Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
-
-        //flujo libre
-        /*
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        
+        /* libre
         $('#form_destinatario_principal_el').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $(".bootstrap-tagsinput-max").removeClass("disabled");
-        
-*/      $('#form_comentario_el').prop("disabled", false);        
+        */
+
+        $('#form_comentario_el').prop("disabled", false);        
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
         $(".bootstrap-tagsinput").removeClass("disabled");  
@@ -1601,16 +1643,40 @@
         
     }
 
+    function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
+        $('#titulo_accion').html('Ver Documento');         
+
+        deshabilita_campos();
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        
+        $('#form_destinatario_principal_el').prop("disabled", false);
+        $('#form_acciones_solicitadas_el').multiselect('enable');
+        $(".bootstrap-tagsinput-max").removeClass("disabled");
+
+        $('#form_comentario_el').prop("disabled", false);        
+        $('#form_otros_destinatarios_el').prop("disabled", false);
+        $('#form_comentario_otro_el').prop("disabled", false);
+        $(".bootstrap-tagsinput").removeClass("disabled");  
+
+        $('.btn-guardar-submit').hide();
+        $('.btn-enviar-submit').hide();
+        $('#addButton').html(''); 
+
+        var buttonFirmar = '<button onClick="guarda_destinatarios_documento(7)" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
+        $('#addButton').append(buttonFirmar);
+        
+    }
+
     function derivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
-
-        //flujo libre
+        
         $('#form_destinatario_principal_el').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
-        $('#form_comentario_el').prop("disabled", false);        
+        $('#form_comentario_el').prop("disabled", false); 
+
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
         $(".bootstrap-tagsinput-max").removeClass("disabled");
@@ -1725,19 +1791,21 @@
                         if (carpeta == 3 || carpeta == 2)
                         {
                             var buzon_padre = id_documento_buzon;
-                            var flujoActual = json_tipo_doc['flujo_actual'];
+                            var flujoSgte = json_tipo_doc['flujo_actual'] + 1; //solo aplica cuando está en carpeta = 2
                         }
                         else
                         {
                             var buzon_padre = id_documento_buzon_padre; 
-                            var flujoActual = json_tipo_doc['flujo_actual'] - 1;
-
+                            var flujoSgte = json_tipo_doc['flujo_actual'];
                         }
                         
                         //flujo controlado
                         if(nFlujo == 2)
                         {
-                            //obtener accion, buzon en orden actual dentro del flujo definido
+                            //$('#form_destinatario_principal_el').prop("disabled", true);                            
+                            //$(".bootstrap-tagsinput-max").addClass("disabled");
+                            
+                            //obtener accion, buzon en orden siguiente dentro del flujo definido
                             for (let i in jsonAcciones) 
                             { 
                                 //revisar valores de flujo cuando está en carpeta 3
@@ -1754,7 +1822,7 @@
                                 }
                                 else
                                 {
-                                    if (jsonAcciones[i].orden == flujoActual)
+                                    if (jsonAcciones[i].orden == flujoSgte)
                                     {
                                         var aAcciones = jsonAcciones[i].acciones;
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
@@ -1789,7 +1857,10 @@
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
+                                {
+                                    //agregar opcion si no esta se pone flujo q viene
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+                                }
                                 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
@@ -1798,17 +1869,16 @@
                                 }  
                             });
 
-                            //definir acciones para tipo de avance
-console.log(jsonTipoAvance);
+                            //definir acciones para tipo de avance                            
+
                             if (jsonTipoAvance == 1) //unidireccional
                             {
-                                $('#form_destinatario_principal_el').prop("disabled", true);
-                                $(".bootstrap-tagsinput-max").removeClass("disabled");
+
                             }   
                             if (jsonTipoAvance == 2) //unidireccional con reinicio
                             {
                                // $('#form_destinatario_principal_el').prop("disabled", true);
-                              //  $(".bootstrap-tagsinput-max").addClass("disabled");
+                               //  $(".bootstrap-tagsinput-max").addClass("disabled");
                                 
                             }   
                             
@@ -1818,7 +1888,7 @@ console.log(jsonTipoAvance);
 
                         }
                         else if(nFlujo == 1)  //flujo libre
-                        {
+                        {                            
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
@@ -2099,12 +2169,18 @@ console.log(jsonTipoAvance);
                                                     var accionesSolicitadas = row.json_acciones
                                                     
                                                     accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
-                                                    
+
                                                     for (let i in accionesSolicitadas) {
                                                         if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 6) //visar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                        if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                        if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_generar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                        if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
 
                                                     } 
                                                 }                                                
@@ -2127,6 +2203,7 @@ console.log(jsonTipoAvance);
                                             
                                             if(row.id_estado_documento != 6)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
                                         }
 
