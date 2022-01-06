@@ -1005,82 +1005,21 @@
                           "<b>Materia: " + data.data.materia + "</b>",
                     });
 
+                    habilita_campos();
+                    
                     $('#form_tipo_documento').prop("disabled", true);
 
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3);
-/*
-                    var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-
-                    $("input[name='hiddIdDocumentoBuzon']").val(data.data.rel_documento_buzon[0]['id_documento_buzon']);
-                    $("input[name='hiddIdDocumento']").val(data.data.id_documento);
-                    $("#idAsignado").text(data.data.identificador);
-
-                    //habilita para guardar documentos
-
-                    $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
-
-                    if (json_tipo_doc['id_tipo_origen'] == 1)
-                    {                       
-                        $('#cargar_anexo').show();
-                    }
-
-                    if (json_tipo_doc['id_tipo_origen'] == 2)
-                    {
-                        $('#form_archivo_principal_el').hide();
-                        $('#cargar_archivo_principal_el').show();
-                    }
-
-                    $('#form_otros_archivos_el').hide();
-                    $('#cargar_otros_archivos').show();
-
-                    $('#form_comentario_el').prop("disabled", false);
-                    $('#form_otros_destinatarios_el').prop("disabled", false);
-                    $('#form_comentario_otro_el').prop("disabled", false);
-
-                    $(".bootstrap-tagsinput").removeClass("disabled");
 
                     //habilita botón enviar
 
                     if ($("input[name='hiddIdDocumento']").val() != '')
                         $('.btn-enviar-submit').show();
 
-                    //completar select form_acciones_solicitadas_el - se obtienen las acciones del orden 1 del flujo de buzones
-                    
-                    var jsonAcciones = json_tipo_doc['buzones_flujo'];
-
-                    for (let i in jsonAcciones) 
-                    {
-                        if (jsonAcciones[i].orden == 1)
-                        {
-                            var aAcciones = jsonAcciones[i].acciones;
-                            var idBuzonAccion = jsonAcciones[i].id_buzon;
-                        }
-                    }
-
-                    //agrega primer elemento en destinatario principal, solo si es flujo mixto/controlado
-                    
-                    if (idTipoFlujo == 1) //libre
-                    {
-                        $('#form_destinatario_principal_el').prop("disabled", false);
-                        $('#form_acciones_solicitadas_el').multiselect('enable');
-                    }
-                    else
-                    {
-                        var nombreBuzon = listadoBuzones[idBuzonAccion];
-                        $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": nombreBuzon});
-                    }
-
-                    //habilita carga de archivos
-
-                    $('#dropzone-principal').prop("disabled", false);
-                    $('#dropzone-anexo').prop("disabled", false);
-                    $('#dropzone-otros').prop("disabled", false);
-                    $(".dz-hidden-input").prop("disabled", false); 
-                                
                     //actualiza grilla despachados
 
-                    fn_grilla_despachados();
-*/
+                    fn_grilla_despachados();   
+
                 }
                 else
                 {
@@ -1390,7 +1329,7 @@
                 _token:_token,
                 hiddIdDocumento:hiddIdDocumento,
                 buzon:hiddIdBuzon,
-                estado:11                
+                accion:6                
             },
             success: function(data)
             {
@@ -1428,13 +1367,51 @@
                 _token:_token,
                 hiddIdDocumento:hiddIdDocumento,
                 buzon:hiddIdBuzon,
-                estado:9                
+                accion:7                
             },
             success: function(data)
             {
                 if(data.status == '200')
                 {
                     toastr.success("Documento Firmado","Aviso!");
+
+                    $('#card_crear_documento').hide();        
+                    fn_grilla_recibidos();
+                }
+                else
+                {
+                    toastr.error(data.data.comentario,"Aviso!");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr.error("Falla en el documento","Aviso!");
+            }
+        });
+    }
+
+    function finalizar_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        $.ajax({
+            url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+            type: 'PUT',
+            dataType: 'json',
+            data: {
+                _token:_token,
+                hiddIdDocumento:hiddIdDocumento,
+                buzon:hiddIdBuzon,
+                accion:10                
+            },
+            success: function(data)
+            {
+                if(data.status == '200')
+                {
+                    toastr.success("Documento Finalizado","Aviso!");
 
                     $('#card_crear_documento').hide();        
                     fn_grilla_recibidos();
@@ -1479,7 +1456,7 @@
                         _token:_token,
                         hiddIdDocumento:hiddIdDocumento,
                         buzon:hiddIdBuzon,
-                        estado:3                
+                        accion:3                
                     },
                     success: function(data)
                     {
@@ -1667,6 +1644,21 @@
         
     }
 
+    function accion_finalizar(id_documento,id_documento_buzon,id_documento_buzon_padre){
+        $('#titulo_accion').html('Ver Documento');         
+
+        deshabilita_campos();
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);
+
+        $('.btn-guardar-submit').hide();
+        $('.btn-enviar-submit').hide();
+        $('#addButton').html(''); 
+
+        var buttonFirmar = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
+        $('#addButton').append(buttonFirmar);
+        
+    }
+
     function derivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
@@ -1802,8 +1794,8 @@
                         //flujo controlado
                         if(nFlujo == 2)
                         {
-                            //$('#form_destinatario_principal_el').prop("disabled", true);                            
-                            //$(".bootstrap-tagsinput-max").addClass("disabled");
+                            $('#form_destinatario_principal_el').prop("disabled", true);                            
+                            $(".bootstrap-tagsinput-max").addClass("disabled");
                             
                             //obtener accion, buzon en orden siguiente dentro del flujo definido
                             for (let i in jsonAcciones) 
@@ -1828,46 +1820,75 @@
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
                                     }
                                 }
-                            }
-
-                            //agrega buzon q corresponde al flujo actual segun carpeta
-                            $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": listadoBuzones[idBuzonAccion]});
-                          
-                            //agrega las acciones correspondientes al tipo de flujo
-                            if (nFlujo == 2)
-                                var accionesFlujo = accionesFlujo2;
-                            if (nFlujo == 3)
-                                var accionesFlujo = accionesFlujo3;
-
-                            $('#form_acciones_solicitadas_el').empty();
-                            for (let i in accionesFlujo) 
+                            }                            
+                            
+                            if (idBuzonAccion != null && idBuzonAccion != '')
                             {
-                                var aEncontrado = aAcciones.filter(function (a) { return a.id_accion == accionesFlujo[i][0] });
+                                //agrega las acciones correspondientes al tipo de flujo
+                                if (nFlujo == 2)
+                                    var accionesFlujo = accionesFlujo2;
+                                if (nFlujo == 3)
+                                    var accionesFlujo = accionesFlujo3;
                                 
-                                if (aEncontrado.length > 0)
-                                    $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
-                                else
-                                    $('#form_acciones_solicitadas_el').append("<option value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
-
-                            }
-
-                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
-                            $('#form_acciones_solicitadas_el').multiselect('disable');
-
-                            $.each(relDocumentoBuzon, function(i, item)
-                            {                       
-                                if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
+                                $('#form_acciones_solicitadas_el').empty();
+                                for (let i in accionesFlujo) 
                                 {
-                                    //agregar opcion si no esta se pone flujo q viene
-                                    $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+                                    //var aEncontrado = aAcciones.filter(function (a) { return a.id_accion == accionesFlujo[i][0] });                                
+                                    //if (aEncontrado.length > 0)
+                                    //    $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
+                                    //else
+                                        $('#form_acciones_solicitadas_el').append("<option value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
+
                                 }
-                                
-                                if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
+
+                                $('#form_acciones_solicitadas_el').multiselect('rebuild');
+                                $('#form_acciones_solicitadas_el').multiselect('disable');
+
+                                var bFlujo = false;
+                                $.each(relDocumentoBuzon, function(i, item)
+                                {                       
+                                    if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
+                                    {
+                                        bFlujo = true;
+
+                                        //agrega buzon q corresponde al flujo actual segun carpeta
+                                        $('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                        
+                                        var accionesSolicitadas = $.parseJSON(item.json_acciones);
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                                        for (let i in accionesSolicitadas) {
+                                            $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
+                                        }
+
+                                        //agregar opcion si no esta se pone flujo q viene
+                                        $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+                                    }
+                                    
+                                    if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
+                                    {
+                                        $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
+                                        $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
+                                    }  
+                                });
+
+                                if (bFlujo == false)
                                 {
-                                    $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
-                                    $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
-                                }  
-                            });
+                                    //agrega buzon q corresponde al flujo actual segun carpeta
+                                    $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": listadoBuzones[idBuzonAccion]});
+
+                                    $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                                    for (let i in aAcciones) {
+                                        $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                deshabilita_campos();
+                            //    $('#form_acciones_solicitadas_el').empty();
+                            //    $('#form_acciones_solicitadas_el').multiselect('disable');
+                            }
+                            
 
                             //definir acciones para tipo de avance                            
 
@@ -2169,7 +2190,7 @@
                                                     var accionesSolicitadas = row.json_acciones
                                                     
                                                     accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
-
+  
                                                     for (let i in accionesSolicitadas) {
                                                         if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';

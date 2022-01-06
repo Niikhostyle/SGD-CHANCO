@@ -434,7 +434,7 @@ class BuzonController extends Controller
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
-            'estado'=>$request->estado
+            'accion'=>$request->accion
         ]);
 
         return $datosDocumento->json();
