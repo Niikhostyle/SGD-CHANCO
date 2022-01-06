@@ -1892,9 +1892,10 @@
 
                             //definir acciones para tipo de avance                            
 
-                            if (jsonTipoAvance == 1) //unidireccional
+                            if (jsonTipoAvance == 1 && carpeta == 3) //unidireccional
                             {
-
+                                //$('#form_destinatario_principal_el').prop("disabled", false);                            
+                                //$(".bootstrap-tagsinput-max").removeClass("disabled");
                             }   
                             if (jsonTipoAvance == 2) //unidireccional con reinicio
                             {
