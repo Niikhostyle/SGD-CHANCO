@@ -258,7 +258,7 @@ class BuzonController extends Controller
         {
             $aAcciones[$dato['id_accion']] = $dato['nombre'];
 
-            if ($dato['id_tipo_accion'] == 1) //requerida
+            if ($dato['id_tipo_accion'] == 1 && $dato['id_accion'] != 9) //requerida
             {
                 $aFlujoAccionT1[$dato['id_accion']] = $dato['nombre'];
             }     
@@ -271,12 +271,14 @@ class BuzonController extends Controller
         {
             if ($dato['id_tipo_flujo'] == 2) //Controlado
             {
-                $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
+                if ($dato['id_accion'] != 9)
+                    $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
             }
 
             if ($dato['id_tipo_flujo'] == 3) //Mixto
             {
-                $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
+                if ($dato['id_accion'] != 9)
+                    $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
             }
         }
 
@@ -434,6 +436,7 @@ class BuzonController extends Controller
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
+            'destino'=>$request->destino,
             'accion'=>$request->accion
         ]);
 
@@ -522,7 +525,7 @@ class BuzonController extends Controller
                         $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
                     }
                     if($request->id_carpeta==2){
-                        $datos->whereIn('documento_buzon.id_estado_documento',array(4,5,6,7,8,9,10,11,12)); //2- Recibido
+                        $datos->whereIn('documento_buzon.id_estado_documento',array(4,5,6,7,8,9,10,11,12,13)); //2- Recibido
                     }
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir

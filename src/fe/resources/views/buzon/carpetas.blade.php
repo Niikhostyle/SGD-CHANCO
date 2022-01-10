@@ -1427,10 +1427,10 @@
         });
     }
 
-    function recibir_documento()
+    function recibir_documento(destino)
     {
         var _token = $("input[name='_token']").val();
-        
+
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -1456,6 +1456,7 @@
                         _token:_token,
                         hiddIdDocumento:hiddIdDocumento,
                         buzon:hiddIdBuzon,
+                        destino:destino,
                         accion:3                
                     },
                     success: function(data)
@@ -1604,13 +1605,13 @@
         $('#form_destinatario_principal_el').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $(".bootstrap-tagsinput-max").removeClass("disabled");
-        */
+
 
         $('#form_comentario_el').prop("disabled", false);        
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
         $(".bootstrap-tagsinput").removeClass("disabled");  
-
+        */
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
@@ -1625,7 +1626,7 @@
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
-        
+        /*
         $('#form_destinatario_principal_el').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $(".bootstrap-tagsinput-max").removeClass("disabled");
@@ -1634,7 +1635,7 @@
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
         $(".bootstrap-tagsinput").removeClass("disabled");  
-
+*/
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
@@ -1663,10 +1664,8 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,1);         
         
-        $('#form_destinatario_principal_el').prop("disabled", false);
-        $('#form_acciones_solicitadas_el').multiselect('enable');
         $('#form_comentario_el').prop("disabled", false); 
 
         $('#form_otros_destinatarios_el').prop("disabled", false);
@@ -1790,7 +1789,7 @@
                             var buzon_padre = id_documento_buzon_padre; 
                             var flujoSgte = json_tipo_doc['flujo_actual'];
                         }
-                        
+
                         //flujo controlado
                         if(nFlujo == 2)
                         {
@@ -1822,8 +1821,8 @@
                                 }
                             }                            
                             
-                            if (idBuzonAccion != null && idBuzonAccion != '')
-                            {
+                            //if (idBuzonAccion != null && idBuzonAccion != '')
+                            //{
                                 //agrega las acciones correspondientes al tipo de flujo
                                 if (nFlujo == 2)
                                     var accionesFlujo = accionesFlujo2;
@@ -1862,6 +1861,10 @@
 
                                         //agregar opcion si no esta se pone flujo q viene
                                         $("textarea[id='form_comentario_el']").val(item.comentario_principal);
+
+                                        //
+
+
                                     }
                                     
                                     if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
@@ -1873,29 +1876,35 @@
 
                                 if (bFlujo == false)
                                 {
-                                    //agrega buzon q corresponde al flujo actual segun carpeta
-                                    $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": listadoBuzones[idBuzonAccion]});
+                                    if (idBuzonAccion != null && idBuzonAccion != '')
+                                    {
+                                        //agrega buzon q corresponde al flujo actual segun carpeta
+                                        $('#form_destinatario_principal_el').tagsinput('add', {"value": idBuzonAccion, "text": listadoBuzones[idBuzonAccion]});
 
-                                    $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-                                    for (let i in aAcciones) {
-                                        $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                                        for (let i in aAcciones) {
+                                            $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
+                                        }
                                     }
+                                    else
+                                        deshabilita_campos();
                                 }
-                            }
-                            else
-                            {
-                                deshabilita_campos();
+                            //}
+                            //else
+                            //{
+                            //    deshabilita_campos();
                             //    $('#form_acciones_solicitadas_el').empty();
                             //    $('#form_acciones_solicitadas_el').multiselect('disable');
-                            }
+                            //}
                             
 
-                            //definir acciones para tipo de avance                            
+                            //definir acciones para tipo de avance  
+                            //$('#form_destinatario_principal_el').prop("disabled", false);                            
+                            //$(".bootstrap-tagsinput-max").removeClass("disabled");                          
 
-                            if (jsonTipoAvance == 1 && carpeta == 3) //unidireccional
+                            if (jsonTipoAvance == 1) //unidireccional
                             {
-                                //$('#form_destinatario_principal_el').prop("disabled", false);                            
-                                //$(".bootstrap-tagsinput-max").removeClass("disabled");
+                                
                             }   
                             if (jsonTipoAvance == 2) //unidireccional con reinicio
                             {
@@ -1910,7 +1919,13 @@
 
                         }
                         else if(nFlujo == 1)  //flujo libre
-                        {                            
+                        {                           
+                            if (accion == 1)
+                            {
+                                $('#form_destinatario_principal_el').prop("disabled", false);
+                                $('#form_acciones_solicitadas_el').multiselect('enable');
+                            } 
+                            
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
@@ -1926,7 +1941,9 @@
                                     for (let i in accionesSolicitadas) {
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
                                     }
+
                                 }
+
 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
@@ -2072,7 +2089,7 @@
         $('#addButton').append(buttonGuardar);
     }
 
-    function visualizar_documento_por_recibir(id_documento,id_documento_buzon,id_documento_buzon_padre)
+    function visualizar_documento_por_recibir(id_documento,id_documento_buzon,id_documento_buzon_padre, destino)
     {           
         $('#titulo_accion').html('Ver Documento'); 
 
@@ -2083,7 +2100,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
 
-        var buttonRecibir = '<button onClick="recibir_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Recibir</button>';
+        var buttonRecibir = '<button onClick="recibir_documento('+destino+')" type="button" class="btn btn-success btn-recibir-submit w-10">Recibir</button>';
         $('#addButton').append(buttonRecibir);
     }
 
@@ -2118,7 +2135,7 @@
                 ],
                 rowCallback: function (row, data, index ) {
                     $(row).on("click", function (e) {
-                        visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre']);
+                        visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
                     });
                 }
             });
@@ -2180,8 +2197,8 @@
                                         if (row.id_tipo_destino == 1) //principal
                                         {
                                             //agrega listado de acciones
-                                            
-                                            if(row.id_estado_documento != 7)
+
+                                            if(row.id_estado_documento != 7 && row.id_estado_documento != 13)
                                             {
                                                 //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
                                                 //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> Visar</a>';
@@ -2200,21 +2217,20 @@
                                                         if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_generar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_generar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-
                                                     } 
                                                 }                                                
                                                 
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
-
                                             }  
 
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                                                                         
-                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7)
+                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 13)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora_recibidos('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
