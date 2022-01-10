@@ -53,11 +53,15 @@ class TipoDocumentoController extends Controller{
 
                 $datosTipoDoc = TipoDocumento::findOrFail($datosRequest['id_tipo_documento']);
 
+                //agregar item de procesado a cada parte del flujo y uno con el flujo actual
+                $datosTipoDoc['flujo_actual'] = 1;
+
                 $tipoDocBuzon = $datosTipoDoc->buzones_flujo;
 
                 foreach ($tipoDocBuzon as $tbuzon) 
                 {
                     $tbuzon->acciones;
+                    $tbuzon['procesado'] = false; //item para indicar que el flujo fue procesado
                 }
                 
                 return $this->respondSuccess($datosTipoDoc, 200);
