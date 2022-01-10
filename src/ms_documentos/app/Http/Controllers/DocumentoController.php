@@ -495,7 +495,7 @@ class DocumentoController extends Controller{
                 if ($request->accion == 10) // finalizado
                 {
                     Documento::find($datosRequest["id_documento"])->update(['finalizado' => true]);
-                
+                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 13]);
                     //actualizar flujos
                     
                 }
