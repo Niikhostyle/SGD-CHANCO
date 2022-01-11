@@ -409,7 +409,7 @@
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
 
     <style type="text/css">
-
+   
         .card {
             overflow: visible !important;
         }
@@ -437,7 +437,7 @@
         }
 
         .disabled {
-            background-color: #e9ecef;
+            background-color: #e9ecef !important;
         }
 
         .row_archivar {
@@ -482,6 +482,13 @@
 
         }
 
+        .label-danger {
+            background-color: #d9534f;
+        }
+
+        .label-warning{background-color:#f0ad4e;}
+
+
         .file-container-all { display: flex; }
         .file-container { position: relative; }
         .file-container img { display: block; }
@@ -513,7 +520,9 @@
     const listadoBuzones = @json($listadoBuzones);
     const pathFiles = "";
 
+    var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
+ 
     var idTipoFlujo = "";
 
     $('#form_acciones_solicitadas_el').multiselect({
@@ -526,7 +535,14 @@
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: allBuzones
     });
-    allBuzones.initialize();
+    allBuzones.initialize();    
+
+    var allBuzonesT2 = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: allBuzonesT2
+    });
+    allBuzonesT2.initialize();    
 
     $('#form_destinatario_principal_el').tagsinput({
         maxTags: 1,
@@ -540,6 +556,9 @@
     });
 
     $('#form_otros_destinatarios_el').tagsinput({
+        tagClass: function(item) {
+            return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
+        },
         itemValue: 'value',
         itemText: 'text',
         typeaheadjs: {
@@ -702,9 +721,6 @@
     });
 
     $('#form_destinatario_principal_el').on('itemAdded', function(event) {
-        console.log('add');
-        console.log(datoTipoJson);
-
         var js_tipo_doc = datoTipoJson;
                         
         var jsAcciones = js_tipo_doc['buzones_flujo'];    
@@ -717,7 +733,6 @@
             if (jsFlujoActual == 0 || jsFlujoActual == 1)
                 $('#form_acciones_solicitadas_el').multiselect('select', 6);    
         }
-
 
         //obtener datos de json_tipo_documento
         //if flujo controlado/mixto 
@@ -1670,8 +1685,7 @@
 
         $('#form_otros_destinatarios_el').prop("disabled", false);
         $('#form_comentario_otro_el').prop("disabled", false);
-        $(".bootstrap-tagsinput-max").removeClass("disabled");
-        $(".bootstrap-tagsinput").removeClass("disabled");  
+        $(".bootstrap-tagsinput").removeClass("disabled");          
 
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
@@ -1708,7 +1722,7 @@
     {
         clear_form();
         $("#collapseOne").collapse('hide');
-        $('#card_crear_documento').show();      
+        $('#card_crear_documento').show();     
 
         if (carpeta == 2)
             var docBuzon = id_documento_buzon_padre;
@@ -1790,12 +1804,49 @@
                             var flujoSgte = json_tipo_doc['flujo_actual'];
                         }
 
+                         
+                        //agrega las acciones correspondientes al tipo de flujo
+                        if (nFlujo == 3)
+                            var accionesFlujo = accionesFlujo3;
+                                                
                         //flujo controlado
                         if(nFlujo == 2)
-                        {
-                            $('#form_destinatario_principal_el').prop("disabled", true);                            
-                            $(".bootstrap-tagsinput-max").addClass("disabled");
+                        {                          
+                            console.log('controlado');
                             
+                            //agrega las acciones correspondientes al tipo de flujo
+                            var accionesFlujo = accionesFlujo2; 
+
+                            //habilitar en carpeta = 3 agregar item extra
+
+                            if (carpeta == 3 && accion == 1)
+                            {
+                                console.log('despachados');                                
+                                
+                                //definir tagsinput solo con buzones grupales
+                                $('#form_destinatario_principal_el').tagsinput('destroy'); 
+
+                                $('#form_destinatario_principal_el').tagsinput({
+                                    maxTags: 1,
+                                    itemValue: 'value',
+                                    itemText: 'text',
+                                    typeaheadjs: {
+                                        name: 'allBuzonesT2',
+                                        displayKey: 'text',
+                                        source: allBuzonesT2.ttAdapter()
+                                    }
+                                });   
+                            
+                                $('#form_destinatario_principal_el').prop("disabled", false);                            
+                                $(".bootstrap-tagsinput").removeClass("disabled");
+                            }
+
+                            if (carpeta == 2)
+                            {
+                                $('#form_destinatario_principal_el').prop("disabled", true);                            
+                                $(".bootstrap-tagsinput-max").addClass("disabled");
+                            }
+
                             //obtener accion, buzon en orden siguiente dentro del flujo definido
                             for (let i in jsonAcciones) 
                             { 
@@ -1807,8 +1858,9 @@
                                         var aAcciones = jsonAcciones[i].acciones;
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
 
-                                        if(jsonAcciones[i].orden == 0)
+                                        if(jsonAcciones[i].orden == 0)                                        
                                             break;
+
                                     }                                        
                                 }
                                 else
@@ -1823,11 +1875,7 @@
                             
                             //if (idBuzonAccion != null && idBuzonAccion != '')
                             //{
-                                //agrega las acciones correspondientes al tipo de flujo
-                                if (nFlujo == 2)
-                                    var accionesFlujo = accionesFlujo2;
-                                if (nFlujo == 3)
-                                    var accionesFlujo = accionesFlujo3;
+                               
                                 
                                 $('#form_acciones_solicitadas_el').empty();
                                 for (let i in accionesFlujo) 
@@ -1920,6 +1968,7 @@
                         }
                         else if(nFlujo == 1)  //flujo libre
                         {                           
+                            console.log('libre');
                             if (accion == 1)
                             {
                                 $('#form_destinatario_principal_el').prop("disabled", false);
