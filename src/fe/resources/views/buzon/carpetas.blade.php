@@ -1808,38 +1808,43 @@
                         //agrega las acciones correspondientes al tipo de flujo
                         if (nFlujo == 3)
                             var accionesFlujo = accionesFlujo3;
-
                                                 
                         //flujo controlado
                         if(nFlujo == 2)
                         {                          
+                            console.log('controlado');
+                            
                             //agrega las acciones correspondientes al tipo de flujo
                             var accionesFlujo = accionesFlujo2; 
 
                             //habilitar en carpeta = 3 agregar item extra
 
-                            $('#form_destinatario_principal_el').prop("disabled", true);                            
-                            $(".bootstrap-tagsinput-max").addClass("disabled");
-                            
-                            //definir tagsinput solo con buzones grupales
-                            $('#form_destinatario_principal_el').tagsinput('destroy'); 
-
-                            $('#form_destinatario_principal_el').tagsinput({
-                                maxTags: 1,
-                                itemValue: 'value',
-                                itemText: 'text',
-                                typeaheadjs: {
-                                    name: 'allBuzonesT2',
-                                    displayKey: 'text',
-                                    source: allBuzonesT2.ttAdapter()
-                                }
-                            });   
-
-
-                            if (carpeta == 3)
+                            if (carpeta == 3 && accion == 1)
                             {
+                                console.log('despachados');                                
+                                
+                                //definir tagsinput solo con buzones grupales
+                                $('#form_destinatario_principal_el').tagsinput('destroy'); 
+
+                                $('#form_destinatario_principal_el').tagsinput({
+                                    maxTags: 1,
+                                    itemValue: 'value',
+                                    itemText: 'text',
+                                    typeaheadjs: {
+                                        name: 'allBuzonesT2',
+                                        displayKey: 'text',
+                                        source: allBuzonesT2.ttAdapter()
+                                    }
+                                });   
+                            
                                 $('#form_destinatario_principal_el').prop("disabled", false);                            
                                 $(".bootstrap-tagsinput").removeClass("disabled");
+                            }
+
+                            if (carpeta == 2)
+                            {
+                                $('#form_destinatario_principal_el').prop("disabled", true);                            
+                                $(".bootstrap-tagsinput-max").addClass("disabled");
                             }
 
                             //obtener accion, buzon en orden siguiente dentro del flujo definido
@@ -1963,6 +1968,7 @@
                         }
                         else if(nFlujo == 1)  //flujo libre
                         {                           
+                            console.log('libre');
                             if (accion == 1)
                             {
                                 $('#form_destinatario_principal_el').prop("disabled", false);
