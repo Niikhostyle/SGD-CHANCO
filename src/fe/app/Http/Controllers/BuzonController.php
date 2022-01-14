@@ -269,19 +269,15 @@ class BuzonController extends Controller
 
         foreach ($datosFlujoAccion as $dato)
         {
-            if ($dato['id_tipo_flujo'] == 2) //Controlado
+            if ($dato['id_accion'] != 9)
             {
-                if ($dato['id_accion'] != 9)
+                if ($dato['id_tipo_flujo'] == 2) //Controlado
                     $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
-            }
 
-            if ($dato['id_tipo_flujo'] == 3) //Mixto
-            {
-                if ($dato['id_accion'] != 9)
+                if ($dato['id_tipo_flujo'] == 3) //Mixto
                     $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
             }
         }
-
 
         $datosBuzon = $this->show($id); //muestra metodo show
 
@@ -307,9 +303,10 @@ class BuzonController extends Controller
             {
                 $aBuzones[$dato['id_buzon']] = $dato['nombre'];
                 $aAllBuzones[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre'], "tipo" => $dato['id_tipo_buzon']);// "tipo" => $dato['id_tipo_buzon']
+                $aAllBuzones2[] = array("id" => $dato['id_buzon'], "text" => $dato['nombre'], "tipo" => $dato['id_tipo_buzon']);
                 
                 if ($dato['id_tipo_buzon'] == 2)
-                    $aAllBuzonesT2[] = array("value" => $dato['id_buzon'], "text" => $dato['nombre']);
+                    $aAllBuzonesT2[] = array("id" => $dato['id_buzon'], "text" => $dato['nombre']);
             }
         }
 
@@ -330,6 +327,7 @@ class BuzonController extends Controller
             'acciones_tipoflujo3'=>$aFlujoAccionT3,
             'listadoBuzones'=>$aBuzones,
             'allBuzones'=>$aAllBuzones,
+            'allBuzones2'=>$aAllBuzones2,
             'allBuzonesT2'=>$aAllBuzonesT2,
 
             'listado_parametros'=>$listado_parametros['data']
@@ -385,6 +383,7 @@ class BuzonController extends Controller
             'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'destinatarioPrincipal2'=>$request->destinatarioPrincipal2,
             'destinatarioOtros'=>$request->destinatarioOtros,
             'acciones_solicitadas'=>$request->acciones_solicitadas,
             'comentarioPrincipal'=>$request->comentarioPrincipal,

@@ -234,7 +234,7 @@ function cargar_datos_bitacora(id_documento)
             $('#tabla_bitacora_grilla').DataTable().destroy();
     }
 
-    $.getJSON('buscador/'+id_documento, function(response) {
+    $.getJSON('/buscador/'+id_documento, function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
         bDestroy : true,
         processing: true,
