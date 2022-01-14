@@ -848,8 +848,63 @@ class DocumentoController extends Controller{
                         'documento_buzon.favorito as estado_favorito',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento.folio as folio',
+                        'documento.id_nivel_acceso as nivel_acceso'
                         )
                     ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
+                    ->where('documento.id_nivel_acceso','=',1)
+                )
+                ->toJson();
+
+            }
+            catch (ModelNotFoundException $e)
+            {
+                return $this->respondError('No existen datos', 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+    }
+
+
+
+
+
+
+
+    public function verificaDocumento(Request $request){
+        if($request->isJson())
+        {
+            try
+            {
+
+                $datosRequest = $request->json()->all();
+                $codigo = $datosRequest['hash_validacion'];
+
+                $validator = $this->validator->validateFieldUser($datosRequest);
+
+                //if ($validator->fails())
+                  //  return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
+
+
+                return datatables(
+                    DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+                    
+                    
+                    ->select(
+                        'documento.id_documento as id_documento',
+                        'documento.id_nivel_acceso as id_nivel_acceso',
+                        'documento.identificador as identificador',
+                        'documento.fecha as fecha_documento',
+                        'documento.materia as materia',
+                        'documento.folio as folio',
+                        'documento.hash_validacion as hash_validacion',
+                        'documento_buzon_archivo.nombre_archivo_codificado as nombre_codificado'
+                        
+                        
+                        )
+                    ->where('documento.hash_validacion','=',$datosRequest['hash_validacion'])
                     //->where('documento_buzon.favorito','=',1)
                 )
                 ->toJson();
@@ -863,5 +918,40 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
     }
+
+
+    public function hash(Request $request)
+    {
+        if($request->isJson())
+        {
+            try
+            {
+                DB::beginTransaction();
+
+                $datosDocumento = $request->json()->all();                
+                $hashValidacion = $datosDocumento['codigo'];
+               
+                
+                
+                
+                
+                
+                
+
+                return $this->respondSuccess($hashValidacion, 201);
+
+            }
+            catch (ModelNotFoundException $e)
+            {
+                DB::rollBack();
+
+                return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
 
 }
