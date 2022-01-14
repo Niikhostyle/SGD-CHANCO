@@ -146,6 +146,7 @@ class BuscadorController extends Controller
         , d.materia 
         , d.json_tipo_documento 
         , d.id_tipo_documento 
+        , d.id_nivel_acceso
         , td.nombre as tipo_documento
         , (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
