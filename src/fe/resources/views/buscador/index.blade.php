@@ -569,14 +569,7 @@
                                         {
                                         botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
 
-                                        } 
-                                           
-                                            
-                                            
-                                            
-                                        
-                                        
-
+                                        }                                        
                                     botonera += '</div>';
                                     botonera += '</div>';
                                 return botonera;

@@ -138,40 +138,34 @@ class BuscadorController extends Controller
 
     public function listar(Request $request)
     {
-        $datos =  DB::table('documento_buzon')
+        $datos =  DB::select("select 
+        distinct d.id_documento as id_documento
+        , d.identificador
+        , d.fecha as fecha_documento
+        , d.folio
+        , d.materia 
+        , d.json_tipo_documento 
+        , d.id_tipo_documento 
+        , d.id_nivel_acceso
+        , td.nombre as tipo_documento
+        , (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
+        , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
+    from 
+        documento_buzon db 
+        join documento d on d.id_documento = db.id_documento 
+        join buzon b on b.id_buzon = db.id_buzon
+        join buzon_usuario bu on bu.id_buzon = b.id_buzon
+        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento  
+    where 	
+        bu.id_usuario = ". Auth::user()->id."
+    order by d.id_documento desc");
                     
-                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
-                    ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
-                    ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
-                    ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
-                    ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                    ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                    
-
-                    
-                    ->select(
-                        'buzon.nombre as nombre_buzon',
-                        'estado_documento.nombre_corto as estado_documento',
-                        'documento.id_documento as id_documento',
-                        'documento.fecha as fecha_documento',
-                        'tipo_documento.nombre as tipo_documento',
-                        'tipo_origen.nombre as origen',
-                        'documento.materia as materia',
-                        'documento_buzon.favorito as estado_favorito',
-                        'documento_buzon.id_documento_buzon as id_documento_buzon',
-                        'documento.folio as folio',
-                        'documento.identificador as identificador',
-                        'documento.id_nivel_acceso as id_nivel_acceso',
-                        'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
-                        )
-                    ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
                 
 
         return datatables( $datos )->toJson();
 
 
-    }     
+    }       
 
-   
+
 }
-
