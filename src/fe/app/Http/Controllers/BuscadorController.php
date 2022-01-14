@@ -138,69 +138,6 @@ class BuscadorController extends Controller
 
     public function listar(Request $request)
     {
-        $datos =  DB::select("select 
-        distinct d.id_documento as id_documento
-        , d.identificador
-        , d.fecha as fecha_documento
-        , d.folio
-        , d.materia 
-        , d.json_tipo_documento 
-        , d.id_tipo_documento 
-        , td.nombre as tipo_documento
-        , (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
-        , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
-    from 
-        documento_buzon db 
-        join documento d on d.id_documento = db.id_documento 
-        join buzon b on b.id_buzon = db.id_buzon
-        join buzon_usuario bu on bu.id_buzon = b.id_buzon
-        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento  
-    where 	
-        bu.id_usuario = ". Auth::user()->id."
-    order by d.id_documento desc");
-                    
-
-        /*
- $datos =  DB::table('documento_buzon')
-                        ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
-                        ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                        ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                        ->select(
-                            'documento.id_documento as id_documento',
-                            'documento.identificador as identificador',
-                            'documento.fecha as fecha_documento',
-                            'documento.materia as materia',
-                            'documento.folio as folio',
-                            'documento.json_tipo_documento as json_tipo_documento',
-                            'documento.id_tipo_documento as id_tipo_documento',
-                            DB::raw('(select nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = documento_buzon.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen'),
-                            DB::raw('(select nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = documento_buzon.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual'),            
-                            )
-                        ->distinct()
-                        ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
-
-select 
-	distinct d.id_documento
-	, d.identificador 
-	, d.fecha 
-	, d.folio
-	, d.materia 
-	, d.json_tipo_documento 
-	, d.id_tipo_documento 
-	, (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
-	, (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
-from 
-	documento_buzon db 
-	join documento d on d.id_documento = db.id_documento 
-	join buzon b on b.id_buzon = db.id_buzon
-	join buzon_usuario bu on bu.id_buzon = b.id_buzon 
-where 	
-	bu.id_usuario = 10
-order by d.id_documento asc	
-
-
-
-
         $datos =  DB::table('documento_buzon')
                     
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
@@ -228,8 +165,7 @@ order by d.id_documento asc
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         )
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id);
-                   
-                   */ 
+                
 
         return datatables( $datos )->toJson();
 
