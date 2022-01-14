@@ -1949,7 +1949,6 @@
                                 $(".bootstrap-tagsinput").removeClass("disabled");
                             }
 
-                            var aBuzonesReinicio = [];
                             var aBuzonesDerivaciones = [];
 
                             //obtener accion, buzon en orden siguiente dentro del flujo definido
@@ -1974,24 +1973,19 @@
                                         var aAcciones = jsonAcciones[i].acciones;
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
 
-                                        //aBuzonesReinicio.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                         aBuzonesDerivaciones.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                     }
                                 }
 
                                 //guarda buzon y acciones flujo anterior
-                                if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0)
+                                if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0) //validar que no se repita 
                                 {
-                                    console.log('anterior');
                                     aBuzonesDerivaciones.push({"id":jsonAcciones[i].id_buzon, "text":listadoBuzones[jsonAcciones[i].id_buzon], "accion":jsonAcciones[i].acciones});
                                 }
-
 
                                 //guardar buzon y acciones de flujo 1 para reinicio
                                 if (jsonAcciones[i].orden == 1 && jsonAcciones[i].orden != json_tipo_doc['flujo_actual'] && (jsonTipoAvance == 2 || jsonTipoAvance == 4))
                                 {
-                                    console.log('reinicio');
-                                    
                                     aBuzonesDerivaciones.push({"id":jsonAcciones[i].id_buzon, "text":listadoBuzones[jsonAcciones[i].id_buzon], "accion":jsonAcciones[i].acciones});
                                 }
                             }                         
@@ -2388,9 +2382,6 @@
 
                                             if(row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
-                                                //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
-                                                //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> Visar</a>';
-                                                
                                                 if (row.json_acciones != null)
                                                 {
                                                     var accionesSolicitadas = row.json_acciones
@@ -2412,7 +2403,9 @@
                                                     } 
                                                 }                                                
                                                 
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+
+                                                    botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+                                                
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
                                             }  
 
