@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
-
+use \PDF;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -46,6 +46,24 @@ class DocumentoValidadorController extends Controller
         }
         return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
         
+    }
+
+    public function validar(Request $request)
+    {
+        
+       
+        
+    }
+
+    public function download()
+    {
+        $data = [
+            'titulo' => 'Styde.net'
+        ];
+    
+        $pdf = \PDF::loadView('pdf', $data);
+    
+        return $pdf->download('archivo.pdf');
     }
     
 }

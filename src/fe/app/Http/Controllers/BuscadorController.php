@@ -143,12 +143,16 @@ class BuscadorController extends Controller
     {
         //return "hola";
         $datos =  DB::table('documento_buzon')
+                    
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
                     ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
                     ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                    
+
+                    
                     ->select(
                         'buzon.nombre as nombre_buzon',
                         'estado_documento.nombre_corto as estado_documento',
@@ -161,6 +165,7 @@ class BuscadorController extends Controller
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento.folio as folio',
                         'documento.identificador as identificador',
+                        'documento.id_nivel_acceso as id_nivel_acceso',
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         )
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id);

@@ -588,18 +588,25 @@
                             if(data==null){
                                 return '';
                             }else{
+                                //console.log(row.id_nivel_acceso);
                                 let botonera = '<div class="dropdown">';
                                     botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                         botonera +=' <i class="fas fa-bars"></i>';
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
+                                        if(row.id_nivel_acceso == 1)
+                                            {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
 
-                                                                                    
+                                            }   
+                                        if(row.id_nivel_acceso == 2)
+                                        {
+                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
 
-
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+row.id_documento+')"  href="#"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                        } 
+                                           
                                             
                                             
                                             
@@ -851,15 +858,20 @@
                         var relDocumentoBuzonArchivo = data.data.rel_archivos;
 
                         let htmlFile = "";
+                        let htmlFilePublico = "";
                         let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                         let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
                         let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         {   
-                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                        ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                            '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                            //console.log(data.data.id_nivel_acceso);
+                                htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                            ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                                '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+
+                                htmlFilePublico = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                        ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -870,9 +882,17 @@
                             if (value.id_tipo_archivo == 3) //otros
                                 htmlFileOtros += htmlFile + '</div>'; 
                             
-                            if (value.id_tipo_archivo == 1) //principal
-                                htmlFilePrincipal += htmlFile + '</div>'; 
-    
+                            if (value.id_tipo_archivo == 1 ){ //principal
+                               
+                                if (data.data.id_nivel_acceso == 1 ){
+                                    htmlFilePrincipal += htmlFilePublico + '</div>'; 
+                                }else{
+                                    htmlFilePrincipal += htmlFile + '</div>';  
+                                }
+                            } 
+                               
+                            
+                            
                         });
 
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');

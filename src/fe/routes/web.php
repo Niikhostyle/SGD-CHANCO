@@ -75,6 +75,7 @@ Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoC
 //validador
 Route::middleware(['auth:sanctum', 'verified'])->get('validador',[DocumentoValidadorController::class,'index'])->name('validador.index');
 Route::middleware(['auth:sanctum', 'verified'])->post('validadorCodigo',[DocumentoValidadorController::class,'store'])->name('validador.store');
+Route::middleware(['auth:sanctum', 'verified'])->get('pdf',[DocumentoValidadorController::class,'download'])->name('validador.download');
 
 
 
