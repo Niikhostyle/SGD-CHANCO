@@ -383,7 +383,9 @@ class DocumentoController extends Controller{
                 if ($datosRequest['carpeta'] == 3) //despachados
                 {
                     $estadoDocumentoFinal = 2; 
-                    $estadoDocumentoActual = array('1');      
+                    $estadoDocumentoActual = array('1');    
+                    
+                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal]);
                 }
 
                 if ($datosRequest['carpeta'] == 2) //recibidos
@@ -395,26 +397,67 @@ class DocumentoController extends Controller{
 
                     $datosJsonTipoDocumento = json_decode($datosFlujoJson['json_tipo_documento'],true);
                     $nFlujoActual = $datosJsonTipoDocumento['flujo_actual'];
+                    
+                    $nNuevoFlujoActual = $nFlujoActual + 1;
 
-                    $datosJsonTipoDocumento['flujo_actual'] = $nFlujoActual + 1;
-
+                    //ver segun tipo de flujo como será la derivación
+                    $nTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+                    
                     foreach ($datosJsonTipoDocumento['buzones_flujo'] as $key => $valor)
                     {                    
+                        //buzon siguiente en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == ($nFlujoActual + 1)) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == false)
+                        {}
+
+                        //buzon reinicio en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == 1) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == true)
+                        {
+                            $nNuevoFlujoActual = 1;
+                        }
+                        
+                        //buzon anterior en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == ($nFlujoActual - 1)) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == false)
+                        {
+                            $nNuevoFlujoActual = $nFlujoActual - 1;
+                        }
+
                         if ($valor['orden'] == $nFlujoActual)
                         {
                             $valor['procesado'] = true;
                             $datosJsonTipoDocumento['buzones_flujo'][$key] = $valor;
                         }
                     }
-                    
-                    $datosFlujoJson->update(['json_tipo_documento' => json_encode($datosJsonTipoDocumento)]);                    
-                    //agregar si estado actual es 11 dejar final como 12 y estado 9dejar como 10
-                    $estadoDocumentoFinal = 7;        
-                    $estadoDocumentoActual = array('4','9','11'); //"4,9,11"; deberia ir con whereIn   
-                }
 
-                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal]);
-                
+                    //actualiza el flujo actual
+                    $datosJsonTipoDocumento['flujo_actual'] = $nNuevoFlujoActual;
+                    
+                    $datosFlujoJson->update(['json_tipo_documento' => json_encode($datosJsonTipoDocumento)]);                     
+                    
+                    //agregar si estado actual es 11 dejar final como 12 y estado 9dejar como 10
+                    //$estadoDocumentoFinal = 7;        
+                    $estadoDocumentoActual = array('4','9','11'); //"4,9,11"; deberia ir con whereIn  
+                    
+                    $datosUpdate = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
+                    
+                    switch ($datosUpdate->id_estado_documento)
+                    {                       
+                        case (4):
+                            $estadoDocumentoFinal = 7;
+                            break;
+                        case (9):
+                            $estadoDocumentoFinal = 10;
+                            break;                        
+                        case (11):
+                            $estadoDocumentoFinal = 12;
+                            break;
+                        default:
+                            $estadoDocumentoFinal = 7;
+                    }
+
+                    $datosUpdate->id_estado_documento = $estadoDocumentoFinal;
+                    $datosUpdate->save();
+                }
+               
                 $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
                                 ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
                                 ->where('id_tipo_destino', '1')
