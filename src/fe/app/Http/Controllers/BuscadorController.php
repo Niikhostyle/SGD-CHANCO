@@ -141,7 +141,6 @@ class BuscadorController extends Controller
 
     public function listar(Request $request)
     {
-        //return "hola";
         $datos =  DB::table('documento_buzon')
                     
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
