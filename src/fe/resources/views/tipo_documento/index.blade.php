@@ -19,8 +19,7 @@
 @stop
 
 @section('content')
-<div class="container">
-    
+<div class="col-12">    
     <div class="card" id="card_grilla">        
         <div class="card-body">
             

@@ -625,7 +625,27 @@
         maximumSelectionLength: 1,
         placeholder: '',
         tags: false,
-        language: "es"
+        language: {
+            maximumSelected: function (args) {
+                var message = 'Sólo puede seleccionar ' + args.maximum + ' elemento';
+                if (args.maximum != 1) {
+                    message += 's';
+                }
+                return message;
+            },
+            noResults: function () {
+                return 'No se encontraron resultados';
+            }
+        }
+    }).on('select2:unselect', function (e) {
+        var data = e.params.data;
+
+        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+
+    }).on('select2:select', function (e) {
+       
+        $('#form_acciones_solicitadas_el').multiselect('select', 6);
+       
     });
 
     $('#form_otros_destinatarios_el').tagsinput({
@@ -944,7 +964,6 @@
 
         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
 
-        //$('#form_destinatario_principal_el').tagsinput('removeAll');
         $('form_destinatario_principal').select2().val(null).trigger("change");
         $('#form_otros_destinatarios_el').tagsinput('removeAll');
      
@@ -1978,7 +1997,7 @@
                                 }
 
                                 //guarda buzon y acciones flujo anterior
-                                if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0) //validar que no se repita 
+                                if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0 && ((jsonTipoAvance == 2 || jsonTipoAvance == 4) && jsonAcciones[i].orden != 1)) //validar que no se repita 
                                 {
                                     aBuzonesDerivaciones.push({"id":jsonAcciones[i].id_buzon, "text":listadoBuzones[jsonAcciones[i].id_buzon], "accion":jsonAcciones[i].acciones});
                                 }
@@ -2079,6 +2098,7 @@
                                     }).on('select2:select', function (e) {
                                         var aAcciones = e.params.data.accion;
                                         
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                         for (let i in aAcciones) {
                                             $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
                                         }
@@ -2109,7 +2129,7 @@
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
                             } 
-                            console.log('libre');
+
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 

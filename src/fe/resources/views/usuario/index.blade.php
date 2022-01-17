@@ -19,7 +19,7 @@
 @stop
 
 @section('content')
-<div class="container">
+<div class="col-12">
     <div class="card" id="card_usuario_grilla">
         <div class="card-body">
             <table id="tabla_usuario_grilla" class="table dt-responsive nowrap" style="width:100%">

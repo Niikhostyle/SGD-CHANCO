@@ -76,8 +76,10 @@ class UsuarioController extends Controller
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil
         ]);
+        /*
         $response_json=response()->json($response->json());
         $response_object=$response->object();
+
         $aUsuarios = [];
         $aUsuarios[] = ['id_usuario' => $response_object->data->id];
         $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -89,6 +91,9 @@ class UsuarioController extends Controller
             'usuarios_asignados'=> $aUsuarios
         ]);
         return $response_json;
+        */
+
+        return $response->json();
     }
 
 
