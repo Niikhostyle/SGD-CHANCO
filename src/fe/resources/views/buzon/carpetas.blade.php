@@ -421,7 +421,7 @@
             <div class="form-check" >
             <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
             <label class="form-check-label" for="defaultCheck1">
-                Dereivaciones otros destinatarios (DOO)
+                Derivaciones otros destinatarios (DOO)
             </label>
             </div>
             <div class="form-check" >
@@ -2332,7 +2332,19 @@
                     { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
                     { data: 'tipo_documento', name: 'tipo_documento.nombre' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
-                    { data: 'origen', name: 'tipo_origen.nombre' },
+                    //{ data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'buzon_origen',
+                            render: function(data, type, row) {
+                                if (type === 'display') 
+                                {
+                                    if(data != null)
+                                        return listadoBuzones[data];
+                                    else                           
+                                        return '';
+                                }
+                                return '';
+                            }     
+                    },
                     { data: 'materia', name: 'documento.materia' },
                 ],
                 rowCallback: function (row, data, index ) {
@@ -2382,7 +2394,19 @@
                     { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
-                    { data: 'origen', name: 'tipo_origen.nombre' },
+                   // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
+                    { data: 'buzon_origen',
+                            render: function(data, type, row) {
+                                if (type === 'display') 
+                                {
+                                    if(data != null)
+                                        return listadoBuzones[data];
+                                    else                           
+                                        return '';
+                                }
+                                return '';
+                            }     
+                    },
                     { data: 'materia', name: 'documento.materia' },
                     { data: 'id_documento',
                     render: function(data, type, row) {

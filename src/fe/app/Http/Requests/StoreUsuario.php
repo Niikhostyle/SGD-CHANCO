@@ -26,7 +26,7 @@ class StoreUsuario extends FormRequest
     public function rules()
     {
         return [
-        'run'=>['required','max:10',new ValidChileanRut(new ChileRut)],
+        'run'=>['required','unique:users','max:10','regex:/^[0-9]+-[0-9kK]{1}/',new ValidChileanRut(new ChileRut)],
         'id_perfil'=>'required',
         'id_estado_usuario'=>'required',
         'nombres'=>'required|max:20',
@@ -50,7 +50,8 @@ class StoreUsuario extends FormRequest
     public function messages(){
         return [
             'run.ValidChileanRut'=>'RUN no es valido',
-            'run.ChileRut'=>'RUN no es valido'
+            'run.ChileRut'=>'RUN no es valido',
+            'run.format'=>'El formato de RUN es inválido'
         ];
     }
 }

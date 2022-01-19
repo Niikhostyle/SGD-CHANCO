@@ -386,6 +386,7 @@
         });
 
         $(".print-error-msg").hide();
+        $('[name=duallistbox] option').prop('disabled', false);
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
@@ -401,6 +402,7 @@
         {
             var urlAccion = "{{route('buzones.update')}}";
             var typeAccion = 'PUT';
+           
         }    
         
         $.ajax({

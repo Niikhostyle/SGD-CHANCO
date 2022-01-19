@@ -278,7 +278,7 @@
             <div class="form-check" >
             <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
             <label class="form-check-label" for="defaultCheck1">
-                Dereivaciones otros destinatarios (DOO)
+                Derivaciones otros destinatarios (DOO)
             </label>
             </div>
             <div class="form-check" >
