@@ -26,14 +26,19 @@ class UpdateUsuario extends FormRequest
     public function rules()
     {
         return [
-        'run'=>['required','max:10',new ValidChileanRut(new ChileRut)],
+        'run'=>['required','unique:users,run,'.$this->form_id_usuario,'max:10','regex:/^[0-9]+-[0-9kK]{1}/',new ValidChileanRut(new ChileRut)],
+        //'run' => 'required|unique:users,run,'.$this->request->id,
         'id_perfil'=>'required',
         'id_estado_usuario'=>'required',
         'nombres'=>'required|max:20',
         'primer_apellido'=>'required|max:20',
         'segundo_apellido'=>'required|max:20',
         'password'=>'min:8|max:12',
-        'email'=>'required|email',
+        'password' => 'sometimes',
+        'confirmar_password' => 'required_with:password|same:password',
+        'email' => 'required|email|unique:users,email,'.$this->form_id_usuario, 
+
+//        'email'=>'required|email',
         ];
     }
 

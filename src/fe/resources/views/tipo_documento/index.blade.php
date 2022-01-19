@@ -19,8 +19,7 @@
 @stop
 
 @section('content')
-<div class="container">
-    
+<div class="col-12">    
     <div class="card" id="card_grilla">        
         <div class="card-body">
             
@@ -540,7 +539,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             '         <i class="fas fa-bars"></i>'+
                             '     </button>'+
                             '    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'+
-                            '         <a class="dropdown-item btn_ver" onclick="habilitaOrden()" href="#"><i class="fas fa-grip text-blue"></i> Mover</a>'+
+                            //'         <a class="dropdown-item btn_ver" onclick="habilitaOrden()" href="#"><i class="fas fa-grip text-blue"></i> Mover</a>'+
                             '         <a class="dropdown-item" onClick="eliminarBuzonFlujo('+item.orden+')" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>'+
                             '    </div>'+
                             '</div>';

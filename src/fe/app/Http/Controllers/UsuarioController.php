@@ -76,19 +76,29 @@ class UsuarioController extends Controller
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil
         ]);
-        $response_json=response()->json($response->json());
-        $response_object=$response->object();
-        $aUsuarios = [];
-        $aUsuarios[] = ['id_usuario' => $response_object->data->id];
-        $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(20)
-        ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
-            'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
-            'nombre_corto_buzon'=>'PRSNAL',
-            'tipo_buzon'=>'1',
-            'usuarios_asignados'=> $aUsuarios
-        ]);
+        
+        $response_json=$response->json(); 
+
+        if ($response_json['status'] == '201')
+        {
+            $response_object=$response->object();
+            $aUsuarios = [];
+            $aUsuarios[] = ['id_usuario' => $response_object->data->id];
+            
+            $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(20)
+            ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
+                'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
+                'nombre_corto_buzon'=>'PRSNAL',
+                'tipo_buzon'=>'1',
+                'usuarios_asignados'=> $aUsuarios
+            ]);
+        }
+
         return $response_json;
+        
+
+        //return $response->json();
     }
 
 
@@ -106,7 +116,7 @@ class UsuarioController extends Controller
 
     }
 
-    public function update(Request $request){
+    public function update(UpdateUsuario $request){
 
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -125,8 +135,8 @@ class UsuarioController extends Controller
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil
         ]);
-        $response_json=response()->json($response->json());
 
+        $response_json=response()->json($response->json());
 
         return $response_json;
     }

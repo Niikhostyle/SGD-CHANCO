@@ -520,6 +520,7 @@ class BuzonController extends Controller
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         'tipo_origen.nombre as origen',
+                        DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
                         'documento_buzon.contestar_hasta as contestas_hasta',
                         'documento_favorito_usuario.id_documento as favorito'
                         )
