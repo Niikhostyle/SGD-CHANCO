@@ -53,15 +53,15 @@ class UsuarioValidator
     private function rules2()
     {
         return [
-            'run' => 'required',
-            //'run' => 'required|unique:users,run,'.$this->request->id,
+            //'run' => 'required',
+            'run' => 'required|unique:users,run,'.$this->request->id,
             'id_perfil' => 'required|integer',
             'id_estado_usuario' => 'required|integer',            
             'nombres' => 'required|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
             'primer_apellido' => 'required|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
             'segundo_apellido' => 'required|max:255|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
-            //'email' => 'required|email|unique:users,email,'.$this->request->id, //para actualizacion no considera el valor del mismo registro
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,'.$this->request->id, //para actualizacion no considera el valor del mismo registro
+            //'email' => 'required|email',
             'password' => 'sometimes',
             'confirmar_password' => 'required_with:password|same:password'
         ];
