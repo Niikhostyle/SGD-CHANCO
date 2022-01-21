@@ -312,7 +312,7 @@ function cargar_datos_bitacora(id_documento)
             }
         ],
     });
-    
+
     $("#idAsignado2").text(response.data[0].identificador);
     $("#textMateria").text(response.data[0].materia);
     //window.someGlobalOrWhatever = response.balance

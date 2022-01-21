@@ -512,15 +512,15 @@ class BuzonController extends Controller
                         'documento_buzon.fecha as fecha_despacho',
                         'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
-                        'documento_buzon.json_acciones as destinatario',
+                        //'documento_buzon.json_acciones as destinatario',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
                         'documento.fecha as fecha_documento',
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
-                        'tipo_origen.nombre as origen',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
+                        DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1) as destinatario'),
                         'documento_buzon.contestar_hasta as contestas_hasta',
                         'documento_favorito_usuario.id_documento as favorito'
                         )

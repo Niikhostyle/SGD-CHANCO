@@ -525,13 +525,25 @@ class DocumentoController extends Controller{
 
                 $datosRequest = $request->json()->all();
 
-                $dFechaCreacion = date('Y-m-d H:i:s');
+                
+                $dFecha = date('Y-m-d H:i:s');
 
                 //****** SI SE AGREGA EL CAMPO PROCESADO EN EL JSON POR CADA ACCION SE DEBE ACTUALIZAR A TRUE AL HACER EL CAMBIO DE ESTADO.    
                 //agregar estados 10 y 12
                 if ($request->accion == 3) // por recibir
-                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4, 'id_carpeta' => 2, 'recibido' => true]);
-                //mejorar con else
+                {
+                    $datosDocBuzon = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
+                    $idDocBuzonPadre = $datosDocBuzon->id_documento_buzon_padre;                    
+                    
+
+                    //actualizo estado y carpeta
+                    $datosDocBuzon->update(['id_estado_documento' => 4, 'id_carpeta' => 2, 'fecha' => $dFecha]);
+                    
+                    //actualizar recibido en buzon padre si es principal
+                    if ($datosDocBuzon->id_tipo_destino == 1)
+                        DocumentoBuzon::find($idDocBuzonPadre)->update(['recibido' => true]);
+                }
+                    //mejorar con else
                 if ($request->accion == 7) // firmar
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 9]);
 
