@@ -343,7 +343,7 @@
             <div class="form-check" >
             <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
             <label class="form-check-label" for="defaultCheck1">
-                Dereivaciones otros destinatarios (DOO)
+                Derivaciones otros destinatarios (DOO)
             </label>
             </div>
             <div class="form-check" >
@@ -552,24 +552,28 @@
                             if(data==null){
                                 return '';
                             }else{
-                                //console.log(row.id_nivel_acceso);
+                                console.log(row);
                                 let botonera = '<div class="dropdown">';
                                     botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                         botonera +=' <i class="fas fa-bars"></i>';
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
 
-                                        if(row.id_nivel_acceso == 1)
+                                        if(row.id_nivel_acceso == 1 )
                                             {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                             botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
 
                                             }   
-                                        if(row.id_nivel_acceso == 2)
+                                        if(row.id_nivel_acceso == 2 )
                                         {
                                         botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-
-                                        }                                        
+                                        botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                        }
+                                        if(row.id_nivel_acceso == 3)
+                                        {
+                                           
+                                        }                                          
                                     botonera += '</div>';
                                     botonera += '</div>';
                                 return botonera;
