@@ -133,7 +133,7 @@ class BuscadorController extends Controller
         //    'lista_bitacora'=>$lista_bitacora,
 
        // ]);
-        
+         
     }  
 
     public function listar(Request $request)
@@ -141,12 +141,12 @@ class BuscadorController extends Controller
         $datos =  DB::select("select 
         distinct d.id_documento as id_documento
         , d.identificador
+        , d.id_nivel_acceso
         , d.fecha as fecha_documento
         , d.folio
         , d.materia 
         , d.json_tipo_documento 
         , d.id_tipo_documento 
-        , d.id_nivel_acceso
         , td.nombre as tipo_documento
         , (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
@@ -157,11 +157,13 @@ class BuscadorController extends Controller
         join buzon_usuario bu on bu.id_buzon = b.id_buzon
         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento  
     where 	
-        bu.id_usuario = ". Auth::user()->id."
+        
+          (d.id_nivel_acceso in (1,3)) 
+         or (bu.id_usuario = 11 and d.id_nivel_acceso = 2)
     order by d.id_documento desc");
                     
                 
-
+            //( d.id_nivel_acceso = 3 and bu.id_usuario = . Auth::user()->id)  (d.id_documento > 0 and d.id_nivel_acceso in (1,2,3) and t.id_tipo_destino ) 
         return datatables( $datos )->toJson();
 
 
