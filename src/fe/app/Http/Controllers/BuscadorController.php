@@ -159,11 +159,9 @@ class BuscadorController extends Controller
     where 	
         
           (d.id_nivel_acceso in (1,3)) 
-         or (bu.id_usuario = 11 and d.id_nivel_acceso = 2)
+         or (bu.id_usuario = ".Auth::user()->id." and d.id_nivel_acceso = 2)
     order by d.id_documento desc");
                     
-                
-            //( d.id_nivel_acceso = 3 and bu.id_usuario = . Auth::user()->id)  (d.id_documento > 0 and d.id_nivel_acceso in (1,2,3) and t.id_tipo_destino ) 
         return datatables( $datos )->toJson();
 
 
