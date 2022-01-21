@@ -555,6 +555,10 @@
         .fa-icon1 { position: absolute; bottom:0; left:0; }
         .fa-icon2 { position: absolute; bottom:0; left:30px; }
 
+        .odd:hover, .even:hover{
+            background: whitesmoke;
+        }
+
      </style>
 @stop
 
@@ -1172,7 +1176,9 @@
 
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3,1);
 
-                    //habilita botón enviar
+                    //habilita botón enviar y guardar
+
+                    $('.btn-guardar-submit').show();   
 
                     if ($("input[name='hiddIdDocumento']").val() != '')
                         $('.btn-enviar-submit').show();
@@ -1482,35 +1488,55 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
-        $.ajax({
-            url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
-            type: 'PUT',
-            dataType: 'json',
-            data: {
-                _token:_token,
-                hiddIdDocumento:hiddIdDocumento,
-                buzon:hiddIdBuzon,
-                accion:6                
-            },
-            success: function(data)
-            {
-                if(data.status == '200')
+        Swal.fire({
+                title: 'Visar',
+                html: "Se realizará la visación del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) 
                 {
-                    toastr.success("Documento Visado","Aviso!");
-                    
-                    fn_grilla_recibidos();
-                    $('#card_crear_documento').hide();        
-                    $("#collapseOne").collapse('show');                   
+                    $.ajax({
+                        url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            buzon:hiddIdBuzon,
+                            accion:6                
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento Visado","Aviso!");
+                                
+                                fn_grilla_recibidos();
+                                $('#card_crear_documento').hide();        
+                                $("#collapseOne").collapse('show');                   
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en el documento","Aviso!");
+                        }
+                    }); 
                 }
-                else
-                {
-                    toastr.error(data.data.comentario,"Aviso!");
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento","Aviso!");
-            }
-        });
+            }) 
+
+
+
+
+                
     }
 
     function firmar_documento()
@@ -1847,6 +1873,7 @@
     function bitacora(id_documento){
 
         $("#collapseOne").collapse('hide');
+        $('#card_crear_documento').hide();  
         $('#card_bitacora').show();	
 
         $('input[name="buscar_accion"]').on('change', function () 
@@ -2325,6 +2352,7 @@
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
                 type:'json',
                 responsive: true,
+                select: true,
                 language: lenguaje_datatable,
                 columns: [
                     { data: 'identificador', name: 'documento.identificador' },
@@ -2350,10 +2378,12 @@
                 rowCallback: function (row, data, index ) {
                     $(row).on("click", function (e) {
                         visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
-                    });
+                    });                
                 }
             });
     }
+
+    
 
     async function fn_grilla_recibidos(){
 
@@ -2431,7 +2461,7 @@
                                                     var accionesSolicitadas = row.json_acciones
                                                     
                                                     accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
-  
+
                                                     for (let i in accionesSolicitadas) {
                                                         if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
@@ -2547,7 +2577,18 @@
                 { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
                 { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
                 { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
-                { data: 'destinatario', name: 'documento_buzon.json_acciones' },
+                { data: 'destinatario', 
+                            render: function(data, type, row) {
+                                if (type === 'display') 
+                                {
+                                    if(data != null)
+                                        return listadoBuzones[data];
+                                    else                           
+                                        return '';
+                                }
+                                return '';
+                            }     
+                },
                 { data: 'materia', name: 'documento.materia' },
                 { data: 'respuesta_a', name: 'documento.json_respuesta_a' },
                 { data: 'fecha_documento', name: 'documento.fecha' },

@@ -214,8 +214,8 @@
         asignados.forEach(function(option, index) {
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
 
-            if(modificados[index] == 0)
-                $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
+           // if(modificados[index] == 0)
+           //     $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
          });
 
         $('[name=duallistbox]').bootstrapDualListbox('refresh', true);
@@ -386,7 +386,7 @@
         });
 
         $(".print-error-msg").hide();
-        $('[name=duallistbox] option').prop('disabled', false);
+        
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
