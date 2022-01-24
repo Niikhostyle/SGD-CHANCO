@@ -554,11 +554,18 @@
                             }else{
                                 console.log(row);
                                 let botonera = '<div class="dropdown">';
+                                let botonera_confidencial = '<div class="dropdown">';
+                                
+                                    botonera_confidencial += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                        botonera_confidencial +=' <i class="fas fa-bars"></i>';
+                                        botonera_confidencial +=' </button>';
+                                        
+
                                     botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                         botonera +=' <i class="fas fa-bars"></i>';
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
+                                        
                                         if(row.id_nivel_acceso == 1 )
                                             {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
@@ -572,7 +579,8 @@
                                         }
                                         if(row.id_nivel_acceso == 3)
                                         {
-                                           
+                                            
+                                            return botonera_confidencial;
                                         }                                          
                                     botonera += '</div>';
                                     botonera += '</div>';
