@@ -85,7 +85,7 @@ class DocumentoController extends Controller{
                     'id_estado_documento' => 1,
                     'id_tipo_destino' => 1,
                     'id_documento_buzon_padre' => null,
-                    'fecha' => $dFechaCreacion,
+                    //'fecha' => $dFechaCreacion,
                     'contestar_hasta' => $datosDocumento['contestar_hasta'],
                     'notificado' => false,
                     'recibido' => false,
@@ -137,6 +137,7 @@ class DocumentoController extends Controller{
                 //2: crea o actualiza dest principal
                 //3: elimina dest secundario y crea nuevamente
 
+                
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
 
                 if ($datosDocumento->id_documento != '')
@@ -192,7 +193,12 @@ class DocumentoController extends Controller{
                                 $datosRequest['json_tipo_documento'] = $datosJsonTipoDocumento;
 
                             }
-                        }                        
+                        } 
+                        
+                        if ($datosRequest['carpeta'] == 2) //actualiza estado si se edita, se deja en pendiente
+                        {
+                            DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
+                        }
                    
                         $datosDocumento->update($datosRequest);
                     }
@@ -224,7 +230,7 @@ class DocumentoController extends Controller{
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],
                                 'id_carpeta' => 1,
                                 'id_estado_documento' => 1,
-                                'fecha' => $dFechaCreacion,
+                                //'fecha' => $dFechaCreacion,
                                 'json_acciones'=> json_encode($jsonAcciones),
                                 'comentario_principal' => $datosRequest['comentarioPrincipal'], 
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
@@ -245,7 +251,7 @@ class DocumentoController extends Controller{
                             ],[
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],                                
                                 'id_estado_documento' => 4,
-                                'fecha' => $dFechaCreacion,
+                                //'fecha' => $dFechaCreacion,
                                 'json_acciones'=> json_encode($jsonAcciones),
                                 'comentario_principal' => $datosRequest['comentarioPrincipal'], 
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
@@ -286,7 +292,7 @@ class DocumentoController extends Controller{
                                     'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
-                                    'fecha' => $dFechaCreacion,
+                                    //'fecha' => $dFechaCreacion,
                                     'contestar_hasta' => $datosRequest['contestar_hasta'],
                                     'notificado' => false,
                                     'recibido' => false,
@@ -320,7 +326,7 @@ class DocumentoController extends Controller{
                                     'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
-                                    'fecha' => $dFechaCreacion,
+                                    //'fecha' => $dFechaCreacion,
                                     'contestar_hasta' => $datosRequest['contestar_hasta'],
                                     'notificado' => false,
                                     'recibido' => false,
@@ -385,7 +391,7 @@ class DocumentoController extends Controller{
                     $estadoDocumentoFinal = 2; 
                     $estadoDocumentoActual = array('1');    
                     
-                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal]);
+                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal, 'fecha' => $dFechaCreacion]);
                 }
 
                 if ($datosRequest['carpeta'] == 2) //recibidos
@@ -465,7 +471,7 @@ class DocumentoController extends Controller{
                                 ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
                                 ->select('id_documento_buzon')                                
                                 ->first();
-                $datosDocumentoBuzonD1->update(['id_estado_documento' => 3]);
+                $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
  
                 $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
                                     'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
@@ -486,7 +492,7 @@ class DocumentoController extends Controller{
                                     ->get();  
                     foreach ($datosDocumentoBuzonD2 as $dato)
                     {
-                        DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3]);
+                        DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
                     } 
                 
                     foreach ($datosDocumentoBuzonD2 as $dato)
@@ -535,7 +541,6 @@ class DocumentoController extends Controller{
                     $datosDocBuzon = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
                     $idDocBuzonPadre = $datosDocBuzon->id_documento_buzon_padre;                    
                     
-
                     //actualizo estado y carpeta
                     $datosDocBuzon->update(['id_estado_documento' => 4, 'id_carpeta' => 2, 'fecha' => $dFecha]);
                     
@@ -551,8 +556,7 @@ class DocumentoController extends Controller{
                 {
                     Documento::find($datosRequest["id_documento"])->update(['finalizado' => true]);
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 13]);
-                    //actualizar flujos
-                    
+                    //actualizar flujos                    
                 }
 
                 if ($request->accion == 6) // visar
@@ -860,8 +864,63 @@ class DocumentoController extends Controller{
                         'documento_buzon.favorito as estado_favorito',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento.folio as folio',
+                        'documento.id_nivel_acceso as nivel_acceso'
                         )
                     ->where('buzon_usuario.id_usuario','=',$datosRequest['id_usuario'])
+                    ->where('documento.id_nivel_acceso','=',1)
+                )
+                ->toJson();
+
+            }
+            catch (ModelNotFoundException $e)
+            {
+                return $this->respondError('No existen datos', 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+    }
+
+
+
+
+
+
+
+    public function verificaDocumento(Request $request){
+        if($request->isJson())
+        {
+            try
+            {
+
+                $datosRequest = $request->json()->all();
+                $codigo = $datosRequest['hash_validacion'];
+
+                $validator = $this->validator->validateFieldUser($datosRequest);
+
+                //if ($validator->fails())
+                  //  return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
+
+
+                return datatables(
+                    DB::table('documento_buzon')
+                    ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                    ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+                    
+                    
+                    ->select(
+                        'documento.id_documento as id_documento',
+                        'documento.id_nivel_acceso as id_nivel_acceso',
+                        'documento.identificador as identificador',
+                        'documento.fecha as fecha_documento',
+                        'documento.materia as materia',
+                        'documento.folio as folio',
+                        'documento.hash_validacion as hash_validacion',
+                        'documento_buzon_archivo.nombre_archivo_codificado as nombre_codificado'
+                        
+                        
+                        )
+                    ->where('documento.hash_validacion','=',$datosRequest['hash_validacion'])
                     //->where('documento_buzon.favorito','=',1)
                 )
                 ->toJson();
@@ -875,5 +934,40 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
     }
+
+
+    public function hash(Request $request)
+    {
+        if($request->isJson())
+        {
+            try
+            {
+                DB::beginTransaction();
+
+                $datosDocumento = $request->json()->all();                
+                $hashValidacion = $datosDocumento['codigo'];
+               
+                
+                
+                
+                
+                
+                
+
+                return $this->respondSuccess($hashValidacion, 201);
+
+            }
+            catch (ModelNotFoundException $e)
+            {
+                DB::rollBack();
+
+                return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+    }
+
 
 }
