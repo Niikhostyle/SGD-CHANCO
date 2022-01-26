@@ -337,13 +337,13 @@
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Destinatario Principal:</label><br>
                                 <!--<input type="text" class="form-control" id="form_destinatario_principal_el" data-role="tagsinput" disabled="false">-->
-                                <select class="form-control" style="100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
+                                <select class="form-control" style="width: 100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
                                 </select>
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Acciones Solicitadas:</label><br>
-                                <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" disabled="false">                                    
+                                <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" style="text-align:left !important" disabled="false">                                    
                                     @foreach($listadoAcciones as $accion)
                                         @if($accion['id_tipo_accion'] == 1)
                                             <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
@@ -570,6 +570,7 @@
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
 
 <script>
@@ -594,6 +595,7 @@
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
         numberDisplayed: 6,
+        buttonWidth: '100%'
     });
 
 
@@ -968,7 +970,10 @@
 
         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
 
-        $('form_destinatario_principal').select2().val(null).trigger("change");
+        $("#form_destinatario_principal").val(null);
+        $("#form_destinatario_principal").trigger('change');  
+
+        //$('form_destinatario_principal').select2().val(null).trigger("change");
         $('#form_otros_destinatarios_el').tagsinput('removeAll');
      
         $("input[name='hiddIdDocumentoBuzon']").val('');
@@ -1065,7 +1070,7 @@
 
         $(".print-error-msg").hide();
 
-        guarda_documento();
+        guarda_documento(1);
     });
 
     $(".btn-enviar-submit").click(function(e)
@@ -1078,13 +1083,14 @@
 
         $(".print-error-msg").hide();
 
-        guarda_documento();
+        //guarda_documento();
         enviar_documento();
 
     });
 
-    function guarda_documento()
+    function guarda_documento(accion)
     {
+       
         var _token = $("input[name='_token']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -1146,45 +1152,43 @@
             },
             success: function(data)
             {
-                
                 if(data.status == '200')
                 {                
-                    dropzonePrincipal.processQueue();   
-                    dropzoneOtros.processQueue();   
-                    dropzoneAnexo.processQueue();  
+                    if (accion == 1) //guarda
+                    {
+                        dropzonePrincipal.processQueue();   
+                        dropzoneOtros.processQueue();   
+                        dropzoneAnexo.processQueue();  
 
-                    toastr.success("Documento actualizado","Aviso!");
-                    
-                    $('#card_crear_documento').hide();
-                    $("#collapseOne").collapse('show');     
-                    fn_grilla_despachados();
-
+                        toastr.success("Documento actualizado","Aviso!");
+                        
+                        $('#card_crear_documento').hide();
+                        $("#collapseOne").collapse('show');     
+                        fn_grilla_despachados();
+                    }
                 }
                 else if(data.status == '201')
                 {
                     Swal.fire({
-                    icon: 'info',
+                    //icon: 'info',
                     title: 'Borrador guardado',
                     html: "Se ha guardado exitosamente el borrador del documento: <br>" +
                           "<b>ID: " + data.data.identificador + "</b><br>" +
                           "<b>Materia: " + data.data.materia + "</b>",
                     });
 
-                    habilita_campos();
-                    
                     $('#form_tipo_documento').prop("disabled", true);
-
+                    
+                    habilita_campos();
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3,1);
 
                     //habilita botón enviar y guardar
-
                     $('.btn-guardar-submit').show();   
 
-                    if ($("input[name='hiddIdDocumento']").val() != '')
+                    if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
-
+    
                     //actualiza grilla despachados
-
                     fn_grilla_despachados();   
 
                 }
@@ -1370,7 +1374,7 @@
                 console.log(result);
             if (result.value==true) 
             {
-                //guarda_documento();
+                guarda_documento(2);                
                 
                 $.ajax({
                     url: "../buzonesCarpetas/"+hiddIdDocumento,
@@ -1392,9 +1396,11 @@
                             toastr.success("Documento enviado","Aviso!");
 
                             $('#card_crear_documento').hide();        
+                            $("#collapseOne").collapse('show');
                             clear_form();
-                            fn_grilla_despachados();
-                            location.reload();
+                            fn_grilla_despachados();        
+
+                            //location.reload();
                         }
                         else
                         {
@@ -1410,6 +1416,7 @@
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+                
             }
         })               
     }
@@ -1904,7 +1911,7 @@
             url: "/documentos/"+id_documento,
             type:'GET',
             dataType: 'json',
-            async: false,
+            //async: false,
             data: {
                     hiddIdDocumentoBuzon:docBuzon
                   },
@@ -1933,11 +1940,11 @@
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
                         
-                        $("input[name='encabezado']").val(json_tipo_doc['encabezado']);
+                        $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
+                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
 
-                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
                         editor_cuerpo.setData(data.data.cuerpo);
-                        
+
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
@@ -1980,7 +1987,7 @@
                             var accionesFlujo = accionesFlujo3;
                                                 
                         //flujo controlado
-                        if(nFlujo == 2)
+                        if(nFlujo == 2 || nFlujo == 3) //SE AGREGÓ MIXTO PERO SIN BUZONES PERSONALES - PENDIENTE
                         {                        
                             //agrega las acciones correspondientes al tipo de flujo
                             var accionesFlujo = accionesFlujo2; 
@@ -1989,8 +1996,6 @@
 
                             if (carpeta == 3 && accion == 1)
                             {
-                                console.log('despachados');  
-                            
                                 $('#form_destinatario_principal').prop("disabled", false);                            
                                 $(".bootstrap-tagsinput").removeClass("disabled");
                             }
@@ -2355,12 +2360,27 @@
                 select: true,
                 language: lenguaje_datatable,
                 columns: [
-                    { data: 'identificador', name: 'documento.identificador' },
-                    { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
-                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'identificador', name: 'documento.identificador' },                    
+                    { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                    },
+                    { data: 'contestas_hasta', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY');
+                            }
+                    },
                     { data: 'tipo_documento', name: 'tipo_documento.nombre' },
-                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },
-                    //{ data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },                   
                     { data: 'buzon_origen',
                             render: function(data, type, row) {
                                 if (type === 'display') 
@@ -2420,8 +2440,21 @@
                     },
                     { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                     { data: 'identificador', name: 'documento.identificador' },
-                    { data: 'fecha_despacho', name: 'documento_buzon_bitacora.fecha' },
-                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                    },
+                    { data: 'contestas_hasta', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY');
+                            }
+                    },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
@@ -2574,8 +2607,21 @@
                 },
                 { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                 { data: 'identificador', name: 'documento.identificador' },
-                { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
-                { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else 
+                                    return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                },
+                { data: 'estado_documento',
+                            render: function(data)
+                            {
+                                return '';                                
+                            }
+                }, //cambiar, prueba
                 { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                 { data: 'destinatario', 
                             render: function(data, type, row) {
@@ -2591,7 +2637,12 @@
                 },
                 { data: 'materia', name: 'documento.materia' },
                 { data: 'respuesta_a', name: 'documento.json_respuesta_a' },
-                { data: 'fecha_documento', name: 'documento.fecha' },
+                { data: 'fecha_creacion', 
+                            render: function(data)
+                            {
+                                return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                },
                 { data: 'id_documento',
                   render: function(data, type, row) {
                     if (type === 'display') {

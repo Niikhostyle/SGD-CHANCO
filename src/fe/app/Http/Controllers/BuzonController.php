@@ -496,10 +496,10 @@ class BuzonController extends Controller
                     ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     ->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
-                    ->leftJoin('documento_buzon_bitacora', function ($join) {
+                    /*->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
-                             ->where('documento_buzon_bitacora.id_accion', '=', 1);
-                    })
+                             ->where('documento_buzon_bitacora.id_accion', '=', 2);
+                    })*/
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_estado_documento as id_estado_documento',
@@ -508,15 +508,13 @@ class BuzonController extends Controller
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
-                        'estado_documento.nombre_corto as estado_documento',
-                        'documento_buzon.fecha as fecha_despacho',
-                        'documento_buzon_bitacora.fecha as fecha_recepcion',
+                        'estado_documento.nombre_corto as estado_documento',                        
+                        'documento.fecha as fecha_creacion', 
+                        'documento_buzon.fecha as fecha_envio_recepcion',
                         'tipo_documento.nombre as tipo_documento',
-                        //'documento_buzon.json_acciones as destinatario',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
-                        'documento.fecha as fecha_documento',
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),

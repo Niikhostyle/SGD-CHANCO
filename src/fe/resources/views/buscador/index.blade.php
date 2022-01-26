@@ -443,6 +443,10 @@
         .file-container img { display: block; }
         .fa-icon1 { position: absolute; bottom:0; left:0; }
         .fa-icon2 { position: absolute; bottom:0; left:30px; }
+
+        .odd:hover, .even:hover{
+            background: whitesmoke;
+        }
     </style>
 
 @stop
