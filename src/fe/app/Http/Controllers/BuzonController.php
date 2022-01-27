@@ -466,6 +466,21 @@ class BuzonController extends Controller
 
     }
 
+    public function generar_archivo($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
+            'id_documento'=>$id,
+            'id_documento_buzon'=>$request->idDocumentoBuzon
+        ]);
+
+        return $datosDocumento->json();
+
+    }
+
     public function derivarOpcion1($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();
@@ -515,6 +530,7 @@ class BuzonController extends Controller
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
+                        'documento.json_tipo_documento as json_tipo_documento',
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
