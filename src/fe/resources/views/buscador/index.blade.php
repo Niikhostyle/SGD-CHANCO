@@ -552,7 +552,10 @@
                             if(data==null){
                                 return '';
                             }else{
-                                console.log(row);
+                                //console.log(row.list_usuarios.toString());   
+                                //var salida = row.list_usuarios.split(',');          
+                               /// console.log(salida[1]);
+                                    
                                 let botonera = '<div class="dropdown">';
                                 let botonera_confidencial = '<div class="dropdown">';
                                 
@@ -578,10 +581,33 @@
                                         botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
                                         }
                                         if(row.id_nivel_acceso == 3)
-                                        {
-                                            
-                                            return botonera_confidencial;
-                                        }                                          
+                                        {   
+                                            var salida = row.list_usuarios.split(',');
+                                            var acciones = false;
+
+                                            for(i=0; i<salida.length; i++){
+
+                                                if(salida[i]==row.id)
+                                                {
+                                                    
+                                                    acciones = true;
+                                                    if (acciones==true){
+                                                        i=salida.length;
+                                                    }
+                                                }
+                                           
+                                            }
+                                            if (acciones==true){
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                            }
+                                            //console.log(acciones)
+                                            if(acciones==false){
+                                                botonera_confidencial += '</div>';
+                                                botonera_confidencial += '</div>';
+                                                return botonera_confidencial;
+                                            }
+                                        }                                     
                                     botonera += '</div>';
                                     botonera += '</div>';
                                 return botonera;
