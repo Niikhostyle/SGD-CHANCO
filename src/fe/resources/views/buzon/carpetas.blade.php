@@ -1808,6 +1808,50 @@
         
     }
 
+    function accion_pdf(id_documento,id_documento_buzon){
+
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Generar Pdf',
+            html: "Se generará archivo pdf",                        
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+            
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/generar_archivo/"+id_documento,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Archivo Pdf generado","Aviso!");
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en la generación del archivo","Aviso!");
+                        }
+                    });
+            }
+        })      
+    }
+
     function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
@@ -2494,6 +2538,7 @@
                                                     var accionesSolicitadas = row.json_acciones
                                                     
                                                     accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
+                                                    jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g,"\""));                                                
 
                                                     for (let i in accionesSolicitadas) {
                                                         if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
@@ -2503,14 +2548,14 @@
                                                         if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_generar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                     } 
                                                 }                                                
                                                 
-
+                                                if (jsonTipoDoc['id_tipo_flujo'] == 1)
                                                     botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
                                                 
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
