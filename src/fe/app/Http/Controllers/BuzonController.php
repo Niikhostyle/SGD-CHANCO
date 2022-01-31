@@ -466,14 +466,14 @@ class BuzonController extends Controller
 
     }
 
-    public function generar_archivo($id, Request $request)
+    public function generar_archivo_pdf(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
         ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
-            'id_documento'=>$id,
+            'id_documento'=>$request->idDocumento,
             'id_documento_buzon'=>$request->idDocumentoBuzon
         ]);
 

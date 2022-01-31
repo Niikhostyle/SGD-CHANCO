@@ -1825,11 +1825,12 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "/generar_archivo/"+id_documento,
+                        url: "/generar_archivo/",
                         type: 'PUT',
                         dataType: 'json',
                         data: {
                             _token:_token,
+                            idDocumento:id_documento,
                             idDocumentoBuzon:id_documento_buzon             
                         },
                         success: function(data)
