@@ -740,7 +740,9 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
         }        
     };
 
@@ -784,7 +786,9 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
         }        
     };
 
@@ -822,7 +826,10 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
+
 
            // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
@@ -1825,11 +1832,12 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "/generar_archivo/"+id_documento,
+                        url: "/generar_archivo/",
                         type: 'PUT',
                         dataType: 'json',
                         data: {
                             _token:_token,
+                            idDocumento:id_documento,
                             idDocumentoBuzon:id_documento_buzon             
                         },
                         success: function(data)
@@ -2283,7 +2291,7 @@
                             if (value.id_tipo_archivo == 3) //otros
                                 htmlFileOtros += htmlFile + '</div>'; 
                             
-                            if (value.id_tipo_archivo == 1) //principal
+                            if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
 
                         });

@@ -18,6 +18,8 @@ class DocumentoBuzonArchivo extends Model
         'url',
         'id_tipo_archivo',
         'nombre_archivo_original',
-        'nombre_archivo_codificado'
+        'nombre_archivo_codificado',
+        'fecha',
+        'version'
     ];
 }

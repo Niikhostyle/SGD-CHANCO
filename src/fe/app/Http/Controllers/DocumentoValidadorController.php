@@ -6,11 +6,13 @@ use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 use Illuminate\Http\Request;
 use App\Providers\AppServiceProvider;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
-use \PDF;
+use PDF;
 
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 
 class DocumentoValidadorController extends Controller
 {
@@ -59,44 +61,45 @@ class DocumentoValidadorController extends Controller
 
     public function download(Request $request)
     {
-        $id_documento_buzon = $request->id_documento_buzon;
-        $id_tipo_archivo = $request->id_tipo_archivo;
-
+        /*
+        $pdf = PDF::loadView('pdf', [
+    		'title' => 'CodeAndDeploy.com Laravel Pdf Tutorial',
+    		'description' => 'This is an example Laravel pdf tutorial.',
+    		'footer' => 'by <a href="https://codeanddeploy.com">codeanddeploy.com</a>'
+    	]);
+    
+        return $pdf->download('sample.pdf');
+        */
+        
         //agregar version
-
         $dFechaCreacion = date('Y-m-d H:i:s');
 
         $numero = rand(100000,9999999);
 
         $fileName = 'prueba1';
         $nNombreArchivoCargar = $fileName . '-' . $numero;  
-        
-
-        DocumentoBuzonArchivo::create([
-            'id_documento_buzon' => 40,
-            'id_tipo_archivo' => 2,
-            'nombre_archivo_original' => $fileName,
-            'nombre_archivo_codificado' => $nNombreArchivoCargar,
-            'fecha' => $dFechaCreacion
-        ]);
+        $nDocumento = $request->idDocumento;
 
         //datos que llevara el pdf
 
-        $datosDocumentos = Documento::where('id_documento','=',37)
-        ->select('cuerpo', 'encabezado')
-        ->get();
+        $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
+        ->select('cuerpo', 'encabezado','materia')
+        ->first(); 
+        
+        //$pdf = PDF::loadView('pdf', $datosDocumentos);
+        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'archivo_'.$nDocumento.'.pdf');
 
-        $datosArchivos = DocumentoBuzonArchivo::where('id_documento_buzon', '=',53 )
-                                                ->where('id_tipo_archivo', 2)
-                                                ->select('nombre_archivo_original')
-                                                ->get();   
-        
-        
-        
-      
-        $pdf = \PDF::loadView('pdf', compact('datosDocumentos', 'datosArchivos'));
-        //return $datosDocumentos;
-        return $pdf->download('archivo.pdf');
+        if (file_exists(storage_path('app/public/files/') . 'archivo_'.$nDocumento.'.pdf'))
+            return response()->json([
+                'status' => 200, 
+                'data' => 'ok'
+            ], 200); 
+        else
+            return response()->json([
+                'status' => 400, 
+                'data' => 'error'
+            ], 400);     
+
     }
     
 }

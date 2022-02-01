@@ -13,7 +13,11 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+//use Barryvdh\DomPDF\PDF;
+use PDF;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
@@ -466,19 +470,56 @@ class BuzonController extends Controller
 
     }
 
-    public function generar_archivo($id, Request $request)
+    public function generar_archivo_pdf(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
+        $nDocumento =  $request->idDocumento;
 
-        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
-            'id_documento'=>$id,
-            'id_documento_buzon'=>$request->idDocumentoBuzon
-        ]);
+        $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
+        ->select('cuerpo', 'encabezado','materia')
+        ->first(); 
+        
+        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
 
-        return $datosDocumento->json();
+        $oMerger = PDFMerger::init();
 
+        $oMerger->addPDF(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
+
+        $anexos = DocumentoBuzonArchivo::where('id_documento_buzon', $request->idDocumentoBuzon)
+                                                ->where('id_tipo_archivo', 2)
+                                                ->select('nombre_archivo_codificado')
+                                                ->get();                   
+        foreach ($anexos as $file)
+            $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
+        
+        $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
+
+        $filePpal = 'archivo_generado_'.$nDocumento.'.pdf';    
+        $oMerger->merge();
+        $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+
+        $dFechaCreacion = date('Y-m-d H:i:s');        
+
+        if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
+        {
+            DocumentoBuzonArchivo::create([
+                'id_documento_buzon' => $request->idDocumentoBuzon,
+                'id_tipo_archivo' => 2,
+                'nombre_archivo_original' => $filePpal,
+                'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                'version' => '1',
+                'fecha' => $dFechaCreacion
+            ]);            
+            
+            $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)        
+            ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
+                'id_documento'=>$request->idDocumento,
+                'id_documento_buzon'=>$request->idDocumentoBuzon
+            ]);
+
+            return $datosDocumento->json();            
+        }
     }
 
     public function derivarOpcion1($id, Request $request)
