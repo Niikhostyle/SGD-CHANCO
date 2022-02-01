@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Documento;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,30 +22,48 @@ class DocumentoBuzonArchivoController extends Controller
             {
                 DB::beginTransaction();
                 
+                $id_documento = $request->id_documento;
                 $id_documento_buzon = $request->id_documento_buzon;
                 $id_tipo_archivo = $request->id_tipo_archivo;
 
                 //agregar version
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
-
-                $numero = rand(100000,9999999);
                 $files = $request->file('file');
 
                 foreach($files as $file)
                 {
                     $fileName = $file->getClientOriginalName();
-                    $nNombreArchivoCargar = $fileName . '-' . $numero;  
-                    $uploadSuccess = $file->move(storage_path('app/public/imagenes'), $nNombreArchivoCargar);
+                    $nNombreArchivoCargar = $this->getNombreDocumento($request->id_documento);
+                    $nVersion = null;
+                    
+                    $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
                 
                     if ($uploadSuccess)
                     {
+                        if(strlen($fileName) && $id_tipo_archivo == 1)
+                        {
+                            $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
+                                                    ->where('id_tipo_archivo', 1)
+                                                    ->get();
+                            
+                            foreach ($docsPpales as $archFile)
+                            {
+                                $nSalida = $archFile->version + 1;
+                                DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                            }
+
+                            if ($id_tipo_archivo == 1)
+                                $nVersion = 1;
+                        }
+
                         DocumentoBuzonArchivo::create([
                             'id_documento_buzon' => $id_documento_buzon,
                             'id_tipo_archivo' => $id_tipo_archivo,
                             'nombre_archivo_original' => $fileName,
                             'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                            'fecha' => $dFechaCreacion
+                            'fecha' => $dFechaCreacion,
+                            'version' => $nVersion
                         ]);
                     }
                     else
@@ -54,9 +73,7 @@ class DocumentoBuzonArchivoController extends Controller
                             'data' => [
                                 'comentario' => 'Error al guardar documento'
                         ]], 500);
-
                     }
-
                 }
 
                 DB::commit();
@@ -93,7 +110,7 @@ class DocumentoBuzonArchivoController extends Controller
 
        // storage_path('app/public/imagenes')
         
-        $path = storage_path('app/public/imagenes/' . $filename);
+        $path = storage_path('app/public/files/' . $filename);
         
         if (!File::exists($path)) {
             abort(404);

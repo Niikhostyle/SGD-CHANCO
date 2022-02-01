@@ -87,9 +87,9 @@ class DocumentoValidadorController extends Controller
         ->first(); 
         
         //$pdf = PDF::loadView('pdf', $datosDocumentos);
-        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/imagenes/') . 'archivo_'.$nDocumento.'.pdf');
+        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'archivo_'.$nDocumento.'.pdf');
 
-        if (file_exists(storage_path('app/public/imagenes/') . 'archivo_'.$nDocumento.'.pdf'))
+        if (file_exists(storage_path('app/public/files/') . 'archivo_'.$nDocumento.'.pdf'))
             return response()->json([
                 'status' => 200, 
                 'data' => 'ok'

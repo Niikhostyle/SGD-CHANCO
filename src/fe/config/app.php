@@ -179,6 +179,7 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
 
     ],
 
@@ -236,6 +237,7 @@ return [
         'RUT' => Malahierba\ChileRut\Facades\ChileRut::class,
         'Datatables' => Yajra\Datatables\Facades\Datatables::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
     ],
 
 ];
