@@ -250,8 +250,10 @@
                         <div class="form-row">
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Respuesta a:</label>
-                                <select id="form_respuesta_a" name="respuesta_a" class="form-control">
-                                    <option selected>Seleccionar</option>                                    
+                                <select id="form_respuesta_a" name="respuesta_a" class="form-control" multiple="multiple" style="text-align:left !important">
+                                    @foreach($listDocPendientesBuzon as $doc)
+                                            <option value="{{$doc['value']}}">{{$doc['text']}}</option>
+                                    @endforeach                                       
                                 </select>
                             </div>
                             <div class="col-md-8 mb-3">
@@ -589,7 +591,8 @@
     var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
     var allBuzones2 = @json($allBuzones2);
- 
+    var listadoDocPendientes = @json($listDocPendientesBuzon);
+     
     var idTipoFlujo = "";   
 
     $('#form_acciones_solicitadas_el').multiselect({
@@ -598,6 +601,11 @@
         buttonWidth: '100%'
     });
 
+    $('#form_respuesta_a').multiselect({
+        nonSelectedText: 'Seleccione Documentos',
+        numberDisplayed: 6,
+        buttonWidth: '100%'
+    });
 
     var allBuzones = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
@@ -613,19 +621,6 @@
     });
     allBuzonesT2.initialize();    
     
-/*    $('#form_destinatario_principal_el').tagsinput({
-        
-        maxTags: 1,
-        itemValue: 'value',
-        itemText: 'text',
-        typeaheadjs: {
-            name: 'allBuzones',
-            displayKey: 'text',
-            source: allBuzones.ttAdapter()
-        }
-    });
-*/
-
     $('#form_destinatario_principal').select2({
         data: allBuzones2,
         maximumSelectionLength: 1,
@@ -667,28 +662,6 @@
         }
     });
 
-    /*
-    //definir tagsinput solo con buzones grupales
-    $('#form_destinatario_principal_el').tagsinput('destroy'); 
-
-    $('#form_destinatario_principal_el').tagsinput({
-        maxTags: 1,
-        itemValue: 'value',
-        itemText: 'text',
-        typeaheadjs: {
-            name: 'allBuzonesT2',
-            displayKey: 'text',
-            source: allBuzonesT2.ttAdapter()
-        }
-    });  
-    */
-
-    //dropzone
-
-    //form_anexo.disabled=true;
-    //form_archivo_principal_el.disabled=true;
-    //form_otros_archivos_el.disabled=true;
-    //form_destinatario_principal_el.disabled=true;
     form_acciones_solicitadas_el.disabled=true;
     form_comentario_el.disabled=true;
     form_otros_destinatarios_el.disabled=true;
@@ -710,7 +683,6 @@
         maxFilesize: 10, //MB
         maxFiles: 1,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
@@ -1014,9 +986,7 @@
     $(".btn_cerrar_bitacora").click(function(e){
         $('#card_bitacora').hide();
         $("#collapseOne").collapse('show');
-    });
-
-    
+    });    
 
     $("#form_tipo_documento").change(function(){
         datosTipoDoc($(this).val());
@@ -1041,6 +1011,13 @@
                             idTipoFlujo = data.data.id_tipo_flujo;
 
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
+
+                            //habilita respuesta a: solo a flujo libre
+
+                            if (idTipoFlujo != 1)
+                                $('#form_respuesta_a').multiselect('disable');
+                            else
+                                $('#form_respuesta_a').multiselect('enable');
 
                             if (data.data.id_tipo_origen == 1) //interno
                             {
@@ -1108,6 +1085,7 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
+        var responder = $('#form_respuesta_a').val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
@@ -1146,6 +1124,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                responder:responder,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
                 destinatarioOtros:otrosDestinatarios,
@@ -1991,7 +1970,10 @@
                         $("input[name='materia']").val(data.data.materia);
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
-                        
+
+                        if (json_tipo_doc['id_tipo_flujo'] != 1)
+                            $('#form_respuesta_a').multiselect('disable');
+                         
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
 

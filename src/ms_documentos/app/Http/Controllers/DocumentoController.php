@@ -199,6 +199,19 @@ class DocumentoController extends Controller{
                         {
                             DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
                         }
+
+                        if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                        {
+                            $jsonRespuesta = array();                    
+
+                            if ($datosRequest['json_respuesta_a'] != "" || $datosRequest['json_respuesta_a'] != null)
+                            {    
+                                foreach($datosRequest['json_respuesta_a'] as $resp)
+                                    $jsonRespuesta[] = array("id_documento" => $resp);
+                            
+                                $datosRequest['json_respuesta_a'] = $jsonRespuesta;
+                            }
+                        }
                    
                         $datosDocumento->update($datosRequest);
                     }
@@ -699,6 +712,36 @@ class DocumentoController extends Controller{
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
                               
                 return $this->respondSuccess($datosDocumento, 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Documento no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+    }
+
+    public function verPendientesBuzon(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+
+                //$validator = $this->validator->validateField($datosRequest);
+                //if ($validator->fails())
+                //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
+
+                $datosDocumentoBuzon = DocumentoBuzon::join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                    ->where('documento_buzon.id_buzon', $request['id_buzon'])
+                                                    ->where('documento_buzon.id_carpeta', 2)
+                                                    ->where('documento_buzon.id_estado_documento', 4)
+                                                    ->select('documento_buzon.id_documento','documento.materia')
+                                                    ->get();           
+                              
+                return $this->respondSuccess($datosDocumentoBuzon, 200);
             }  
             catch (ModelNotFoundException $e) 
             {
