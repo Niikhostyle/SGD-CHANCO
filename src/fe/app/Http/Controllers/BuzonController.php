@@ -485,10 +485,12 @@ class BuzonController extends Controller
 
         $oMerger->addPDF(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
 
-        $anexos = DocumentoBuzonArchivo::where('id_documento_buzon', $request->idDocumentoBuzon)
-                                                ->where('id_tipo_archivo', 2)
-                                                ->select('nombre_archivo_codificado')
-                                                ->get();                   
+        $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                        ->where('id_documento', $nDocumento)
+                                        ->where('id_tipo_archivo', 2)
+                                        ->select('nombre_archivo_codificado')
+                                        ->get(); 
+                                                          
         foreach ($anexos as $file)
             $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
         
@@ -504,7 +506,7 @@ class BuzonController extends Controller
         {
             DocumentoBuzonArchivo::create([
                 'id_documento_buzon' => $request->idDocumentoBuzon,
-                'id_tipo_archivo' => 2,
+                'id_tipo_archivo' => 1,
                 'nombre_archivo_original' => $filePpal,
                 'nombre_archivo_codificado' => $nNombreArchivoCargar,
                 'version' => '1',
