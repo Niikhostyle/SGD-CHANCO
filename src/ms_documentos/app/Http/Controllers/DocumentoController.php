@@ -44,6 +44,8 @@ class DocumentoController extends Controller{
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
 
+                /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
+
                 $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
                 ->withBody(json_encode([
@@ -53,19 +55,38 @@ class DocumentoController extends Controller{
 
                 $nFolio = null;
 
+                /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
-                    $nFolio = rand(); //servicio folio
+                    $nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
+
+                /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
+
+                //guardar respuesta                   
+                $jsonRespuesta = array(); 
+                if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1)
+                {
+                    if ($datosDocumento['json_respuesta_a'] != "" && $datosDocumento['json_respuesta_a'] != null)
+                    {                              
+                        foreach($datosDocumento['json_respuesta_a'] as $resp)
+                        {
+                            $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia')->first();
+                            $jsonRespuesta[] = $datosRespuesta;                            
+                        }   
+                    
+                        //$datosRequest['json_respuesta_a'] = json_encode($jsonRespuesta);
+                    }
+                }
                
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
                     'efectos_terceros' => $datosDocumento['efectos_terceros'],
                     'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
-                    'json_respuesta_a' => $datosDocumento['json_respuesta_a'],
+                    'json_respuesta_a' => json_encode($jsonRespuesta),
                     'materia' => $datosDocumento['materia'],
                     'anterior' => $datosDocumento['anterior'],
                     'descripcion' => $datosDocumento['descripcion'],
@@ -75,9 +96,9 @@ class DocumentoController extends Controller{
                     'hash_validacion' => 'XyZ987',
                     'folio' => $nFolio                    
                 ]);
-                
+
                 $documento = $documento->fresh();
-                
+
                 $documentoBuzon = DocumentoBuzon::create([
                     'id_documento' => $documento->id_documento,
                     'id_buzon' => $datosDocumento['id_buzon'],
@@ -109,7 +130,7 @@ class DocumentoController extends Controller{
             catch (ModelNotFoundException $e)
             {
                 DB::rollBack();
-
+                return $e->getMessage();
                 return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
             }
         }
@@ -199,7 +220,30 @@ class DocumentoController extends Controller{
                         {
                             DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
                         }
-                   
+
+                        if ($datosRequest['carpeta'] == 3 && $datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                        {
+                            //guardar respuesta
+                            if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                            {
+                                $jsonRespuesta = array();                    
+
+                                if ($datosRequest['json_respuesta_a'] != "" && $datosRequest['json_respuesta_a'] != null)
+                                {   
+                                    foreach($datosRequest['json_respuesta_a'] as $resp)
+                                    {
+                                        $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia')->first();
+                                        $jsonRespuesta[] = $datosRespuesta;                                        
+                                    }   
+                                
+                                    $datosRequest['json_respuesta_a'] = json_encode($jsonRespuesta);
+                                }
+                            }
+                            
+                        }
+                        else
+                            $datosRequest['json_respuesta_a'] = $datosDocumento['json_respuesta_a'];
+
                         $datosDocumento->update($datosRequest);
                     }
 
@@ -214,7 +258,7 @@ class DocumentoController extends Controller{
                         foreach($datosRequest['acciones_solicitadas'] as $accion)
                             $jsonAcciones[] = array("id_accion" => $accion);
                     }
-                    
+
                     if ($datosRequest['destinatarioPrincipal'] != "")
                     {
                         //verificar si se crea o actualiza   
@@ -392,6 +436,25 @@ class DocumentoController extends Controller{
                     $estadoDocumentoActual = array('1');    
                     
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal, 'fecha' => $dFechaCreacion]);
+
+                    //cambia estado de documentos respuesta a
+                    
+                    if ($datosRequest["json_respuesta_a"] != null && $datosRequest["json_respuesta_a"] != "")
+                    {
+                        
+                        foreach($datosRequest["json_respuesta_a"] as $nDoc)
+                        {
+                            $datosDocumentoBuzonResp = DocumentoBuzon::where('id_documento', $nDoc)
+                                ->where('id_buzon', $datosRequest['id_buzon'])
+                                ->where('id_carpeta', '2')
+                                ->where('id_estado_documento', '4')                                
+                                ->select('id_documento_buzon')                                
+                                ->first();
+                        
+                                $datosDocumentoBuzonResp->update(['id_estado_documento' => 5, 'fecha' => $dFechaCreacion]);
+                        }
+                    }
+
                 }
 
                 if ($datosRequest['carpeta'] == 2) //recibidos
@@ -699,6 +762,37 @@ class DocumentoController extends Controller{
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
                               
                 return $this->respondSuccess($datosDocumento, 200);
+            }  
+            catch (ModelNotFoundException $e) 
+            {
+                return $this->respondError('Documento no existe', 500);
+            } 
+        }
+        else 
+            return $this->respondError('Json inválido', 406);
+    }
+
+    public function verPendientesBuzon(Request $request)
+    {
+        if($request->isJson())
+        {
+            try 
+            {
+                $datosRequest = $request->json()->all();
+
+                //$validator = $this->validator->validateField($datosRequest);
+                //if ($validator->fails())
+                //    return $this->respondFail('Falla al obtener documento: revisar datos de entrada');
+
+                $datosDocumentoBuzon = DocumentoBuzon::join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                    ->where('documento_buzon.id_buzon', $request['id_buzon'])
+                                                    ->where('documento_buzon.id_carpeta', 2)
+                                                    ->where('documento_buzon.id_estado_documento', 4) 
+                                                    ->where('documento_buzon.id_tipo_destino', 1) 
+                                                    ->select('documento_buzon.id_documento','documento.materia', 'documento.json_tipo_documento', 'documento.identificador')
+                                                    ->get();           
+                              
+                return $this->respondSuccess($datosDocumentoBuzon, 200);
             }  
             catch (ModelNotFoundException $e) 
             {
