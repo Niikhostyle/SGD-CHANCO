@@ -314,6 +314,28 @@ class BuzonController extends Controller
             }
         }
 
+        //listado documentos pendientes buzon, solo flujo libre
+        $listado_pendientes = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_buzon' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verPendientesBuzon');
+
+        if($listado_pendientes->failed()){
+            $listado_pendientes->json()['data']['comentario'];
+        }else{
+
+            $aDocumentos = array(); 
+            foreach ($listado_pendientes['data'] as $dato)
+            {
+                $datosJsonTipoDocumento = json_decode($dato['json_tipo_documento'],true);
+                
+                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                    $aDocumentos[] = array("value" => $dato['id_documento'], "label" => $dato['identificador'], "title" => $dato['identificador'] . " - " . $dato['materia']);
+            }
+        }        
+
         /* NUEVO-DOCUMENTOS */
 
         return View::make('buzon.carpetas',[
@@ -333,7 +355,7 @@ class BuzonController extends Controller
             'allBuzones'=>$aAllBuzones,
             'allBuzones2'=>$aAllBuzones2,
             'allBuzonesT2'=>$aAllBuzonesT2,
-
+            'listDocPendientesBuzon' => $aDocumentos,
             'listado_parametros'=>$listado_parametros['data']
         ]);
 
@@ -349,7 +371,7 @@ class BuzonController extends Controller
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'efectos_terceros'=>$request->efectos_terceros,
-            'json_respuesta_a'=>"[]",
+            'json_respuesta_a'=>$request->responder,
             'materia'=>$request->materia,
             'anterior'=>$request->anterior,
             'descripcion'=>$request->descripcion,
@@ -377,7 +399,7 @@ class BuzonController extends Controller
             'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'fileDelete'=>$request->hiddIdFileDelete,
             'efectos_terceros'=>$request->efectos_terceros,
-            'json_respuesta_a'=>"[]",
+            'json_respuesta_a'=>$request->responder,
             'materia'=>$request->materia,
             'anterior'=>$request->anterior,
             'descripcion'=>$request->descripcion,
@@ -412,6 +434,7 @@ class BuzonController extends Controller
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
             'destinatarioOtros'=>$request->destinatarioOtros,
+            'json_respuesta_a'=>$request->responder,
             'carpeta'=>$request->carpeta
         ]);
 
