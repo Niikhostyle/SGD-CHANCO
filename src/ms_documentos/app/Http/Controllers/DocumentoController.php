@@ -44,6 +44,8 @@ class DocumentoController extends Controller{
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
 
+                /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
+
                 $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                 ->timeout(30)
                 ->withBody(json_encode([
@@ -53,8 +55,11 @@ class DocumentoController extends Controller{
 
                 $nFolio = null;
 
+                /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
-                    $nFolio = rand(); //servicio folio
+                    $nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
+
+                /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
