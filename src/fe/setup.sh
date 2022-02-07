@@ -1,4 +1,9 @@
 #!/bin/bash
+#crear carpeta de repositorio de documentos
+
+mkdir storage/app/public/files
+chown www-data:www-data storage/app/public/files
+
 # Change access rights for the Laravel folders
 # in order to make Laravel able to access
 # cache and logs folder.

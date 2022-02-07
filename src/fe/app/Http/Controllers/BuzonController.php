@@ -13,7 +13,11 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+//use Barryvdh\DomPDF\PDF;
+use PDF;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
@@ -310,6 +314,28 @@ class BuzonController extends Controller
             }
         }
 
+        //listado documentos pendientes buzon, solo flujo libre
+        $listado_pendientes = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_buzon' => $id,
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verPendientesBuzon');
+
+        if($listado_pendientes->failed()){
+            $listado_pendientes->json()['data']['comentario'];
+        }else{
+
+            $aDocumentos = array(); 
+            foreach ($listado_pendientes['data'] as $dato)
+            {
+                $datosJsonTipoDocumento = json_decode($dato['json_tipo_documento'],true);
+                
+                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                    $aDocumentos[] = array("value" => $dato['id_documento'], "label" => $dato['identificador'], "title" => $dato['identificador'] . " - " . $dato['materia']);
+            }
+        }        
+
         /* NUEVO-DOCUMENTOS */
 
         return View::make('buzon.carpetas',[
@@ -329,7 +355,7 @@ class BuzonController extends Controller
             'allBuzones'=>$aAllBuzones,
             'allBuzones2'=>$aAllBuzones2,
             'allBuzonesT2'=>$aAllBuzonesT2,
-
+            'listDocPendientesBuzon' => $aDocumentos,
             'listado_parametros'=>$listado_parametros['data']
         ]);
 
@@ -345,7 +371,7 @@ class BuzonController extends Controller
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'efectos_terceros'=>$request->efectos_terceros,
-            'json_respuesta_a'=>"[]",
+            'json_respuesta_a'=>$request->responder,
             'materia'=>$request->materia,
             'anterior'=>$request->anterior,
             'descripcion'=>$request->descripcion,
@@ -373,7 +399,7 @@ class BuzonController extends Controller
             'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'fileDelete'=>$request->hiddIdFileDelete,
             'efectos_terceros'=>$request->efectos_terceros,
-            'json_respuesta_a'=>"[]",
+            'json_respuesta_a'=>$request->responder,
             'materia'=>$request->materia,
             'anterior'=>$request->anterior,
             'descripcion'=>$request->descripcion,
@@ -408,6 +434,7 @@ class BuzonController extends Controller
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
             'destinatarioOtros'=>$request->destinatarioOtros,
+            'json_respuesta_a'=>$request->responder,
             'carpeta'=>$request->carpeta
         ]);
 
@@ -466,6 +493,60 @@ class BuzonController extends Controller
 
     }
 
+    public function generar_archivo_pdf(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $nDocumento =  $request->idDocumento;
+
+        $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
+        ->select('cuerpo', 'encabezado','materia')
+        ->first(); 
+        
+        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
+
+        $oMerger = PDFMerger::init();
+
+        $oMerger->addPDF(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
+
+        $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                        ->where('id_documento', $nDocumento)
+                                        ->where('id_tipo_archivo', 2)
+                                        ->select('nombre_archivo_codificado')
+                                        ->get(); 
+                                                          
+        foreach ($anexos as $file)
+            $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
+        
+        $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
+
+        $filePpal = 'archivo_generado_'.$nDocumento.'.pdf';    
+        $oMerger->merge();
+        $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+
+        $dFechaCreacion = date('Y-m-d H:i:s');        
+
+        if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
+        {
+            DocumentoBuzonArchivo::create([
+                'id_documento_buzon' => $request->idDocumentoBuzon,
+                'id_tipo_archivo' => 1,
+                'nombre_archivo_original' => $filePpal,
+                'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                'version' => '1',
+                'fecha' => $dFechaCreacion
+            ]);            
+            
+            $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)        
+            ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
+                'id_documento'=>$request->idDocumento,
+                'id_documento_buzon'=>$request->idDocumentoBuzon
+            ]);
+
+            return $datosDocumento->json();            
+        }
+    }
+
     public function derivarOpcion1($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();
@@ -496,10 +577,10 @@ class BuzonController extends Controller
                     ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
                     ->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
-                    ->leftJoin('documento_buzon_bitacora', function ($join) {
+                    /*->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
-                             ->where('documento_buzon_bitacora.id_accion', '=', 1);
-                    })
+                             ->where('documento_buzon_bitacora.id_accion', '=', 2);
+                    })*/
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_estado_documento as id_estado_documento',
@@ -508,15 +589,14 @@ class BuzonController extends Controller
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
-                        'estado_documento.nombre_corto as estado_documento',
-                        'documento_buzon.fecha as fecha_despacho',
-                        'documento_buzon_bitacora.fecha as fecha_recepcion',
+                        'estado_documento.nombre_corto as estado_documento',                        
+                        'documento.fecha as fecha_creacion', 
+                        'documento_buzon.fecha as fecha_envio_recepcion',
                         'tipo_documento.nombre as tipo_documento',
-                        //'documento_buzon.json_acciones as destinatario',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',
-                        'documento.fecha as fecha_documento',
+                        'documento.json_tipo_documento as json_tipo_documento',
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),

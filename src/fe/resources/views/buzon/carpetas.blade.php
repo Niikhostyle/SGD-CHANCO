@@ -250,8 +250,10 @@
                         <div class="form-row">
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Respuesta a:</label>
-                                <select id="form_respuesta_a" name="respuesta_a" class="form-control">
-                                    <option selected>Seleccionar</option>                                    
+                                <select id="form_respuesta_a" name="respuesta_a" class="form-control" multiple="multiple" style="text-align:left !important">
+                                    @foreach($listDocPendientesBuzon as $doc)
+                                        <option value="{{$doc['value']}}">{{$doc['title']}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="col-md-8 mb-3">
@@ -337,13 +339,13 @@
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Destinatario Principal:</label><br>
                                 <!--<input type="text" class="form-control" id="form_destinatario_principal_el" data-role="tagsinput" disabled="false">-->
-                                <select class="form-control" style="100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
+                                <select class="form-control" style="width: 100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
                                 </select>
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Acciones Solicitadas:</label><br>
-                                <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" disabled="false">                                    
+                                <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" style="text-align:left !important" disabled="false">                                    
                                     @foreach($listadoAcciones as $accion)
                                         @if($accion['id_tipo_accion'] == 1)
                                             <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
@@ -570,6 +572,7 @@
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
 
 <script>
@@ -588,14 +591,20 @@
     var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
     var allBuzones2 = @json($allBuzones2);
- 
+    var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
         numberDisplayed: 6,
+        buttonWidth: '100%'
     });
 
+    $('#form_respuesta_a').multiselect({
+        nonSelectedText: 'Seleccione Documentos',
+        numberDisplayed: 4,
+        buttonWidth: '100%'        
+    });
 
     var allBuzones = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
@@ -611,19 +620,6 @@
     });
     allBuzonesT2.initialize();    
     
-/*    $('#form_destinatario_principal_el').tagsinput({
-        
-        maxTags: 1,
-        itemValue: 'value',
-        itemText: 'text',
-        typeaheadjs: {
-            name: 'allBuzones',
-            displayKey: 'text',
-            source: allBuzones.ttAdapter()
-        }
-    });
-*/
-
     $('#form_destinatario_principal').select2({
         data: allBuzones2,
         maximumSelectionLength: 1,
@@ -665,28 +661,6 @@
         }
     });
 
-    /*
-    //definir tagsinput solo con buzones grupales
-    $('#form_destinatario_principal_el').tagsinput('destroy'); 
-
-    $('#form_destinatario_principal_el').tagsinput({
-        maxTags: 1,
-        itemValue: 'value',
-        itemText: 'text',
-        typeaheadjs: {
-            name: 'allBuzonesT2',
-            displayKey: 'text',
-            source: allBuzonesT2.ttAdapter()
-        }
-    });  
-    */
-
-    //dropzone
-
-    //form_anexo.disabled=true;
-    //form_archivo_principal_el.disabled=true;
-    //form_otros_archivos_el.disabled=true;
-    //form_destinatario_principal_el.disabled=true;
     form_acciones_solicitadas_el.disabled=true;
     form_comentario_el.disabled=true;
     form_otros_destinatarios_el.disabled=true;
@@ -708,7 +682,6 @@
         maxFilesize: 10, //MB
         maxFiles: 1,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
@@ -738,7 +711,9 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
         }        
     };
 
@@ -782,7 +757,9 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
         }        
     };
 
@@ -820,7 +797,10 @@
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+            var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
+            formData.append('id_documento', idoc);
+
 
            // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
@@ -967,8 +947,12 @@
         $(".row_archivar").hide();  
 
         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+        $('#form_respuesta_a').multiselect('deselectAll', true);
 
-        $('form_destinatario_principal').select2().val(null).trigger("change");
+        $("#form_destinatario_principal").val(null);
+        $("#form_destinatario_principal").trigger('change');  
+
+        //$('form_destinatario_principal').select2().val(null).trigger("change");
         $('#form_otros_destinatarios_el').tagsinput('removeAll');
      
         $("input[name='hiddIdDocumentoBuzon']").val('');
@@ -1002,9 +986,7 @@
     $(".btn_cerrar_bitacora").click(function(e){
         $('#card_bitacora').hide();
         $("#collapseOne").collapse('show');
-    });
-
-    
+    });    
 
     $("#form_tipo_documento").change(function(){
         datosTipoDoc($(this).val());
@@ -1029,6 +1011,14 @@
                             idTipoFlujo = data.data.id_tipo_flujo;
 
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
+
+                            //habilita respuesta a: solo a flujo libre
+
+                             $('#form_respuesta_a').multiselect('deselectAll', true);
+                            if (idTipoFlujo != 1)
+                                $('#form_respuesta_a').multiselect('disable');
+                            else
+                                $('#form_respuesta_a').multiselect('enable');
 
                             if (data.data.id_tipo_origen == 1) //interno
                             {
@@ -1065,7 +1055,7 @@
 
         $(".print-error-msg").hide();
 
-        guarda_documento();
+        guarda_documento(1);
     });
 
     $(".btn-enviar-submit").click(function(e)
@@ -1078,13 +1068,14 @@
 
         $(".print-error-msg").hide();
 
-        guarda_documento();
+        //guarda_documento();
         enviar_documento();
 
     });
 
-    function guarda_documento()
+    function guarda_documento(accion)
     {
+       
         var _token = $("input[name='_token']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -1095,6 +1086,7 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
+        var responder = $('#form_respuesta_a').val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
@@ -1133,6 +1125,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                responder:responder,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
                 destinatarioOtros:otrosDestinatarios,
@@ -1146,45 +1139,43 @@
             },
             success: function(data)
             {
-                
                 if(data.status == '200')
                 {                
-                    dropzonePrincipal.processQueue();   
-                    dropzoneOtros.processQueue();   
-                    dropzoneAnexo.processQueue();  
+                    if (accion == 1) //guarda
+                    {
+                        dropzonePrincipal.processQueue();   
+                        dropzoneOtros.processQueue();   
+                        dropzoneAnexo.processQueue();  
 
-                    toastr.success("Documento actualizado","Aviso!");
-                    
-                    $('#card_crear_documento').hide();
-                    $("#collapseOne").collapse('show');     
-                    fn_grilla_despachados();
-
+                        toastr.success("Documento actualizado","Aviso!");
+                        
+                        $('#card_crear_documento').hide();
+                        $("#collapseOne").collapse('show');     
+                        fn_grilla_despachados();
+                    }
                 }
                 else if(data.status == '201')
                 {
                     Swal.fire({
-                    icon: 'info',
+                    //icon: 'info',
                     title: 'Borrador guardado',
                     html: "Se ha guardado exitosamente el borrador del documento: <br>" +
                           "<b>ID: " + data.data.identificador + "</b><br>" +
                           "<b>Materia: " + data.data.materia + "</b>",
                     });
 
-                    habilita_campos();
-                    
                     $('#form_tipo_documento').prop("disabled", true);
-
+                    
+                    habilita_campos();
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3,1);
 
                     //habilita botón enviar y guardar
-
                     $('.btn-guardar-submit').show();   
 
-                    if ($("input[name='hiddIdDocumento']").val() != '')
+                    if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
-
+    
                     //actualiza grilla despachados
-
                     fn_grilla_despachados();   
 
                 }
@@ -1354,6 +1345,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var responder = $('#form_respuesta_a').val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
@@ -1370,7 +1362,7 @@
                 console.log(result);
             if (result.value==true) 
             {
-                //guarda_documento();
+                guarda_documento(2);                
                 
                 $.ajax({
                     url: "../buzonesCarpetas/"+hiddIdDocumento,
@@ -1383,6 +1375,7 @@
                         buzon:hiddIdBuzon,
                         destinatarioPrincipal:destinatarioPrincipal,
                         destinatarioOtros:otrosDestinatarios,
+                        responder:responder,
                         carpeta:3                
                     },
                     success: function(data)
@@ -1392,9 +1385,11 @@
                             toastr.success("Documento enviado","Aviso!");
 
                             $('#card_crear_documento').hide();        
+                            $("#collapseOne").collapse('show');
                             clear_form();
-                            fn_grilla_despachados();
-                            location.reload();
+                            fn_grilla_despachados();        
+
+                            //location.reload();
                         }
                         else
                         {
@@ -1410,6 +1405,7 @@
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+                
             }
         })               
     }
@@ -1531,12 +1527,7 @@
                         }
                     }); 
                 }
-            }) 
-
-
-
-
-                
+            })                 
     }
 
     function firmar_documento()
@@ -1547,35 +1538,50 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
-        $.ajax({
-            url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
-            type: 'PUT',
-            dataType: 'json',
-            data: {
-                _token:_token,
-                hiddIdDocumento:hiddIdDocumento,
-                buzon:hiddIdBuzon,
-                accion:7                
-            },
-            success: function(data)
-            {
-                if(data.status == '200')
-                {
-                    toastr.success("Documento Firmado","Aviso!");
+        Swal.fire({
+                title: 'Firmar',
+                html: "Se realizará la firma del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) 
+                {       
+                    $.ajax({
+                        url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            buzon:hiddIdBuzon,
+                            accion:7                
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento Firmado","Aviso!");
 
-                    $('#card_crear_documento').hide();        
-                    fn_grilla_recibidos();
-                    $("#collapseOne").collapse('show');
+                                $('#card_crear_documento').hide();        
+                                fn_grilla_recibidos();
+                                $("#collapseOne").collapse('show');
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en el documento","Aviso!");
+                        }
+                    });
                 }
-                else
-                {
-                    toastr.error(data.data.comentario,"Aviso!");
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento","Aviso!");
-            }
-        });
+            }) 
     }
 
     function finalizar_documento()
@@ -1586,35 +1592,51 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
-        $.ajax({
-            url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
-            type: 'PUT',
-            dataType: 'json',
-            data: {
-                _token:_token,
-                hiddIdDocumento:hiddIdDocumento,
-                buzon:hiddIdBuzon,
-                accion:10                
-            },
-            success: function(data)
-            {
-                if(data.status == '200')
+        Swal.fire({
+                title: 'Finalizar',
+                html: "Se realizará la finalización del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) 
                 {
-                    toastr.success("Documento Finalizado","Aviso!");
+        
+                    $.ajax({
+                        url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            buzon:hiddIdBuzon,
+                            accion:10                
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento Finalizado","Aviso!");
 
-                    $('#card_crear_documento').hide();        
-                    fn_grilla_recibidos();
-                    $("#collapseOne").collapse('show');
+                                $('#card_crear_documento').hide();        
+                                fn_grilla_recibidos();
+                                $("#collapseOne").collapse('show');
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en el documento","Aviso!");
+                        }
+                    });
                 }
-                else
-                {
-                    toastr.error(data.data.comentario,"Aviso!");
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento","Aviso!");
-            }
-        });
+            })
     }
 
     function recibir_documento(destino)
@@ -1801,6 +1823,51 @@
         
     }
 
+    function accion_pdf(id_documento,id_documento_buzon){
+
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Generar Pdf',
+            html: "Se generará archivo pdf",                        
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+            
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/generar_archivo/",
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Archivo Pdf generado","Aviso!");
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en la generación del archivo","Aviso!");
+                        }
+                    });
+            }
+        })      
+    }
+
     function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
@@ -1904,7 +1971,7 @@
             url: "/documentos/"+id_documento,
             type:'GET',
             dataType: 'json',
-            async: false,
+            //async: false,
             data: {
                     hiddIdDocumentoBuzon:docBuzon
                   },
@@ -1922,7 +1989,8 @@
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];    
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
-
+                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
+                        
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
@@ -1932,12 +2000,15 @@
                         $("input[name='materia']").val(data.data.materia);
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
-                        
-                        $("input[name='encabezado']").val(json_tipo_doc['encabezado']);
 
-                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
+                        if (nFlujo != 1)
+                            $('#form_respuesta_a').multiselect('disable');
+                         
+                        $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
+                        $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
+
                         editor_cuerpo.setData(data.data.cuerpo);
-                        
+
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
@@ -1958,6 +2029,25 @@
                             $('#form_archivo_principal_el').hide();
                             $('#cargar_archivo_principal_el').show();
                         }
+                        
+                        //selecciona documentos en respuesta a
+                       
+                        $('#form_respuesta_a').multiselect({numberDisplayed: 6});
+                        $('#form_respuesta_a').multiselect('deselectAll', true);
+                        //$('#form_respuesta_a').empty();                        
+ 
+                        if (carpeta != 3 || (carpeta == 3 && accion == 0))
+                            $('#form_respuesta_a').empty();
+                        
+                        for (let j in jsonRespuesta) 
+                        {                           
+                            if (carpeta == 3 && accion != 0)
+                                $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
+                            else
+                                $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
+                        }
+
+                        $('#form_respuesta_a').multiselect('rebuild');
 
                         $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();   
@@ -1980,7 +2070,7 @@
                             var accionesFlujo = accionesFlujo3;
                                                 
                         //flujo controlado
-                        if(nFlujo == 2)
+                        if(nFlujo == 2 || nFlujo == 3) //SE AGREGÓ MIXTO PERO SIN BUZONES PERSONALES - PENDIENTE
                         {                        
                             //agrega las acciones correspondientes al tipo de flujo
                             var accionesFlujo = accionesFlujo2; 
@@ -1989,8 +2079,6 @@
 
                             if (carpeta == 3 && accion == 1)
                             {
-                                console.log('despachados');  
-                            
                                 $('#form_destinatario_principal').prop("disabled", false);                            
                                 $(".bootstrap-tagsinput").removeClass("disabled");
                             }
@@ -2234,7 +2322,7 @@
                             if (value.id_tipo_archivo == 3) //otros
                                 htmlFileOtros += htmlFile + '</div>'; 
                             
-                            if (value.id_tipo_archivo == 1) //principal
+                            if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
 
                         });
@@ -2277,7 +2365,7 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,0); 
 
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
@@ -2308,7 +2396,8 @@
         habilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2,1);
 
-        $('#form_tipo_documento').prop("disabled", true); 
+        $('#form_tipo_documento').prop("disabled", true);
+        $('#form_respuesta_a').multiselect('disable');
        
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
@@ -2323,7 +2412,7 @@
         $('#titulo_accion').html('Ver Documento'); 
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre);       
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,1,0);       
         
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
@@ -2355,12 +2444,27 @@
                 select: true,
                 language: lenguaje_datatable,
                 columns: [
-                    { data: 'identificador', name: 'documento.identificador' },
-                    { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
-                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'identificador', name: 'documento.identificador' },                    
+                    { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                    },
+                    { data: 'contestas_hasta', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY');
+                            }
+                    },
                     { data: 'tipo_documento', name: 'tipo_documento.nombre' },
-                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },
-                    //{ data: 'origen', name: 'tipo_origen.nombre' },
+                    { data: 'tipo_envio', name: 'tipo_destino.nombre' },                   
                     { data: 'buzon_origen',
                             render: function(data, type, row) {
                                 if (type === 'display') 
@@ -2420,8 +2524,21 @@
                     },
                     { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                     { data: 'identificador', name: 'documento.identificador' },
-                    { data: 'fecha_despacho', name: 'documento_buzon_bitacora.fecha' },
-                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta' },
+                    { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                    },
+                    { data: 'contestas_hasta', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY');
+                            }
+                    },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
@@ -2454,13 +2571,14 @@
                                         {
                                             //agrega listado de acciones
 
-                                            if(row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
                                                 if (row.json_acciones != null)
                                                 {
                                                     var accionesSolicitadas = row.json_acciones
                                                     
                                                     accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
+                                                    jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g,"\""));                                                
 
                                                     for (let i in accionesSolicitadas) {
                                                         if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
@@ -2470,14 +2588,14 @@
                                                         if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_generar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                     } 
                                                 }                                                
                                                 
-
+                                                if (jsonTipoDoc['id_tipo_flujo'] == 1)
                                                     botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
                                                 
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
@@ -2574,8 +2692,21 @@
                 },
                 { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                 { data: 'identificador', name: 'documento.identificador' },
-                { data: 'fecha_despacho', name: 'documento_buzon.fecha' },
-                { data: 'fecha_recepcion', name: 'documento_buzon_bitacora.fecha' },
+                { data: 'fecha_envio_recepcion', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else 
+                                    return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                },
+                { data: 'estado_documento',
+                            render: function(data)
+                            {
+                                return '';                                
+                            }
+                }, //cambiar, prueba
                 { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                 { data: 'destinatario', 
                             render: function(data, type, row) {
@@ -2590,8 +2721,39 @@
                             }     
                 },
                 { data: 'materia', name: 'documento.materia' },
-                { data: 'respuesta_a', name: 'documento.json_respuesta_a' },
-                { data: 'fecha_documento', name: 'documento.fecha' },
+                { data: 'respuesta_a', 
+                            render: function(data, type, row) {
+                                if (type === 'display') 
+                                {
+                                    var docsRespuesta = row.respuesta_a;
+                                    var docs = '';   
+                                    
+                                    if (docsRespuesta != null)
+                                    {
+                                        docsRespuesta = $.parseJSON(docsRespuesta.replace(/(&quot\;)/g,"\""));                                                
+                                        
+                                        if (docsRespuesta.length > 0) 
+                                        {                                 
+                                            for (let i in docsRespuesta) 
+                                            {
+                                                docs += docsRespuesta[i]['identificador'] + ' - '; 
+                                            }
+
+                                            return docs.substring(0, docs.length - 2);                                    
+                                        }
+                                        else
+                                            return '--';
+                                    }
+                                }
+                                return '--';
+                            }     
+                },
+                { data: 'fecha_creacion', 
+                            render: function(data)
+                            {
+                                return moment(data).format('DD-MM-YYYY HH:mm');
+                            }
+                },
                 { data: 'id_documento',
                   render: function(data, type, row) {
                     if (type === 'display') {
