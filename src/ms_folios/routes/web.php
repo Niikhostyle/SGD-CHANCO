@@ -13,7 +13,12 @@
 |
 */
 
-$router->get('/api/sgd-folios', function () use ($router) {
-    //return $router->app->version();
-    return "prueba lumen folios";
+$router->group(['middleware' => ['auth']], function () use ($router){
+   
+
+    $router->get('/api/sgd-folios/asignaFolio', 'FolioController@asignaFolio');
+    $router->get('/api/sgd-folios/obtenerFolio', 'FolioController@obtenerFolio');
 });
+
+
+$router->get('/api/sgd-folios/asignaFolio', 'FolioController@asignaFolio');
