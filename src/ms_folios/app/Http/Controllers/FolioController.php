@@ -11,9 +11,10 @@ use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoFavoritoUsuario;
 use App\Models\TipoDocumento;
+use App\Models\TipoDocumentoBuzonFolio;
 use Illuminate\Support\Facades\DB;
 use App\Validator\DocumentoValidator;
-
+use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class FolioController extends Controller{
 
@@ -22,43 +23,69 @@ class FolioController extends Controller{
      */
     private $validator;
 
-    
-
-
-
 
     public function asignaFolio(Request $request){
         $nFolio = 1;
-
+        $ultimoFolio = 0;
+        $td = $request['id_tipo_documento'];
+        $prueba = false;
+        //return $prueba;
         //tipo_folio, buzon, periodo, id_td, si no viene el buzon,  dependiendo del tipo de folio el buzon no va, hay 2 tipos de folio
         $datosRequest = $request->json()->all();
+        //return $td;
+        //folio tipo 1 asociado a tipo documento y año(perdiodo)
+        $datosFolio = TipoDocumentoBuzonFolio::all();
 
-       /** if ($datosRequest['tipo_folio'] == 0) 
+        //$ultimoFolio = DB::table('tipo_documento_buzon_folio')->select('valor');
+        //$ultimoFolio  = DB::table('tipo_documento_buzon_folio')->max('valor') ;
+        //return $ultimoFolio;
+        
+
+
+        if ($datosRequest['id_buzon'] != null)
+        {
+
+            foreach($datosFolio as $datos)
+            {
+                if( $datos['anio'] == $datosRequest['anio'])
+                {
+                    $nFolio = $datos['valor'] +1;
+                }
+                
                
-        *    }
-      *  if ($datosRequest['buzon'] == 0) 
-          *  {
-        *    
-      *  *    }
-      *  if ($datosRequest['periodo'] == 0) 
-           * {
-          *  
-      *   *   }
-      *  if ($datosRequest['id_td'] == 0) 
-          *  {   
+               
+                
+            }
+            //return $nFolio;
             
-        *    } */
+            $documentoBuzon = TipoDocumentoBuzonFolio::updateOrCreate([
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                'id_buzon' => $datosRequest['id_buzon'],
+                'anio' => $datosRequest['anio'], 
+                
+            ],[
+                'anio' => $datosRequest['anio'], 
+                'id_buzon' => $datosRequest['id_buzon'],
+                'valor' => $nFolio,
+            ]);
+        } else {
+            //$ultimoFolio = TipoDocumentoBuzonFolio::all('valor')->order_by('id_tipo_documento_buzon', 'desc')->first();
+            //$nFolio = $ultimoFolio+1;
+            $folio = TipoDocumentoBuzonFolio::create([
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                'id_buzon' => $datosRequest['id_buzon'],
+                'anio' => $datosRequest['anio'], 
+                'valor' => $nFolio,
+                                    
+            ]);
 
-
-        $data = array(
-                    'valor'=>$nFolio,
-                    'tipo_documento'=>1 );
-
-        $nFolio ++;
-
-       
             
-        return $data;
+        }
+
+        
+        return $nFolio;
+            
+        
         
     }
 

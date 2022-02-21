@@ -43,7 +43,7 @@ class DocumentoController extends Controller{
                 //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
-
+                $idBuzon = $datosDocumento['id_buzon']; 
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
 
                 $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
@@ -54,17 +54,27 @@ class DocumentoController extends Controller{
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
 
                 $nFolio = null;
-
+                $anio = date('Y-m-d');
                 /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
-                    $nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
+                    //$nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
+
+                    $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
+                    ->timeout(30)
+                    ->withBody(json_encode([
+                        'id_tipo_documento' => $nTipoDoc,
+                        'anio' => 1,
+                        'id_buzon' => null
+                    ]), 'json')
+                    ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                    //return $nFolio;
 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
-
+                
                 //guardar respuesta                   
                 $jsonRespuesta = array(); 
                 if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1)
@@ -286,6 +296,16 @@ class DocumentoController extends Controller{
 
                         if ($datosRequest['carpeta'] == 2) //recibidos
                         {
+
+                            $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                            ->timeout(30)
+                            ->withBody(json_encode([
+                                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                                'fecha' => 1,
+                                'id_buzon' => $datosRequest['id_buzon'],
+                            ]), 'json')
+                            ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
                                 'id_tipo_destino' => 1,
@@ -314,6 +334,7 @@ class DocumentoController extends Controller{
 
                     if ($datosRequest['carpeta'] == 2) //recibidos
                     {
+                        
                         //eliminar segun criterios y crear nuevamente
                         DocumentoBuzon::where([
                             'id_documento' => $datosRequest['id_documento'],
@@ -1029,8 +1050,6 @@ class DocumentoController extends Controller{
 
                 //if ($validator->fails())
                   //  return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
-
-
                 return datatables(
                     DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
