@@ -10,6 +10,7 @@ use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoFavoritoUsuario;
+use App\Models\TipoDocumentoBuzonFolio;
 use App\Models\TipoDocumento;
 use Illuminate\Support\Facades\DB;
 use App\Validator\DocumentoValidator;
@@ -54,7 +55,8 @@ class DocumentoController extends Controller{
                 ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
 
                 $nFolio = null;
-                $anio = date('Y-m-d');
+                $anio = date('Y');
+                
                 /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
                     //$nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
@@ -63,7 +65,7 @@ class DocumentoController extends Controller{
                     ->timeout(30)
                     ->withBody(json_encode([
                         'id_tipo_documento' => $nTipoDoc,
-                        'anio' => 1,
+                        'anio' => $anio,
                         'id_buzon' => null
                     ]), 'json')
                     ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
@@ -139,9 +141,12 @@ class DocumentoController extends Controller{
             }
             catch (ModelNotFoundException $e)
             {
+                
                 DB::rollBack();
                 return $e->getMessage();
                 return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
+
+                
             }
         }
         else
@@ -292,19 +297,15 @@ class DocumentoController extends Controller{
                                 'recibido' => false,
                                 'favorito' => false    
                             ]);
+
+                            
                         }
 
                         if ($datosRequest['carpeta'] == 2) //recibidos
                         {
+                            
 
-                            $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-                            ->timeout(30)
-                            ->withBody(json_encode([
-                                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
-                                'fecha' => 1,
-                                'id_buzon' => $datosRequest['id_buzon'],
-                            ]), 'json')
-                            ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                           
 
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
@@ -323,6 +324,8 @@ class DocumentoController extends Controller{
                                 'recibido' => false,
                                 'favorito' => false    
                             ]);
+
+                           
                         }
 
                         //pendiente - crear orden 0 en flujo controlado/mixto
@@ -607,6 +610,7 @@ class DocumentoController extends Controller{
 
     public function actualizar_estado(Request $request)
     {
+        
         if ($request->isJson())
         {
             try 
@@ -620,8 +624,11 @@ class DocumentoController extends Controller{
 
                 //****** SI SE AGREGA EL CAMPO PROCESADO EN EL JSON POR CADA ACCION SE DEBE ACTUALIZAR A TRUE AL HACER EL CAMBIO DE ESTADO.    
                 //agregar estados 10 y 12
+               
+                
                 if ($request->accion == 3) // por recibir
-                {
+                {       
+            
                     $datosDocBuzon = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
                     $idDocBuzonPadre = $datosDocBuzon->id_documento_buzon_padre;                    
                     
@@ -631,6 +638,8 @@ class DocumentoController extends Controller{
                     //actualizar recibido en buzon padre si es principal
                     if ($datosDocBuzon->id_tipo_destino == 1)
                         DocumentoBuzon::find($idDocBuzonPadre)->update(['recibido' => true]);
+
+                         
                 }
                     //mejorar con else
                 if ($request->accion == 7) // firmar
@@ -646,8 +655,19 @@ class DocumentoController extends Controller{
                 if ($request->accion == 6) // visar
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 11]);
 
+               
+                $anio = date('Y');
+                $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                ->timeout(30)
+                ->withBody(json_encode([
+                    'id_tipo_documento' => 2,
+                    'anio' => $anio ,
+                    'id_buzon' => $datosRequest['id_buzon'],
+                ]), 'json')
+                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                //return $nFolio;
+                
                 DB::commit();
-
                 return $this->respondSuccess("Documento recepcionado", 200);
 
             } catch (ModelNotFoundException $e) {

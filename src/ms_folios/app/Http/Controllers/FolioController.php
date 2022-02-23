@@ -49,12 +49,17 @@ class FolioController extends Controller{
             {
                 if( $datos['anio'] == $datosRequest['anio'])
                 {
-                    $nFolio = $datos['valor'] +1;
+                    if( $datos['id_tipo_documento'] == $datosRequest['id_tipo_documento'])
+                    {
+                        if( $datos['id_buzon'] == $datosRequest['id_buzon'])
+                        {
+                            $nFolio = $datos['valor'] +1;
+                        }
+                        
+
+                    }
                 }
-                
-               
-               
-                
+
             }
             //return $nFolio;
             
@@ -64,6 +69,7 @@ class FolioController extends Controller{
                 'anio' => $datosRequest['anio'], 
                 
             ],[
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
                 'anio' => $datosRequest['anio'], 
                 'id_buzon' => $datosRequest['id_buzon'],
                 'valor' => $nFolio,
@@ -71,13 +77,33 @@ class FolioController extends Controller{
         } else {
             //$ultimoFolio = TipoDocumentoBuzonFolio::all('valor')->order_by('id_tipo_documento_buzon', 'desc')->first();
             //$nFolio = $ultimoFolio+1;
-            $folio = TipoDocumentoBuzonFolio::create([
+
+            foreach($datosFolio as $datos)
+            {
+                if( $datos['anio'] == $datosRequest['anio'])
+                {
+                    if( $datos['id_tipo_documento'] == $datosRequest['id_tipo_documento'])
+                    {
+
+                        $nFolio = $datos['valor'] +1;
+
+                    }
+                }
+                
+               
+               
+                
+            }
+            $documentoBuzon = TipoDocumentoBuzonFolio::updateOrCreate([
                 'id_tipo_documento' => $datosRequest['id_tipo_documento'],
-                'id_buzon' => $datosRequest['id_buzon'],
+                'anio' => $datosRequest['anio'], 
+                
+            ],[
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
                 'anio' => $datosRequest['anio'], 
                 'valor' => $nFolio,
-                                    
             ]);
+            
 
             
         }
