@@ -655,17 +655,21 @@ class DocumentoController extends Controller{
                 if ($request->accion == 6) // visar
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 11]);
 
+                if ($request->accion == 8) // asignar folio y fecha
+                {
+                    $anio = date('Y');
+                    $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                    ->timeout(30)
+                    ->withBody(json_encode([
+                        'id_tipo_documento' => 2,
+                        'anio' => $anio ,
+                        'id_buzon' => $datosRequest['id_buzon'],
+                    ]), 'json')
+                    ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                    //return $nFolio;   
+                }
                
-                $anio = date('Y');
-                $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-                ->timeout(30)
-                ->withBody(json_encode([
-                    'id_tipo_documento' => 2,
-                    'anio' => $anio ,
-                    'id_buzon' => $datosRequest['id_buzon'],
-                ]), 'json')
-                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
-                //return $nFolio;
+                
                 
                 DB::commit();
                 return $this->respondSuccess("Documento recepcionado", 200);

@@ -575,7 +575,7 @@ class BuzonController extends Controller
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
                     ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
-                    ->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
+                    //->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
                     /*->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
@@ -601,8 +601,8 @@ class BuzonController extends Controller
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
                         DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1) as destinatario'),
-                        'documento_buzon.contestar_hasta as contestas_hasta',
-                        'documento_favorito_usuario.id_documento as favorito'
+                        'documento_buzon.contestar_hasta as contestas_hasta'
+                        //'documento_favorito_usuario.id_documento as favorito'
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
