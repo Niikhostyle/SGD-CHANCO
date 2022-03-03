@@ -188,7 +188,7 @@ class BuzonController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos="";
         $estados_usuario="";
-
+/*
         $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(63)
         ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
@@ -205,7 +205,7 @@ class BuzonController extends Controller
             $estados_usuario = $perfiles->json()['data']['estado_usuario'];
 
         }
-
+*/
         $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
         $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
@@ -250,6 +250,9 @@ class BuzonController extends Controller
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');
         }else{
+
+            $perfiles_datos = $listado_parametros->json()['data']['perfil'];
+            $estados_usuario = $listado_parametros->json()['data']['estado_usuario'];
             $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         }
         

@@ -206,6 +206,13 @@
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
                         <div class="container">
+
+                            <div class="carrusel-responder">
+                                <div class="carr_izq"></div>
+                                <div class="carr_actual"><span id="idAsignado"></span><br>fecha</div>
+                                <div class="carr_der"></div>
+                            </div>
+
                             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                                 <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
                                 <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
@@ -469,6 +476,7 @@
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 
     <style type="text/css">
    
@@ -573,7 +581,7 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
-
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
 <script>
     //globales
@@ -806,6 +814,44 @@
         }        
     };
 
+    // CARRUSEL RESPONDER A
+
+    $('.carrusel-responder').slick({
+        dots: true,
+        infinite: false,
+        speed: 300,
+        slidesToShow: 4,
+        slidesToScroll: 4,
+        responsive: [
+            {
+            breakpoint: 1024,
+            settings: {
+                slidesToShow: 3,
+                slidesToScroll: 3,
+                infinite: true,
+                dots: true
+            }
+            },
+            {
+            breakpoint: 600,
+            settings: {
+                slidesToShow: 2,
+                slidesToScroll: 2
+            }
+            },
+            {
+            breakpoint: 480,
+            settings: {
+                slidesToShow: 1,
+                slidesToScroll: 1
+            }
+            }
+            // You can unslick at a given breakpoint now by adding:
+            // settings: "unslick"
+            // instead of a settings object
+        ]
+    });
+
     /* **DOCUMENTOS** SCRIPT */
 /*
     //si se elimina destinatario principal se quita selecció a las acciones asociadas
@@ -1014,7 +1060,7 @@
 
                             //habilita respuesta a: solo a flujo libre
 
-                             $('#form_respuesta_a').multiselect('deselectAll', true);
+                            $('#form_respuesta_a').multiselect('deselectAll', true);
                             if (idTipoFlujo != 1)
                                 $('#form_respuesta_a').multiselect('disable');
                             else
@@ -2031,10 +2077,8 @@
                         }
                         
                         //selecciona documentos en respuesta a
-                       
                         $('#form_respuesta_a').multiselect({numberDisplayed: 6});
                         $('#form_respuesta_a').multiselect('deselectAll', true);
-                        //$('#form_respuesta_a').empty();                        
  
                         if (carpeta != 3 || (carpeta == 3 && accion == 0))
                             $('#form_respuesta_a').empty();
@@ -2045,6 +2089,11 @@
                                 $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
                             else
                                 $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
+                        
+                            //completa carrusel lado izq
+
+                            $(".carr_izq").text(jsonRespuesta[j]['identificador']);
+                            
                         }
 
                         $('#form_respuesta_a').multiselect('rebuild');
