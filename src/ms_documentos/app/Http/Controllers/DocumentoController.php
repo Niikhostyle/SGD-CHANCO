@@ -786,8 +786,11 @@ class DocumentoController extends Controller{
                                     ->select('documento_buzon.*')
                                     ->get();
 
-                $datosDocumento['rel_documento_buzon_actual'] =  $datosVerDoc;                  
+                $datosDocumento['rel_documento_buzon_actual'] =  $datosVerDoc; 
                 
+                $docEnRespuesta = Documento::where('json_respuesta_a', 'like', '%"id_documento": '.$datosRequest['id_documento'].'%')->select('id_documento','identificador', 'materia')->get();
+                $datosDocumento['rel_responder'] =  $docEnRespuesta; 
+
                 $datosDocumentoBuzon = DocumentoBuzon::join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
                                                     ->where('documento_buzon.id_documento', $request['id_documento'])
                                                     ->select(

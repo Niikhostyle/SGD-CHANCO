@@ -206,11 +206,17 @@
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
                         <div class="container">
-
-                            <div class="carrusel-responder">
-                                <div class="carr_izq"></div>
-                                <div class="carr_actual"><span id="idAsignado"></span><br>fecha</div>
-                                <div class="carr_der"></div>
+                            
+                            <div class="">
+                                <div id="carousel-responder" class="carousel slide flex-container" data-ride="carousel">
+                                    <a class="" style="padding: 48px 15px; border-right: 0px;" href="#carousel-responder" role="button" data-slide="prev">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                    <div class="carousel-inner row w-100 mx-auto" id="carrousel-items" role="listbox"></div>
+                                    <a class="" style="padding: 48px 15px; border-left: 0px;" href="#carousel-responder" role="button" data-slide="next">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </div>
                             </div>
 
                             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
@@ -476,10 +482,12 @@
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
-    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" href="/css/carrusel.css">
 
-    <style type="text/css">
-   
+
+    <style type="text/css">  
+
+
         .card {
             overflow: visible !important;
         }
@@ -517,13 +525,13 @@
         .flex-container {
             display: flex;
             flex-wrap: nowrap;
-            background-color: rgb(208, 228, 191);
-            border: 1px solid #5a8fc7;
+            background-color: #e9f1fe;
+            border: 1px solid #005c9e;
         }
 
-        .flex-container > div {
-            background-color: #b5e4b9;
-            border: 1px solid #5a8fc7;
+        .carousel-item {
+            background-color: #aedd94;
+            border: 1px solid #005c9e;
             width: 100px;
             margin: 15px;
             text-align: center;
@@ -569,6 +577,8 @@
             background: whitesmoke;
         }
 
+        .carousel-control-next, .carousel-control-prev { border: 0; }
+
      </style>
 @stop
 
@@ -581,7 +591,9 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
-<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<script src="{{ asset('/vendor/slick-master/slick/slick.js') }}"></script>
+
 
 <script>
     //globales
@@ -601,6 +613,35 @@
     var allBuzones2 = @json($allBuzones2);
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
+
+/*
+	    Carousel
+	*/
+	$('#carousel-responder').on('slide.bs.carousel', function (e) {
+
+/*
+    CC 2.0 License Iatek LLC 2018
+    Attribution required
+*/
+var $e = $(e.relatedTarget);
+var idx = $e.index();
+var itemsPerSlide = 5;
+var totalItems = $('.carousel-item').length;
+
+if (idx >= totalItems-(itemsPerSlide-1)) {
+    var it = itemsPerSlide - (totalItems - idx);
+    for (var i=0; i<it; i++) {
+        // append slides to end
+        if (e.direction=="left") {
+            $('.carousel-item').eq(i).appendTo('.carousel-inner');
+        }
+        else {
+            $('.carousel-item').eq(0).appendTo('.carousel-inner');
+        }
+    }
+}
+});
+
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
@@ -813,44 +854,6 @@
            // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
     };
-
-    // CARRUSEL RESPONDER A
-
-    $('.carrusel-responder').slick({
-        dots: true,
-        infinite: false,
-        speed: 300,
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        responsive: [
-            {
-            breakpoint: 1024,
-            settings: {
-                slidesToShow: 3,
-                slidesToScroll: 3,
-                infinite: true,
-                dots: true
-            }
-            },
-            {
-            breakpoint: 600,
-            settings: {
-                slidesToShow: 2,
-                slidesToScroll: 2
-            }
-            },
-            {
-            breakpoint: 480,
-            settings: {
-                slidesToShow: 1,
-                slidesToScroll: 1
-            }
-            }
-            // You can unslick at a given breakpoint now by adding:
-            // settings: "unslick"
-            // instead of a settings object
-        ]
-    });
 
     /* **DOCUMENTOS** SCRIPT */
 /*
@@ -2037,6 +2040,10 @@
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
                         var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
                         
+                        //if(data.data.rel_responder.length > 0);
+                        var jsonDocResponder = data.data.rel_responder;
+                        
+                        console.log(jsonDocResponder);
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
@@ -2083,6 +2090,7 @@
                         if (carpeta != 3 || (carpeta == 3 && accion == 0))
                             $('#form_respuesta_a').empty();
                         
+                        var sDivIzq = "";
                         for (let j in jsonRespuesta) 
                         {                           
                             if (carpeta == 3 && accion != 0)
@@ -2092,9 +2100,21 @@
                         
                             //completa carrusel lado izq
 
-                            $(".carr_izq").text(jsonRespuesta[j]['identificador']);
-                            
+                            sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
                         }
+
+                        //completar carrusel lado der
+                        var sDivDer = "";
+                        for (let d in jsonDocResponder)
+                        {
+                            sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[d]['identificador']+'</div>'; 
+                        }
+
+                        sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
+
+                        $('#carrousel-items').append(sDivIzq);
+                        $('#carrousel-items').append(sDivActual);
+                        $('#carrousel-items').append(sDivDer);                        
 
                         $('#form_respuesta_a').multiselect('rebuild');
 
