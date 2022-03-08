@@ -911,12 +911,13 @@
 
     $(".nuevo_documento").click(function(e)
     {
+        console.log(e, e.isTrigger);
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();  
         $('#card_bitacora').hide();	        
         
-        clear_form();
+        clear_form();        
 
         deshabilita_campos();
         $('#form_tipo_documento').prop("disabled", false);
@@ -927,15 +928,16 @@
 
         /* responder a */
 
-        if ($("input[name='hiddIdResponder']").val() != '')
+        if (e.isTrigger && $("input[name='hiddIdResponder']").val() != '')
         {
-
             $('#form_respuesta_a').multiselect({numberDisplayed: 6});
             $('#form_respuesta_a').multiselect('deselectAll', true);
             $('#form_respuesta_a').multiselect('select', $("input[name='hiddIdResponder']").val());
             $('#form_respuesta_a').multiselect('refresh');
         }
-        
+        else
+            $("input[name='hiddIdResponder']").val('');
+       
     });
 
     function deshabilita_campos()
@@ -1860,15 +1862,14 @@
 
     }
 
-    function responder_recibidos(id_documento){
+    function responder_recibidos(id_documento)
+    {
+        $("input[name='hiddIdResponder']").val(''); 
+        $("input[name='hiddIdResponder']").val(id_documento); 
         fn_grilla_despachados();
         cambio_texto_boton_carpetas('Despachados');
         $('#nav-despachados-tab').tab('show');
-       
         $("#add_documento").trigger("click");
-        
-        $("input[name='hiddIdResponder']").val(id_documento); 
-
     }
 
     function accion_visar(id_documento,id_documento_buzon,id_documento_buzon_padre){
