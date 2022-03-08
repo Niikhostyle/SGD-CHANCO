@@ -10,7 +10,7 @@
             <h1>Buzón: {{$nombre_buzon}}</h1>
         </div>
         <div class="col-2">
-            <button type="button" class="btn btn-success nuevo_documento">Nuevo Documento</button>
+            <button id="add_documento" type="button" class="btn btn-success nuevo_documento">Nuevo Documento</button>
         </div>
     </div>
     <div class="linea_content_header"></div>
@@ -75,8 +75,6 @@
                                         </tr>
                                     </thead>
                                 </table>
-                                {{-- Pagination --}}
-
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
                                 <table border="0" cellspacing="5" cellpadding="5">
@@ -205,9 +203,7 @@
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
-                        <div class="container">
-                            
-                            <div class="">
+                        <div class="form-row"> 
                                 <div id="carousel-responder" class="carousel slide flex-container" data-ride="carousel">
                                     <a class="" style="padding: 48px 15px; border-right: 0px;" href="#carousel-responder" role="button" data-slide="prev">
                                         <i class="fas fa-angle-double-left"></i>
@@ -217,13 +213,15 @@
                                         <i class="fas fa-angle-double-right"></i>
                                     </a>
                                 </div>
-                            </div>
-
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                                <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
-                                <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
-                                <div class="form-control">Folio: <i>No Asignado</i></div>
-                                <div class="form-control">Fecha: <i>No Asignado</i></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <ul class="list-group list-group-horizontal">
+                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
+                                    <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
+                                </ul>
                             </div>
                         </div>
                         <br>
@@ -268,6 +266,7 @@
                                         <option value="{{$doc['value']}}">{{$doc['title']}}</option>
                                     @endforeach
                                 </select>
+                                
                             </div>
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Materia:</label>
@@ -403,6 +402,7 @@
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+                                    <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
 
                                 </div>                          
                         </div>
@@ -527,6 +527,7 @@
             flex-wrap: nowrap;
             background-color: #e9f1fe;
             border: 1px solid #005c9e;
+            margin-bottom: 30px;
         }
 
         .carousel-item {
@@ -592,9 +593,6 @@
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
-<script src="{{ asset('/vendor/slick-master/slick/slick.js') }}"></script>
-
-
 <script>
     //globales
 
@@ -614,33 +612,29 @@
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
 
-/*
+    /*
 	    Carousel
 	*/
 	$('#carousel-responder').on('slide.bs.carousel', function (e) {
 
-/*
-    CC 2.0 License Iatek LLC 2018
-    Attribution required
-*/
-var $e = $(e.relatedTarget);
-var idx = $e.index();
-var itemsPerSlide = 5;
-var totalItems = $('.carousel-item').length;
+    var $e = $(e.relatedTarget);
+    var idx = $e.index();
+    var itemsPerSlide = 5;
+    var totalItems = $('.carousel-item').length;
 
-if (idx >= totalItems-(itemsPerSlide-1)) {
-    var it = itemsPerSlide - (totalItems - idx);
-    for (var i=0; i<it; i++) {
-        // append slides to end
-        if (e.direction=="left") {
-            $('.carousel-item').eq(i).appendTo('.carousel-inner');
-        }
-        else {
-            $('.carousel-item').eq(0).appendTo('.carousel-inner');
+    if (idx >= totalItems-(itemsPerSlide-1)) {
+        var it = itemsPerSlide - (totalItems - idx);
+        for (var i=0; i<it; i++) {
+            // append slides to end
+            if (e.direction=="left") {
+                $('.carousel-item').eq(i).appendTo('.carousel-inner');
+            }
+            else {
+                $('.carousel-item').eq(0).appendTo('.carousel-inner');
+            }
         }
     }
-}
-});
+    });
 
 
     $('#form_acciones_solicitadas_el').multiselect({
@@ -651,6 +645,7 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
 
     $('#form_respuesta_a').multiselect({
         nonSelectedText: 'Seleccione Documentos',
+        allSelectedText: 'Seleccionados',
         numberDisplayed: 4,
         buttonWidth: '100%'        
     });
@@ -929,6 +924,17 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
         editor_cuerpo.setReadOnly(false);
 
         $('.btn-guardar-submit').show();   
+
+        /* responder a */
+
+        if ($("input[name='hiddIdResponder']").val() != '')
+        {
+
+            $('#form_respuesta_a').multiselect({numberDisplayed: 6});
+            $('#form_respuesta_a').multiselect('deselectAll', true);
+            $('#form_respuesta_a').multiselect('select', $("input[name='hiddIdResponder']").val());
+            $('#form_respuesta_a').multiselect('refresh');
+        }
         
     });
 
@@ -991,6 +997,7 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
+        $('#carousel-responder').hide();
         $('#row_cuerpo').hide();
         $('#row_anexo').hide();     
         $(".row_archivar").hide();  
@@ -1853,8 +1860,15 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
 
     }
 
-    function responder_recibidos(identificador){
-        alert(identificador)
+    function responder_recibidos(id_documento){
+        fn_grilla_despachados();
+        cambio_texto_boton_carpetas('Despachados');
+        $('#nav-despachados-tab').tab('show');
+       
+        $("#add_documento").trigger("click");
+        
+        $("input[name='hiddIdResponder']").val(id_documento); 
+
     }
 
     function accion_visar(id_documento,id_documento_buzon,id_documento_buzon_padre){
@@ -2038,12 +2052,9 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];    
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
-                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
-                        
-                        //if(data.data.rel_responder.length > 0);
+                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                         var jsonDocResponder = data.data.rel_responder;
-                        
-                        console.log(jsonDocResponder);
+
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
@@ -2054,9 +2065,6 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
 
-                        if (nFlujo != 1)
-                            $('#form_respuesta_a').multiselect('disable');
-                         
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
 
@@ -2065,7 +2073,7 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
-                        $("#idAsignado").text(data.data.identificador);
+                        $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
@@ -2082,41 +2090,6 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                             $('#form_archivo_principal_el').hide();
                             $('#cargar_archivo_principal_el').show();
                         }
-                        
-                        //selecciona documentos en respuesta a
-                        $('#form_respuesta_a').multiselect({numberDisplayed: 6});
-                        $('#form_respuesta_a').multiselect('deselectAll', true);
- 
-                        if (carpeta != 3 || (carpeta == 3 && accion == 0))
-                            $('#form_respuesta_a').empty();
-                        
-                        var sDivIzq = "";
-                        for (let j in jsonRespuesta) 
-                        {                           
-                            if (carpeta == 3 && accion != 0)
-                                $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
-                            else
-                                $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
-                        
-                            //completa carrusel lado izq
-
-                            sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
-                        }
-
-                        //completar carrusel lado der
-                        var sDivDer = "";
-                        for (let d in jsonDocResponder)
-                        {
-                            sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[d]['identificador']+'</div>'; 
-                        }
-
-                        sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
-
-                        $('#carrousel-items').append(sDivIzq);
-                        $('#carrousel-items').append(sDivActual);
-                        $('#carrousel-items').append(sDivDer);                        
-
-                        $('#form_respuesta_a').multiselect('rebuild');
 
                         $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();   
@@ -2291,15 +2264,7 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                                     $('#form_destinatario_principal').val(idBuzonAccion).trigger('change');                                   
 
                                 }   
-/*
-                                if (jsonTipoAvance == 3 && accion == 1) //bidireccional con reinicio
-                                {
-                                    $('#form_destinatario_principal').prop("disabled", false);    
-                                }
-
-                                if (jsonTipoAvance == 4 && accion == 1) //bidireccional con reinicio
-                                {}
-*/
+                               
                             }
                             //habilitar si tipo avance = 1
                             
@@ -2312,7 +2277,52 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                             {
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
+                                $('#form_respuesta_a').multiselect('enable'); 
                             } 
+
+                            /* responder a */
+
+                            //selecciona documentos en respuesta a
+                            $('#form_respuesta_a').multiselect({numberDisplayed: 6});
+                            $('#form_respuesta_a').multiselect('deselectAll', true);
+                            
+                            if (carpeta != 3 || (carpeta == 3 && accion == 0))
+                                $('#form_respuesta_a').empty();
+                            
+                            var sDivIzq = "";
+                            for (let j in jsonRespuesta) 
+                            {                           
+                                if (carpeta != 3 || (carpeta == 3 && accion == 0))
+                                    $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
+                                else
+                                    $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
+                            
+                                //completa carrusel lado izq
+                                sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
+                            }
+
+                            //$('#form_respuesta_a').multiselect('rebuild');
+                            $('#form_respuesta_a').multiselect('refresh');
+
+                            //completar carrusel lado der
+                            var sDivDer = "";
+                            for (let d in jsonDocResponder)
+                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[d]['identificador']+'</div>'; 
+
+                            sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
+
+                            if((carpeta == 3 && accion == 0 && nFlujo == 1) )
+                            {
+                                if (sDivIzq != '' || sDivDer != '')
+                                {
+                                    $('#carousel-responder').show();
+
+                                    $('#carrousel-items').append(sDivIzq);
+                                    $('#carrousel-items').append(sDivActual);
+                                    $('#carrousel-items').append(sDivDer);  
+                                }             
+                            }
+
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
@@ -2664,8 +2674,8 @@ if (idx >= totalItems-(itemsPerSlide-1)) {
                                                     } 
                                                 }                                                
                                                 
-                                                if (jsonTipoDoc['id_tipo_flujo'] == 1)
-                                                    botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+                                                if (jsonTipoDoc['id_tipo_flujo'] == 1) 
+                                                    botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')" href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
                                                 
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
                                             }  
