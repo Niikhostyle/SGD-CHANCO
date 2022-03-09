@@ -9,9 +9,6 @@
         <div class="col-10">
             <h1>Buzón: {{$nombre_buzon}}</h1>
         </div>
-        <div class="col-2">
-            <button type="button" class="btn btn-success nuevo_documento">Nuevo Documento</button>
-        </div>
     </div>
     <div class="linea_content_header"></div>
 
@@ -40,7 +37,7 @@
                     <div class="card-body">
                         <nav class="text-center">
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                              <a style="width: 33%" class="nav-item nav-link active" id="nav-por-recibir-tab" data-toggle="tab" href="#nav-por-recibir" role="tab" aria-controls="nav-home" aria-selected="true" onclick="cambio_texto_boton_carpetas('Por Recibir');">
+                              <a style="width: 50%" class="nav-item nav-link active" id="nav-por-recibir-tab" data-toggle="tab" href="#nav-por-recibir" role="tab" aria-controls="nav-home" aria-selected="true" onclick="cambio_texto_boton_carpetas('Por Recibir');">
                                 Por Recibir
                                 @if($n_docs_por_recibir>0)
                                 <span class="badge badge-success right">
@@ -48,7 +45,7 @@
                                 </span>
                                 @endif
                             </a>
-                              <a style="width: 33%" class="nav-item nav-link" id="nav-recibidos-tab" data-toggle="tab" href="#nav-recibidos" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="cambio_texto_boton_carpetas('Recibidos');">
+                              <a style="width: 50%" class="nav-item nav-link" id="nav-recibidos-tab" data-toggle="tab" href="#nav-recibidos" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="cambio_texto_boton_carpetas('Recibidos');">
                                 Recibidos
                                 @if($n_docs_recibidos_pendientes>0)
                                 <span class="badge badge-success right">
@@ -56,8 +53,7 @@
                                 </span>
                                 @endif
                               </a>
-                              <a style="width: 33%" class="nav-item nav-link" id="nav-despachados-tab" data-toggle="tab" href="#nav-despachados" role="tab" aria-controls="nav-contact" aria-selected="false" onclick="cambio_texto_boton_carpetas('Despachados');">
-                                Despachados</a>
+                              
                             </div>
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
@@ -163,23 +159,6 @@
                                             </td>
                                         </tr>
                                     </tbody></table>
-                                    <table id="grilla_despachados"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th>E</th>
-                                                <th>ID Doc</th>
-                                                <th width="100px">Fecha Despacho</th>
-                                                <th width="50px">Fecha Recepción</th>
-                                                <th>TD</th>
-                                                <th>Destinatario</th>
-                                                <th>Materia</th>
-                                                <th>Rpta a</th>
-                                                <th>Fecha Doc</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
                             </div>
                         </div>
 
@@ -582,7 +561,7 @@
 
     var grilla_por_recibir;
     var grilla_recibidos;
-    var grilla_despachados;
+    //var grilla_despachados;
 
     const accionesFlujo1 = @json($acciones_tipoflujo1);
     const accionesFlujo2 = @json($acciones_tipoflujo2);
@@ -2440,7 +2419,7 @@
         grilla_por_recibir=  $('#grilla_por_recibir').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
+                ajax: '/buzonesListarExterno?id_buzon={{$id_buzon}}&id_carpeta=1',
                 type:'json',
                 responsive: true,
                 select: true,
@@ -2502,7 +2481,7 @@
         grilla_recibidos = $('#grilla_recibidos').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
+                ajax: '/buzonesListarExterno?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
                 rowReorder: {
                     selector: 'td:nth-child(2)'
@@ -2571,37 +2550,9 @@
 
                                         if (row.id_tipo_destino == 1) //principal
                                         {
-                                            //agrega listado de acciones
+                                            
 
-                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
-                                            {
-                                                if (row.json_acciones != null)
-                                                {
-                                                    var accionesSolicitadas = row.json_acciones
-                                                    
-                                                    accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
-                                                    jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g,"\""));                                                
-
-                                                    for (let i in accionesSolicitadas) {
-                                                        if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_editar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                        if (accionesSolicitadas[i]['id_accion'] == 6) //visar                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                        if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                        if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                        if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
-                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                    } 
-                                                }                                                
-                                                
-                                                if (jsonTipoDoc['id_tipo_flujo'] == 1)
-                                                    botonera +=' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos('+data+')"  href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
-                                                
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
-                                            }  
+                                            
 
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                                                                         
@@ -2661,169 +2612,7 @@
         });
     }
 
-    async function fn_grilla_despachados(){
-        $('#documento').hide();
-        if ( $.fn.DataTable.isDataTable('#grilla_despachados') ) {
-            $('#grilla_despachados').DataTable().destroy();
-        }
-        $('#grilla_despachados tbody').empty();
-        grilla_despachados=  $('#grilla_despachados').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
-            type:'json',
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
-            responsive: true,
-            language: lenguaje_datatable,
-            columns: [
-                { data: 'recibido',
-                  render: function(data, type) {
-                    if (type === 'display') {
-                        if(data==null){
-                            return '';
-                        }else{
-                            if(data==true){
-                                return '<span class="fas fa-check text-green"></span>';
-                            }
-                        }
-                    }
-                    return '';
-                  }
-                },
-                { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
-                { data: 'identificador', name: 'documento.identificador' },
-                { data: 'fecha_envio_recepcion', 
-                            render: function(data)
-                            {
-                                if(data == null)
-                                    return '';
-                                else 
-                                    return moment(data).format('DD-MM-YYYY HH:mm');
-                            }
-                },
-                { data: 'estado_documento',
-                            render: function(data)
-                            {
-                                return '';                                
-                            }
-                }, //cambiar, prueba
-                { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
-                { data: 'destinatario', 
-                            render: function(data, type, row) {
-                                if (type === 'display') 
-                                {
-                                    if(data != null)
-                                        return listadoBuzones[data];
-                                    else                           
-                                        return '';
-                                }
-                                return '';
-                            }     
-                },
-                { data: 'materia', name: 'documento.materia' },
-                { data: 'respuesta_a', 
-                            render: function(data, type, row) {
-                                if (type === 'display') 
-                                {
-                                    var docsRespuesta = row.respuesta_a;
-                                    var docs = '';   
-                                    
-                                    if (docsRespuesta != null)
-                                    {
-                                        docsRespuesta = $.parseJSON(docsRespuesta.replace(/(&quot\;)/g,"\""));                                                
-                                        
-                                        if (docsRespuesta.length > 0) 
-                                        {                                 
-                                            for (let i in docsRespuesta) 
-                                            {
-                                                docs += docsRespuesta[i]['identificador'] + ' - '; 
-                                            }
-
-                                            return docs.substring(0, docs.length - 2);                                    
-                                        }
-                                        else
-                                            return '--';
-                                    }
-                                }
-                                return '--';
-                            }     
-                },
-                { data: 'fecha_creacion', 
-                            render: function(data)
-                            {
-                                return moment(data).format('DD-MM-YYYY HH:mm');
-                            }
-                },
-                { data: 'id_documento',
-                  render: function(data, type, row) {
-                    if (type === 'display') {
-                        if(data==null){
-                            return '';
-                        }else{
-                            let botonera = '<div class="dropdown">';
-                                botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                    botonera +=' <i class="fas fa-bars"></i>';
-                                    botonera +=' </button>';
-                                    botonera +=' <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-                                    if (row.id_estado_documento == 1) //B
-                                    {
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
-                                    }    
-
-                                    if (row.id_estado_documento == 2) //E
-                                    {
-                                        botonera +='<a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
-
-                                        if (row.favorito == null)
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="add_favorito('+data+')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
-                                        else
-                                            botonera +='<a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito('+data+')" href="#"><i class="fas fa-star text-green"></i> ( - ) Favoritos</a>';
-
-                                    }  
-
-
-                                    botonera +='</div>';
-                                botonera += '</div>';
-                            return botonera;
-                        }
-                    }
-                    return '';
-                  }
-                }
-            ],
-            initComplete : function() {
-                    var input = $('#gd_buscar_destino_materia input').unbind(),
-                    self = this.api(),
-                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
-                            .text('Limpiar')
-                            .click(function() {
-                                $('#gd_buscar_destino_materia').val('');
-                                $('#gd_buscar_estado').find('option:eq(0)').prop('selected', true);
-                                $('#gd_buscar_tipo_doc').find('option:eq(0)').prop('selected', true);
-                                $('#gd_buscar_id_doc').val('');
-                                $searchButton.click();
-                            }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
-                            .text('Buscar')
-                            .click(function() {
-                                grilla_despachados.columns(1).search($('#gd_buscar_estado').val()).draw();
-                                grilla_despachados.columns(2).search($('#gd_buscar_id_doc').val()).draw();
-                                grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
-                                self.search($('#gd_buscar_destino_materia').val()).draw();
-                            })
-                    $('#botones_grilla_despachados').html('');
-                    $('#botones_grilla_despachados').append($clearButton,$searchButton);
-                    $('#grilla_despachados_filter').html('');
-                }
-
-        });
-    }
-
+   
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
 
@@ -2842,7 +2631,7 @@
 
             fn_grilla_recibidos();
 
-            fn_grilla_despachados();
+            
 
         });
     });
