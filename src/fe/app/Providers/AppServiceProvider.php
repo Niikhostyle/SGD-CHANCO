@@ -115,26 +115,79 @@ class AppServiceProvider extends ServiceProvider
                   }else{
                     $color_icono = $colores[$seleccion_color];
                   }
+                  //perfil externo
+                  if(Auth::user()->id_perfil==3)
+                  {
+                    if($value['n_docs_por_recibir']>0){
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetasExterno'.'/'.$value['id_buzon'],
+                                'label'     => $value['n_docs_por_recibir'],
+                                'label_color'=>'success'
+                        ]);
+                      }else{
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetasExterno'.'/'.$value['id_buzon']
+                        ]);
+                      }
 
-                  if($value['n_docs_por_recibir']>0){
-                    array_push($submenu_buzones_usuarios,
-                    [
-                            'text'       => $value['nombre_buzon'],
-                            'icon'    => $icon,
-                            'icon_color' => $color_icono,
-                            'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon'],
-                            'label'     => $value['n_docs_por_recibir'],
-                            'label_color'=>'success'
-                    ]);
-                  }else{
-                    array_push($submenu_buzones_usuarios,
-                    [
-                            'text'       => $value['nombre_buzon'],
-                            'icon'    => $icon,
-                            'icon_color' => $color_icono,
-                            'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon']
-                    ]);
                   }
+                  //perfil funcionario
+                  if(Auth::user()->id_perfil==2)
+                  {
+                    if($value['n_docs_por_recibir']>0){
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon'],
+                                'label'     => $value['n_docs_por_recibir'],
+                                'label_color'=>'success'
+                        ]);
+                      }else{
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon']
+                        ]);
+                      }
+
+                  }
+                  //perfil administrador
+                  if(Auth::user()->id_perfil==1)
+                  {
+                    if($value['n_docs_por_recibir']>0){
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon'],
+                                'label'     => $value['n_docs_por_recibir'],
+                                'label_color'=>'success'
+                        ]);
+                      }else{
+                        array_push($submenu_buzones_usuarios,
+                        [
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => '/buzonesCarpetas'.'/'.$value['id_buzon']
+                        ]);
+                      }
+
+                  }
+                  
 
                 }
 
@@ -142,7 +195,7 @@ class AppServiceProvider extends ServiceProvider
 
             }
 
-
+           
             /*array_push($submenu_buzones_usuarios,
             [
                 'text'       => 'Tránsito',

@@ -205,12 +205,14 @@
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
-                        <div class="container">
-                            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
-                                <div class="form-control">Buzón Origen: <i>{{ $nombre_buzon }}</i></div>
-                                <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
-                                <div class="form-control">Folio: <i>No Asignado</i></div>
-                                <div class="form-control">Fecha: <i>No Asignado</i></div>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <ul class="list-group list-group-horizontal">
+                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
+                                    <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
+                                </ul>
                             </div>
                         </div>
                         <br>
