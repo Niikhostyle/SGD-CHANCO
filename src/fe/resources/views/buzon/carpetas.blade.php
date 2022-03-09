@@ -204,15 +204,18 @@
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
                         <div class="form-row"> 
-                                <div id="carousel-responder" class="carousel slide flex-container" data-ride="carousel">
-                                    <a class="" style="padding: 48px 15px; border-right: 0px;" href="#carousel-responder" role="button" data-slide="prev">
-                                        <i class="fas fa-angle-double-left"></i>
+                                <div id="carousel-responder" class="carousel slide w-50 flex-container" data-ride="carousel">
+                                    <div class="carousel-inner row mx-auto" id="carrousel-items" role="listbox"></div>
+                                    <a class="carousel-control-prev" href="#carousel-responder2" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
                                     </a>
-                                    <div class="carousel-inner row w-100 mx-auto" id="carrousel-items" role="listbox"></div>
-                                    <a class="" style="padding: 48px 15px; border-left: 0px;" href="#carousel-responder" role="button" data-slide="next">
-                                        <i class="fas fa-angle-double-right"></i>
+                                    <a class="carousel-control-next" href="#carousel-responder2" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
                                     </a>
                                 </div>
+
                         </div>
                         <div class="form-row">
                             <div class="col-md-12">
@@ -587,6 +590,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ asset('/vendor/ckfinder/ckfinder.js') }}"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
@@ -907,7 +912,7 @@
 
     });
 */
-    const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
+    const editor_cuerpo = CKEDITOR.replace('form_cuerpo');   
 
     $(".nuevo_documento").click(function(e)
     {
@@ -2055,7 +2060,7 @@
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
                         var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                         var jsonDocResponder = data.data.rel_responder;
-
+                        console.log(jsonRespuesta);
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
@@ -2302,13 +2307,13 @@
                                 sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
                             }
 
-                            //$('#form_respuesta_a').multiselect('rebuild');
+                            $('#form_respuesta_a').multiselect('rebuild');
                             $('#form_respuesta_a').multiselect('refresh');
 
                             //completar carrusel lado der
                             var sDivDer = "";
                             for (let d in jsonDocResponder)
-                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[d]['identificador']+'</div>'; 
+                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonDocResponder[d]['identificador']+'</div>'; 
 
                             sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
 
@@ -2323,7 +2328,6 @@
                                     $('#carrousel-items').append(sDivDer);  
                                 }             
                             }
-
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
