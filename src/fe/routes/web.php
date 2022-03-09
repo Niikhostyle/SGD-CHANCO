@@ -7,6 +7,7 @@ use App\Http\Controllers\TipoDocumentoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
+use App\Http\Controllers\BuzonUsuarioExternoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,4 +82,27 @@ Route::middleware(['auth:sanctum', 'verified'])->post('validadorCodigo',[Documen
 
 //buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show');
+
+//usuario externo
+//Route::middleware(['auth:sanctum', 'verified'])->get('buzonesExterno',[BuzonUsuarioExternoController::class,'index'])->name('externo.index');
+
+//buzones
+Route::middleware(['auth:sanctum', 'verified'])->get('buzonesExterno',[BuzonUsuarioExternoController::class,'index'])->name('externo.index');
+Route::middleware(['auth:sanctum', 'verified'])->post('buzonesExterno',[BuzonUsuarioExternoController::class,'store'])->name('externo.store');
+Route::middleware(['auth:sanctum', 'verified'])->get('buzonesExterno/{id}',[BuzonUsuarioExternoController::class,'show'])->name('externo.show');
+Route::middleware(['auth:sanctum', 'verified'])->put('buzonesExterno',[BuzonUsuarioExternoController::class,'update'])->name('externo.update');
+Route::middleware(['auth:sanctum', 'verified'])->delete('buzonesExterno/{id}',[BuzonUsuarioExternoController::class,'delete'])->name('externo.delete');
+
+//documentos carpetas
+Route::middleware(['auth:sanctum', 'verified'])->get('buzonesCarpetasExterno/{id}',[BuzonUsuarioExternoController::class,'carpetas'])->name('externo.carpetas');
+Route::middleware(['auth:sanctum', 'verified'])->post('buzonesCarpetasExterno',[BuzonUsuarioExternoController::class,'store_documento'])->name('externo.store_documento');
+Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetasExterno',[BuzonUsuarioExternoController::class,'update_documento'])->name('externo.update_documento');
+Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetasExterno/{id}',[BuzonUsuarioExternoController::class,'enviar_documento'])->name('externo.enviar_documento');
+Route::middleware(['auth:sanctum', 'verified'])->get('buzonesListarExterno/',[BuzonUsuarioExternoController::class,'listar'])->name('externo.listar');
+Route::middleware(['auth:sanctum', 'verified'])->get('documentosExterno/{id}',[BuzonUsuarioExternoController::class,'ver_documento'])->name('externo_documentos.ver');
+Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_documentoExterno/{id}',[BuzonUsuarioExternoController::class,'actualizar_estado_documento'])->name('externo_documentos.actualizar_estado');
+Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documentoExterno/{id}',[BuzonUsuarioExternoController::class,'archivar_documento'])->name('externo_documentos.archivar');
+Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1Externo',[BuzonUsuarioExternoController::class,'derivarOpcion1'])->name('externo_documentos.derivarOpcion1');
+Route::middleware(['auth:sanctum', 'verified'])->put('accion_editarExterno/{id}',[BuzonUsuarioExternoController::class,'accion_editar_documento'])->name('externo_documentos.editar');
+Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno',[BuzonUsuarioExternoController::class,'generar_archivo_pdf'])->name('externo_documentos.generar');
 
