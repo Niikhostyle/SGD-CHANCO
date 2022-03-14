@@ -44,7 +44,7 @@
                                      <i class="fas fa-bars"></i>
                                  </button>
                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item btn_ver" onclick="ver_tipodoc()" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                     <a class="dropdown-item btn_ver" onclick="ver_tipodoc({{$list['id_tipo_documento']}})" href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
                                      <a class="dropdown-item btn_editar" onclick="ver_tipodoc({{$list['id_tipo_documento']}},2)" href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
                                      <a class="dropdown-item" onclick="eliminar_tipodoc({{$list['id_tipo_documento']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>
                                  </div>
