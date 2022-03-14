@@ -653,11 +653,7 @@ class DocumentoController extends Controller{
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                     $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
-<<<<<<< HEAD
-                    
-=======
-                    //return $datosJsonTipoDocumento;
->>>>>>> feature-fe-folio
+
                     if ( $idTipoAsigFolio == 2)
                     {
                        
