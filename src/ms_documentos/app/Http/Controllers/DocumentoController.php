@@ -35,19 +35,24 @@ class DocumentoController extends Controller{
             try
             {
                 DB::beginTransaction();
-
+                
                 $datosDocumento = $request->json()->all();                
 
                 //$validator = $this->validator->validateInsert();
 
                 //if ($validator->fails())
                 //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
+                
+                //$datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
+                //$idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
+                
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
                 $idBuzon = $datosDocumento['id_buzon']; 
+               
 
-                //$datos = Documento::find($datosDocumento["id_documento"]);
-                //$datosJsonTipoDocumento = json_decode($datos['json_tipo_documento'],true);
+                
+                //$datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                 //$idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                 
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
@@ -65,17 +70,18 @@ class DocumentoController extends Controller{
                 /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
                     //$nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
-
                     $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                     ->timeout(30)
                     ->withBody(json_encode([
                         'id_tipo_documento' => $nTipoDoc,
                         'anio' => $anio,
-                        'id_buzon' => null
+                        'id_buzon' => null,
+                        'id_tipo_folio' =>  3,
                     ]), 'json')
                     ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                    
                 //return $nFolio;
-
+                
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
@@ -97,7 +103,7 @@ class DocumentoController extends Controller{
                         //$datosRequest['json_respuesta_a'] = json_encode($jsonRespuesta);
                     }
                 }
-               
+               //return "hola";
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
