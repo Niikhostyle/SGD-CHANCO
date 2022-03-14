@@ -188,24 +188,6 @@ class BuzonController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos="";
         $estados_usuario="";
-/*
-        $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(63)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        if($perfiles->failed()){
-            $mensaje= $perfiles->json()['data']['comentario'];
-
-            $perfiles=['data'=>[
-                0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-            ]];
-            toast($mensaje,'error');
-        }else{
-            //$perfiles->json();
-            $perfiles_datos = $perfiles->json()['data']['perfil'];
-            $estados_usuario = $perfiles->json()['data']['estado_usuario'];
-
-        }
-*/
         $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
         $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
@@ -471,7 +453,8 @@ class BuzonController extends Controller
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
             'destino'=>$request->destino,
-            'accion'=>$request->accion
+            'accion'=>$request->accion,
+            'id_usuario'=>Auth::user()->id
         ]);
 
         return $datosDocumento->json();

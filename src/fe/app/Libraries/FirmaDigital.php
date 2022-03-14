@@ -1,11 +1,10 @@
 <?php
 
-require_once('FirmaDigitalBase.php');
+namespace App\Libraries;
+use FirmaDigitalBase;
 
-class FirmaDigital extends FirmaDigitalBase
+class FirmaDigital //extends FirmaDigitalBase
 {
-
-
     /**
      * FirmaDigital constructor.
      *
@@ -15,7 +14,7 @@ class FirmaDigital extends FirmaDigitalBase
      */
     public function __construct($config)
     {
-        parent::__construct($config);
+        //parent::__construct($config);
 
         // Remplaza usuario firmante por usuario de prueba,
         // cuando la configuración de la firma es de test.
@@ -24,6 +23,11 @@ class FirmaDigital extends FirmaDigitalBase
         }
     }
 
+    public $key='test_key';
+
+function getConfig(){
+    return $this->key;
+}
 
     /**
      * Set user RUN
@@ -45,14 +49,6 @@ class FirmaDigital extends FirmaDigitalBase
         return $this;
     }
 
-
-    /**
-     * Set user One-time password (OTP)
-     *
-     * @param string $otp
-     *
-     * @return FirmaDigital
-     */
     public function setOTP($otp)
     {
         $this->otp = $otp;
@@ -60,17 +56,6 @@ class FirmaDigital extends FirmaDigitalBase
         return $this;
     }
 
-
-    /**
-     * Prepare PDF to sign
-     *
-     * @param string $file        full path and name
-     * @param string $description file description
-     * @param array  $layout      file config to insert image
-     *
-     * @return FirmaDigital
-     * @throws Exception
-     */
     public function addPDF($file, $description = '', $layout = null)
     {
         try{
@@ -127,6 +112,7 @@ class FirmaDigital extends FirmaDigitalBase
             'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),
             'run'        => $this->run
         );
+        
         $jwt = new JWT();
 
         return $jwt->encode($payload, $this->secretKey);

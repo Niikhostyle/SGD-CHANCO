@@ -238,6 +238,23 @@ return [
         'Datatables' => Yajra\Datatables\Facades\Datatables::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
+        'FirmaDigitalSgd' => app\Libraries\FirmaDigital::class,
+        
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | FEA
+    |--------------------------------------------------------------------------
+    |
+    |
+    */
+
+    'sgd_entidad' => env('PLCSGD_API_ENTITY'),
+    'sgd_proposito' => env('PLCSGD_API_PURPOSE'),
+    'sgd_token_key' => env('PLCSGD_API_TOKEN_KEY'),
+    'sgd_url' => env('PLCSGD_API_URL'),
+    'sgd_secreto' => env('PLCSGD_SECRETO'),
+
 
 ];
