@@ -43,17 +43,10 @@ class DocumentoController extends Controller{
                 //if ($validator->fails())
                 //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
                 
-                //$datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
-                //$idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
-                
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
                 $idBuzon = $datosDocumento['id_buzon']; 
-               
-
                 
-                //$datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
-                //$idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                 
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
                 
@@ -67,6 +60,8 @@ class DocumentoController extends Controller{
                 $nFolio = null;
                 $anio = date('Y');
                 
+                $idTipoFolio = $msVerTipoDoc['data']['id_tipo_folio'];
+                //return $idTipoFolio;
                 /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
                     //$nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
@@ -76,7 +71,7 @@ class DocumentoController extends Controller{
                         'id_tipo_documento' => $nTipoDoc,
                         'anio' => $anio,
                         'id_buzon' => null,
-                        'id_tipo_folio' =>  3,
+                        'id_tipo_folio' =>  $idTipoFolio,
                     ]), 'json')
                     ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
                     
@@ -658,7 +653,7 @@ class DocumentoController extends Controller{
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                     $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
-                    return $datosJsonTipoDocumento;
+                    //return $datosJsonTipoDocumento;
                     if ( $idTipoAsigFolio == 2)
                     {
                        
