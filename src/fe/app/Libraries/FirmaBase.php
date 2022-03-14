@@ -3,6 +3,9 @@
 namespace App\Libraries;
 
 use JWT;
+use Illuminate\Support\Facades\Http;
+
+require_once('JWT.php');
 
 class FirmaBase //extends FirmaDigitalBase
 {   
@@ -28,10 +31,6 @@ class FirmaBase //extends FirmaDigitalBase
 
     }
 
-    function getConfig(){
-        return $this->tokenKey;
-    }
-
     public function setRUN($run)
     {
         // Reemplaza usuario firmante por usuario de prueba,
@@ -43,7 +42,7 @@ class FirmaBase //extends FirmaDigitalBase
             $this->run = $run;
         }
 
-        return $this->run;
+        return $this;
     }
 
     public function setOTP($otp)
@@ -57,14 +56,16 @@ class FirmaBase //extends FirmaDigitalBase
     { 
         
         try{
+
             $obj = $this->getObject($file);
-            return $obj;
+
             $data = array(
                 'content-type' => $obj['type'],
                 'content'      => base64_encode($obj['binary']),
                 'description'  => $description,
                 'checksum'     => $obj['hash'],
             );
+
             if ($layout) {
                 $layout = $this->generateLayout($layout);
                 array_merge($data, array('layout' => $layout));
@@ -72,6 +73,7 @@ class FirmaBase //extends FirmaDigitalBase
         } catch (Exception $e) {
             throw $e;
         }
+        
         array_push($this->files, $data);
 
         return $this;
@@ -86,9 +88,12 @@ class FirmaBase //extends FirmaDigitalBase
         );
         //$this->removeFiles();
 
-        return json_decode(
-            json_encode(RestCurl::post($this->api, $data)), true
-        );
+        $salida = Http::withHeaders(['Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode($data), 'json')
+        ->post($this->api);
+
+        return $salida;
     }
     
     private function generateToken()
@@ -96,10 +101,10 @@ class FirmaBase //extends FirmaDigitalBase
         $payload = array(
             'purpose'    => $this->purpose,
             'entity'     => $this->entity,
-            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),
+            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
             'run'        => $this->run
         );
-        
+
         $jwt = new JWT();
 
         return $jwt->encode($payload, $this->secretKey);
@@ -130,21 +135,6 @@ class FirmaBase //extends FirmaDigitalBase
         return $fileContent;
     }
 
-    protected function generateLayout($config)
-    {
-        try {
-            $encodedFile = $this->encodeFile($config[ 'filename' ]);
-        } catch (Exception $e) {
-            throw $e;
-        }
-
-        return "<AgileSignerConfig><Application id=\"THIS-CONFIG\"><pdfPassword/><Signature>".
-            "<Visible active=\"true\" layer2=\"false\" label=\"true\" pos=\"1\">".
-            "<llx>{$config['llx']}</llx><lly>{$config['lly']}</lly><urx>{$config['urx']}</urx><ury>{$config['ury']}</ury>".
-            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE>{$encodedFile}</BASE64VALUE>".
-            "</Visible></Signature></Application></AgileSignerConfig>";
-    }
-
     protected function encodeFile($file)
     {
         try {
@@ -154,6 +144,13 @@ class FirmaBase //extends FirmaDigitalBase
         } catch (Exception $e) {
             throw $e;
         }
+    }
+
+    public function removeFiles()
+    {
+        $this->files = array();
+
+        return $this;
     }
 
 }

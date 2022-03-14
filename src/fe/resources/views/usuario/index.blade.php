@@ -5,87 +5,98 @@
 @section('content_header')
 
 
-    <div class="row">
-        <div class="col-8">
-            <h1>Usuarios</h1>
-        </div>
-        <div class="col">
-            <button type="button" class="btn btn-success nuevo_usuario">Nuevo Usuario</button>
-
-        </div>
-      </div>
-    <div class="linea_content_header"></div>
+<div class="row">
+    <div class="col-8">
+        <h1>Usuarios</h1>
+    </div>
+    <div class="col">
+        <button type="button" class="btn btn-success nuevo_usuario">Nuevo Usuario</button>
+    </div>
+</div>
+<div class="linea_content_header"></div>
 
 @stop
 
 @section('content')
-<div class="col-12">
-    <div class="card" id="card_usuario_grilla">
-        <div class="card-body">
-            <table id="tabla_usuario_grilla" class="table dt-responsive nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>RUN</th>
-                        <th>Email(Cuenta)</th>
-                        <th>Estado</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($lista_usuarios['data'] as $list)
-                    <tr @if($list['id_estado_usuario']==2)style="background-color:#e2e2e2"@endif>
-                        <td>{{$list['id']}}</td>
-                        <td>{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
-                        <td>{{$list['run']}}</td>
-                        <td>{{$list['email']}}</td>
-                        <td>
-                            <?php
-                             foreach($estados_usuario as $estado)
-                             if($estado['id_estado_usuario']==$list['id_estado_usuario']){
-                                    echo $estado['nombre'];
-                             }
 
-                        ?>
-                        </td>
+<div class="row">
+    <div class="col-12">
+        <div class="card" id="card_usuario_grilla">
+            <div class="card-body">
+                <table id="tabla_usuario_grilla" class="table dt-responsive nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>RUN</th>
+                            <th>Email(Cuenta)</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($lista_usuarios['data'] as $list)
+                        <tr @if($list['id_estado_usuario']==2)style="background-color:#e2e2e2"@endif>
+                            <td>{{$list['id']}}</td>
+                            <td>{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
+                            <td>{{$list['run']}}</td>
+                            <td>{{$list['email']}}</td>
+                            <td>
+                                <?php
+                                foreach($estados_usuario as $estado)
+                                if($estado['id_estado_usuario']==$list['id_estado_usuario']){
+                                        echo $estado['nombre'];
+                                }
 
-                        <td>
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                     <i class="fas fa-bars"></i>
-                                 </button>
-                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                     <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
-                                     <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id']}})"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
-                                     <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id']}})" href="#">
-                                        @if($list['id_estado_usuario']==1)
-                                            <i class="fas fa-trash-alt text-red"></i> Deshabilitar
-                                        @endif
-                                        @if($list['id_estado_usuario']==2)
-                                            <i class="fas fa-plus-circle text-green"></i> Habilitar
-                                        @endif
-                                    </a>
-                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            ?>
+                            </td>
+
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-bars"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item btn-menu-ver" onclick="visualizar_usuario({{$list['id']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                        <a class="dropdown-item btn-menu-editar" onclick="editar_usuario({{$list['id']}})"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>
+                                        <a class="dropdown-item btn-menu-deshabilitar" onclick="estado_usuario({{$list['id']}})" href="#">
+                                            @if($list['id_estado_usuario']==1)
+                                                <i class="fas fa-trash-alt text-red"></i> Deshabilitar
+                                            @endif
+                                            @if($list['id_estado_usuario']==2)
+                                                <i class="fas fa-plus-circle text-green"></i> Habilitar
+                                            @endif
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="alert alert-warning print-error-msg" style="display:none">
+            <ul></ul>
+        </div>
+        <div id='cargando' style="display:none">
+            <span class="spinner-border text-success" role="status" aria-hidden="true"></span>
+            Cargando...
         </div>
     </div>
-    <div class="alert alert-warning print-error-msg" style="display:none">
-        <ul></ul>
-    </div>
-    <div id='cargando' style="display:none">
-        <span class="spinner-border text-success" role="status" aria-hidden="true"></span>
-        Cargando...
-    </div>
+</div>    
 
+<div class="row">
+    <div class="col-12">
 
     <div class="card" id="card_usuario_crear_editar" style="display:none">
-        <h5 id="titulo_usuario_crear_editar" class="card-header bg-success" >Nuevo Usuario</h5>
+       
+        
+        <div class="card-header" >
+            <h4 id="titulo_usuario_crear_editar">Nuevo Usuario</h4>
+            <div class="linea_content_header"></div>
+        </div>
+        
         <div class="card-body">
             <form class="needs-validation" id="form_usuario_crear_editar"   >
             @csrf
@@ -205,7 +216,7 @@
 
         </div>
     </div>
-
+    </div>
 
 </div>
 
