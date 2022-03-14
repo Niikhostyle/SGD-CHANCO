@@ -32,33 +32,35 @@ class FolioController extends Controller{
       
         $datosFolio = TipoDocumentoBuzonFolio::all();
 
-        
-       
-        foreach($datosFolio as $datos)
+        //return $request;
+        if ($datosRequest['id_tipo_folio'] == 1)
         {
-            if( $datos['anio'] == $datosRequest['anio'])
+       
+            foreach($datosFolio as $datos)
             {
-                if( $datos['id_tipo_documento'] == $datosRequest['id_tipo_documento'])
+                if( $datos['anio'] == $datosRequest['anio'])
                 {
+                    if( $datos['id_tipo_documento'] == $datosRequest['id_tipo_documento'])
+                    {
 
-                    $nFolio = $datos['valor'] +1;
+                        $nFolio = $datos['valor'] +1;
 
+                    }
                 }
-            }
 
+            }
+            // por tipo de documento y año
+            $documentoBuzon = TipoDocumentoBuzonFolio::updateOrCreate([
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                'anio' => $datosRequest['anio'], 
+                
+            ],[
+                'id_tipo_documento' => $datosRequest['id_tipo_documento'],
+                'anio' => $datosRequest['anio'], 
+                'valor' => $nFolio,
+            ]);
+        
         }
-        // por tipo de documento y año
-        $documentoBuzon = TipoDocumentoBuzonFolio::updateOrCreate([
-            'id_tipo_documento' => $datosRequest['id_tipo_documento'],
-            'anio' => $datosRequest['anio'], 
-            
-        ],[
-            'id_tipo_documento' => $datosRequest['id_tipo_documento'],
-            'anio' => $datosRequest['anio'], 
-            'valor' => $nFolio,
-        ]);
-        
-        
 
         if ($datosRequest['id_tipo_folio'] == 2)
         {
@@ -89,6 +91,11 @@ class FolioController extends Controller{
                 'valor' => $nFolio,
             ]);
         } 
+
+        if ($datosRequest['id_tipo_folio'] == 3)
+        {
+            return $nFolio;
+        }
         
 
         
