@@ -66,10 +66,7 @@ class FirmaBase //extends FirmaDigitalBase
                 'checksum'     => $obj['hash'],
             );
 
-            if ($layout) {
-                $layout = $this->generateLayout($layout);
-                array_merge($data, array('layout' => $layout));
-            }
+            
         } catch (Exception $e) {
             throw $e;
         }
@@ -101,7 +98,7 @@ class FirmaBase //extends FirmaDigitalBase
         $payload = array(
             'purpose'    => $this->purpose,
             'entity'     => $this->entity,
-            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
+            'expiration' => '2022-03-15T01:58:09',//date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
             'run'        => $this->run
         );
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Libraries\FirmaBase;
+use Illuminate\Support\Facades\App;
 use PDF;
 
 class FirmaController 
@@ -18,77 +19,57 @@ class FirmaController
             'tokenKey'  => config('app.sgd_token_key'),
             'secretKey' => config('app.sgd_secreto')
         );
-
+        
         $classFirma = new FirmaBase($firmaDigitalConfig);
 
         $sDescipcion = "Descripcion de prueba";
         $aRespuestaFirma = $classFirma->setRUN('22222222')                        
                     ->addPDF(storage_path('app/public/files/TDXY-220-20220201-89148601'), $sDescipcion)
                     ->sign();
-
-                   // return $aRespuestaFirma['status'];
         
-        if ($aRespuestaFirma['status'] != 200)
+        /* Si existe algun error */
+        if (isset($aRespuestaFirma['status'])) 
         {
             return $aRespuestaFirma['error'];     
         }
         
-        if ($aRespuestaFirma[ 'metadata' ][ 'filesSigned' ] == 1 )
+        if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
         {
-            $responseFile = $aRespuestaFirma[ 'files' ][ 0 ];
+            $responseFile = $aRespuestaFirma['files'][0];            
             if($responseFile['status'] == 'OK') 
             {
-                $encondedFile = $responseFile['content'];   
-                $storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
+                $encondedFile = $responseFile['content'];  
+                //$storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
+                
+                $decodedFile = base64_decode($encondedFile, true);
+                $pdf = fopen (storage_path('app/public/files/principal_firma.pdf'),'w+');
+                fwrite ($pdf,$decodedFile);
+                fclose ($pdf);
+                
+                if (file_exists(storage_path('app/public/files/principal_firma.pdf')))
+                {
+                    return "Archivo firmado";
+                }
+                else 
+                    return "No se encuentra el archivo firmado";
             }
         }
 
-        return $storeResp;
-              
 
-       
-
-                    /*
-        $responseFile = $resp[ 'files' ][ 0 ];
-        $encondedFile = $responseFile['content'];
-
-        $decodedFile = base64_decode($encondedFile, true);
-        
-        if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
-            return array('status' => 0, 'Mensaje' => 'Error de codificación en archivo firmado.');
-        }
-
-        //$data = PDF::loadView('pdf', $decodedFile)->save(storage_path('app/public/files/') . 'principal_firma.pdf');
-
-       
-        $pdf = fopen (storage_path('app/public/files/principal_220_.pdf'),'w');
-
-        //if (!$pdf)
-         //   return array('status' => 0, 'Mensaje' => 'No se pudo actualizar el archivo firmado');
-
-        //return array('status' => 0, 'Mensaje' => 'No se pudo almacenar el archivo firmado','file'=> $s3_path);
-        fwrite ($pdf,$decodedFile);
-        fclose ($pdf);
-
-        return "ok";
-
-        //
-*/
     }
 
     /**
      * Remplaza documento por archivo firmado por SEGPRES
     */
 
-    protected function storeSignedFile($encondedFile, $filePath)
+    public function storeSignedFile($encondedFile, $filePath)
 	{
-	    return "IN";
         $decodedFile = base64_decode($encondedFile, true);
-        
+
         if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
             return array('status' => 0, 'Mensaje' => 'Error de codificación en archivo firmado.');
         }
-return $decodedFile;
+
         $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
 
         if ($uploadSuccess)
