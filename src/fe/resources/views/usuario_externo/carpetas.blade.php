@@ -189,7 +189,7 @@
                                 <ul class="list-group list-group-horizontal">
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
                                 </ul>
                             </div>
@@ -942,6 +942,7 @@
         $("input[name='hiddIdFileDelete']").val('');
 
         $("#idAsignado").text('No Asignado');
+        $("#idFolio").text('No Asignado');
 
         //vaciar archivos pre cargados
 
@@ -1994,6 +1995,8 @@
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                         $("#idAsignado").text(data.data.identificador);
+                        $("#idFolio").text(data.data.folio);
+
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
