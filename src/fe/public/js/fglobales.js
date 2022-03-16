@@ -106,7 +106,13 @@ function cargar_datos_grilla(id_documento)
                 if(data.status == '200')
                 {
                     var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                    var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                    
+                    if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
+                        {
+                            var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                            $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                        }
+
                     var idBuzon = $("input[name='hiddIdBuzon']").val();
                     var carpeta = "";
                     var idBuzonOrigen = "";
@@ -123,7 +129,6 @@ function cargar_datos_grilla(id_documento)
                     $("select[name='tipo_documento']").prepend("<option value='"+json_tipo_doc['id_tipo_documento']+"' selected='selected'>"+json_tipo_doc['nombre']+"</option>");
                     $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
                     $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                    $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
                     $("input[name='materia']").val(data.data.materia);
                     $("input[name='anterior']").val(data.data.anterior);
                     $("textarea[name='descripcion']").val(data.data.descripcion);                     
@@ -135,7 +140,8 @@ function cargar_datos_grilla(id_documento)
                     //$("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                     $("#idAsignado").text(data.data.identificador);
-
+                    $("#idFolio").text(data.data.folio);
+                    
                     if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                     {
                         $('.row_cuerpo').show();

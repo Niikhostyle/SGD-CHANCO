@@ -102,7 +102,7 @@
                             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
                                 <div class="form-control">Buzón Origen: <i><span id="textBuzonorigen"></span></i></div>
                                 <div class="form-control">ID: <i><span id="idAsignado">No Asignado</span></i></div>
-                                <div class="form-control">Folio: <i>No Asignado</i></div>
+                                <div class="form-control">Folio: <i><span id="idFolio">No Asignado</span></i></i></div>
                                 <div class="form-control">Fecha: <i>No Asignado</i></div>
                             </div>
                         </div>

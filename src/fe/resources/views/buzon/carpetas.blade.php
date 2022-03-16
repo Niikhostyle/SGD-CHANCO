@@ -38,7 +38,7 @@
 
                   <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                     <div class="card-body">
-                        <nav class="text-center">
+                        <nav class="nav-header">
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                               <a style="width: 33%" class="nav-item nav-link active" id="nav-por-recibir-tab" data-toggle="tab" href="#nav-por-recibir" role="tab" aria-controls="nav-home" aria-selected="true" onclick="cambio_texto_boton_carpetas('Por Recibir');">
                                 Por Recibir
@@ -222,7 +222,7 @@
                                 <ul class="list-group list-group-horizontal">
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
                                 </ul>
                             </div>
@@ -490,7 +490,21 @@
 
     <style type="text/css">  
 
+        .nav-header {
+            text-align: center;
+            --padding-bottom: 20px;
+        }
 
+        .nav-tabs {
+            padding-left: 15px;
+            margin-bottom: 0;
+            border: none;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
         .card {
             overflow: visible !important;
         }
@@ -1024,6 +1038,7 @@
         $("input[name='hiddIdFileDelete']").val('');
 
         $("#idAsignado").text('No Asignado');
+        $("#idFolio").text('No Asignado');
 
         //vaciar archivos pre cargados
 
@@ -1136,7 +1151,7 @@
 
     });
 
-    function guarda_documento(accion)
+    function guarda_documento(accion, callback)
     {
        
         var _token = $("input[name='_token']").val();
@@ -1177,6 +1192,7 @@
             url: urlAccion,
             type: typeAccion,
             dataType: 'json',
+            
             data: {
                 _token:_token,
                 tipo_documento:tipo_documento,
@@ -1216,6 +1232,16 @@
                         $("#collapseOne").collapse('show');     
                         fn_grilla_despachados();
                     }
+                    console.log(accion);
+                    if (accion == 2)
+                    {
+                        callback(data);
+                        respuesta_guarda = data;
+                        console.log(data.status);
+                        //return data.status;
+                    }
+                    
+                        
                 }
                 else if(data.status == '201')
                 {
@@ -1425,49 +1451,58 @@
                 console.log(result);
             if (result.value==true) 
             {
-                guarda_documento(2);                
+                //guarda_documento(2);    
                 
-                $.ajax({
-                    url: "../buzonesCarpetas/"+hiddIdDocumento,
-                    type: 'PUT',
-                    dataType: 'json',
-                    data: {
-                        _token:_token,
-                        hiddIdDocumento:hiddIdDocumento,
-                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
-                        buzon:hiddIdBuzon,
-                        destinatarioPrincipal:destinatarioPrincipal,
-                        destinatarioOtros:otrosDestinatarios,
-                        responder:responder,
-                        carpeta:3                
-                    },
-                    success: function(data)
+                guarda_documento(2, function(data){                    
+                    //continue your function here, inside of the callback
+
+                    if (data.status == 200)
                     {
-                        if(data.status == '200')
+                        $.ajax({
+                        url: "../buzonesCarpetas/"+hiddIdDocumento,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                            buzon:hiddIdBuzon,
+                            destinatarioPrincipal:destinatarioPrincipal,
+                            destinatarioOtros:otrosDestinatarios,
+                            responder:responder,
+                            carpeta:3                
+                        },
+                        success: function(data)
                         {
-                            toastr.success("Documento enviado","Aviso!");
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento enviado","Aviso!");
 
-                            $('#card_crear_documento').hide();        
-                            $("#collapseOne").collapse('show');
-                            clear_form();
-                            fn_grilla_despachados();        
+                                $('#card_crear_documento').hide();        
+                                $("#collapseOne").collapse('show');
+                                clear_form();
+                                fn_grilla_despachados();        
 
-                            //location.reload();
+                                //location.reload();
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+
+                            $('.btn-enviar-submit').html( 'Enviar' );
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en el envío del documento","Aviso!");
+
+                            $('.btn-enviar-submit').html( 'Enviar' );
                         }
-                        else
-                        {
-                            toastr.error(data.data.comentario,"Aviso!");
-                        }
+                    });
 
-                        $('.btn-enviar-submit').html( 'Enviar' );
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-
-                        toastr.error("Falla en el envío del documento","Aviso!");
-
-                        $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+
                 
             }
         })               
@@ -2051,20 +2086,24 @@
                     if(data.status=='200')
                     {
                         var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                        var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                        if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
+                        {
+                            var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                            $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                        }
                         var idBuzon = $("input[name='hiddIdBuzon']").val();
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];    
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
                         var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                         var jsonDocResponder = data.data.rel_responder;
-                        console.log(jsonRespuesta);
+                        
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
                         $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
                         $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                        $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+   
                         $("input[name='materia']").val(data.data.materia);
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
@@ -2078,6 +2117,8 @@
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
+                        $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
