@@ -222,7 +222,7 @@
                                 <ul class="list-group list-group-horizontal">
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="folioAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
                                 </ul>
                             </div>
@@ -1937,6 +1937,51 @@
         })      
     }
 
+    function accion_folio(id_documento,id_documento_buzon){
+
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Asignar Folio y Fecha',
+            html: "Se asignará folio y fecha",                        
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+            
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/asignar_folio/",
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Archivo Pdf generado","Aviso!");
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en la generación del archivo","Aviso!");
+                        }
+                    });
+            }
+        })      
+    }
+
     function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
@@ -2080,6 +2125,7 @@
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
+                        $("#folioAsignado").html("<b>"+data.data.folio+"</b>");
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
@@ -2507,7 +2553,49 @@
     }
 
     function eliminar_despachados(identificador){
-        alert(identificador)
+        //alert(identificador)
+
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Eliminar',
+            html: "Eliminar",                        
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+            
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/eliminar_documento/",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:identificador,
+                                       
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Archivo Pdf generado","Aviso!");
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en la generación del archivo","Aviso!");
+                        }
+                    });
+            }
+        })      
     }
 
 
@@ -2671,11 +2759,14 @@
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_visar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-check-circle text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
-                                                        if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
+                                                        if (accionesSolicitadas[i]['id_accion'] == 7) //Generar pdf                                                   
                                                             //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                        if (accionesSolicitadas[i]['id_accion'] == 8) //Asignar folio y fecha                                                   
+                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
+                                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_folio('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                     } 
                                                 }                                                
                                                 

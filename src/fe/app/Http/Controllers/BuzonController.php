@@ -15,6 +15,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+use App\Models\DocumentoBuzon;
 //use Barryvdh\DomPDF\PDF;
 use PDF;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
@@ -287,6 +288,7 @@ class BuzonController extends Controller
         }
 
         $datosBuzon = $this->show($id); //muestra metodo show
+       
 
         //listado de buzones
 
@@ -578,7 +580,7 @@ class BuzonController extends Controller
                     ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
                     ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
-                    ->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
+                    //->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
                     /*->leftJoin('documento_buzon_bitacora', function ($join) {
                         $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
@@ -605,7 +607,7 @@ class BuzonController extends Controller
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
                         DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1) as destinatario'),
                         'documento_buzon.contestar_hasta as contestas_hasta',
-                        'documento_favorito_usuario.id_documento as favorito'
+                        //'documento_favorito_usuario.id_documento as favorito'
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
@@ -623,6 +625,47 @@ class BuzonController extends Controller
 
 
     }     
+
+    public function folio(Request $request)
+    {
+
+        $anio = date('Y');
+        $fecha = date('Y-m-d H:i:s');
+
+        //id tipo documento
+        $datosDocumento = Documento::find($request->id_documento);
+        $idTipoDocumento = $datosDocumento->id_tipo_documento;
+
+        //id buzon
+        $datosDocumentoBuzon = DocumentoBuzon::find($request->id_documento_buzon);
+        $idBuzon = $datosDocumentoBuzon->id_buzon;
+
+        //id tipo folio
+        $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
+        $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+
+        $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_tipo_documento' => $idTipoDocumento,
+            'anio' => $anio ,
+            'id_buzon' => $idBuzon,
+            'id_tipo_folio' => $idTipoFolio
+        ]), 'json')
+        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+
+    }
+
+    public function deleteDocumento(Request $request) {
+        
+        //return "hola";
+        $documento = Documento::find($request->idDocumento);
+        $documento->bitacora()->delete();
+        $documento->delete();
+        return response()->json([
+        'message' => 'Documeno Eliminado'
+        ]);    
+   }
     
 
 }
