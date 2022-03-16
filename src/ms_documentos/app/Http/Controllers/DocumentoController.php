@@ -904,6 +904,7 @@ class DocumentoController extends Controller{
                                             )
                                         ->where('documento_favorito_usuario.id_usuario','=',$datosRequest['id_usuario'])
                                         ->whereNull('documento_buzon.id_documento_buzon_padre')
+                                        ->orderBy('documento.identificador','desc')
                                         ->get();                                    
                 
                 return $this->respondSuccess($datosDocumentoFavorito, 200);

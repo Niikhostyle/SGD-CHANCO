@@ -222,7 +222,7 @@
                                 <ul class="list-group list-group-horizontal">
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
                                 </ul>
                             </div>
@@ -1024,6 +1024,7 @@
         $("input[name='hiddIdFileDelete']").val('');
 
         $("#idAsignado").text('No Asignado');
+        $("#idFolio").text('No Asignado');
 
         //vaciar archivos pre cargados
 
@@ -2053,20 +2054,24 @@
                     if(data.status=='200')
                     {
                         var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                        var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                        if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
+                        {
+                            var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                            $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                        }
                         var idBuzon = $("input[name='hiddIdBuzon']").val();
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];    
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
                         var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                         var jsonDocResponder = data.data.rel_responder;
-                        console.log(jsonRespuesta);
+                        
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
                         $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
                         $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                        $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+   
                         $("input[name='materia']").val(data.data.materia);
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
@@ -2080,6 +2085,8 @@
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
+                        $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {

@@ -173,7 +173,7 @@ class BuscadorController extends Controller
         , td.nombre
         , buzon_origen
         , buzon_actual     
-    order by d.id_documento desc");
+    order by d.identificador desc");
                     
         return datatables( $datos )->toJson();
 
