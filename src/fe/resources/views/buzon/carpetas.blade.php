@@ -38,7 +38,7 @@
 
                   <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                     <div class="card-body">
-                        <nav class="text-center">
+                        <nav class="nav-header">
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                               <a style="width: 33%" class="nav-item nav-link active" id="nav-por-recibir-tab" data-toggle="tab" href="#nav-por-recibir" role="tab" aria-controls="nav-home" aria-selected="true" onclick="cambio_texto_boton_carpetas('Por Recibir');">
                                 Por Recibir
@@ -490,7 +490,21 @@
 
     <style type="text/css">  
 
+        .nav-header {
+            text-align: center;
+            --padding-bottom: 20px;
+        }
 
+        .nav-tabs {
+            padding-left: 15px;
+            margin-bottom: 0;
+            border: none;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
         .card {
             overflow: visible !important;
         }
@@ -1137,7 +1151,7 @@
 
     });
 
-    function guarda_documento(accion)
+    function guarda_documento(accion, callback)
     {
        
         var _token = $("input[name='_token']").val();
@@ -1178,6 +1192,7 @@
             url: urlAccion,
             type: typeAccion,
             dataType: 'json',
+            
             data: {
                 _token:_token,
                 tipo_documento:tipo_documento,
@@ -1217,6 +1232,16 @@
                         $("#collapseOne").collapse('show');     
                         fn_grilla_despachados();
                     }
+                    console.log(accion);
+                    if (accion == 2)
+                    {
+                        callback(data);
+                        respuesta_guarda = data;
+                        console.log(data.status);
+                        //return data.status;
+                    }
+                    
+                        
                 }
                 else if(data.status == '201')
                 {
@@ -1426,49 +1451,58 @@
                 console.log(result);
             if (result.value==true) 
             {
-                guarda_documento(2);                
+                //guarda_documento(2);    
                 
-                $.ajax({
-                    url: "../buzonesCarpetas/"+hiddIdDocumento,
-                    type: 'PUT',
-                    dataType: 'json',
-                    data: {
-                        _token:_token,
-                        hiddIdDocumento:hiddIdDocumento,
-                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
-                        buzon:hiddIdBuzon,
-                        destinatarioPrincipal:destinatarioPrincipal,
-                        destinatarioOtros:otrosDestinatarios,
-                        responder:responder,
-                        carpeta:3                
-                    },
-                    success: function(data)
+                guarda_documento(2, function(data){                    
+                    //continue your function here, inside of the callback
+
+                    if (data.status == 200)
                     {
-                        if(data.status == '200')
+                        $.ajax({
+                        url: "../buzonesCarpetas/"+hiddIdDocumento,
+                        type: 'PUT',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                            buzon:hiddIdBuzon,
+                            destinatarioPrincipal:destinatarioPrincipal,
+                            destinatarioOtros:otrosDestinatarios,
+                            responder:responder,
+                            carpeta:3                
+                        },
+                        success: function(data)
                         {
-                            toastr.success("Documento enviado","Aviso!");
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento enviado","Aviso!");
 
-                            $('#card_crear_documento').hide();        
-                            $("#collapseOne").collapse('show');
-                            clear_form();
-                            fn_grilla_despachados();        
+                                $('#card_crear_documento').hide();        
+                                $("#collapseOne").collapse('show');
+                                clear_form();
+                                fn_grilla_despachados();        
 
-                            //location.reload();
+                                //location.reload();
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+
+                            $('.btn-enviar-submit').html( 'Enviar' );
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+
+                            toastr.error("Falla en el envío del documento","Aviso!");
+
+                            $('.btn-enviar-submit').html( 'Enviar' );
                         }
-                        else
-                        {
-                            toastr.error(data.data.comentario,"Aviso!");
-                        }
+                    });
 
-                        $('.btn-enviar-submit').html( 'Enviar' );
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-
-                        toastr.error("Falla en el envío del documento","Aviso!");
-
-                        $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+
                 
             }
         })               
