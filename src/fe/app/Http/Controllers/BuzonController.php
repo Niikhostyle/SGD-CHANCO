@@ -621,6 +621,8 @@ class BuzonController extends Controller
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
 
+                    $datos->orderBy('documento.identificador','desc');
+
                return datatables( $datos )->toJson();
 
 

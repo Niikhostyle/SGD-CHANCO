@@ -653,6 +653,7 @@ class DocumentoController extends Controller{
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                     $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+
                     if ( $idTipoAsigFolio == 2)
                     {
                        
@@ -903,6 +904,7 @@ class DocumentoController extends Controller{
                                             )
                                         ->where('documento_favorito_usuario.id_usuario','=',$datosRequest['id_usuario'])
                                         ->whereNull('documento_buzon.id_documento_buzon_padre')
+                                        ->orderBy('documento.identificador','desc')
                                         ->get();                                    
                 
                 return $this->respondSuccess($datosDocumentoFavorito, 200);
