@@ -457,10 +457,6 @@ class BuzonController extends Controller
     public function actualizar_estado_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-        
-        $res = $this->FirmaController->firmar($request->hiddIdDocumento);
-
-return $res;
 
         if ($request->accion != 7)
         {
@@ -482,8 +478,6 @@ return $res;
         if ($request->accion == 7) //envia a firma
         {
             
-            
-            
             $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)        
             ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
@@ -494,11 +488,14 @@ return $res;
             
             if ($datosFea['status'] == 200)
             {
+                $resFea = $this->FirmaController->firmar($request->hiddIdDocumento);
                 
-                
+                return $resFea; 
             }
+            else
+                return $datosFea->json();
 
-            return $datosFea->json();
+            
             
         } 
 
