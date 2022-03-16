@@ -1626,9 +1626,9 @@
                         },
                         success: function(data)
                         {
-                            if(data.status == '200')
+                            if(data['status'] == '1')
                             {
-                                toastr.success("Documento Firmado","Aviso!");
+                                toastr.success(data['comentario'],"Aviso!");
 
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
@@ -1636,7 +1636,7 @@
                             }
                             else
                             {
-                                toastr.error(data.data.comentario,"Aviso!");
+                                toastr.error(data['comentario'],"Aviso!");
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
@@ -1905,11 +1905,10 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-            
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "/generar_archivo/",
+                        url: "/generar_archivo",
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -1928,8 +1927,7 @@
                                 toastr.error(data.data.comentario,"Aviso!");
                             }
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-
+                        error: function (data, jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en la generación del archivo","Aviso!");
                         }
                     });

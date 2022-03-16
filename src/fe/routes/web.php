@@ -64,7 +64,6 @@ Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[Buzon
 Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
 
 //tipos de documentos
-
 Route::middleware(['auth:sanctum', 'verified'])->get('tipos_documentos',[TipoDocumentoController::class,'index'])->name('tipos_documentos.index');
 Route::middleware(['auth:sanctum', 'verified'])->post('tipos_documentos',[TipoDocumentoController::class,'store'])->name('tipos_documentos.store');
 Route::middleware(['auth:sanctum', 'verified'])->put('tipos_documentos',[TipodocumentoController::class,'update'])->name('tipos_documentos.update');
@@ -78,8 +77,6 @@ Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoC
 Route::middleware(['auth:sanctum', 'verified'])->get('validador',[DocumentoValidadorController::class,'index'])->name('validador.index');
 Route::middleware(['auth:sanctum', 'verified'])->post('validadorCodigo',[DocumentoValidadorController::class,'store'])->name('validador.store');
 //Route::middleware(['auth:sanctum', 'verified'])->get('pdf',[DocumentoValidadorController::class,'download'])->name('validador.download');
-
-
 
 //buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show');
@@ -102,5 +99,4 @@ Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno',[B
 
 
 //FEA
-
-Route::middleware(['auth:sanctum', 'verified'])->get('firma',[FirmaController::class,'index'])->name('firma.index');
+Route::middleware(['auth:sanctum', 'verified'])->get('firmar/{id}',[FirmaController::class,'firmar'])->name('firmar.firmar');

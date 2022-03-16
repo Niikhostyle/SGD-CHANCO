@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBuzon;
 use App\Models\Buzon;
-use App\Models\User;
+use App\Models\Users;
 use App\Providers\AppServiceProvider;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\View;
@@ -15,6 +15,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 //use Barryvdh\DomPDF\PDF;
 use PDF;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
@@ -22,9 +23,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
+use App\Libraries\FirmaBase;
+use App\Http\Controllers\FirmaController;
+
 
 class BuzonController extends Controller
 {
+    protected $FirmaController;
+
+    public function __construct(FirmaController $FirmaController)
+    {
+
+        $this->FirmaController = $FirmaController;
+    }
+
     public function index(){
 
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -445,20 +457,63 @@ class BuzonController extends Controller
     public function actualizar_estado_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
+        
+        $res = $this->FirmaController->firmar($request->hiddIdDocumento);
 
-        $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar_estado', [  
-            'id_documento_buzon'=>$id,          
-            'id_documento'=>$request->hiddIdDocumento,
-            'id_buzon'=>$request->buzon,
-            'destino'=>$request->destino,
-            'accion'=>$request->accion,
-            'id_usuario'=>Auth::user()->id
-        ]);
+return $res;
 
-        return $datosDocumento->json();
+        if ($request->accion != 7)
+        {
+            $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)        
+            ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar_estado', [  
+                'id_documento_buzon'=>$id,          
+                'id_documento'=>$request->hiddIdDocumento,
+                'id_buzon'=>$request->buzon,
+                'archivo'=>$request->archivo,
+                'accion'=>$request->accion,
+                'id_usuario'=>Auth::user()->id
+            ]);
 
+            return $datosDocumento->json();
+
+        }
+
+        if ($request->accion == 7) //envia a firma
+        {
+            
+            
+            
+            $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)        
+            ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
+                'id_documento_buzon'=>$id,          
+                'id_documento'=>$request->hiddIdDocumento,
+                'id_usuario'=>Auth::user()->id
+            ]);
+            
+            if ($datosFea['status'] == 200)
+            {
+                
+                
+            }
+
+            return $datosFea->json();
+            
+        } 
+
+/*
+        if ($datosDocumento['status'] == 200 && $request->accion == 7)
+        {
+            //llama firma electrónica 
+
+            $fea = FirmaBase::index($id);
+
+            return $fea;
+            
+        }
+*/
+        
     }
 
     public function archivar_documento($id, Request $request)
@@ -481,13 +536,22 @@ class BuzonController extends Controller
 
     public function generar_archivo_pdf(Request $request)
     {
-        $sesion_key =  AppServiceProvider::session_key_general();
-        $nDocumento =  $request->idDocumento;
+       
+        $sesion_key = AppServiceProvider::session_key_general();
+        $nDocumento = $request->idDocumento;
+ 
+        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['genera_pdf']);
 
+      //  if (!$aInfoUsuarios['genera_pdf'])
+        //    return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
+            
+
+        //    
+ 
         $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
         ->select('cuerpo', 'encabezado','materia')
         ->first(); 
-        
+
         $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
 
         $oMerger = PDFMerger::init();
@@ -512,15 +576,42 @@ class BuzonController extends Controller
         $dFechaCreacion = date('Y-m-d H:i:s');        
 
         if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
-        {
-            DocumentoBuzonArchivo::create([
-                'id_documento_buzon' => $request->idDocumentoBuzon,
-                'id_tipo_archivo' => 1,
-                'nombre_archivo_original' => $filePpal,
-                'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                'version' => '1',
-                'fecha' => $dFechaCreacion
-            ]);            
+        {            
+            try 
+            {
+                DB::beginTransaction();
+
+                $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $request->idDocumentoBuzon)
+                                                    ->where('id_tipo_archivo', 1)
+                                                    ->get();
+                                
+                foreach ($docsPpales as $archFile)
+                {
+                    $nSalida = $archFile->version + 1;
+                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                }
+
+                DocumentoBuzonArchivo::create([
+                    'id_documento_buzon' => $request->idDocumentoBuzon,
+                    'id_tipo_archivo' => 1,
+                    'nombre_archivo_original' => $nNombreArchivoCargar,
+                    'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                    'version' => '1',
+                    'fecha' => $dFechaCreacion
+                ]);  
+
+                DB::commit();
+
+            }
+            catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status' => 500, 
+                    'data' => [
+                        'comentario' => 'Error al generar documento PDF.'
+                ]], 500);
+            }      
             
             $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)        
@@ -531,6 +622,7 @@ class BuzonController extends Controller
 
             return $datosDocumento->json();            
         }
+        
     }
 
     public function derivarOpcion1($id, Request $request)
@@ -601,6 +693,8 @@ class BuzonController extends Controller
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
+
+                    $datos->orderBy('documento.identificador','desc');
 
                return datatables( $datos )->toJson();
 

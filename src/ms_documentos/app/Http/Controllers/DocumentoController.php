@@ -696,7 +696,7 @@ class DocumentoController extends Controller{
                 ]);                 
                 
                 DB::commit();
-                return $this->respondSuccess("Documento recepcionado", 200);
+                return $this->respondSuccess("Cambio de estado realizado.", 200);
 
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
@@ -771,7 +771,7 @@ class DocumentoController extends Controller{
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
                 $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
 
-                $datosJsonTipoDocumento['id_tipo_origen']= 2;
+                $datosJsonTipoDocumento['id_tipo_origen'] = 2;
 
                 $datosRequest['json_tipo_documento'] = $datosJsonTipoDocumento;
                 

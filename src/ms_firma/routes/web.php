@@ -13,7 +13,13 @@
 |
 */
 
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->put('/api/sgd-firma/firmar_archivo', 'FirmaController@firmar_archivo');
+});
+
+/*
 $router->get('/api/sgd-firma', function () use ($router) {
     //return $router->app->version();
     return "prueba lumen firma";
 });
+*/

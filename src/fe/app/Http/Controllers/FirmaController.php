@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Libraries\FirmaBase;
+use App\Models\DocumentoBuzonArchivo;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 use PDF;
 
-class FirmaController 
+class FirmaController extends Controller
 {
-    public function index()
+    //public function firmar($id, Request $request)
+    public function firmar($id)
     {
+        //inicialización con datos de conf de fea autorizada
         $firmaDigitalConfig = array(
             'api'       => config('app.sgd_url'),
             'purpose'   => config('app.sgd_proposito'),
@@ -19,18 +25,30 @@ class FirmaController
             'tokenKey'  => config('app.sgd_token_key'),
             'secretKey' => config('app.sgd_secreto')
         );
-        
-        $classFirma = new FirmaBase($firmaDigitalConfig);
 
-        $sDescipcion = "Descripcion de prueba";
-        $aRespuestaFirma = $classFirma->setRUN('22222222')                        
-                    ->addPDF(storage_path('app/public/files/TDXY-220-20220201-89148601'), $sDescipcion)
+        $classFirma = new FirmaBase($firmaDigitalConfig); 
+
+        $sDescipcion = "Descripcion de prueba";//sacar de tabla documentos
+        $nrut = '22222222';//$request['rut'];
+        $sPath = config('app.path_upload') . '/';
+        $sArchivo = storage_path($sPath.'TDXY-220-20220202-44527820'); //cambiar por linea sgte
+        //$sArchivo = storage_path($sPath.$request['archivo']);
+        $id_tipo_archivo = 1;//$request['id_tipo_archivo'];
+        $id_documento_buzon = 430;////$request['id_documento_buzon'];
+
+        $dFechaCreacion = date('Y-m-d H:i:s');
+
+        $nNombreArchivoCargar = $this->getNombreDocumento($id);
+
+        $aRespuestaFirma = $classFirma->setRUN($nrut)                        
+                    ->addPDF($sArchivo, $sDescipcion)
                     ->sign();
         
         /* Si existe algun error */
         if (isset($aRespuestaFirma['status'])) 
         {
-            return $aRespuestaFirma['error'];     
+            return array('status' => 0, 'comentario' => $aRespuestaFirma['error']);
+            //return $aRespuestaFirma['error'];     
         }
         
         if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
@@ -42,20 +60,71 @@ class FirmaController
                 //$storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
                 
                 $decodedFile = base64_decode($encondedFile, true);
-                $pdf = fopen (storage_path('app/public/files/principal_firma.pdf'),'w+');
-                fwrite ($pdf,$decodedFile);
+                if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
+                    return array('status' => 0, 'comentario' => 'Error de codificación en archivo firmado.');
+                }                
+
+                $pdf = fopen (storage_path($sPath.$nNombreArchivoCargar),'w+');
+                if (!$pdf)
+                    return array('status' => 0, 'comentario' => 'No se pudo crear archivo firmado.');         
+                
+                fwrite ($pdf, $decodedFile);
                 fclose ($pdf);
                 
-                if (file_exists(storage_path('app/public/files/principal_firma.pdf')))
+                if (!file_exists(storage_path($sPath.$nNombreArchivoCargar)))
                 {
-                    return "Archivo firmado";
+                    return array('status' => 0, 'comentario' => 'No se encuentra el archivo firmado');         
                 }
-                else 
-                    return "No se encuentra el archivo firmado";
+                
+                //actualizar archivo firmado
+
+                if($id_tipo_archivo == 1)
+                {
+                    try 
+                    {
+                        DB::beginTransaction();
+                        $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
+                                                ->where('id_tipo_archivo', 1)
+                                                ->get();
+                        
+                        foreach ($docsPpales as $archFile)
+                        {
+                            $nSalida = $archFile->version + 1;
+                            DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                        }
+
+                        $nVersion = 1;
+
+                        DocumentoBuzonArchivo::create([
+                            'id_documento_buzon' => $id_documento_buzon,
+                            'id_tipo_archivo' => $id_tipo_archivo,
+                            'nombre_archivo_original' => 'TDXY-220-20220202-44527820.pdf', //cambiar por parametro
+                            'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                            'fecha' => $dFechaCreacion,
+                            'version' => $nVersion
+                        ]);    
+
+                        DB::commit();
+
+                        return array(
+                            'status'  => 1,
+                            'comentario' => 'Archivo firmado almacenado exitosamente.',
+                            'file'    => $nNombreArchivoCargar,
+                        );
+
+                    }
+                    catch (ModelNotFoundException $e) {
+                        DB::rollBack();
+
+                        return array(
+                            'status' => 500, 
+                            'comentario' => 'Error al guardar documento firmado.'
+                        );
+                    }
+                }               
+                    
             }
         }
-
-
     }
 
     /**
@@ -64,65 +133,7 @@ class FirmaController
 
     public function storeSignedFile($encondedFile, $filePath)
 	{
-        $decodedFile = base64_decode($encondedFile, true);
 
-        if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
-            return array('status' => 0, 'Mensaje' => 'Error de codificación en archivo firmado.');
-        }
-
-        $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
-
-        if ($uploadSuccess)
-        {
-            if(strlen($fileName) && $id_tipo_archivo == 1)
-            {
-                $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
-                                        ->where('id_tipo_archivo', 1)
-                                        ->get();
-                
-                foreach ($docsPpales as $archFile)
-                {
-                    $nSalida = $archFile->version + 1;
-                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
-                }
-
-                if ($id_tipo_archivo == 1)
-                    $nVersion = 1;
-            }
-
-            
-        }
-        else
-        {
-            return response()->json([
-                'status' => 500, 
-                'data' => [
-                    'comentario' => 'Error al guardar documento'
-            ]], 500);
-        }
-        
-        //if ( ! $this->eliminaArchivo($filePath)) {
-        //    return array('status' => 0, 'Mensaje' => 'No se pudo eliminar el archivo original', 'file'=> $filePath);
-        //}
-        /*
-        $this->load->library('S3', null, 'aws_s3');
-        $doc_type = array('Content-Type' => 'application/pdf');
-        $s3_path = make_relative_file_path($filePath);
-        $s3_bucket = $this->config->item('s3_bucket_name');
-        if ($this->aws_s3->putObject($decodedFile, $s3_bucket, $s3_path, NULL, array(), $doc_type) == FALSE) {
-            return array('status' => 0, 'Mensaje' => 'No se pudo almacenar el archivo firmado','file'=> $s3_path);
-        }
-        
-        // doble check de archivo en s3
-        if ($this->aws_s3->getObjectInfo($s3_bucket, $s3_path) == FALSE) {
-            return array('status' => 0, 'Mensaje' => 'No se encuentra el archivo firmado','file'=> $s3_path);
-        }
-        */
-        return array(
-            'status'  => 1,
-            'Mensaje' => 'Archivo firmado almacenado exitosamente',
-            'file'    => $s3_path,
-        );
-	}
+    }
 
 }
