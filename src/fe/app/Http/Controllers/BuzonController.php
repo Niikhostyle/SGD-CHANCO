@@ -536,7 +536,18 @@ class BuzonController extends Controller
        
         $sesion_key = AppServiceProvider::session_key_general();
         $nDocumento = $request->idDocumento;
- 
+
+        $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
+            'id_documento'=>$request->idDocumento,
+            'id_documento_buzon'=>$request->idDocumentoBuzon,
+            'id_usuario'=>Auth::user()->id,
+        ]);
+
+        return $datosArchivo->json();  
+
+ /*
         $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['genera_pdf']);
 
       //  if (!$aInfoUsuarios['genera_pdf'])
@@ -619,6 +630,7 @@ class BuzonController extends Controller
 
             return $datosDocumento->json();            
         }
+        */
         
     }
 

@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorCo
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
 Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
 //Route::middleware(['auth:sanctum', 'verified'])->post('files',[DocumentoBuzonArchivoController::class,'store'])->name('files.store');
-Route::middleware(['auth:sanctum', 'verified'])->get('imagenes/{filename}', [DocumentoBuzonArchivoController::class,'displayImage'])->name('imagenes.displayImage');
+Route::middleware(['auth:sanctum', 'verified'])->get('files/{filename}', [DocumentoBuzonArchivoController::class,'displayImage'])->name('imagenes.displayImage');
 
 //buzones
 Route::middleware(['auth:sanctum', 'verified'])->get('buzones',[BuzonController::class,'index'])->name('buzones.index');

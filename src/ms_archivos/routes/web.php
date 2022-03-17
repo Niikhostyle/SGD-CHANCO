@@ -13,7 +13,13 @@
 |
 */
 
+$router->group(['middleware' => ['auth']], function () use ($router){
+    $router->put('/api/sgd-archivos/generar_archivo_pdf', 'ArchivoController@generar_archivo_pdf');
+});
+
+/*
 $router->get('/api/sgd-archivos', function () use ($router) {
     //return $router->app->version();
     return "prueba lumen archivos";
 });
+*/

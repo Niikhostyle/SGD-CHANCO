@@ -1226,21 +1226,18 @@
                         dropzoneOtros.processQueue();   
                         dropzoneAnexo.processQueue();  
 
-                        toastr.success("Documento actualizado","Aviso!");
+                       // toastr.success("Documento actualizado","Aviso!");
                         
-                        $('#card_crear_documento').hide();
-                        $("#collapseOne").collapse('show');     
-                        fn_grilla_despachados();
+                        //$('#card_crear_documento').hide();
+                        //$("#collapseOne").collapse('show');     
+                        //fn_grilla_despachados();
                     }
                     console.log(accion);
                     if (accion == 2)
                     {
                         callback(data);
                         respuesta_guarda = data;
-                        console.log(data.status);
-                        //return data.status;
-                    }
-                    
+                    }                   
                         
                 }
                 else if(data.status == '201')

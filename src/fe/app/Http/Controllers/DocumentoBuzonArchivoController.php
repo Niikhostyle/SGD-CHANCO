@@ -18,6 +18,7 @@ class DocumentoBuzonArchivoController extends Controller
 {
     public function store (Request $request)
     {  
+        return $request;
         try 
             {
                 DB::beginTransaction();
