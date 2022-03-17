@@ -628,46 +628,6 @@ class BuzonController extends Controller
 
     }     
 
-    public function folio(Request $request)
-    {
-
-        $anio = date('Y');
-        $fecha = date('Y-m-d H:i:s');
-
-        //id tipo documento
-        $datosDocumento = Documento::find($request->id_documento);
-        $idTipoDocumento = $datosDocumento->id_tipo_documento;
-
-        //id buzon
-        $datosDocumentoBuzon = DocumentoBuzon::find($request->id_documento_buzon);
-        $idBuzon = $datosDocumentoBuzon->id_buzon;
-
-        //id tipo folio
-        $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
-        $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
-
-        $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-        ->timeout(30)
-        ->withBody(json_encode([
-            'id_tipo_documento' => $idTipoDocumento,
-            'anio' => $anio ,
-            'id_buzon' => $idBuzon,
-            'id_tipo_folio' => $idTipoFolio
-        ]), 'json')
-        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
-
-    }
-
-    public function deleteDocumento(Request $request) {
-        
-        //return "hola";
-        $documento = Documento::find($request->idDocumento);
-        $documento->bitacora()->delete();
-        $documento->delete();
-        return response()->json([
-        'message' => 'Documeno Eliminado'
-        ]);    
-   }
     
 
 }
