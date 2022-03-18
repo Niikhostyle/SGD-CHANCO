@@ -18,7 +18,7 @@ class DocumentoBuzonArchivoController extends Controller
 {
     public function store (Request $request)
     {  
-        return $request;
+        
         try 
             {
                 DB::beginTransaction();
@@ -39,7 +39,7 @@ class DocumentoBuzonArchivoController extends Controller
                     $nVersion = null;
                     
                     $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
-                
+
                     if ($uploadSuccess)
                     {
                         if(strlen($fileName) && $id_tipo_archivo == 1)
@@ -106,7 +106,7 @@ class DocumentoBuzonArchivoController extends Controller
         return response()->json($datosDocumentos);
     }
 
-    public function displayImage($filename)
+    public function showPdf($filename)
     {
 
        // storage_path('app/public/imagenes')

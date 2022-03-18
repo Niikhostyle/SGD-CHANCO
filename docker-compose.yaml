@@ -28,7 +28,7 @@ services:
     container_name: sgd_fe
     volumes:
       - ./src/fe:/var/www/sgd
-      - ./data/files:/var/www/sgd/src/storage/public/files
+      - ./data/files:/var/www/sgd/storage/app/public/files
       - ./configs/fe/.env:/var/www/sgd/.env
     ports: 
       - "82:80"
@@ -145,7 +145,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_archivos:/src
-      - ./data/files:/src/storage/public/files
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios

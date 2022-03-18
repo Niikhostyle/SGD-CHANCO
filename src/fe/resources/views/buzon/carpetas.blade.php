@@ -1226,13 +1226,13 @@
                         dropzoneOtros.processQueue();   
                         dropzoneAnexo.processQueue();  
 
-                       // toastr.success("Documento actualizado","Aviso!");
+                        toastr.success("Documento actualizado","Aviso!");
                         
-                        //$('#card_crear_documento').hide();
-                        //$("#collapseOne").collapse('show');     
-                        //fn_grilla_despachados();
+                        $('#card_crear_documento').hide();
+                        $("#collapseOne").collapse('show');     
+                        fn_grilla_despachados();
                     }
-                    console.log(accion);
+
                     if (accion == 2)
                     {
                         callback(data);
@@ -1326,10 +1326,7 @@
                         derivar_documento();
                     
                     if (accion == 6) //visar
-                        visar_documento();
-
-                    if (accion == 7) //firmar
-                        firmar_documento();    
+                        visar_documento();   
                 }
                 else
                 {
@@ -1479,8 +1476,6 @@
                                 $("#collapseOne").collapse('show');
                                 clear_form();
                                 fn_grilla_despachados();        
-
-                                //location.reload();
                             }
                             else
                             {
@@ -1647,7 +1642,7 @@
                 if (result.value==true) 
                 {       
                     $.ajax({
-                        url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        url: "/firmar_documento/"+hiddIdDocumentoBuzon,
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -1658,6 +1653,20 @@
                         },
                         success: function(data)
                         {
+                            console.log(data);
+                            if(data.status == '200')
+                            {
+                                toastr.success(data.data,"Aviso!");
+
+                                $('#card_crear_documento').hide();        
+                                fn_grilla_recibidos();
+                                $("#collapseOne").collapse('show');
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                            /*
                             if(data['status'] == '1')
                             {
                                 toastr.success(data['comentario'],"Aviso!");
@@ -1670,6 +1679,7 @@
                             {
                                 toastr.error(data['comentario'],"Aviso!");
                             }
+                            */
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","Aviso!");
@@ -1952,7 +1962,12 @@
                         {
                             if(data.status == '200')
                             {
-                                toastr.success("Archivo Pdf generado","Aviso!");
+                                toastr.success(data.data,"Aviso!");
+
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');     
+                                fn_grilla_despachados();
+
                             }
                             else
                             {
@@ -1977,7 +1992,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
 
-        var buttonFirmar = '<button onClick="guarda_destinatarios_documento(7)" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
+        var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
         $('#addButton').append(buttonFirmar);
         
     }
@@ -2422,7 +2437,7 @@
                             
                             htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
                             
                           // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
 

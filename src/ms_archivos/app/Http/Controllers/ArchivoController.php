@@ -13,7 +13,10 @@ use App\Models\DocumentoBuzonBitacora;
 use Illuminate\Support\Facades\DB;
 use App\Validator\DocumentoValidator;
 use App\Providers\AppServiceProvider;
-use PDF;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+
 
 class ArchivoController extends Controller{
 
@@ -25,116 +28,85 @@ class ArchivoController extends Controller{
         $this->validator = $documentoValidator;
     }
 
-    public function generar_archivo(Request $request)
-    {
-        if ($request->isJson())
-        {
-            try 
-            {
-                DB::beginTransaction();
-
-                $datosRequest = $request->json()->all();   
-                
-                $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
-
-                $datosJsonTipoDocumento['id_tipo_origen'] = 2;
-
-                $datosRequest['json_tipo_documento'] = $datosJsonTipoDocumento;
-                
-                $datosDocumento->update($datosRequest);   
-
-                DB::commit();
-
-                return $this->respondSuccess("Archivo generado", 200);
-
-            } catch (ModelNotFoundException $e) {
-                DB::rollBack();
-
-                return $this->respondError('Falla al generar archivo:' . $e->getMessage(), 500);
-            }
-        }
-        else
-            return $this->respondError('Json inválido', 406);
-
-    }
-
     public function generar_archivo_pdf(Request $request)
     { 
         try 
             {
                 DB::beginTransaction();
 
-                $datosRequest = $request->json()->all();       
-        
+                $datosRequest = $request->json()->all();     
+                
                 $nDocumento = $datosRequest['id_documento'];
                 $idDocumentoBuzon = $datosRequest['id_documento_buzon'];
+
+                $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
         
                 $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
 
                 if (!$aInfoUsuarios['genera_pdf'])
                     return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
                     
-                $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
-                ->select('cuerpo', 'encabezado','materia')
-                ->first(); 
+                $datosDocumentos = Documento::findOrFail($nDocumento); 
 
-                $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
-
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo']);
+                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                
                 $oMerger = PDFMerger::init();
-
-                $oMerger->addPDF(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
+                $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
 
                 $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
                                                 ->where('id_documento', $nDocumento)
                                                 ->where('id_tipo_archivo', 2)
                                                 ->select('nombre_archivo_codificado')
-                                                ->get(); 
-                                                                
+                                                ->get();      
+
                 foreach ($anexos as $file)
                     $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
-                
-                $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
-
-                $filePpal = 'archivo_generado_'.$nDocumento.'.pdf';    
+   
                 $oMerger->merge();
                 $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
 
                 $dFechaCreacion = date('Y-m-d H:i:s');        
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
-                {            
+                {                                
                     $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
                                                         ->where('id_tipo_archivo', 1)
                                                         ->get();
-                                    
+                
                     foreach ($docsPpales as $archFile)
-                    {
+                    {                        
                         $nSalida = $archFile->version + 1;
                         DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
                     }
-
+                    
                     DocumentoBuzonArchivo::create([
                         'id_documento_buzon' => $idDocumentoBuzon,
                         'id_tipo_archivo' => 1,
                         'nombre_archivo_original' => $nNombreArchivoCargar,
                         'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                        'version' => '1',
+                        'version' => 1,
                         'fecha' => $dFechaCreacion
                     ]);
+
+                    //registrar accion en bitacora
+
+                    $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                        'id_documento_buzon' => $idDocumentoBuzon,
+                        'id_accion' => 8,
+                        'fecha' => $dFechaCreacion,
+                        'id_usuario' => $datosRequest['id_usuario']
+                    ]);                 
                 }
 
+                
                 $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
-
                 $datosJsonTipoDocumento['id_tipo_origen'] = 2;
-
-                $datosRequest['json_tipo_documento'] = $datosJsonTipoDocumento;
-                
-                $datosDocumentos->update($datosRequest); 
-                
+                $datosDocumentos->update(['json_tipo_documento' => $datosJsonTipoDocumento]);  
+               
                 DB::commit();
 
-                return $this->respondSuccess("Archivo generado", 200);
+                return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
 
             }
             catch (ModelNotFoundException $e) {

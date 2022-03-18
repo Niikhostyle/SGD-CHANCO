@@ -757,41 +757,7 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
 
-    }
-
-    public function generar_archivo(Request $request)
-    {
-        if ($request->isJson())
-        {
-            try 
-            {
-                DB::beginTransaction();
-
-                $datosRequest = $request->json()->all();   
-                
-                $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-                $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
-
-                $datosJsonTipoDocumento['id_tipo_origen'] = 2;
-
-                $datosRequest['json_tipo_documento'] = $datosJsonTipoDocumento;
-                
-                $datosDocumento->update($datosRequest);   
-
-                DB::commit();
-
-                return $this->respondSuccess("Archivo generado", 200);
-
-            } catch (ModelNotFoundException $e) {
-                DB::rollBack();
-
-                return $this->respondError('Falla al generar archivo:' . $e->getMessage(), 500);
-            }
-        }
-        else
-            return $this->respondError('Json inválido', 406);
-
-    }
+    }   
 
 
     public function ver(Request $request)

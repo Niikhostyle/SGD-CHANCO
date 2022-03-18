@@ -473,33 +473,32 @@ class BuzonController extends Controller
 
             return $datosDocumento->json();
 
-        }
+        }        
+    }
 
-        if ($request->accion == 7) //envia a firma
+    public function firmar_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)        
+        ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
+            'id_documento_buzon'=>$id,          
+            'id_documento'=>$request->hiddIdDocumento,
+            'id_usuario'=>Auth::user()->id
+        ]);
+        /*
+        if ($datosFea['status'] == 200)
         {
+            $resFea = $this->FirmaController->firmar($request->hiddIdDocumento);
             
-            $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-            ->timeout(30)        
-            ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
-                'id_documento_buzon'=>$id,          
-                'id_documento'=>$request->hiddIdDocumento,
-                'id_usuario'=>Auth::user()->id
-            ]);
-            
-            if ($datosFea['status'] == 200)
-            {
-                $resFea = $this->FirmaController->firmar($request->hiddIdDocumento);
-                
-                return $resFea; 
-            }
-            else
-                return $datosFea->json();
+            return $resFea; 
+        }
+        else
+            return $datosFea->json();
 
-            
-            
-        } 
-
-/*
+*/
+            /*
         if ($datosDocumento['status'] == 200 && $request->accion == 7)
         {
             //llama firma electrónica 
@@ -510,7 +509,8 @@ class BuzonController extends Controller
             
         }
 */
-        
+
+        return $datosFea->json();
     }
 
     public function archivar_documento($id, Request $request)
@@ -533,9 +533,7 @@ class BuzonController extends Controller
 
     public function generar_archivo_pdf(Request $request)
     {
-       
         $sesion_key = AppServiceProvider::session_key_general();
-        $nDocumento = $request->idDocumento;
 
         $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
@@ -546,92 +544,6 @@ class BuzonController extends Controller
         ]);
 
         return $datosArchivo->json();  
-
- /*
-        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['genera_pdf']);
-
-      //  if (!$aInfoUsuarios['genera_pdf'])
-        //    return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
-            
-
-        //    
- 
-        $datosDocumentos = Documento::where('id_documento','=', $nDocumento)
-        ->select('cuerpo', 'encabezado','materia')
-        ->first(); 
-
-        $data = PDF::loadView('pdf', $datosDocumentos)->save(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
-
-        $oMerger = PDFMerger::init();
-
-        $oMerger->addPDF(storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf');
-
-        $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
-                                        ->where('id_documento', $nDocumento)
-                                        ->where('id_tipo_archivo', 2)
-                                        ->select('nombre_archivo_codificado')
-                                        ->get(); 
-                                                          
-        foreach ($anexos as $file)
-            $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
-        
-        $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
-
-        $filePpal = 'archivo_generado_'.$nDocumento.'.pdf';    
-        $oMerger->merge();
-        $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
-
-        $dFechaCreacion = date('Y-m-d H:i:s');        
-
-        if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
-        {            
-            try 
-            {
-                DB::beginTransaction();
-
-                $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $request->idDocumentoBuzon)
-                                                    ->where('id_tipo_archivo', 1)
-                                                    ->get();
-                                
-                foreach ($docsPpales as $archFile)
-                {
-                    $nSalida = $archFile->version + 1;
-                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
-                }
-
-                DocumentoBuzonArchivo::create([
-                    'id_documento_buzon' => $request->idDocumentoBuzon,
-                    'id_tipo_archivo' => 1,
-                    'nombre_archivo_original' => $nNombreArchivoCargar,
-                    'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                    'version' => '1',
-                    'fecha' => $dFechaCreacion
-                ]);  
-
-                DB::commit();
-
-            }
-            catch (ModelNotFoundException $e) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status' => 500, 
-                    'data' => [
-                        'comentario' => 'Error al generar documento PDF.'
-                ]], 500);
-            }      
-            
-            $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-            ->timeout(30)        
-            ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
-                'id_documento'=>$request->idDocumento,
-                'id_documento_buzon'=>$request->idDocumentoBuzon
-            ]);
-
-            return $datosDocumento->json();            
-        }
-        */
-        
     }
 
     public function derivarOpcion1($id, Request $request)

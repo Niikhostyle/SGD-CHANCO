@@ -17,9 +17,10 @@ class DocumentoBuzonArchivo extends Model
     protected $fillable = [
         'id_documento_buzon_archivo',
         'id_documento_buzon',
-        'url',
+        'version',
         'id_tipo_archivo',
         'nombre_archivo_original',
-        'nombre_archivo_codificado'
+        'nombre_archivo_codificado',
+        'fecha'
     ];
 }
