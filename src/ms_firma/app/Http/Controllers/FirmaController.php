@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +28,8 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea']);
-
+                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido']);
+                
                 if (!$aInfoUsuarios['aplica_fea'])
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
 
@@ -36,7 +38,7 @@ class FirmaController extends Controller
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
                                                         ->first();
-
+                
                 if($aDocumentoBuzon == null)
                     return $this->respondFail('No existe archivo para realizar firma electrónica.');
 
@@ -52,22 +54,33 @@ class FirmaController extends Controller
 
                 $classFirma = new FirmaBase($firmaDigitalConfig); 
 
-                $sDescipcion = "Descripcion de prueba";//sacar de tabla documentos
-                $nrut = '22222222';//$request['rut'];
+                $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
+                $sDescipcion = "Firmado digitalmente por " . $aInfoUsuarios['nombre'] . ' ' . $aInfoUsuarios['primer_apellido'];//sacar de tabla documentos
+                $nrut = '22222222';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
-                $sArchivo = storage_path($sPath.'TDXY-220-20220202-44527820'); //cambiar por linea sgte
-                //$sArchivo = storage_path($sPath.$request['archivo']);
-                $id_tipo_archivo = 1;//$request['id_tipo_archivo'];
-                $id_documento_buzon = 430;////$request['id_documento_buzon'];
+                $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
+                //$sArchivo = storage_path($sPath.$request['archivo']);                
+                $id_documento_buzon = $datos['id_documento_buzon'];
+
+                $layout = array(
+                    'filename' => '',
+                    'page'     => 'LAST',
+                    'llx'      => 250,
+                    'lly'      => 300,
+                    'urx'      => 350,
+                    'ury'      => 450
+                );
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
                // $nNombreArchivoCargar = $this->getNombreDocumento($id);
-
+               
                 $aRespuestaFirma = $classFirma->setRUN($nrut)                        
                             ->addPDF($sArchivo, $sDescipcion)
                             ->sign();
-                return $aRespuestaFirma;
+                
+                
+                //return $aDocumentoBuzon;
                 /* Si existe algun error */
                 if (isset($aRespuestaFirma['status'])) 
                 {
@@ -99,10 +112,11 @@ class FirmaController extends Controller
                 return $this->respondSuccess("Enviado a Firma", 200);
 
 
-            } catch (ModelNotFoundException $e) {
+            } catch (Exception $e) {
+
                 DB::rollBack();
 
-                return $this->respondError('' . $e->getMessage(), 500);
+                return $this->respondFail("Error al procesar el documento: " . $e->getMessage());
             }
         }
         else

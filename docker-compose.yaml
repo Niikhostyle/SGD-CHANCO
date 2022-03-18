@@ -129,6 +129,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_documentos:/src
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios
@@ -162,6 +163,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_bitacora:/src
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios
@@ -178,6 +180,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_buscador:/src
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios
@@ -210,6 +213,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_firma:/src
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios
@@ -226,6 +230,7 @@ services:
       - "3333"
     volumes:
       - ./src/ms_verifica:/src
+      - ./data/files:/src/storage/app/public/files
       - ./configs/ms/.env:/src/.env
     depends_on: 
       - sgd_ms_usuarios

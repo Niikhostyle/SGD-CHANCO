@@ -5,6 +5,7 @@ namespace App\Libraries;
 use Exception;
 use JWT;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 require_once('JWT.php');
 
@@ -17,6 +18,7 @@ class FirmaBase //extends FirmaDigitalBase
         if (is_array($config)) {
             foreach ($config as $param => $value) {
                 if (empty($value)) {
+                    Log::error('No se encontro el parámetro '.$param.' en la configuración'); 
                     throw new Exception("No se encontro el parámetro '{$param}' en la configuración");
                 }
             }
@@ -67,8 +69,14 @@ class FirmaBase //extends FirmaDigitalBase
                 'checksum'     => $obj['hash'],
             );
 
+            if ($layout) {
+                $layout = $this->generateLayout($layout);
+                array_merge($data, array('layout' => $layout));
+            }
+
             
-        } catch (Exception $e) {
+        } catch (Exception $e) {            
+            
             throw $e;
         }
         
@@ -99,7 +107,7 @@ class FirmaBase //extends FirmaDigitalBase
         $payload = array(
             'purpose'    => $this->purpose,
             'entity'     => $this->entity,
-            'expiration' => '2022-03-16T09:18:09',//date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
+            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
             'run'        => $this->run
         );
 
@@ -120,12 +128,14 @@ class FirmaBase //extends FirmaDigitalBase
 
     protected function getFileContent($filename)
     {
-        if ( ! file_exists($filename)) {
-            throw new Exception("Archivo no encontrado {$filename}");
+        if ( ! file_exists($filename)) {     
+            Log::error('Archivo no encontrado '.$filename);       
+            throw new Exception("Archivo no encontrado.");
         }
         $file_handler = fopen($filename, 'r');
         if ( ! $file_handler) {
-            throw new Exception("No se puede acceder al archivo {$filename}");
+            Log::error('No se puede acceder al archivo '.$filename);       
+            throw new Exception("No se puede acceder al archivo");
         }
         $fileContent = fread($file_handler, filesize($filename));
         fclose($file_handler);
@@ -149,6 +159,21 @@ class FirmaBase //extends FirmaDigitalBase
         $this->files = array();
 
         return $this;
+    }
+
+    protected function generateLayout($config)
+    {
+        try {
+            $encodedFile = $this->encodeFile($config[ 'filename' ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        return "<AgileSignerConfig><Application id=\"THIS-CONFIG\"><pdfPassword/><Signature>".
+            "<Visible active=\"true\" layer2=\"false\" label=\"true\" pos=\"1\">".
+            "<llx>{$config['llx']}</llx><lly>{$config['lly']}</lly><urx>{$config['urx']}</urx><ury>{$config['ury']}</ury>".
+            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE>{$encodedFile}</BASE64VALUE>".
+            "</Visible></Signature></Application></AgileSignerConfig>";
     }
 
 }
