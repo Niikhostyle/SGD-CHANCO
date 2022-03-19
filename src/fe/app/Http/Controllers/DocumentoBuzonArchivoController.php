@@ -106,13 +106,11 @@ class DocumentoBuzonArchivoController extends Controller
         return response()->json($datosDocumentos);
     }
 
-    public function showPdf($filename)
+    public function show($filename)
     {
-
-       // storage_path('app/public/imagenes')
-        
-        $path = storage_path('app/public/files/' . $filename);
-        
+       
+        $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
+ 
         if (!File::exists($path)) {
             abort(404);
         }

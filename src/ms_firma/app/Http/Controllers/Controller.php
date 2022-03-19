@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Documento;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class Controller extends BaseController
@@ -29,5 +30,21 @@ class Controller extends BaseController
                 'comentario' => $message
         ]], $status);
     }
+
+    public function getNombreDocumento($idDoc)
+    {
+        $datosDocumento = Documento::findOrFail($idDoc);
+               
+        $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
+
+        $nAleatorio = rand(100000,99999999);
+        $dFechaCreacion = date('Ymd');
+        $txtTipoDoc = $datosJsonTipoDocumento['nombre_corto'];
+        
+        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
+
+        return $nombreFinal;
+    }
+
     
 }

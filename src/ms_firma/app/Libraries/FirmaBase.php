@@ -68,12 +68,12 @@ class FirmaBase //extends FirmaDigitalBase
                 'description'  => $description,
                 'checksum'     => $obj['hash'],
             );
-
+            
             if ($layout) {
+                
                 $layout = $this->generateLayout($layout);
                 array_merge($data, array('layout' => $layout));
             }
-
             
         } catch (Exception $e) {            
             
@@ -107,7 +107,7 @@ class FirmaBase //extends FirmaDigitalBase
         $payload = array(
             'purpose'    => $this->purpose,
             'entity'     => $this->entity,
-            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
+            'expiration' => '2022-03-18T18:30:09',//date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
             'run'        => $this->run
         );
 
@@ -163,16 +163,16 @@ class FirmaBase //extends FirmaDigitalBase
 
     protected function generateLayout($config)
     {
-        try {
+       /* try {
             $encodedFile = $this->encodeFile($config[ 'filename' ]);
         } catch (Exception $e) {
             throw $e;
-        }
+        }*/
 
         return "<AgileSignerConfig><Application id=\"THIS-CONFIG\"><pdfPassword/><Signature>".
             "<Visible active=\"true\" layer2=\"false\" label=\"true\" pos=\"1\">".
             "<llx>{$config['llx']}</llx><lly>{$config['lly']}</lly><urx>{$config['urx']}</urx><ury>{$config['ury']}</ury>".
-            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE>{$encodedFile}</BASE64VALUE>".
+            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE></BASE64VALUE>".
             "</Visible></Signature></Application></AgileSignerConfig>";
     }
 

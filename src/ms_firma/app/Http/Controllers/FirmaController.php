@@ -42,8 +42,6 @@ class FirmaController extends Controller
                 if($aDocumentoBuzon == null)
                     return $this->respondFail('No existe archivo para realizar firma electrónica.');
 
-                /* AQUI DEBE IR CODIGO DE FEA */ 
-
                 $firmaDigitalConfig = array(
                     'api'       => env('PLCSGD_API_URL'),
                     'purpose'   => env('PLCSGD_API_PURPOSE'),
@@ -56,14 +54,14 @@ class FirmaController extends Controller
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado digitalmente por " . $aInfoUsuarios['nombre'] . ' ' . $aInfoUsuarios['primer_apellido'];//sacar de tabla documentos
-                $nrut = '22222222';//$aInfoUsuarios['run']
+                $nRut = '22222222';//'18658044';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
 
                 $layout = array(
-                    'filename' => '',
+                    //'filename' => 'imagen de repaldo',
                     'page'     => 'LAST',
                     'llx'      => 250,
                     'lly'      => 300,
@@ -73,43 +71,85 @@ class FirmaController extends Controller
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-               // $nNombreArchivoCargar = $this->getNombreDocumento($id);
+                $nNombreArchivoCargar = '001'.$this->getNombreDocumento($datos['id_documento']);
                
-                $aRespuestaFirma = $classFirma->setRUN($nrut)                        
-                            ->addPDF($sArchivo, $sDescipcion)
-                            ->sign();
+                $aRespuestaFirma = $classFirma->setRUN($nRut)                        
+                                              ->addPDF($sArchivo, $sDescipcion, $layout)
+                                              ->sign();                
                 
-                
-                //return $aDocumentoBuzon;
-                /* Si existe algun error */
                 if (isset($aRespuestaFirma['status'])) 
                 {
-                    return array('status' => 0, 'comentario' => $aRespuestaFirma['error']);
+                    return $this->respondFail("Error al generar Firma electónica: " . $aRespuestaFirma['error']);//array('status' => 0, 'comentario' => $aRespuestaFirma['error']);
                     //return $aRespuestaFirma['error'];     
                 }
-                else
-                    return array('status' => 1, 'comentario' => 'Firma OK');
-
-
-
-                //$this->firmar($datos['id_documento']);
-
-                /*
-                //actualizar estado
-                DocumentoBuzon::find($datos["id_documento_buzon"])->update(['id_estado_documento' => 9]);
                 
-                //registrar accion en bitacora
+                if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
+                {
+                    $responseFile = $aRespuestaFirma['files'][0];            
+                    if($responseFile['status'] == 'OK') 
+                    {
+                        $encondedFile = $responseFile['content'];  
+                        //$storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
+                        
+                        $decodedFile = base64_decode($encondedFile, true);
+                        if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
+                            return $this->respondFail("Error de codificación en archivo firmado.");
+                            //return array('status' => 0, 'comentario' => 'Error de codificación en archivo firmado.');
+                        }                
 
-                $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                    'id_documento_buzon' => $datos["id_documento_buzon"],
-                    'id_accion' => 7,
-                    'fecha' => date('Y-m-d H:i:s'),
-                    'id_usuario' => $datos['id_usuario']
-                ]); 
-                */
+                        $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargar),'w+');
+                        if (!$pdf)
+                            return $this->respondFail("Error al generar firma electónica, no se pudo crear archivo firmado. ");
+                            //return array('status' => 0, 'comentario' => 'No se pudo crear archivo firmado.');         
+                        
+                        fwrite ($pdf, $decodedFile);
+                        fclose ($pdf);
+                        
+                        if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargar)))
+                        {
+                            return $this->respondFail("Error al generar Firma electónica, no se encuentra el archivo firmado. ");
+                            
+                            //return array('status' => 0, 'comentario' => 'No se encuentra el archivo firmado');         
+                        }
+                        
+                        //actualizar archivo firmado
+                        if($aDocumentoBuzon['id_tipo_archivo'] == 1)
+                        {
+                            $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
+                                                        ->where('id_tipo_archivo', 1)
+                                                        ->get();
+                
+                            foreach ($docsPpales as $archFile)
+                            {                        
+                                $nSalida = $archFile->version + 1;
+                                DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                            }
+
+                            DocumentoBuzonArchivo::create([
+                                'id_documento_buzon' => $id_documento_buzon,
+                                'id_tipo_archivo' => 1,
+                                'nombre_archivo_original' => $sNombreArchivo, 
+                                'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                                'fecha' => $dFechaCreacion,
+                                'version' => 1
+                            ]); 
+                            
+                            //registrar accion en bitacora
+
+                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                                'id_documento_buzon' => $id_documento_buzon,
+                                'id_accion' => 7,
+                                'fecha' => $dFechaCreacion,
+                                'id_usuario' => $datos['id_usuario']
+                            ]);   
+                        }               
+                            
+                    }
+                }
+
                 DB::commit();
                 
-                return $this->respondSuccess("Enviado a Firma", 200);
+                return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
 
 
             } catch (Exception $e) {
@@ -125,117 +165,5 @@ class FirmaController extends Controller
 
     }
 
-    public function firmar($id)
-    {
-        return "firma";
-        
-        //inicialización con datos de conf de fea autorizada
-        $firmaDigitalConfig = array(
-            'api'       => config('app.sgd_url'),
-            'purpose'   => config('app.sgd_proposito'),
-            'entity'    => config('app.sgd_entidad'),
-            'tokenKey'  => config('app.sgd_token_key'),
-            'secretKey' => config('app.sgd_secreto')
-        );
 
-        $classFirma = new FirmaBase($firmaDigitalConfig); 
-
-        $sDescipcion = "Descripcion de prueba";//sacar de tabla documentos
-        $nrut = '22222222';//$request['rut'];
-        $sPath = config('app.path_upload') . '/';
-        $sArchivo = storage_path($sPath.'TDXY-220-20220202-44527820'); //cambiar por linea sgte
-        //$sArchivo = storage_path($sPath.$request['archivo']);
-        $id_tipo_archivo = 1;//$request['id_tipo_archivo'];
-        $id_documento_buzon = 430;////$request['id_documento_buzon'];
-
-        $dFechaCreacion = date('Y-m-d H:i:s');
-
-        $nNombreArchivoCargar = $this->getNombreDocumento($id);
-
-        $aRespuestaFirma = $classFirma->setRUN($nrut)                        
-                    ->addPDF($sArchivo, $sDescipcion)
-                    ->sign();
-        
-        /* Si existe algun error */
-        if (isset($aRespuestaFirma['status'])) 
-        {
-            return array('status' => 0, 'comentario' => $aRespuestaFirma['error']);
-            //return $aRespuestaFirma['error'];     
-        }
-        
-        if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
-        {
-            $responseFile = $aRespuestaFirma['files'][0];            
-            if($responseFile['status'] == 'OK') 
-            {
-                $encondedFile = $responseFile['content'];  
-                //$storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
-                
-                $decodedFile = base64_decode($encondedFile, true);
-                if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
-                    return array('status' => 0, 'comentario' => 'Error de codificación en archivo firmado.');
-                }                
-
-                $pdf = fopen (storage_path($sPath.$nNombreArchivoCargar),'w+');
-                if (!$pdf)
-                    return array('status' => 0, 'comentario' => 'No se pudo crear archivo firmado.');         
-                
-                fwrite ($pdf, $decodedFile);
-                fclose ($pdf);
-                
-                if (!file_exists(storage_path($sPath.$nNombreArchivoCargar)))
-                {
-                    return array('status' => 0, 'comentario' => 'No se encuentra el archivo firmado');         
-                }
-                
-                //actualizar archivo firmado
-
-                if($id_tipo_archivo == 1)
-                {
-                    try 
-                    {
-                        DB::beginTransaction();
-                        $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
-                                                ->where('id_tipo_archivo', 1)
-                                                ->get();
-                        
-                        foreach ($docsPpales as $archFile)
-                        {
-                            $nSalida = $archFile->version + 1;
-                            DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
-                        }
-
-                        $nVersion = 1;
-
-                        DocumentoBuzonArchivo::create([
-                            'id_documento_buzon' => $id_documento_buzon,
-                            'id_tipo_archivo' => $id_tipo_archivo,
-                            'nombre_archivo_original' => 'TDXY-220-20220202-44527820.pdf', //cambiar por parametro
-                            'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                            'fecha' => $dFechaCreacion,
-                            'version' => $nVersion
-                        ]);    
-
-                        DB::commit();
-
-                        return array(
-                            'status'  => 1,
-                            'comentario' => 'Archivo firmado almacenado exitosamente.',
-                            'file'    => $nNombreArchivoCargar,
-                        );
-
-                    }
-                    catch (ModelNotFoundException $e) {
-                        DB::rollBack();
-
-                        return array(
-                            'status' => 500, 
-                            'comentario' => 'Error al guardar documento firmado.'
-                        );
-                    }
-                }               
-                    
-            }
-        }
-    }
 }

@@ -23,20 +23,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
-use App\Libraries\FirmaBase;
-use App\Http\Controllers\FirmaController;
 
 
 class BuzonController extends Controller
 {
-    protected $FirmaController;
-
-    public function __construct(FirmaController $FirmaController)
-    {
-
-        $this->FirmaController = $FirmaController;
-    }
-
     public function index(){
 
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -487,29 +477,7 @@ class BuzonController extends Controller
             'id_documento'=>$request->hiddIdDocumento,
             'id_usuario'=>Auth::user()->id
         ]);
-        /*
-        if ($datosFea['status'] == 200)
-        {
-            $resFea = $this->FirmaController->firmar($request->hiddIdDocumento);
-            
-            return $resFea; 
-        }
-        else
-            return $datosFea->json();
-
-*/
-            /*
-        if ($datosDocumento['status'] == 200 && $request->accion == 7)
-        {
-            //llama firma electrónica 
-
-            $fea = FirmaBase::index($id);
-
-            return $fea;
-            
-        }
-*/
-
+        
         return $datosFea->json();
     }
 
