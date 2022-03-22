@@ -72,7 +72,10 @@ class FirmaBase //extends FirmaDigitalBase
             if ($layout) {
                 
                 $layout = $this->generateLayout($layout);
-                array_merge($data, array('layout' => $layout));
+
+                $aLayout = array('layout' => $layout);
+
+                $resultLayout = array_merge($data, $aLayout);
             }
             
         } catch (Exception $e) {            
@@ -80,7 +83,7 @@ class FirmaBase //extends FirmaDigitalBase
             throw $e;
         }
         
-        array_push($this->files, $data);
+        array_push($this->files, $resultLayout);
 
         return $this;
     }
@@ -107,7 +110,7 @@ class FirmaBase //extends FirmaDigitalBase
         $payload = array(
             'purpose'    => $this->purpose,
             'entity'     => $this->entity,
-            'expiration' => '2022-03-18T18:30:09',//date('Y-m-d\TH:i:s', strtotime('+29 minutes')),//'2022-03-14T16:50:09',
+            'expiration' => date('Y-m-d\TH:i:s', strtotime('+29 minutes')),
             'run'        => $this->run
         );
 
@@ -163,16 +166,17 @@ class FirmaBase //extends FirmaDigitalBase
 
     protected function generateLayout($config)
     {
-       /* try {
-            $encodedFile = $this->encodeFile($config[ 'filename' ]);
+        try {
+            $encodedFile = $this->encodeFile($config['filename']);
+            //$encodedFile = base64_encode('/src/storage/logo-min.png');
         } catch (Exception $e) {
             throw $e;
-        }*/
+        }
 
         return "<AgileSignerConfig><Application id=\"THIS-CONFIG\"><pdfPassword/><Signature>".
             "<Visible active=\"true\" layer2=\"false\" label=\"true\" pos=\"1\">".
             "<llx>{$config['llx']}</llx><lly>{$config['lly']}</lly><urx>{$config['urx']}</urx><ury>{$config['ury']}</ury>".
-            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE></BASE64VALUE>".
+            "<page>{$config['page']}</page><image>BASE64</image><BASE64VALUE>{$encodedFile}</BASE64VALUE>".
             "</Visible></Signature></Application></AgileSignerConfig>";
     }
 

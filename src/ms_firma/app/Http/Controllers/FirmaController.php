@@ -59,28 +59,27 @@ class FirmaController extends Controller
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-
+                
                 $layout = array(
-                    //'filename' => 'imagen de repaldo',
+                    'filename' => storage_path('logo_firma.png'),
                     'page'     => 'LAST',
-                    'llx'      => 250,
-                    'lly'      => 300,
-                    'urx'      => 350,
-                    'ury'      => 450
+                    'llx'      => 130,
+                    'lly'      => 30,
+                    'urx'      => 500,
+                    'ury'      => 200
                 );
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-                $nNombreArchivoCargar = '001'.$this->getNombreDocumento($datos['id_documento']);
+                $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']);
                
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();                
-                
+
                 if (isset($aRespuestaFirma['status'])) 
                 {
-                    return $this->respondFail("Error al generar Firma electónica: " . $aRespuestaFirma['error']);//array('status' => 0, 'comentario' => $aRespuestaFirma['error']);
-                    //return $aRespuestaFirma['error'];     
+                    return $this->respondFail("Error al generar Firma electónica: " . $aRespuestaFirma['error']);
                 }
                 
                 if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
@@ -89,18 +88,15 @@ class FirmaController extends Controller
                     if($responseFile['status'] == 'OK') 
                     {
                         $encondedFile = $responseFile['content'];  
-                        //$storeResp = $this->storeSignedFile($encondedFile, storage_path('app/public/files/principal_220_.pdf'));
                         
                         $decodedFile = base64_decode($encondedFile, true);
                         if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
                             return $this->respondFail("Error de codificación en archivo firmado.");
-                            //return array('status' => 0, 'comentario' => 'Error de codificación en archivo firmado.');
                         }                
 
                         $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargar),'w+');
                         if (!$pdf)
                             return $this->respondFail("Error al generar firma electónica, no se pudo crear archivo firmado. ");
-                            //return array('status' => 0, 'comentario' => 'No se pudo crear archivo firmado.');         
                         
                         fwrite ($pdf, $decodedFile);
                         fclose ($pdf);
@@ -108,8 +104,6 @@ class FirmaController extends Controller
                         if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargar)))
                         {
                             return $this->respondFail("Error al generar Firma electónica, no se encuentra el archivo firmado. ");
-                            
-                            //return array('status' => 0, 'comentario' => 'No se encuentra el archivo firmado');         
                         }
                         
                         //actualizar archivo firmado
@@ -132,10 +126,9 @@ class FirmaController extends Controller
                                 'nombre_archivo_codificado' => $nNombreArchivoCargar,
                                 'fecha' => $dFechaCreacion,
                                 'version' => 1
-                            ]); 
-                            
-                            //registrar accion en bitacora
+                            ]);                           
 
+                            //registrar accion en bitacora
                             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $id_documento_buzon,
                                 'id_accion' => 7,

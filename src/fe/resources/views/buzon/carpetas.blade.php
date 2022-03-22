@@ -597,6 +597,7 @@
 
         .carousel-control-next, .carousel-control-prev { border: 0; }
 
+        
      </style>
 @stop
 
@@ -868,6 +869,15 @@
            // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
     };
+
+    $(".boton_desplegar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').show();
+        $('#card_desplegar_versiones').hide();
+    });
+    $(".boton_ocultar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+    });
 
     /* **DOCUMENTOS** SCRIPT */
 /*
@@ -2415,7 +2425,8 @@
                         aFilesPrincipal = [];
                         aFilesDelete = [];                  
 
-                        $.each(relDocumentoBuzonArchivo, function(key,value){
+                        $.each(relDocumentoBuzonArchivo, function(key,value)
+                        {
                             
                           /*  let mockFile = { name: value.nombre_archivo_original, size: 1024 };
 
@@ -2433,13 +2444,13 @@
                             //a.innerHTML = "Descargar";
                             mockFile.previewTemplate.appendChild(a);
                            
-*/                            
-                            
-                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                            */ 
                             
                           // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
+
+                          htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
 
                            /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
@@ -2459,6 +2470,8 @@
                             
                             if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
+
+                            //versiones anteriores    
 
                         });
                        
@@ -2828,20 +2841,28 @@
                 { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                 { data: 'identificador', name: 'documento.identificador' },
                 { data: 'fecha_envio_recepcion', 
+                            render: function(data, type, row)
+                            {
+                                if(data == null)
+                                    return '';
+                                else
+                                { 
+                                    if (row.id_estado_documento == 2)
+                                        return moment(data).format('DD-MM-YYYY HH:mm');
+                                }
+
+                                return '';
+                            }
+                },
+                { data: 'fecha_envio_recepcion',
                             render: function(data)
                             {
                                 if(data == null)
                                     return '';
-                                else 
-                                    return moment(data).format('DD-MM-YYYY HH:mm');
+                                else    
+                                    return moment(data).format('DD-MM-YYYY HH:mm');                           
                             }
-                },
-                { data: 'estado_documento',
-                            render: function(data)
-                            {
-                                return '';                                
-                            }
-                }, //cambiar, prueba
+                }, 
                 { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                 { data: 'destinatario', 
                             render: function(data, type, row) {

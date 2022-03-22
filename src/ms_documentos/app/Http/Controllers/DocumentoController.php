@@ -61,10 +61,11 @@ class DocumentoController extends Controller{
                 $anio = date('Y');
                 
                 $idTipoFolio = $msVerTipoDoc['data']['id_tipo_folio'];
-                //return $idTipoFolio;
+
                 /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
+                
                 if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
-                    //$nFolio = rand(); //DEBE RETORNAR VALOR CORRESPONDIENTE DEL SERVICIO 
+                { 
                     $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                     ->timeout(30)
                     ->withBody(json_encode([
@@ -74,8 +75,7 @@ class DocumentoController extends Controller{
                         'id_tipo_folio' =>  $idTipoFolio,
                     ]), 'json')
                     ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
-                    
-                //return $nFolio;
+                }
                 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
@@ -98,7 +98,7 @@ class DocumentoController extends Controller{
                         //$datosRequest['json_respuesta_a'] = json_encode($jsonRespuesta);
                     }
                 }
-               //return "hola";
+
                 $documento = Documento::create([
                     'id_tipo_documento' => $datosDocumento['id_tipo_documento'],
                     'id_nivel_acceso' => $datosDocumento['id_nivel_acceso'],
@@ -111,7 +111,7 @@ class DocumentoController extends Controller{
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
                     'fecha' => $dFechaCreacion,
-                    'hash_validacion' => 'XyZ987',
+                    'hash_validacion' => '',
                     'folio' => $nFolio                    
                 ]);
 
@@ -124,7 +124,7 @@ class DocumentoController extends Controller{
                     'id_estado_documento' => 1,
                     'id_tipo_destino' => 1,
                     'id_documento_buzon_padre' => null,
-                    //'fecha' => $dFechaCreacion,
+                    'fecha' => $dFechaCreacion,
                     'contestar_hasta' => $datosDocumento['contestar_hasta'],
                     'notificado' => false,
                     'recibido' => false,
@@ -178,12 +178,12 @@ class DocumentoController extends Controller{
                 //1: actualiza documento
                 //2: crea o actualiza dest principal
                 //3: elimina dest secundario y crea nuevamente
-
                 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
 
                 if ($datosDocumento->id_documento != '')
                 {   
+                    $dFechaCreacion = date('Y-m-d H:i:s');
                     if ($datosRequest['opcionGuardar'] != 1 || $datosRequest['opcionGuardar'] == null || $datosRequest['opcionGuardar'] == '')
                     {
                         //actualizar json - agregar orden 0 si corresponde para flujo controlado
@@ -240,6 +240,13 @@ class DocumentoController extends Controller{
                         if ($datosRequest['carpeta'] == 2) //actualiza estado si se edita, se deja en pendiente
                         {
                             DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
+
+                            DocumentoBuzonBitacora::create([
+                                'id_documento_buzon' => $datosRequest["id_documento_buzon"],
+                                'id_accion' => 4,
+                                'fecha' => $dFechaCreacion,
+                                'id_usuario' => $datosRequest['id_usuario']
+                            ]);   
                         }
 
                         if ($datosRequest['carpeta'] == 3 && $datosJsonTipoDocumento['id_tipo_flujo'] == 1)
@@ -268,7 +275,7 @@ class DocumentoController extends Controller{
                         $datosDocumento->update($datosRequest);
                     }
 
-                    $dFechaCreacion = date('Y-m-d H:i:s');                   
+                                       
                     
                     //si viene destinatario principal se agrega un registro
                     
@@ -295,24 +302,18 @@ class DocumentoController extends Controller{
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],
                                 'id_carpeta' => 1,
                                 'id_estado_documento' => 1,
-                                //'fecha' => $dFechaCreacion,
+                                'fecha' => $dFechaCreacion,
                                 'json_acciones'=> json_encode($jsonAcciones),
                                 'comentario_principal' => $datosRequest['comentarioPrincipal'], 
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
                                 'notificado' => false,
                                 'recibido' => false,
                                 'favorito' => false    
-                            ]);
-
-                            
+                            ]);                            
                         }
 
                         if ($datosRequest['carpeta'] == 2) //recibidos
                         {
-                            
-
-                           
-
                             $documentoBuzon = DocumentoBuzon::updateOrCreate([
                                 'id_documento' => $datosRequest['id_documento'],
                                 'id_tipo_destino' => 1,
@@ -322,7 +323,7 @@ class DocumentoController extends Controller{
                             ],[
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],                                
                                 'id_estado_documento' => 4,
-                                //'fecha' => $dFechaCreacion,
+                                'fecha' => $dFechaCreacion,
                                 'json_acciones'=> json_encode($jsonAcciones),
                                 'comentario_principal' => $datosRequest['comentarioPrincipal'], 
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
@@ -342,8 +343,7 @@ class DocumentoController extends Controller{
                     $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
 
                     if ($datosRequest['carpeta'] == 2) //recibidos
-                    {
-                        
+                    {                        
                         //eliminar segun criterios y crear nuevamente
                         DocumentoBuzon::where([
                             'id_documento' => $datosRequest['id_documento'],
@@ -366,7 +366,7 @@ class DocumentoController extends Controller{
                                     'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
-                                    //'fecha' => $dFechaCreacion,
+                                    'fecha' => $dFechaCreacion,
                                     'contestar_hasta' => $datosRequest['contestar_hasta'],
                                     'notificado' => false,
                                     'recibido' => false,
@@ -400,7 +400,7 @@ class DocumentoController extends Controller{
                                     'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                                     'json_acciones'=> json_encode($jsonAcciones),
                                     'comentario_secundario' => $datosRequest['comentarioOtros'], 
-                                    //'fecha' => $dFechaCreacion,
+                                    'fecha' => $dFechaCreacion,
                                     'contestar_hasta' => $datosRequest['contestar_hasta'],
                                     'notificado' => false,
                                     'recibido' => false,
@@ -532,7 +532,7 @@ class DocumentoController extends Controller{
                     
                     $datosFlujoJson->update(['json_tipo_documento' => json_encode($datosJsonTipoDocumento)]);                     
                     
-                    //agregar si estado actual es 11 dejar final como 12 y estado 9dejar como 10
+                    //agregar si estado actual es 11 dejar final como 12 y estado 9 dejar como 10
                     //$estadoDocumentoFinal = 7;        
                     $estadoDocumentoActual = array('4','9','11'); //"4,9,11"; deberia ir con whereIn  
                     
@@ -624,7 +624,6 @@ class DocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-
                
                 $dFecha = date('Y-m-d H:i:s');
 

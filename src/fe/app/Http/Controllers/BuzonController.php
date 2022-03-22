@@ -545,8 +545,8 @@ class BuzonController extends Controller
                     ->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
                     //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
                     /*->leftJoin('documento_buzon_bitacora', function ($join) {
-                        $join->on('documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
-                             ->where('documento_buzon_bitacora.id_accion', '=', 2);
+                        $join->on('documento_buzon_bitacora.id_documento_buzon', '=', DB::raw('(select id_documento_buzon from documento_buzon db4 where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon)'))
+                             ->on('documento_buzon_bitacora.id_accion', '=', 3);
                     })*/
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
@@ -559,6 +559,8 @@ class BuzonController extends Controller
                         'estado_documento.nombre_corto as estado_documento',                        
                         'documento.fecha as fecha_creacion', 
                         'documento_buzon.fecha as fecha_envio_recepcion',
+                        'documento_buzon.updated_at as fecha_envio',
+                        //'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
@@ -583,7 +585,7 @@ class BuzonController extends Controller
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
 
-                    $datos->orderBy('documento.identificador','desc');
+                    //$datos->orderBy('documento.identificador','desc');
 
                return datatables( $datos )->toJson();
 

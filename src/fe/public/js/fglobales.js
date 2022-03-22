@@ -170,7 +170,7 @@ function cargar_datos_grilla(id_documento)
                     {   
                         htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                     ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                        '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                        '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
                             
                         if (value.id_tipo_archivo == 2) //anexo
                             htmlFileAnexo += htmlFile + '</div>';       
