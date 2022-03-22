@@ -1650,7 +1650,11 @@
                 }).then((result) => {
                     console.log(result);
                 if (result.value==true) 
-                {       
+                {  
+                    $('.btn-recibir-submit').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmar'
+                    );
+
                     $.ajax({
                         url: "/firmar_documento/"+hiddIdDocumentoBuzon,
                         type: 'PUT',
@@ -1690,11 +1694,18 @@
                                 toastr.error(data['comentario'],"Aviso!");
                             }
                             */
+
+                            $('.btn-recibir-submit').html( 'Firmar' );
+
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","Aviso!");
+
+                            $('.btn-recibir-submit').html( 'Firmar' );
                         }
                     });
+
+                    
                 }
             }) 
     }
@@ -2017,8 +2028,8 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
 
-        var buttonFirmar = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
-        $('#addButton').append(buttonFirmar);
+        var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
+        $('#addButton').append(buttonFinaliza);
         
     }
 

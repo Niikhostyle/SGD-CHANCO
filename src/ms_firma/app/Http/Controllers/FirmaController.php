@@ -126,7 +126,10 @@ class FirmaController extends Controller
                                 'nombre_archivo_codificado' => $nNombreArchivoCargar,
                                 'fecha' => $dFechaCreacion,
                                 'version' => 1
-                            ]);                           
+                            ]); 
+                            
+                            //actualiza estado
+                            DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
 
                             //registrar accion en bitacora
                             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([

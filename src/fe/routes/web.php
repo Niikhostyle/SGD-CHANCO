@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
-use App\Http\Controllers\FirmaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +98,3 @@ Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1Externo',[Bu
 Route::middleware(['auth:sanctum', 'verified'])->put('accion_editarExterno/{id}',[BuzonUsuarioExternoController::class,'accion_editar_documento'])->name('documentosExterno.editar');
 Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno',[BuzonUsuarioExternoController::class,'generar_archivo_pdf'])->name('documentosExterno.generar');
 
-
-//FEA
-Route::middleware(['auth:sanctum', 'verified'])->get('firmar/{id}',[FirmaController::class,'firmar'])->name('firmar.firmar');
