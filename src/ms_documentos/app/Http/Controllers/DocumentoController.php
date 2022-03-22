@@ -651,24 +651,42 @@ class DocumentoController extends Controller{
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                     $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+                    
+                    $datosJsonAcciones = json_decode($datosDocBuzon['json_acciones'],true);
+                    
+
+                    foreach($datosJsonAcciones as $accion)
+                    {
+                        $idAccion = $accion['id_accion'];
+                    }
+                    
 
                     if ( $idTipoAsigFolio == 2)
-                    {                       
-                        $anio = date('Y');
-                        $fecha = date('Y-m-d H:i:s');
 
-                        $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-                        ->timeout(30)
-                        ->withBody(json_encode([
-                            'id_tipo_documento' => $idTipoDocumento,
-                            'anio' => $anio ,
-                            'id_buzon' => $datosRequest['id_buzon'],
-                            'id_tipo_folio' => $idTipoFolio
-                        ]), 'json')
-                        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
- 
-                        Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                        Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
+                    {                       
+                    
+                        if ($idAccion == 9) //cambiar id_accion a 9
+                        {
+                    
+                            $anio = date('Y');
+                            $fecha = date('Y-m-d H:i:s');
+
+                            $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                            ->timeout(30)
+                            ->withBody(json_encode([
+                                'id_tipo_documento' => $idTipoDocumento,
+                                'anio' => $anio ,
+                                'id_buzon' => $datosRequest['id_buzon'],
+                                'id_tipo_folio' => $idTipoFolio
+                            ]), 'json')
+                            ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                            //return $nFolio;  
+                            Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
+                            //return "hola";
+
+                        }
+
                     }
             
                 }

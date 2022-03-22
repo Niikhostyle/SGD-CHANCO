@@ -552,13 +552,15 @@
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
+                            
                             if(data==null){
                                 return '';
                             }else{
                                 //console.log(row.list_usuarios.toString());   
                                 //var salida = row.list_usuarios.split(',');          
                                /// console.log(salida[1]);
-                                    
+                               //var relDocumentoBuzonArchivo = data.data.rel_archivos;
+                               //console.log(relDocumentoBuzonArchivo);
                                 let botonera = '<div class="dropdown">';
                                 let botonera_confidencial = '<div class="dropdown">';
                                 
@@ -575,13 +577,13 @@
                                         if(row.id_nivel_acceso == 1 )
                                             {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')" ><i class="fas fa-download text-blue"></i> Descargar</a>';
 
                                             }   
                                         if(row.id_nivel_acceso == 2 )
                                         {
                                         botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"><i class="fas fa-download text-blue"></i> Descargar</a>';
                                         }
                                         if(row.id_nivel_acceso == 3)
                                         {   
@@ -602,7 +604,8 @@
                                             }
                                             if (acciones==true){
                                                 botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                                botonera +=' <a class="dropdown-item btn-menu-ver" href="/imagenes/'+row.nombre_archivo_codificado+'"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"  ><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                                
                                             }
                                             //console.log(acciones)
                                             if(acciones==false){
@@ -689,6 +692,45 @@
         }
     }
    
+
+    function descargar_documento( id_documento, id_documento_buzon)
+    {
+        
+        //var _token = $("input[name='_token']").val();
+
+        $.ajax({
+            url: "/descargar_documento2/",
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                
+                idDocumento:id_documento,
+                idDocumentoBuzon:id_documento_buzon             
+            },
+            success: function(data){
+               //console.log(data);
+                //window.location = '/files/principal_191_.pdf' ;
+                window.location = data.data ;
+                //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
+                
+                 
+                 if(data.status=='200'){
+                    window.location = data.data;
+                    
+                }
+                else
+                
+                {
+                    toastr.error(data.data.comentario,"Aviso!")
+                    //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
+                }
+                 
+                
+            }
+        });
+         
+             
+    }
  
 </script>
 @stop

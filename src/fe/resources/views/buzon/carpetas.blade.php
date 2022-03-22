@@ -2150,7 +2150,9 @@
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
+
                         $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
 
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
@@ -2583,6 +2585,7 @@
 
     function eliminar_despachados(identificador){
         alert(identificador)
+     
     }
 
 
