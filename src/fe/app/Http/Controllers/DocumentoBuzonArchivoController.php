@@ -105,7 +105,7 @@ class DocumentoBuzonArchivoController extends Controller
         return response()->json($datosDocumentos);
     }
 
-    public function displayImage($filename)
+    public function show($filename)
     {
 
        // storage_path('app/public/imagenes')

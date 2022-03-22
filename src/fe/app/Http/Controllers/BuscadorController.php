@@ -2,13 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Documento;
+use App\Models\DocumentoBuzon;
+use App\Models\DocumentoBuzonArchivo;
+use App\Models\DocumentoBuzonArchivoDescarga;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use League\CommonMark\Node\Block\Document;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
+
+use PDF;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+
 
 class BuscadorController extends Controller
 {
@@ -174,15 +185,50 @@ class BuscadorController extends Controller
         , buzon_origen
         , buzon_actual     
     order by d.identificador desc");
+    
                     
         return datatables( $datos )->toJson();
 
 
     }    
-                    
-   
-   
-           
 
+    public function descargar(Request $request)
+    {
+        $nDocumento =  $request->idDocumento;
+
+        $archivo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                        ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                                        ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                                        ->where('id_documento', $nDocumento)
+                                        ->where('id_tipo_archivo', 1)
+                                        ->where('version', 1)
+                                        ->select(
+                                            'nombre_archivo_codificado',
+                                            'id_documento_buzon_archivo',
+                                            'buzon_usuario.id_buzon_usuario as id_buzon_usuario'
+
+                                        )
+                                        ->get();   
+                                     
+        $dFechaCreacion = date('Y-m-d H:i:s'); 
+        foreach ($archivo as $file)
+            $nombre = $file->nombre_archivo_codificado;                              
+            DocumentoBuzonArchivoDescarga::create([
+                'id_documento_buzon_archivo' => $file['id_documento_buzon_archivo'],
+                'id_buzon_usuario' =>  $file['id_buzon_usuario'],
+                'fecha' => $dFechaCreacion 
+            ]); 
+              
+        $ruta = storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf';
+        //$ruta = storage_path('app/public/files/'). $nombre;
+       
+        //return response()->download($ruta, $nombre);
+
+        $result = array('status' => '200', 'data' => array('data' => $ruta));
+
+        return response()->json($result, '200');  
+
+    }
+   
 
 }
