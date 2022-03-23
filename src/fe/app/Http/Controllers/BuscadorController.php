@@ -220,7 +220,7 @@ class BuscadorController extends Controller
             ]); 
               
         //$ruta = ('files/') . 'principal_'.$nDocumento.'_.pdf';
-        $ruta = storage_path('app/public/files/'). $nombre;
+        $ruta = ('files/'). $nombre;
        
         //return response()->download($ruta, $nombre);
 
