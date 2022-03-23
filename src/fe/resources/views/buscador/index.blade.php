@@ -713,7 +713,8 @@
                 if(data.status=='200')
                     {
                         console.log("hola");
-                        window.location = (data.data.data) ;
+                        //window.location = (data.data.data);
+                        window.open(data.data.data, 'Download');
                     }
                
                      
