@@ -47,10 +47,23 @@ class ArchivoController extends Controller{
                     return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
                     
                 $datosDocumentos = Documento::findOrFail($nDocumento); 
-
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo']);
-                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 
+                //reemplazar valores en encabezado
+                //Nº {t_folio} {t_anio} {t_fecha}
+
+                $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");                
+                $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
+
+                $sEncabezado = $datosDocumentos['encabezado'];
+
+                $sEncabezado = str_replace('{t_folio}', $datosDocumentos['folio'], $sEncabezado);
+                $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
+                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
+
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentos['cuerpo']);                
+
+                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                //ver cuantas paginas tiene para poner firma
                 $oMerger = PDFMerger::init();
                 $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
 

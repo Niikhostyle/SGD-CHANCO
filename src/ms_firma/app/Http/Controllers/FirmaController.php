@@ -69,7 +69,7 @@ class FirmaController extends Controller
                 ->where('documento_buzon_bitacora.id_accion', 7)
                 ->get();
 
-                if (count($datosBitacora) == 0)
+                if (count($datosBitacora) == 0) //firma 1
                 {
                     $n_llx = 60;
                     $n_lly = 50;
@@ -77,7 +77,7 @@ class FirmaController extends Controller
                     $n_ury =100;
                 }
 
-                if (count($datosBitacora) > 0)
+                if (count($datosBitacora) > 0) //firma 2 - pendiente firma 3 y 4
                 {
                     $n_llx = 350;
                     $n_lly = 50;
