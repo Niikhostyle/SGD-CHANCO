@@ -266,14 +266,14 @@ class BuzonController extends Controller
 
         foreach ($datosFlujoAccion as $dato)
         {
-            if ($dato['id_accion'] != 9)
-            {
+            //if ($dato['id_accion'] != 9) //revisar caso
+            //{
                 if ($dato['id_tipo_flujo'] == 2) //Controlado
                     $aFlujoAccionT2[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
 
                 if ($dato['id_tipo_flujo'] == 3) //Mixto
                     $aFlujoAccionT3[] = array($dato['id_accion'], $aAcciones[$dato['id_accion']]);
-            }
+            //}
         }
 
         $datosBuzon = $this->show($id); //muestra metodo show
