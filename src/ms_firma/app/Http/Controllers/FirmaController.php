@@ -33,7 +33,8 @@ class FirmaController extends Controller
                 if (!$aInfoUsuarios['aplica_fea'])
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
 
-                $aDocumentoBuzon = DocumentoBuzonArchivo::where('id_documento_buzon', '=', $datos['id_documento_buzon'])
+                $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->where('id_documento', '=', $datos['id_documento'])
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
@@ -133,7 +134,8 @@ class FirmaController extends Controller
                         //actualizar archivo firmado
                         if($aDocumentoBuzon['id_tipo_archivo'] == 1)
                         {
-                            $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
+                            $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->where('id_documento', $datos['id_documento'])
                                                         ->where('id_tipo_archivo', 1)
                                                         ->get();
                 

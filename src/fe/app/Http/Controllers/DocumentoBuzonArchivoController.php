@@ -44,10 +44,16 @@ class DocumentoBuzonArchivoController extends Controller
                     {
                         if(strlen($fileName) && $id_tipo_archivo == 1)
                         {
-                            $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
+                            /*$docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
                                                     ->where('id_tipo_archivo', 1)
                                                     ->get();
-                            
+                            */
+
+                            $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->where('id_documento', $id_documento)
+                                                        ->where('id_tipo_archivo', 1)
+                                                        ->get();
+
                             foreach ($docsPpales as $archFile)
                             {
                                 $nSalida = $archFile->version + 1;
