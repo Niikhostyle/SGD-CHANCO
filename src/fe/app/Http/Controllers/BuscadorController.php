@@ -219,8 +219,8 @@ class BuscadorController extends Controller
                 'fecha' => $dFechaCreacion 
             ]); 
               
-        $ruta = ('files/') . 'principal_'.$nDocumento.'_.pdf';
-        //$ruta = storage_path('app/public/files/'). $nombre;
+        //$ruta = ('files/') . 'principal_'.$nDocumento.'_.pdf';
+        $ruta = storage_path('app/public/files/'). $nombre;
        
         //return response()->download($ruta, $nombre);
 
