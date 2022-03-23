@@ -180,7 +180,7 @@ return [
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
-
+        Intervention\Image\ImageServiceProvider::class
     ],
 
     /*
@@ -239,7 +239,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
         'FirmaDigitalSgd' => app\Libraries\FirmaDigital::class,
-        
+        'Image' => Intervention\Image\Facades\Image::class
     ],
 
 

@@ -59,9 +59,11 @@ class FirmaController extends Controller
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                
+                $imagen_firma = $datos['img_firma'];
+                return $datos['img_firma'];
+
                 $layout = array(
-                    'filename' => storage_path('logo_firma.png'),
+                    'filename' => storage_path('app/public/files/'.$imagen_firma),
                     'page'     => 'LAST',
                     'llx'      => 130,
                     'lly'      => 30,

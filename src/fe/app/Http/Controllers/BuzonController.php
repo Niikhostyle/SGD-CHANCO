@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
 
+use Intervention\Image\ImageManagerStatic as Image;
 
 class BuzonController extends Controller
 {
@@ -470,12 +471,22 @@ class BuzonController extends Controller
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
+        $img = Image::make(storage_path('../public/img/firma_base.png'));  
+        
+        $img->text('Firmado electrónicamente por:', 172, 33, function ($font) { $font->angle(45); }); 
+        $img->text('Juan Urrutia Rivera', 172, 50); 
+        $img->text('Fecha: 22.03.2022 19:25:21', 172, 68); 
+        $img->text('CARGO ', 172, 105);         
+
+        $img->save(storage_path('app/public/files/logo_firma2.png'));  
+
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
-            'id_usuario'=>Auth::user()->id
+            'id_usuario'=>Auth::user()->id,
+            'img_firma' => 'logo_firma2.png'
         ]);
         
         return $datosFea->json();
