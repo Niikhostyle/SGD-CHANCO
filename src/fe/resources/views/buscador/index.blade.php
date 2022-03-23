@@ -713,7 +713,7 @@
                 window.location = data.data ;
                 //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
                 
-                 
+                 /**
                  if(data.status=='200'){
                     window.location = data.data;
                     
@@ -723,7 +723,7 @@
                 {
                     toastr.error(data.data.comentario,"Aviso!")
                     //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
-                }
+                }*/
                  
                 
             }
