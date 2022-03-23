@@ -708,23 +708,15 @@
                 idDocumentoBuzon:id_documento_buzon             
             },
             success: function(data){
-               //console.log(data);
+                //console.log(data.data);
                 //window.location = '/files/principal_191_.pdf' ;
-                window.location = data.data ;
-                //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
-                
-                 /**
-                 if(data.status=='200'){
-                    window.location = data.data;
-                    
-                }
-                else
-                
-                {
-                    toastr.error(data.data.comentario,"Aviso!")
-                    //window.location = "{{route('buscador.documentoBuzonArchivo')}}";
-                }*/
-                 
+                if(data.status=='200')
+                    {
+                        console.log("hola");
+                        window.location = (data.data.data) ;
+                    }
+               
+                     
                 
             }
         });

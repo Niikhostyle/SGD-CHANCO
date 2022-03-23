@@ -219,13 +219,13 @@ class BuscadorController extends Controller
                 'fecha' => $dFechaCreacion 
             ]); 
               
-        $ruta = storage_path('app/public/files/') . 'principal_'.$nDocumento.'_.pdf';
+        $ruta = ('files/') . 'principal_'.$nDocumento.'_.pdf';
         //$ruta = storage_path('app/public/files/'). $nombre;
        
         //return response()->download($ruta, $nombre);
 
         $result = array('status' => '200', 'data' => array('data' => $ruta));
-
+        //return $ruta;
         return response()->json($result, '200');  
 
     }
