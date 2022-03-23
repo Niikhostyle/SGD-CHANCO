@@ -63,8 +63,9 @@ class FirmaController extends Controller
                 $id_documento_buzon = $datos['id_documento_buzon'];
                 $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']);               
 
-                $datosBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $id_documento_buzon)
-                ->where('id_accion', 7)
+                $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                ->where('documento_buzon.id_documento', $datos['id_documento'])
+                ->where('documento_buzon_bitacora.id_accion', 7)
                 ->get();
 
                 if (count($datosBitacora) == 0)

@@ -484,7 +484,7 @@ class BuzonController extends Controller
         $img = Image::make(storage_path('../public/img/firma_base.png'));  
         $dFechaCreacion = date('d.m.Y H:i:s');
         $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); 
+        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(12); }); 
         $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); 
         $img->text('CARGO ', 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); });         
 
