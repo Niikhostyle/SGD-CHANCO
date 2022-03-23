@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     #&& docker-php-ext-install -j$(nproc) zip mysqli pdo_mysql \
     && docker-php-ext-install -j$(nproc) zip \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    #&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
     #&& docker-php-ext-configure pdo_pgsql --with-pgsql \
     #&& docker-php-ext-install pdo_pgsql

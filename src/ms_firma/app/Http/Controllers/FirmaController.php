@@ -71,7 +71,7 @@ class FirmaController extends Controller
                 {
                     $n_llx = 60;
                     $n_lly = 50;
-                    $n_urx = 220;
+                    $n_urx = 250;
                     $n_ury =100;
                 }
 
@@ -79,7 +79,7 @@ class FirmaController extends Controller
                 {
                     $n_llx = 350;
                     $n_lly = 50;
-                    $n_urx = 510;
+                    $n_urx = 550;
                     $n_ury = 100;
                 }
 
