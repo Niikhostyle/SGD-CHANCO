@@ -28,7 +28,7 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido']);
+                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
                 
                 if (!$aInfoUsuarios['aplica_fea'])
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
@@ -50,25 +50,46 @@ class FirmaController extends Controller
                     'secretKey' => env('PLCSGD_SECRETO')
                 );
 
+                
+
                 $classFirma = new FirmaBase($firmaDigitalConfig); 
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
-                $sDescipcion = "Firmado digitalmente por " . $aInfoUsuarios['nombre'] . ' ' . $aInfoUsuarios['primer_apellido'];//sacar de tabla documentos
+                $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
                 $nRut = '22222222';//'18658044';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                $imagen_firma = $datos['img_firma'];
-                return $datos['img_firma'];
+                $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']);               
+
+                $datosBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $id_documento_buzon)
+                ->where('id_accion', 7)
+                ->get();
+
+                if (count($datosBitacora) == 0)
+                {
+                    $n_llx = 60;
+                    $n_lly = 50;
+                    $n_urx = 220;
+                    $n_ury =100;
+                }
+
+                if (count($datosBitacora) > 0)
+                {
+                    $n_llx = 350;
+                    $n_lly = 50;
+                    $n_urx = 510;
+                    $n_ury = 100;
+                }
 
                 $layout = array(
-                    'filename' => storage_path('app/public/files/'.$imagen_firma),
+                    'filename' => $imagen_firma,//storage_path('app/public/files/logo_firma2.png'),
                     'page'     => 'LAST',
-                    'llx'      => 130,
-                    'lly'      => 30,
-                    'urx'      => 500,
-                    'ury'      => 200
+                    'llx'      => $n_llx, //50
+                    'lly'      => $n_lly, //50
+                    'urx'      => $n_urx, //210
+                    'ury'      => $n_ury  //100
                 );
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
