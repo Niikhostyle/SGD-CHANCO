@@ -25,9 +25,11 @@ use PDF;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx\Rels;
 use Yajra\DataTables\DataTables;
 
+use Intervention\Image\ImageManagerStatic as Image;
 
 class BuzonController extends Controller
 {
@@ -475,12 +477,26 @@ class BuzonController extends Controller
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
-        $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['run','nombres', 'primer_apellido','segundo_apellido']);
+        $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
+        $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
+
+        $img = Image::make(storage_path('../public/img/firma_base.png'));  
+        $dFechaCreacion = date('d.m.Y H:i:s');
+        $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); //$font->file(storage_path('../public/calibri.ttf'));
+        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); 
+        $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); 
+        $img->text('CARGO ', 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); });         
+
+        $img->save(storage_path('app/public/files/'.$sNombreImg));  
+
+        $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
-            'id_usuario'=>Auth::user()->id
+            'id_usuario'=>Auth::user()->id,
+            'img_firma' => $sNombreImg
         ]);
         
         return $datosFea->json();
