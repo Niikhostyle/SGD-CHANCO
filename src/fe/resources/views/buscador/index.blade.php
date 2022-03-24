@@ -79,7 +79,7 @@
                 
                 <div class="col-md-4 md-4">
                     <div class="form-group">
-                        <input type="checkbox" name="buscar_fectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
+                        <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
                         <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
                     </div>
                 </div>
@@ -133,6 +133,7 @@
                                                 <th>Buzón origen</th>
                                                 <th>Buzón Actual</th>
                                                 <th>Materia</th>
+                                                <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
                                     
@@ -474,6 +475,11 @@
         });
     });
       
+    $("#buscar_efectos_sobre_terceros").click(function(e){
+        console.log($('#buscar_efectos_sobre_terceros').val());
+        console.log($('#buscar_efectos_sobre_terceros').is(':checked'));
+    });
+
     $(".desplegar_opciones_avanzadas").click(function(e){
         $('#card_opciones_avanzadas').show();
         $(".desplegar_opciones_avanzadas").hide();
@@ -534,11 +540,8 @@
                 serverSide: true,
                 ajax: '/buscadorListar',
                 type:'json',
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                },
-                responsive: true,
-                
+                order: [[ 1, 'desc' ]], 
+                responsive: true,                
                 language: lenguaje_datatable,
                 columns: [
                     
@@ -549,6 +552,7 @@
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
                     { data: 'materia', name: 'materia' },
+                    { data: 'efectos_terceros', searchable: true, visible: false},
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -556,11 +560,7 @@
                             if(data==null){
                                 return '';
                             }else{
-                                //console.log(row.list_usuarios.toString());   
-                                //var salida = row.list_usuarios.split(',');          
-                               /// console.log(salida[1]);
-                               //var relDocumentoBuzonArchivo = data.data.rel_archivos;
-                               //console.log(relDocumentoBuzonArchivo);
+                                
                                 let botonera = '<div class="dropdown">';
                                 let botonera_confidencial = '<div class="dropdown">';
                                 
@@ -635,18 +635,22 @@
                                 $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
                                 $('#buscar_fecha_ini').find('option:eq(0)').prop('date', true);
                                 $('#buscar_fecha_fin').find('option:eq(0)').prop('date', true);
-                                $('#buscar_fectos_sobre_terceros').find('option:eq(0)').prop('checked', true);
+                                $('#buscar_efectos_sobre_terceros').prop('checked', false);
                                 $searchButton.click();
                             }),
                     $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
+                                                                
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
                                 grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
                                 grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
                                 grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
-                                grilla_recibidos.columns().search($('#buscar_fectos_sobre_terceros').val()).draw();       
+                                if ($('#buscar_efectos_sobre_terceros').is(':checked'))
+                                    grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
+                                else
+                                    grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
                             })
                     $simpleSearchButton = $('<button class="btn btn-light" id_btn_filtrar">')
                     .text('Buscar')

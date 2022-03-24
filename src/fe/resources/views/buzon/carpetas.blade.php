@@ -2186,7 +2186,7 @@
                             var buzon_padre = id_documento_buzon_padre; 
                             var flujoSgte = json_tipo_doc['flujo_actual'];
                         }
-                         
+
                         //agrega las acciones correspondientes al tipo de flujo
                         if (nFlujo == 3)
                             var accionesFlujo = accionesFlujo3;
@@ -2232,7 +2232,7 @@
                                         aBuzonesDerivaciones.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                     }
                                 }
-
+                                
                                 //guarda buzon y acciones flujo anterior
                                 if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0 && ((jsonTipoAvance == 2 || jsonTipoAvance == 4) && jsonAcciones[i].orden != 1)) //validar que no se repita 
                                 {
@@ -2254,13 +2254,13 @@
                                 //    $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
                                 //else
                                     $('#form_acciones_solicitadas_el').append("<option value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
-
                             }
 
                             $('#form_acciones_solicitadas_el').multiselect('rebuild');
                             $('#form_acciones_solicitadas_el').multiselect('disable');
 
                             var bFlujo = false;
+
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
@@ -2277,7 +2277,7 @@
                                     for (let i in accionesSolicitadas) {
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
                                     }
-
+    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
 
                                 }
@@ -2293,10 +2293,12 @@
                             {
                                 if (idBuzonAccion != null && idBuzonAccion != '')
                                 {
+
                                     //agrega buzon q corresponde al flujo actual segun carpeta
                                     $("#form_destinatario_principal").val(idBuzonAccion);
                                     $("#form_destinatario_principal").trigger('change'); 
-
+                                    
+                                    
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in aAcciones) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
@@ -2404,17 +2406,17 @@
                             }
 
                             $.each(relDocumentoBuzon, function(i, item)
-                            {                       
+                            {                     
                                 
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
                                     $("#form_destinatario_principal").val(item.id_buzon);
                                     $("#form_destinatario_principal").trigger('change');    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
-
+                                    
                                     //seleccionar acciones
                                     var accionesSolicitadas = $.parseJSON(item.json_acciones);
-                                    
+                                                                       
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in accionesSolicitadas) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
@@ -2602,6 +2604,7 @@
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
                 type:'json',
+                order: [[ 0, 'desc' ]],  
                 responsive: true,
                 select: true,
                 language: lenguaje_datatable,
@@ -2664,9 +2667,7 @@
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
-                rowReorder: {
-                    selector: 'td:nth-child(2)'
-                },
+                order: [[ 2, 'desc' ]],        
                 responsive: true,
                 language: lenguaje_datatable,
                 columns: [
@@ -2832,9 +2833,7 @@
             serverSide: true,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
             type:'json',
-            rowReorder: {
-                selector: 'td:nth-child(2)'
-            },
+            order: [[ 2, 'desc' ]],  
             responsive: true,
             language: lenguaje_datatable,
             columns: [

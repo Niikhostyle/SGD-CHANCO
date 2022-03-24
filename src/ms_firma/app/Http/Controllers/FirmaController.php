@@ -71,18 +71,18 @@ class FirmaController extends Controller
 
                 if (count($datosBitacora) == 0) //firma 1
                 {
-                    $n_llx = 60;
+                    $n_llx = 350;
                     $n_lly = 50;
-                    $n_urx = 250;
-                    $n_ury =100;
+                    $n_urx = 600;
+                    $n_ury = 120;
                 }
 
                 if (count($datosBitacora) > 0) //firma 2 - pendiente firma 3 y 4
                 {
-                    $n_llx = 350;
+                    $n_llx = 60;
                     $n_lly = 50;
-                    $n_urx = 550;
-                    $n_ury = 100;
+                    $n_urx = 300;
+                    $n_ury = 120;
                 }
 
                 $layout = array(

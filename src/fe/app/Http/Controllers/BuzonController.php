@@ -483,10 +483,10 @@ class BuzonController extends Controller
 
         $img = Image::make(storage_path('../public/img/firma_base.png'));  
         $dFechaCreacion = date('d.m.Y H:i:s');
-        $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(12); }); 
-        $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); }); 
-        $img->text('CARGO ', 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(12); });         
+        $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
+        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 
+        $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); 
+        $img->text('CARGO ', 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
 
         $img->save(storage_path('app/public/files/'.$sNombreImg));  
 
@@ -556,7 +556,7 @@ class BuzonController extends Controller
 
     public function listar(Request $request)
     {
-
+       
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
@@ -605,8 +605,6 @@ class BuzonController extends Controller
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
-
-                    //$datos->orderBy('documento.identificador','desc');
 
                return datatables( $datos )->toJson();
 
