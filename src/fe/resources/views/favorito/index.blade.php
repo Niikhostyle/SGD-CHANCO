@@ -40,7 +40,7 @@
                                 <div class="card-body">
                                     <table id="tabla_favorito_grilla" class="table dt-responsive nowrap" style="width:100%">
                                         <thead>
-                                            <tr>
+                                            <tr class="grilla_header">
                                                 
                                                 <th>ID Doc</th>
                                                 <th>Fecha Documento</th>
@@ -291,7 +291,7 @@
             <div class="card-body">
                 <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
                     <thead>
-                        <tr>
+                        <tr class="grilla_header">
                             <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Buzón Origen</th>

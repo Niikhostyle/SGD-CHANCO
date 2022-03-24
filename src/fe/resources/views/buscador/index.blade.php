@@ -125,7 +125,7 @@
                                 <div class="card-body">
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
-                                            <tr>
+                                            <tr class="grilla_header">
                                                 <th>ID</th>
                                                 <th>Fecha</th>
                                                 <th>TD</th>
@@ -357,7 +357,7 @@
             <div class="card-body">
                 <table id="tabla_bitacora_grilla" class="table dt-responsive nowrap" style="width:100%">
                     <thead>
-                        <tr>
+                        <tr class="grilla_header">
                             <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Buzón Origen</th>

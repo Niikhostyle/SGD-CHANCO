@@ -64,7 +64,7 @@
                             <div class="tab-pane fade show active" id="nav-por-recibir" role="tabpanel" aria-labelledby="nav-por-recibir-tab">
                                 <table id="grilla_por_recibir"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
-                                        <tr>
+                                        <tr class="grilla_header">
                                             <th>ID Doc.</th>
                                             <th>F. Entrada</th>
                                             <th>Contestar Hasta</th>
@@ -109,9 +109,9 @@
                                             </td>
                                         </tr>
                                 </tbody></table>
-                                <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
+                                <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;padding-top:20px;">
                                     <thead>
-                                        <tr>
+                                        <tr class="grilla_header">
                                             <th></th>
                                             <th>E</th>
                                             <th>ID Doc</th>
@@ -163,7 +163,7 @@
                                     </tbody></table>
                                     <table id="grilla_despachados"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
-                                            <tr>
+                                            <tr class="grilla_header">
                                                 <th></th>
                                                 <th>E</th>
                                                 <th>ID Doc</th>
