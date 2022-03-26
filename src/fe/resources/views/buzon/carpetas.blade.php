@@ -223,7 +223,7 @@
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
                                 </ul>
                             </div>
                         </div>
@@ -1049,6 +1049,8 @@
 
         $("#idAsignado").text('No Asignado');
         $("#idFolio").text('No Asignado');
+        $("#idFecha").text('No Asignado');
+
 
         //vaciar archivos pre cargados
 
@@ -2152,6 +2154,7 @@
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
                         $("#idFolio").html("<b>"+data.data.folio+"</b>");
+                        $("#idFecha").html("<b>"+data.data.fecha+"</b>");
 
 
 
@@ -2610,7 +2613,7 @@
                 language: lenguaje_datatable,
                 columns: [
                     { data: 'identificador', name: 'documento.identificador' },                    
-                    { data: 'fecha_envio_recepcion', 
+                    { data: 'fecha_envio', 
                             render: function(data)
                             {
                                 if(data == null)
@@ -2853,7 +2856,7 @@
                 },
                 { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                 { data: 'identificador', name: 'documento.identificador' },
-                { data: 'fecha_envio_recepcion', 
+                { data: 'fecha_envio', 
                             render: function(data, type, row)
                             {
                                 if(data == null)
@@ -2869,7 +2872,7 @@
                 },
                 { data: 'fecha_envio_recepcion',
                             render: function(data)
-                            {
+                            {return '';
                                 if(data == null)
                                     return '';
                                 else    

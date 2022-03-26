@@ -9,12 +9,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Libraries\FirmaBase;
-
+use App\Models\Buzon;
+use App\Models\TipoFirma;
 use App\Models\Users;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzonArchivo;
+use FPDF;
+use setasign\Fpdi\Fpdi;
 
+//require_once('../../Libraries/fpdf.php');
 
 class FirmaController extends Controller
 {
@@ -27,7 +31,7 @@ class FirmaController extends Controller
                 DB::beginTransaction();
 
                 $datos = $request->json()->all();
-
+                
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
                 
                 if (!$aInfoUsuarios['aplica_fea'])
@@ -49,11 +53,9 @@ class FirmaController extends Controller
                     'entity'    => env('PLCSGD_API_ENTITY'),
                     'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
                     'secretKey' => env('PLCSGD_SECRETO')
-                );
+                );                
 
-                
-
-                $classFirma = new FirmaBase($firmaDigitalConfig); 
+                $classFirma = new FirmaBase($firmaDigitalConfig);
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
@@ -62,8 +64,44 @@ class FirmaController extends Controller
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']);               
+                 $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']); 
 
+                //Obtiene pagina para agregar firma
+                $pdfPages = file_get_contents($sArchivo);
+                $count = 0;
+                $regex  = "/\/Count\s+(\d+)/";
+/*
+                if(preg_match_all($regex, $pdfPages, $matches))
+                    $count = max($matches);
+
+                    //$pdf = new FPDI();
+                    // get the page count
+                    //$pageCount = $pdf->setSourceFile($sArchivo); //cantidad de paginas
+                    //$templateId = $pdf->importPage($pageCount); 
+
+                    $fpdi = new FPDI;
+                    
+                    $count = $fpdi->setSourceFile($sArchivo);
+                    for ($i=1; $i<=$count; $i++) 
+                    {
+                        $template = $fpdi->importPage($i);
+                        $size = $fpdi->getTemplateSize($template);
+                        $fpdi->AddPage($size['orientation'], array($size['width'], $size['height']));
+                        $fpdi->useTemplate($template);
+                        $left = 10;
+                        $top =  $size['height'] - 10;
+                        $text = "<u>TIDE S.A.</u>";
+                        $fpdi->SetFont("helvetica", "", 12);
+                        //$fpdi->SetTextColor(153,0,153);
+                        $fpdi->Text($left,$top,$text);
+                        //$fpdi->writeHTML($text, true, false, true, false, '');
+                    }
+                    return $fpdi->Output($sArchivo, 'I');
+
+
+                    
+return $fpdi;
+*/
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
@@ -71,17 +109,17 @@ class FirmaController extends Controller
 
                 if (count($datosBitacora) == 0) //firma 1
                 {
-                    $n_llx = 350;
+                    $n_llx = 300;
                     $n_lly = 50;
-                    $n_urx = 600;
+                    $n_urx = 550;
                     $n_ury = 120;
                 }
 
                 if (count($datosBitacora) > 0) //firma 2 - pendiente firma 3 y 4
                 {
-                    $n_llx = 60;
+                    $n_llx = 40;
                     $n_lly = 50;
-                    $n_urx = 300;
+                    $n_urx = 280;
                     $n_ury = 120;
                 }
 

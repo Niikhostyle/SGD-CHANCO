@@ -481,12 +481,19 @@ class BuzonController extends Controller
         $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
         $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
 
+        $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
+                    ->join('tipo_firma', 'buzon_usuario.id_tipo_firma','=', 'tipo_firma.id_tipo_firma')
+                    ->where('buzon.id_buzon','=', $request->buzon)
+                    ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
+                    ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
+                    ->first();
+
         $img = Image::make(storage_path('../public/img/firma_base.png'));  
         $dFechaCreacion = date('d.m.Y H:i:s');
         $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
         $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 
         $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); 
-        $img->text('CARGO ', 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
+        $img->text($DatosFirma['cargo_firma'].$DatosFirma['sigla'], 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
 
         $img->save(storage_path('app/public/files/'.$sNombreImg));  
 
@@ -496,6 +503,7 @@ class BuzonController extends Controller
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_usuario'=>Auth::user()->id,
+            'id_buzon'=>$request->buzon,
             'img_firma' => $sNombreImg
         ]);
         
@@ -578,9 +586,9 @@ class BuzonController extends Controller
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
                         'estado_documento.nombre_corto as estado_documento',                        
-                        'documento.fecha as fecha_creacion', 
+                        'documento.created_at as fecha_creacion', //carpeta 3
                         'documento_buzon.fecha as fecha_envio_recepcion',
-                        'documento_buzon.updated_at as fecha_envio',
+                        'documento_buzon.fecha as fecha_envio', //carpeta 3 y 1
                         //'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as json_acciones',

@@ -23,6 +23,8 @@ class DocumentoController extends Controller{
      */
     private $validator;
 
+    const HASH_FILE_ALGO = 'sha256';
+
     public function __construct(DocumentoValidator $documentoValidator)
     {
         $this->validator = $documentoValidator;
@@ -41,12 +43,10 @@ class DocumentoController extends Controller{
                 //$validator = $this->validator->validateInsert();
 
                 //if ($validator->fails())
-                //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
-                
+                //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');                
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
-                $idBuzon = $datosDocumento['id_buzon']; 
-                
+                $idBuzon = $datosDocumento['id_buzon'];                 
                 
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
                 
@@ -82,7 +82,12 @@ class DocumentoController extends Controller{
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
-                
+
+                //hash validación
+
+                $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$datosDocumento['materia'];
+                $sHash = hash('sha256', $sparamHash, false);
+
                 //guardar respuesta                   
                 $jsonRespuesta = array(); 
                 if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1)
@@ -110,8 +115,8 @@ class DocumentoController extends Controller{
                     'descripcion' => $datosDocumento['descripcion'],
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
-                    'fecha' => $dFechaCreacion,
-                    'hash_validacion' => '',
+                    //'fecha' => $dFechaCreacion,
+                    'hash_validacion' => $sHash,
                     'folio' => $nFolio                    
                 ]);
 

@@ -11,7 +11,7 @@ class Buzon extends Model{
     protected $hidden = ['created_at', 'updated_at'];
 
     protected $fillable = [
-        'nombre', 'nombre_corto', 'id_tipo_buzon'
+        'nombre', 'nombre_corto', 'id_tipo_firma', 'id_tipo_buzon'
     ];
 
     public function usuarios_asignados()
