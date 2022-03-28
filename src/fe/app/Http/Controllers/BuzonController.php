@@ -478,7 +478,7 @@ class BuzonController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['run','nombres', 'primer_apellido','segundo_apellido']);
-        $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
+        $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
         $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
 
         $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
@@ -488,7 +488,7 @@ class BuzonController extends Controller
                     ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
                     ->first();
 
-        $img = Image::make(storage_path('../public/img/firma_base.png'));  
+        $img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png 
         $dFechaCreacion = date('d.m.Y H:i:s');
         $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
         $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 

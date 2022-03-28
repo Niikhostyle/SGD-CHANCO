@@ -62,7 +62,7 @@ class ArchivoController extends Controller{
 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentos['cuerpo']);                
 
-                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 //ver cuantas paginas tiene para poner firma
                 $oMerger = PDFMerger::init();
                 $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
