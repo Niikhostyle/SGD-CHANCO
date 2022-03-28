@@ -15,6 +15,7 @@ class PDF extends FPDI
         //$this->MultiCell();
         //$this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
 
-        $this->Write(5, $this->footer_txt, $this->footer_link, false, 'C', true);
+        if ($this->PageFirma == $this->PageNo())
+            $this->Write(5, $this->footer_txt, $this->footer_link, false, 'C', true);
     }
 }

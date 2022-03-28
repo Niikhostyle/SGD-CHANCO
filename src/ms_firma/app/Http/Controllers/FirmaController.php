@@ -140,15 +140,16 @@ class FirmaController extends Controller
                     $pdf->AliasNbPages();
                     $pdf->footer_txt = "HASH NUEVO VALIDACION 21458fr8932yh245iop245d";
                     $pdf->footer_link = "http://www.google.com";
+                    $pdf->PageFirma = $count;
 
-                    //for ($i=1; $i <= $pageCount; $i++) { 
+                    for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template
                         $tplId = $pdf->importPage($pageCount);
                         //create a page
                         $pdf->AddPage();
                         //use the template of the imporated page
                         $pdf->useTemplate($tplId);                    
-                    //}
+                    }
                     
                     $pdf->Output($sArchivo, 'F');   
                 }
