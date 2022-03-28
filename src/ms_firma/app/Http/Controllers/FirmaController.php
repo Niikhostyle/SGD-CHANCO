@@ -150,7 +150,7 @@ class FirmaController extends Controller
                         $pdf->useTemplate($tplId);                    
                     //}
                     
-                    $pdf->Output($sArchivo, 'I');   
+                    $pdf->Output($sArchivo, 'F');   
                 }
 
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
