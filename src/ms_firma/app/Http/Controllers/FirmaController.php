@@ -33,19 +33,21 @@ class FirmaController extends Controller
                 DB::beginTransaction();
 
                 $datos = $request->json()->all();
-                
+
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
                 
                 if (!$aInfoUsuarios['aplica_fea'])
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
 
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                        ->where('id_documento', '=', $datos['id_documento'])
+                                                        ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                        ->where('documento_buzon.id_documento', '=', $datos['id_documento'])
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-                
+
                 if($aDocumentoBuzon == null)
                     return $this->respondFail('No existe archivo para realizar firma electrónica.');
 
@@ -112,7 +114,7 @@ class FirmaController extends Controller
                                 
                 $layout = array(
                     'filename' => $imagen_firma,//storage_path('app/public/files/logo_firma2.png'),
-                    'page'     => 'LAST',
+                    'page'     => $aDocumentoBuzon['paginas_archivo'],
                     'llx'      => $n_llx, //50
                     'lly'      => $n_lly, //50
                     'urx'      => $n_urx, //210
@@ -128,10 +130,7 @@ class FirmaController extends Controller
                     //Obtiene pagina para agregar firma
                     $pdfPages = file_get_contents($sArchivo);
                     $count = 0;
-                    $regex  = "/\/Count\s+(\d+)/";
-
-                    if(preg_match_all($regex, $pdfPages, $matches))
-                        $count = max($matches);              
+                    $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);         
 
                     //agrega Hash de validación
                     $pdf = new PDF();
@@ -144,9 +143,15 @@ class FirmaController extends Controller
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template
-                        $tplId = $pdf->importPage($pageCount);
+                        $tplId = $pdf->importPage($i);
+
+                        $size = $pdf->getTemplateSize($tplId);
+                        $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
+
+
+
                         //create a page
-                        $pdf->AddPage();
+                       // $pdf->AddPage();
                         //use the template of the imporated page
                         $pdf->useTemplate($tplId);                    
                     }
