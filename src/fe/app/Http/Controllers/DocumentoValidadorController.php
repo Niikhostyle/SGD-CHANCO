@@ -19,43 +19,50 @@ class DocumentoValidadorController extends Controller
     public function index()
     {
         $lista_documentos=['data'=>[
-            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'',]
+            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'',]
         ]];
         return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
     }
 
-    public function store(Request $request)
+    public function ver(Request $request)
     {
         
         $codigo = $request['codigo'];
         //return $codigo;
         $sesion_key =  AppServiceProvider::session_key_general();
         $lista_documentos = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
+        ->timeout(30)
         ->withBody(json_encode([
             'hash_validacion' => $codigo 
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
-        //return $lista_documentos ;
+        
 
         if($lista_documentos->failed()){
+            //return $lista_documentos ;
             $mensaje= $lista_documentos->json()['data']['comentario'];
 
             $lista_documentos=['data'=>[
-                0=>['hash_validacion'=>'sin datos','folio'=>'sin datos','fecha_documento'=>'sin datos','materia'=>'sin datos',]
+                0=>['hash_validacion'=>'sin datos','folio'=>'sin datos','fecha_documento'=>'sin datos','materia'=>'sin datos', 'id_nivel_acceso'=>'',]
             ]];
             toast($mensaje,'error');
         }else{
             $lista_documentos->json();
         }
+         
+        
+        
         return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
         
     }
 
-    public function validar(Request $request)
+    public function hash()
     {
-        
-       
+        $lista_documentos=['data'=>[
+            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'',]
+        ]];
+
+        return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
         
     }
 
