@@ -533,6 +533,7 @@ class BuzonController extends Controller
     {
         $sesion_key = AppServiceProvider::session_key_general();
 
+        
         $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
         ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            

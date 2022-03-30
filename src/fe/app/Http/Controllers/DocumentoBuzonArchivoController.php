@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 use SebastianBergmann\Environment\Console;
 
+//use Image;
+use Intervention\Image\ImageManagerStatic as Image;
+
 class DocumentoBuzonArchivoController extends Controller
 {
     public function store (Request $request)
@@ -130,7 +133,25 @@ class DocumentoBuzonArchivoController extends Controller
         return $response;
     }
 
-   /* public function destroy (DocumentoBuzonArchivo $file)
+    public function showImage($routefilename)
+    {       
+        
+        $path = storage_path(config('app.path_files')) . 'editor/images/' . $routefilename;
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+        
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
+    }
+
+    /* public function destroy (DocumentoBuzonArchivo $file)
     {
         //elimina el registro de la carpeta local
         $url = str_replace('storage', 'public', $file->url);

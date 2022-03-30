@@ -137,7 +137,7 @@ class FirmaController extends Controller
                     // set the source file
                     $pageCount = $pdf->setSourceFile($sArchivo);            
                     $pdf->AliasNbPages();
-                    $pdf->footer_txt = "HASH NUEVO VALIDACION 21458fr8932yh245iop245d";
+                    $pdf->footer_txt = "Código de validación: 21458fr8932yh245iop245d";
                     $pdf->footer_link = "http://www.google.com";
                     $pdf->PageFirma = $aDocumentoBuzon['paginas_archivo'];
 
