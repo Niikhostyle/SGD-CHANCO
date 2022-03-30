@@ -946,8 +946,7 @@
         filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
         filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
     }); 
-
-    //CKFinder.setupCKEditor( editor_cuerpo ); 
+ 
     CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)

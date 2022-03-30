@@ -458,13 +458,12 @@
 @section('js')
 
 
+<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
-<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
-<script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
  <!-- Required meta tags -->
 
 
