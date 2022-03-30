@@ -154,7 +154,7 @@ class BuscadorController extends Controller
         , d.identificador
         , d.id_nivel_acceso
         , string_agg(cast(bu.id_usuario as varchar), ',') as list_usuarios
-        , d.fecha as fecha_documento
+        , d.created_at as fecha_documento
         , d.folio
         , d.materia 
         , d.json_tipo_documento 
@@ -179,7 +179,8 @@ class BuscadorController extends Controller
         or (bu.id_usuario = ".Auth::user()->id." and d.id_nivel_acceso = 2)
     group by d.id_documento
         , d.identificador
-        , d.id_nivel_acceso, d.fecha        
+        , d.id_nivel_acceso
+        , d.created_at        
         , d.folio        
         , d.materia        
         , d.json_tipo_documento    
