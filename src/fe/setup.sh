@@ -14,4 +14,4 @@ chgrp -R www-data storage bootstrap/cache && \
 # www-data is a standard apache user that must have an
 # access to the folder structure
 touch storage/logs/laravel.log && chmod 775 storage/logs/laravel.log && chown www-data storage/logs/laravel.log
-composer install && php artisan key:generate && npm install
+composer install && php artisan key:generate && npm install && php artisan ckfinder:download
