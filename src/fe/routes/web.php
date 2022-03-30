@@ -104,3 +104,16 @@ Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1Externo',[Bu
 Route::middleware(['auth:sanctum', 'verified'])->put('accion_editarExterno/{id}',[BuzonUsuarioExternoController::class,'accion_editar_documento'])->name('documentosExterno.editar');
 Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno',[BuzonUsuarioExternoController::class,'generar_archivo_pdf'])->name('documentosExterno.generar');
 
+//imagenes ckeditor
+Route::middleware(['auth:sanctum', 'verified'])->get('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
+
+Route::middleware(['auth:sanctum', 'verified'])->post('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
+
+//ckfinder
+Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderController@requestAction')->name('ckfinder_connector');
+Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderController@browserAction')->name('ckfinder_browser');
+
+Route::middleware(['auth:sanctum', 'verified'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class,'showImage'])->name('images.show');
+
+
+

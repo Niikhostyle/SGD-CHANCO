@@ -9,12 +9,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Libraries\FirmaBase;
-
+use App\Models\Buzon;
+use App\Models\TipoFirma;
 use App\Models\Users;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzonArchivo;
+use setasign\Fpdi\Fpdi;
 
+use App\Libraries\PDF;
+
+
+//require_once('../../Libraries/fpdf.php');
 
 class FirmaController extends Controller
 {
@@ -34,12 +40,14 @@ class FirmaController extends Controller
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
 
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                        ->where('id_documento', '=', $datos['id_documento'])
+                                                        ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                        ->where('documento_buzon.id_documento', '=', $datos['id_documento'])
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-                
+
                 if($aDocumentoBuzon == null)
                     return $this->respondFail('No existe archivo para realizar firma electrónica.');
 
@@ -49,11 +57,9 @@ class FirmaController extends Controller
                     'entity'    => env('PLCSGD_API_ENTITY'),
                     'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
                     'secretKey' => env('PLCSGD_SECRETO')
-                );
+                );                
 
-                
-
-                $classFirma = new FirmaBase($firmaDigitalConfig); 
+                $classFirma = new FirmaBase($firmaDigitalConfig);
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
@@ -62,32 +68,53 @@ class FirmaController extends Controller
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']);               
+                $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']); 
+
+                if ( !file_exists($imagen_firma) )
+                    return $this->respondFail('Existe un problema con la imagen relacionada a la firma electrónica.');
 
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
                 ->get();
 
+                if (count($datosBitacora) > 3)
+                    return $this->respondFail('Excede el máximo de firmas electróncas posibles.');
+
                 if (count($datosBitacora) == 0) //firma 1
                 {
-                    $n_llx = 350;
-                    $n_lly = 50;
-                    $n_urx = 600;
-                    $n_ury = 120;
+                    $n_llx = 300;
+                    $n_lly = 140;
+                    $n_urx = 550;
+                    $n_ury = 210;
                 }
 
-                if (count($datosBitacora) > 0) //firma 2 - pendiente firma 3 y 4
+                if (count($datosBitacora) == 1) //firma 2
                 {
-                    $n_llx = 60;
+                    $n_llx = 40;
+                    $n_lly = 140;
+                    $n_urx = 280;
+                    $n_ury = 210;
+                }
+                if (count($datosBitacora) == 2) //firma 3
+                {
+                    $n_llx = 300;
                     $n_lly = 50;
-                    $n_urx = 300;
+                    $n_urx = 550;
                     $n_ury = 120;
                 }
 
+                if (count($datosBitacora) == 3) //firma 4
+                {
+                    $n_llx = 40;
+                    $n_lly = 50;
+                    $n_urx = 280;
+                    $n_ury = 120;
+                }
+                                
                 $layout = array(
                     'filename' => $imagen_firma,//storage_path('app/public/files/logo_firma2.png'),
-                    'page'     => 'LAST',
+                    'page'     => $aDocumentoBuzon['paginas_archivo'],
                     'llx'      => $n_llx, //50
                     'lly'      => $n_lly, //50
                     'urx'      => $n_urx, //210
@@ -96,8 +123,42 @@ class FirmaController extends Controller
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-                $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']);
-               
+                $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']);                    
+
+                if (count($datosBitacora) == 0)
+                {
+                    //Obtiene pagina para agregar firma
+                    $pdfPages = file_get_contents($sArchivo);
+                    $count = 0;
+                    $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);         
+
+                    //agrega Hash de validación
+                    $pdf = new PDF();
+                    // set the source file
+                    $pageCount = $pdf->setSourceFile($sArchivo);            
+                    $pdf->AliasNbPages();
+                    $pdf->footer_txt = "Código de validación: 21458fr8932yh245iop245d";
+                    $pdf->footer_link = "http://www.google.com";
+                    $pdf->PageFirma = $aDocumentoBuzon['paginas_archivo'];
+
+                    for ($i=1; $i <= $pageCount; $i++) { 
+                        //import a page then get the id and will be used in the template
+                        $tplId = $pdf->importPage($i);
+
+                        $size = $pdf->getTemplateSize($tplId);
+                        $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
+
+
+
+                        //create a page
+                       // $pdf->AddPage();
+                        //use the template of the imporated page
+                        $pdf->useTemplate($tplId);                    
+                    }
+                    
+                    $pdf->Output($sArchivo, 'F');   
+                }
+
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();                
@@ -167,12 +228,16 @@ class FirmaController extends Controller
                         }               
                             
                     }
+
+                    //elimina imagen de firma
+                    //$imagen_firma
+
+                    
                 }
 
                 DB::commit();
-                
+                    
                 return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
-
 
             } catch (Exception $e) {
 

@@ -223,7 +223,7 @@
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
                                 </ul>
                             </div>
                         </div>
@@ -287,7 +287,7 @@
                         <div class="form-row">
                             <div class="col-md-12">
                                 <label for="floatingTextarea">Descripción o Extracto</label>
-                                <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>
+                                <textarea class="form-control" id="form_descripcion" name="form_descripcion"></textarea>
                             </div>
                         </div>
 
@@ -604,14 +604,18 @@
 @section('js')
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
-<script src="{{ asset('/vendor/ckfinder/ckfinder.js') }}"></script>
+
+<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+
 
 <script>
     //globales
@@ -631,6 +635,8 @@
     var allBuzones2 = @json($allBuzones2);
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
+
+    
 
     /*
 	    Carousel
@@ -932,11 +938,17 @@
         });  
 
 
-
-
     });
 */
-    const editor_cuerpo = CKEDITOR.replace('form_cuerpo');   
+    const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
+             
+        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    }); 
+
+    //CKFinder.setupCKEditor( editor_cuerpo ); 
+    CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)
     {
@@ -1049,6 +1061,8 @@
 
         $("#idAsignado").text('No Asignado');
         $("#idFolio").text('No Asignado');
+        $("#idFecha").text('No Asignado');
+
 
         //vaciar archivos pre cargados
 
@@ -2152,6 +2166,7 @@
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
                         $("#idFolio").html("<b>"+data.data.folio+"</b>");
+                        $("#idFecha").html("<b>"+data.data.fecha+"</b>");
 
 
 
@@ -2610,7 +2625,7 @@
                 language: lenguaje_datatable,
                 columns: [
                     { data: 'identificador', name: 'documento.identificador' },                    
-                    { data: 'fecha_envio_recepcion', 
+                    { data: 'fecha_envio', 
                             render: function(data)
                             {
                                 if(data == null)
@@ -2853,7 +2868,7 @@
                 },
                 { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
                 { data: 'identificador', name: 'documento.identificador' },
-                { data: 'fecha_envio_recepcion', 
+                { data: 'fecha_envio', 
                             render: function(data, type, row)
                             {
                                 if(data == null)
@@ -2869,7 +2884,7 @@
                 },
                 { data: 'fecha_envio_recepcion',
                             render: function(data)
-                            {
+                            {return '';
                                 if(data == null)
                                     return '';
                                 else    
@@ -3016,4 +3031,5 @@
 
 
 </script>
+@include('ckfinder::setup')
 @stop

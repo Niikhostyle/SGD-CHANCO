@@ -62,8 +62,16 @@ class ArchivoController extends Controller{
 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentos['cuerpo']);                
 
-                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 //ver cuantas paginas tiene para poner firma
+
+                 //Obtiene pagina para agregar firma
+                $pdfPages = file_get_contents(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                $count = 0;
+                $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);
+                
+                Documento::find($nDocumento)->update(['paginas_archivo' => $count, 'archivo_existente' => true]);
+
                 $oMerger = PDFMerger::init();
                 $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
 

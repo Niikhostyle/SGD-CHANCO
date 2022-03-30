@@ -23,6 +23,8 @@ class DocumentoController extends Controller{
      */
     private $validator;
 
+    const HASH_FILE_ALGO = 'sha256';
+
     public function __construct(DocumentoValidator $documentoValidator)
     {
         $this->validator = $documentoValidator;
@@ -41,12 +43,10 @@ class DocumentoController extends Controller{
                 //$validator = $this->validator->validateInsert();
 
                 //if ($validator->fails())
-                //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');
-                
+                //    return $this->respondFail('Falla al crear el documento: revisar datos de entrada');                
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
-                $idBuzon = $datosDocumento['id_buzon']; 
-                
+                $idBuzon = $datosDocumento['id_buzon'];                 
                 
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
                 
@@ -82,7 +82,12 @@ class DocumentoController extends Controller{
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
-                
+
+                //hash validación
+
+                $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$datosDocumento['materia'];
+                $sHash = hash('sha256', $sparamHash, false);
+
                 //guardar respuesta                   
                 $jsonRespuesta = array(); 
                 if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1)
@@ -110,8 +115,8 @@ class DocumentoController extends Controller{
                     'descripcion' => $datosDocumento['descripcion'],
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
-                    'fecha' => $dFechaCreacion,
-                    'hash_validacion' => '',
+                    //'fecha' => $dFechaCreacion,
+                    'hash_validacion' => $sHash,
                     'folio' => $nFolio                    
                 ]);
 
@@ -466,7 +471,7 @@ class DocumentoController extends Controller{
                     $estadoDocumentoActual = array('1');    
                     
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $estadoDocumentoFinal, 'fecha' => $dFechaCreacion]);
-
+                    
                     //cambia estado de documentos respuesta a
                     
                     if ($datosRequest["json_respuesta_a"] != null && $datosRequest["json_respuesta_a"] != "")
@@ -484,7 +489,6 @@ class DocumentoController extends Controller{
                                 $datosDocumentoBuzonResp->update(['id_estado_documento' => 5, 'fecha' => $dFechaCreacion]);
                         }
                     }
-
                 }
 
                 if ($datosRequest['carpeta'] == 2) //recibidos
@@ -557,21 +561,28 @@ class DocumentoController extends Controller{
                     $datosUpdate->save();
                 }
                
-                $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
-                                ->where('id_tipo_destino', '1')
-                                ->whereIn('id_estado_documento', $estadoDocumentoActual)
-                                ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
-                                ->select('id_documento_buzon')                                
-                                ->first();
-                $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
- 
-                $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
-                                    'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
-                                    'id_accion' => 2,
-                                    'fecha' => $dFechaCreacion,
-                                    'id_usuario' => $datosRequest['id_usuario']
-                ]);   
+                if ($datosRequest['destinatarioPrincipal'] != "" || $datosRequest['destinatarioPrincipal'] != null)
+                {
+                    $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                    ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
+                                    ->where('id_tipo_destino', '1')
+                                    ->whereIn('id_estado_documento', $estadoDocumentoActual)
+                                    ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
+                                    ->select('id_documento_buzon')                                
+                                    ->first();
+                    $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
+    
+                    $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
+                                        'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
+                                        'id_accion' => 2,
+                                        'fecha' => $dFechaCreacion,
+                                        'id_usuario' => $datosRequest['id_usuario']
+                    ]);   
+                }
+                else
+                {
+                    return $this->respondFail('Falla al enviar documento: Destinatario principal no válido.');
+                }
 
                 if ($datosRequest['destinatarioOtros'] != "" || $datosRequest['destinatarioOtros'] != null)
                 {
