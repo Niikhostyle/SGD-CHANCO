@@ -463,7 +463,8 @@
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
-
+<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
  <!-- Required meta tags -->
 
 
