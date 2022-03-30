@@ -458,7 +458,7 @@
 @section('js')
 
 
-<script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
