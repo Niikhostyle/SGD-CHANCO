@@ -894,12 +894,12 @@ class DocumentoController extends Controller{
                                             'tipo_documento.nombre as tipo_documento',
                                             'documento.materia as materia',
                                             'documento.identificador as identificador',
-                                            'documento.fecha as fecha_documento',
+                                            'documento.created_at as fecha_documento',
                                             'buzon.nombre as buzon_origen'
                                             )
                                         ->where('documento_favorito_usuario.id_usuario','=',$datosRequest['id_usuario'])
                                         ->whereNull('documento_buzon.id_documento_buzon_padre')
-                                        ->orderBy('documento.identificador','desc')
+                                        //->orderBy('documento.identificador','desc')
                                         ->get();                                    
                 
                 return $this->respondSuccess($datosDocumentoFavorito, 200);

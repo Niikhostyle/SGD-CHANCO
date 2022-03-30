@@ -140,7 +140,13 @@ function cargar_datos_grilla(id_documento)
                     //$("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                     $("#idAsignado").text(data.data.identificador);
-                    $("#idFolio").text(data.data.folio);
+                    
+                    if (data.data.folio != null)
+                        $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
+                    if (data.data.fecha != null)
+                        $("#idFecha").html("<b>"+data.data.fecha+"</b>");
+
                     
                     if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                     {
@@ -178,7 +184,7 @@ function cargar_datos_grilla(id_documento)
                         if (value.id_tipo_archivo == 3) //otros
                             htmlFileOtros += htmlFile + '</div>'; 
                         
-                        if (value.id_tipo_archivo == 1) //principal
+                        if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                             htmlFilePrincipal += htmlFile + '</div>'; 
  
                     });

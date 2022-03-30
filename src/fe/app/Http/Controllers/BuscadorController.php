@@ -154,8 +154,7 @@ class BuscadorController extends Controller
         , d.identificador
         , d.id_nivel_acceso
         , string_agg(cast(bu.id_usuario as varchar), ',') as list_usuarios
-        , d.fecha as fecha_documento
-        , db.id_estado_documento 
+        , d.created_at as fecha_documento
         , d.folio
         , d.materia 
         , d.json_tipo_documento 
@@ -170,7 +169,7 @@ class BuscadorController extends Controller
         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
     from 
         documento_buzon db 
-        join documento d on d.id_documento = db.id_documento 
+        join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
         join buzon b on b.id_buzon = db.id_buzon
         join buzon_usuario bu on bu.id_buzon = b.id_buzon
         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
@@ -180,8 +179,8 @@ class BuscadorController extends Controller
         or (bu.id_usuario = ".Auth::user()->id." and d.id_nivel_acceso = 2)
     group by d.id_documento
         , d.identificador
-        , d.id_nivel_acceso, d.fecha 
-        , db.id_estado_documento         
+        , d.id_nivel_acceso
+        , d.created_at        
         , d.folio        
         , d.materia        
         , d.json_tipo_documento    
@@ -189,8 +188,7 @@ class BuscadorController extends Controller
         , us.id    
         , td.nombre
         , buzon_origen
-        , buzon_actual  
-    having db.id_estado_documento <> 1   
+        , buzon_actual    
     order by d.identificador desc");
     
                     
