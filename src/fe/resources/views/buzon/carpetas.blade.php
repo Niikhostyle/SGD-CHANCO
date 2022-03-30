@@ -2164,8 +2164,11 @@
 
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
-                        $("#idFolio").html("<b>"+data.data.folio+"</b>");
-                        $("#idFecha").html("<b>"+data.data.fecha+"</b>");
+                        if (data.data.folio != null)
+                            $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
+                        if (data.data.fecha != null)
+                            $("#idFecha").html("<b>"+data.data.fecha+"</b>");
 
 
 
