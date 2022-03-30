@@ -17,13 +17,9 @@
     <div class="row" id="card_crear_documento">
         <div class="col-12">
             <div class="card">
-                <div class="card-header" >
-                    <h4 id="titulo_accion">Nuevo Documento</h4>
-                    <div class="linea_content_header"></div>
-                </div>
                 <div class="card-body">
 
-                    <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.store')}}">
+                    <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.ver')}}">
                         @csrf
                         
                         <div class="form-row">                                
@@ -52,137 +48,110 @@
 
         </div>
     </div>
-    <!--
-        <div class="card">
-            <div class="card-body">
-                    
-            <table id="grilla_validador"  class="table table-bordered">
-            
-                <tbody>
-                    <tr>
-                        <th>Resultado</th>
-                        <th >Folio</th>
-                        <th >Fecha</th>
-                        <th >Materia</th>
-                        
-                    </tr>
-                    
-                </tbody>
-            </table>
+   
+  
+       
+   
+    @foreach($lista_documentos['data'] as $list)    
+            <div class="card" id="card_validar" >
+                <div class="card-body">
 
-                </div>
-            </div> 
-        </div>  
--->
-        <div class="card" id="card_validar" >
-            <div class="card-body">
-                    
-                <table id="tabla_documento" class="table table-bordered">
                 
+                    <table id="tabla_documento" class="table table-bordered">
+                        @if($list['id_nivel_acceso']==1)
+                            <tr>
+                            
+                             
+                                <th scope="row">Resultado</th>
+                                <td class="valido">Codigo de documento valido</td>
+                                
+                                
+                            
+                                
+                            </tr>
+                            <tr>
+                            
+                                <th scope="row">Folio</th>
+                                <td>{{$list['folio']}}</td>
+                        
+                            
+                            </tr>
+                            <tr>
+                        
+                                <th scope="row">Fecha</th>
+                                <td colspan="2">{{$list['fecha_documento']}}</td>
+                            
+                                
+                            </tr>
+                            <tr>
+                        
+                                <th scope="row">Materia</th>
+                                <td colspan="2">{{$list['materia']}}</td>
+                        
+                                
+                            </tr>
+                        
+                        @elseif($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3)
                         <tr>
-                            @foreach($lista_documentos['data'] as $list)
-                                @if($list['hash_validacion']=='XyZ988')
+                                
+                                @if($list['hash_validacion']=!null)
                                     <th scope="row">Resultado</th>
                                     <td class="valido">Codigo de documento valido</td>
                                 @endif
-
-                            @endforeach
-                            
-                        </tr>
-                        <tr>
-                        @foreach($lista_documentos['data'] as $list)
-                            <th scope="row">Folio</th>
-                            <td>{{$list['folio']}}</td>
-                            @endforeach
-                           
-                        </tr>
-                        <tr>
-                        @foreach($lista_documentos['data'] as $list)
-                            <th scope="row">Fecha</th>
-                            <td colspan="2">{{$list['fecha_documento']}}</td>
-                            @endforeach
-                            
-                        </tr>
-                        <tr>
-                        @foreach($lista_documentos['data'] as $list)
-                            <th scope="row">Materia</th>
-                            <td colspan="2">{{$list['materia']}}</td>
-                        @endforeach
-                            
-                        </tr>
-                </table>
-                <br>
-                <button style="display: none;" type="button" class="btn btn-success">Descargar Documento</button>
-                <a href="" download=""><i class="fas fa-download"></i> Descargar Documento</a>
-                @foreach($lista_documentos['data'] as $list)
-                    
-                    <a href="" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>
-                @endforeach
-
-            </div> 
-        </div> 
-        <div class="card" id="card_invalidar" >
-            <div class="card-body">
-                    
-                <table id="tabla_documento" class="table table-bordered">
-                
-                <tr>
-                            
-                               
-                        <th scope="row">Resultado</th>
-                        <td class="invalido">Codigo de documento valido</td>
+                                  
+                            </tr>
+                            <tr>
                                 
+                                <th scope="row">Folio</th>
+                                <td>{{$list['folio']}}</td>
+                        
                             
-                        </tr>
-                        <tr>
-                       
-                            <th scope="row">Folio</th>
-                            <td></td>
+                            </tr>
+                            <tr>
+                        
+                                <th scope="row">Fecha</th>
+                                <td colspan="2">{{$list['fecha_documento']}}</td>
                             
-                           
-                        </tr>
-                        <tr>
-                     
-                            <th scope="row">Fecha</th>
-                            <td colspan="2"></td>
-                            
-                            
-                        </tr>
-                </table>
-                
+                                
+                            </tr>
 
-            </div> 
-        </div> 
-    <!--
-        <div class="card">
-            <div class="card-body">
+                        
+                        @else
+                        <tr>
+                                
+                                <th scope="row">Resultado</th>
+                                <td class="invalido">Codigo de documento invalido</td>
+                                
+                                  
+                            </tr>
+                            <tr>
+                                
+                                <th scope="row">Folio</th>
+                                <td></td>
+                        
+                            
+                            </tr>
+                            <tr>
+                        
+                                <th scope="row">Fecha</th>
+                                <td colspan="2"></td>
+                            
+                                
+                            </tr>
+
+                        @endif
+                    </table>
                     
-                <table class="table table-bordered">
-                
-                    <tbody>
-                        <tr>
-                            <th scope="row">Resultado</th>
-                            <td class="invalido">Código de documento no válido</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Folio</th>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Fecha</th>
-                            <td colspan="2"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Materia</th>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                
+                    @if($list['id_nivel_acceso']==1)
+                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
+                    @endif
 
+                </div> 
             </div> 
-        </div> -->
+    @endforeach
+        
     
+
 @stop
 
 
@@ -222,17 +191,60 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
-<script>
-    
+<script> 
 
+
+
+//hashValidador = $("input[name='codigo']").val();
+//console.log(hashValidador);
+$('#card_validar').hide();
+$('#card_invalido').hide();
+
+$(".btn_validar").click(function(e){
+            
+    
+    $('#card_validar').show();
+    //$('#card_invalido').show();
+   
+});
+
+function descargar_documento( id_documento, id_documento_buzon)
+    {
+        
+        //var _token = $("input[name='_token']").val();
+
+        $.ajax({
+            url: "/descargar_documento2/",
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                
+                idDocumento:id_documento,
+                idDocumentoBuzon:id_documento_buzon             
+            },
+            success: function(data){
+                //console.log(data.data);
+                //window.location = '/files/principal_191_.pdf' ;
+                if(data.status=='200')
+                    {
+                        console.log("hola");
+                        //window.location = (data.data.data);
+                        window.open(data.data.data, 'Download');
+                    }
+               
+                     
+                
+            }
+        });
+         
+             
+    }
 $(document).ready(function(){
 
-        $(".btn_validar").click(function(e){
-            
-            //hashValidador = $("input[name='codigo']").val();
-            $('#card_validar').show();
-        });
-    });
+    
+
+   
+});
 
    
 

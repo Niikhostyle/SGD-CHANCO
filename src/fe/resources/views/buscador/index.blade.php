@@ -119,6 +119,7 @@
                         </h5>
                        
                     </div>
+
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                         
                             <div class="card" id="card_buscador_grilla">
@@ -389,6 +390,8 @@
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+
 
 
     <style type="text/css">
@@ -461,18 +464,43 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 
+ <!-- Required meta tags -->
+
+
+<!-- Bootstrap CSS -->
+
+
+
+<!-- Datatables -->
+
+
+
+<!-- Buttons -->
+
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.53/build/pdfmake.min.js"></script>
+<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.53/build/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+
 <script>
 
     var grilla_recibidos;
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
     const listadoBuzones = @json($listadoBuzones);
-
+    
+   
     $(document).ready(function () {
         $(function() {            
 
             fn_grilla_recibidos();
        
         });
+        
+       
     });
       
     $("#buscar_efectos_sobre_terceros").click(function(e){
@@ -536,6 +564,7 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
+                dom: 'Bfrtip',
                 processing: true,
                 serverSide: true,
                 ajax: '/buscadorListar',
@@ -641,16 +670,17 @@
                     $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
-                                                                
+                            
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
-                                grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
+                                //grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
+                                //grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
                                 grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
                                 if ($('#buscar_efectos_sobre_terceros').is(':checked'))
                                     grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
                                 else
                                     grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
+                                
                             })
                     $simpleSearchButton = $('<button class="btn btn-light" id_btn_filtrar">')
                     .text('Buscar')
@@ -661,12 +691,16 @@
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#botones_busqueda_simple').append($simpleSearchButton);
                     $('#grilla_despachados_filter').html('');
-                }
+                   
+                },
+                buttons: [
+                    { extend: 'excel', text: 'Descargar Busqueda'}]
 
         });
+      
 
        
-        }
+    }
 
         // VER DOCUMENTO Y CARGAR BITACORA
 
@@ -728,6 +762,7 @@
          
              
     }
+
  
 </script>
 @stop
