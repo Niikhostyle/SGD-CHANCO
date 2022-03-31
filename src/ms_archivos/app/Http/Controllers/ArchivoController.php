@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
+use Barryvdh\DomPDF\Options;
 
 class ArchivoController extends Controller{
 
@@ -55,17 +56,21 @@ class ArchivoController extends Controller{
                 $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
 
                 $sEncabezado = $datosDocumentos['encabezado'];
-
                 $sEncabezado = str_replace('{t_folio}', $datosDocumentos['folio'], $sEncabezado);
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentos['cuerpo']);                
-
-                $archivo_pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
+                //reemplazar path imagenes antes de generar pdf
+                //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
+                
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
+                
+                PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);           
+ 
                 //ver cuantas paginas tiene para poner firma
-
-                 //Obtiene pagina para agregar firma
+                //Obtiene pagina para agregar firma
                 $pdfPages = file_get_contents(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 $count = 0;
                 $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);
