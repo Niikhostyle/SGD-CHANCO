@@ -31,7 +31,7 @@
 
 </head>   
 <body class="container" >
-    <div class="row">
+    <div class="row" style="padding: 200px 50px 50px;">
         <div class="col-8">
             <h1>Validación de Documentos</h1>
         </div>
@@ -40,7 +40,7 @@
     <div class="linea_content_header"></div>
     <br>
 
-    <div class="row" id="card_crear_documento" style="padding: 200px 50px 50px;">
+    <div class="card" id="card_crear_documento" style="border: 1px solid #005c9e;">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
