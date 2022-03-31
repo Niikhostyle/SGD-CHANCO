@@ -12,6 +12,7 @@ use App\Libraries\FirmaBase;
 use App\Models\Buzon;
 use App\Models\TipoFirma;
 use App\Models\Users;
+use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzonArchivo;
@@ -35,7 +36,8 @@ class FirmaController extends Controller
                 $datos = $request->json()->all();
 
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
-                
+                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion']);                
+
                 if (!$aInfoUsuarios['aplica_fea'])
                     return $this->respondFail('Usuario no tiene permiso para realizar firma electrónica.');
 
@@ -63,7 +65,7 @@ class FirmaController extends Controller
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
-                $nRut = '22222222';//'18658044';//$aInfoUsuarios['run']
+                $nRut = env('PLCSGD_RUT');//'18658044';//'18658044';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
@@ -84,32 +86,32 @@ class FirmaController extends Controller
                 if (count($datosBitacora) == 0) //firma 1
                 {
                     $n_llx = 300;
-                    $n_lly = 140;
+                    $n_lly = 180;
                     $n_urx = 550;
-                    $n_ury = 210;
+                    $n_ury = 250;
                 }
 
                 if (count($datosBitacora) == 1) //firma 2
                 {
                     $n_llx = 40;
-                    $n_lly = 140;
+                    $n_lly = 180;
                     $n_urx = 280;
-                    $n_ury = 210;
+                    $n_ury = 250;
                 }
                 if (count($datosBitacora) == 2) //firma 3
                 {
                     $n_llx = 300;
-                    $n_lly = 50;
+                    $n_lly = 90;
                     $n_urx = 550;
-                    $n_ury = 120;
+                    $n_ury = 160;
                 }
 
                 if (count($datosBitacora) == 3) //firma 4
                 {
                     $n_llx = 40;
-                    $n_lly = 50;
+                    $n_lly = 90;
                     $n_urx = 280;
-                    $n_ury = 120;
+                    $n_ury = 160;
                 }
                                 
                 $layout = array(
@@ -137,8 +139,8 @@ class FirmaController extends Controller
                     // set the source file
                     $pageCount = $pdf->setSourceFile($sArchivo);            
                     $pdf->AliasNbPages();
-                    $pdf->footer_txt = "Código de validación: 21458fr8932yh245iop245d";
-                    $pdf->footer_link = "http://www.google.com";
+                    $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
+                    $pdf->footer_link = "http://sgd.padrelascasas.cl/verificador";
                     $pdf->PageFirma = $aDocumentoBuzon['paginas_archivo'];
 
                     for ($i=1; $i <= $pageCount; $i++) { 
@@ -148,10 +150,8 @@ class FirmaController extends Controller
                         $size = $pdf->getTemplateSize($tplId);
                         $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
 
-
-
                         //create a page
-                       // $pdf->AddPage();
+                        // $pdf->AddPage();
                         //use the template of the imporated page
                         $pdf->useTemplate($tplId);                    
                     }
