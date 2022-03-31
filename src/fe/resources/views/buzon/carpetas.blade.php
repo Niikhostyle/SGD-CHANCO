@@ -287,7 +287,7 @@
                         <div class="form-row">
                             <div class="col-md-12">
                                 <label for="floatingTextarea">Descripción o Extracto</label>
-                                <textarea class="form-control" id="form_descripcion" name="form_descripcion"></textarea>
+                                <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>
                             </div>
                         </div>
 
