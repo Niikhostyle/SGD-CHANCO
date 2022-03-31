@@ -40,7 +40,7 @@
     <div class="linea_content_header"></div>
     <br>
 
-    <div class="card" id="card_crear_documento" style="border: 4px solid #005c9e;  opacity: 0.5;">
+    <div class="card" id="card_crear_documento" style="border: 4px solid #005c9e;   background-color: #b7f1f5;">
         
                 <div class="card-body">
 
@@ -50,14 +50,14 @@
                         <div class="form-row">                                
                                 <div class="col-md-4 md-4">
                                 <div class="form-group">
-                                <label for="id_documento">Codigo de documento valido: </label>
+                                <label for="id_documento" >Codigo de documento valido: </label>
                                     
                                 </div>
                             </div>
                             <div class="col-md-4 md-4">
                                 <div class="form-group">
                                 
-                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo">
+                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" style="background-color: #b7f1f5; border: 1px solid #000000;">
                                 </div>
                             </div>
                             <div class="col-md-4 md-4">
