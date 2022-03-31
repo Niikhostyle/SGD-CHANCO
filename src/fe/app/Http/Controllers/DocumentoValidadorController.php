@@ -24,7 +24,7 @@ class DocumentoValidadorController extends Controller
         return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
     }
 
-    public function ver(Request $request)
+    public function store(Request $request)
     {
         
         $codigo = $request['codigo'];
@@ -37,7 +37,7 @@ class DocumentoValidadorController extends Controller
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
         
-
+        //return $lista_documentos;
         if($lista_documentos->failed()){
             //return $lista_documentos ;
             $mensaje= $lista_documentos->json()['data']['comentario'];
