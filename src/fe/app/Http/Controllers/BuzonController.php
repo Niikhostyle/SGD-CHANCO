@@ -486,7 +486,10 @@ class BuzonController extends Controller
                     ->where('buzon.id_buzon','=', $request->buzon)
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
                     ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
-                    ->first();          
+                    ->first();   
+                    
+        if (!$DatosFirma['cargo_firma'])   
+            return $this->respondFail("No existe cargo asociado al buzón.");
 
         $img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png 
         //$img = Image::make(storage_path('app/public/files/img_firma/'.$aInfoUsuarios['img_firma']));
