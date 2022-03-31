@@ -162,8 +162,8 @@ class BuscadorController extends Controller
         , td.nombre as tipo_documento
         , us.id        
         , CASE
-			WHEN (d.efectos_terceros is true) THEN 'Si'
-			ELSE 'No'
+			WHEN (d.efectos_terceros is true) THEN 'true'
+			ELSE 'false'
 		END AS efectos_terceros
         , (select b3.nombre from documento_buzon db2 join buzon b3 on b3.id_buzon = db2.id_buzon where db2.id_documento = db.id_documento and db2.id_documento_buzon_padre is null) as buzon_origen
         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
