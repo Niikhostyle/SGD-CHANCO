@@ -40,9 +40,8 @@
     <div class="linea_content_header"></div>
     <br>
 
-    <div class="card" id="card_crear_documento" style="border: 1px solid #005c9e;">
-        <div class="col-12">
-            <div class="card">
+    <div class="card" id="card_crear_documento" style="border: 4px solid #005c9e;  opacity: 0.5;">
+        
                 <div class="card-body">
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.store')}}">
@@ -70,9 +69,6 @@
                     </form>
                 </div>
 
-            </div>
-
-        </div>
     </div>
    
   
