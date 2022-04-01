@@ -1645,7 +1645,7 @@
             if (result.value==true) 
             {
                 $.ajax({
-                    url: "/actualizar_estado_documentoExterno/"+hiddIdDocumentoBuzon,
+                    url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
