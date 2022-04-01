@@ -246,7 +246,7 @@ function cargar_datos_bitacora(id_documento)
             $('#tabla_bitacora_grilla').DataTable().destroy();
     }
 
-    var aTxtSalida = ['Creación documento', 'Derivación a buzón ', 'Recepción ', 'Edición', 'Cambio archivo principal', 'Visar', 'Firmar', 'Generación PDF', '', 'Finalizar', '', 'Archivar'];
+    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizar en', '', 'Archivar en'];
 
     $.getJSON('/buscador/'+id_documento, function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
@@ -294,7 +294,8 @@ function cargar_datos_bitacora(id_documento)
                             }
                             else
                             {                                
-                                return aTxtSalida[data] + '"' + row.buzon_destino + '"';
+                                
+                                return aTxtSalida[data] + ' "' + row.buzon_destino + '"';
                                 let txtSalida = 'Derivación a buzón ';
                                 if (data == 2)
                                     return txtSalida + '"' + row.buzon_destino + '"';

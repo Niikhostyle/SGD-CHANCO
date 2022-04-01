@@ -52,11 +52,47 @@
         </div>
 
     
+<<<<<<< HEAD
     
     <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
     <br>
 
    
+=======
+    <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
+    <br>
+
+    <div class="card" id="card_crear_documento" style="border: 1px solid #cededf;   background-color: #cededf;">
+        
+                <div class="card-body">
+
+                    <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.store')}}">
+                        @csrf
+                        
+                        <div class="form-row">                                
+                                <div class="col-md-4 md-4">
+                                <div class="form-group">
+                                <label for="id_documento" >Codigo de documento valido: </label>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-md-4 md-4">
+                                <div class="form-group">
+                                
+                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" style="background-color: #cededf; border: 1px solid #000000;">
+                                </div>
+                            </div>
+                            <div class="col-md-4 md-4">
+                                <div class="form-group">
+                                <button type="submit"  class="btn btn-success btn_validar">Validar Documento</button>
+                                </div>
+                            </div>                        
+                        </div>
+                    </form>
+                </div>
+
+    </div>
+>>>>>>> Develop
    
   
     <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
