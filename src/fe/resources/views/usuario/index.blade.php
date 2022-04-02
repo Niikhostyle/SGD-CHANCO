@@ -195,7 +195,12 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4"> </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="input_imagen_firma">Imagen de firma</label>
+                        <input type="file" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="" required>
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-8"> </div>
@@ -284,6 +289,9 @@
             var aplica_fea = $("select[name='aplica_fea']").val();
             var genera_pdf = $("select[name='aplica_genera_pdf']").val();
             var form_id_usuario = $("input[name='form_id_usuario']").val();
+            var imagen_firma = $("input[name='form_imagen_firma']").val();
+
+
                 if(password==re_password){
                     $.ajax({
                         url: "{{route('usuarios.update')}}",
@@ -291,7 +299,7 @@
                         data: { _token:_token,form_id_usuario:form_id_usuario, run:run, id_perfil:id_perfil,
                                 id_estado_usuario:id_estado_usuario, nombres:nombres,
                                 primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
+                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf,imagen_firma:imagen_firma
                                 },
                         success: function(data) {
                             if(data.status=='400'){

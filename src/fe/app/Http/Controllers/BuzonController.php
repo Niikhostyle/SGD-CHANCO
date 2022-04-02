@@ -491,15 +491,15 @@ class BuzonController extends Controller
         if (!$DatosFirma['cargo_firma'])   
             return $this->respondFail("No existe cargo asociado al buzón.");
 
-        $img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png 
-        //$img = Image::make(storage_path('app/public/files/img_firma/'.$aInfoUsuarios['img_firma']));
+        //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png 
+        $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
         $dFechaCreacion = date('d.m.Y H:i:s');
         $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
         $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 
         $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); 
         $img->text($DatosFirma['cargo_firma'].$DatosFirma['sigla'], 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
 
-        $img->save(storage_path('app/public/files/'.$sNombreImg));  
+        $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
 
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
@@ -510,6 +510,10 @@ class BuzonController extends Controller
             'id_buzon'=>$request->buzon,
             'img_firma' => $sNombreImg
         ]);
+
+        //elimina imagen generada
+
+        unlink(storage_path('app/public/files/imagen_firma/'.$sNombreImg));
         
         return $datosFea->json();
     }

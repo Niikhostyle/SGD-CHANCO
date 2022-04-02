@@ -60,6 +60,7 @@ class UsuarioController extends Controller
 
     public function store(StoreUsuario $request)
     {
+        
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -74,7 +75,8 @@ class UsuarioController extends Controller
             'aplica_fea'=>$request->aplica_fea,
             'genera_pdf'=>$request->genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil
+            'id_perfil'=>$request->id_perfil,
+            'imagen_firma'=>$request->file('form_imagen_firma')
         ]);
         
         $response_json=$response->json(); 
@@ -118,6 +120,7 @@ class UsuarioController extends Controller
 
     public function update(UpdateUsuario $request){
 
+        return $request->file('form_imagen_firma')->getClientOriginalExtension();
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -133,7 +136,8 @@ class UsuarioController extends Controller
             'aplica_fea'=>$request->aplica_fea,
             'genera_pdf'=>$request->genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil
+            'id_perfil'=>$request->id_perfil,
+            'imagen_firma'=>$request->file('form_imagen_firma')
         ]);
 
         $response_json=response()->json($response->json());

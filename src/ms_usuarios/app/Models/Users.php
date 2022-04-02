@@ -23,7 +23,7 @@ class Users extends Model implements AuthenticatableContract, AuthorizableContra
      * @var array
      */
     protected $fillable = [
-        'run', 'id_perfil', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'password', 'aplica_fea', 'genera_pdf', 'id_estado_usuario'
+        'run', 'id_perfil', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'password', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'img_firma'
     ];
 
    
