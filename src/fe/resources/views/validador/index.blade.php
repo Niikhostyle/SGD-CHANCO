@@ -37,10 +37,10 @@
         </div>
     </div>
     
-    <div class="linea_content_header"></div>
+    <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
     <br>
 
-    <div class="card" id="card_crear_documento" style="border: 4px solid #005c9e;   background-color: #b7f1f5;">
+    <div class="card" id="card_crear_documento" style="border: 1px solid #cededf;   background-color: #cededf;">
         
                 <div class="card-body">
 
@@ -57,7 +57,7 @@
                             <div class="col-md-4 md-4">
                                 <div class="form-group">
                                 
-                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" style="background-color: #b7f1f5; border: 1px solid #000000;">
+                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" style="background-color: #cededf; border: 1px solid #000000;">
                                 </div>
                             </div>
                             <div class="col-md-4 md-4">
@@ -72,10 +72,10 @@
     </div>
    
   
-       
+    <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
    
     @foreach($lista_documentos['data'] as $list)    
-            <div class="card" id="card_validar" >
+            <div class="card" id="card_validar" style="border: 2px solid #cededf;   background-color: #cededf;">
                 <div class="card-body">
 
                 
