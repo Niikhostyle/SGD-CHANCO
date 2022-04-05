@@ -241,12 +241,28 @@
 
 <script src="js/jquery.bootstrap-duallistbox.js"></script>
 
-<script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
+
 
 <script>
 
-    const editor_encabezado = CKEDITOR.replace('form_plantilla_encabezado');
-    const editor_cuerpo = CKEDITOR.replace('form_plantilla_cuerpo');
+    const editor_encabezado = CKEDITOR.replace('form_plantilla_encabezado',{  
+             
+             filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+             filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+             filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+         });
+    const editor_cuerpo = CKEDITOR.replace('form_plantilla_cuerpo',{  
+             
+             filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+             filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+             filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+         });
+
+      
+         CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
+        
    
     $('#tabla_grilla').DataTable({
         rowReorder: {
