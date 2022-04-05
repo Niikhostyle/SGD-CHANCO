@@ -34,6 +34,7 @@ class StoreUsuario extends FormRequest
         'segundo_apellido'=>'required|max:20',
         'password'=>'required|min:8|max:12',
         'email'=>'required|unique:users|email',
+        'form_imagen_firma'=>'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 

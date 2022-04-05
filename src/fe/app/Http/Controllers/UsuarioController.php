@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuario;
 use App\Http\Requests\UpdateUsuario;
-
+use Exception;
 
 class UsuarioController extends Controller
 {
@@ -61,40 +61,45 @@ class UsuarioController extends Controller
     public function store(StoreUsuario $request)
     {
         
-        $sesion_key =  AppServiceProvider::session_key_general();
-        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
-        ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
-            'run'=>$request->run,
-            'nombres'=>$request->nombres,
-            'primer_apellido'=>$request->primer_apellido,
-            'segundo_apellido'=>$request->segundo_apellido,
-            'email'=>$request->email,
-            'password'=>$request->password,
-            'confirmar_password'=>$request->confirmar_password,
-            'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf,
-            'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil,
-            'imagen_firma'=>$request->file('form_imagen_firma')
-        ]);
+        $uploadImg = $this->uploadFile($request);
         
-        $response_json=$response->json(); 
-
-        if ($response_json['status'] == '201')
+        if($uploadImg)  
         {
-            $response_object=$response->object();
-            $aUsuarios = [];
-            $aUsuarios[] = ['id_usuario' => $response_object->data->id];
-            
-            $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-            ->timeout(20)
-            ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
-                'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
-                'nombre_corto_buzon'=>'PRSNAL',
-                'tipo_buzon'=>'1',
-                'usuarios_asignados'=> $aUsuarios
+            $sesion_key =  AppServiceProvider::session_key_general();
+            $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(10)
+            ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
+                'run'=>$request->run,
+                'nombres'=>$request->nombres,
+                'primer_apellido'=>$request->primer_apellido,
+                'segundo_apellido'=>$request->segundo_apellido,
+                'email'=>$request->email,
+                'password'=>$request->password,
+                'confirmar_password'=>$request->confirmar_password,
+                'aplica_fea'=>$request->aplica_fea,
+                'genera_pdf'=>$request->genera_pdf,
+                'id_estado_usuario'=>$request->id_estado_usuario,
+                'id_perfil'=>$request->id_perfil,
+                'img_firma'=>$uploadImg
             ]);
+            
+            $response_json=$response->json(); 
+
+            if ($response_json['status'] == '201')
+            {
+                $response_object=$response->object();
+                $aUsuarios = [];
+                $aUsuarios[] = ['id_usuario' => $response_object->data->id];
+                
+                $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+                ->timeout(20)
+                ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
+                    'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
+                    'nombre_corto_buzon'=>'PRSNAL',
+                    'tipo_buzon'=>'1',
+                    'usuarios_asignados'=> $aUsuarios
+                ]);
+            }
         }
 
         return $response_json;
@@ -120,27 +125,39 @@ class UsuarioController extends Controller
 
     public function update(UpdateUsuario $request){
 
-        return $request->file('form_imagen_firma')->getClientOriginalExtension();
-        $sesion_key =  AppServiceProvider::session_key_general();
-        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(10)
-        ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/actualizar', [
-            'id'=>$request->form_id_usuario,
-            'run'=>$request->run,
-            'nombres'=>$request->nombres,
-            'primer_apellido'=>$request->primer_apellido,
-            'segundo_apellido'=>$request->segundo_apellido,
-            'email'=>$request->email,
-            'password'=>$request->password,
-            'confirmar_password'=>$request->confirmar_password,
-            'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf,
-            'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil,
-            'imagen_firma'=>$request->file('form_imagen_firma')
-        ]);
+        //return $request->file('form_imagen_firma')->getClientOriginalExtension();//->file('form_imagen_firma')->getClientOriginalExtension();$request->file('photo');
+        
+        $uploadImg = $this->uploadFile($request);
+        
+        if($uploadImg)  
+        {
+            $sesion_key =  AppServiceProvider::session_key_general();
+            $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(10)
+            ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/actualizar', [
+                'id'=>$request->form_id_usuario,
+                'run'=>$request->run,
+                'nombres'=>$request->nombres,
+                'primer_apellido'=>$request->primer_apellido,
+                'segundo_apellido'=>$request->segundo_apellido,
+                'email'=>$request->email,
+                'password'=>$request->password,
+                'confirmar_password'=>$request->confirmar_password,
+                'aplica_fea'=>$request->aplica_fea,
+                'genera_pdf'=>$request->genera_pdf,
+                'id_estado_usuario'=>$request->id_estado_usuario,
+                'id_perfil'=>$request->id_perfil,
+                'imagen_firma'=>$uploadImg
+            ]);
 
-        $response_json=response()->json($response->json());
+            $response_json = response()->json($response->json());
+
+        }      
+        else
+        {
+            //elimina imagen
+            //muestra mensaje
+        }  
 
         return $response_json;
     }
@@ -154,5 +171,29 @@ class UsuarioController extends Controller
 
         $response_json=response()->json($response->json());
         return $response_json;
+    }
+
+    public function uploadFile(Request $request) {
+
+        if(!$request->hasFile('form_imagen_firma')) {
+            //throw new Exception("upload_file_not_found.");
+            return $this->respondFail("upload_file_not_found.");
+        }
+        $file = $request->file('form_imagen_firma');
+        if(!$file->isValid()) {
+            return $this->respondFail("invalid_file_upload.");
+        }
+        
+        $extension = $file->getClientOriginalExtension();
+        $nNombreArchivoCargar = $request->run . '.' . $extension;
+        
+        $uploadSuccess = $file->move(storage_path('app/public/files/imagen_firma/'), $nNombreArchivoCargar);
+
+        if (!$uploadSuccess)
+            throw new Exception("No se pudo cargar la imagen.");
+
+            //return $this->respondSuccess($nNombreArchivoCargar, 201);
+        
+        return $nNombreArchivoCargar;
     }
 }

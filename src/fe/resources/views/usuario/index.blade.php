@@ -98,7 +98,7 @@
         </div>
         
         <div class="card-body">
-            <form class="needs-validation" id="form_usuario_crear_editar"   >
+            <form class="needs-validation" id="form_usuario_crear_editar" method="POST"  enctype="multipart/form-data">
             @csrf
 
             <div class="row">
@@ -276,64 +276,55 @@
             });
 
             $(".print-error-msg").hide();
-            var _token = $("input[name='_token']").val();
-            var id_perfil = $("select[name='id_perfil']").val();
-            var id_estado_usuario = $("select[name='id_estado_usuario']").val();
-            var run = $("input[name='run']").val();
-            var nombres = $("input[name='nombres']").val();
-            var primer_apellido = $("input[name='primer_apellido']").val();
-            var segundo_apellido = $("input[name='segundo_apellido']").val();
+            
             var password = $("input[name='password']").val();
             var re_password = $("input[name='re_password']").val();
-            var email = $("input[name='email']").val();
-            var aplica_fea = $("select[name='aplica_fea']").val();
-            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
-            var form_id_usuario = $("input[name='form_id_usuario']").val();
-            var imagen_firma = $("input[name='form_imagen_firma']").val();
+            
 
+            var formData = new FormData($("#form_usuario_crear_editar")[0]);
 
-                if(password==re_password){
-                    $.ajax({
-                        url: "{{route('usuarios.update')}}",
-                        type:'PUT',
-                        data: { _token:_token,form_id_usuario:form_id_usuario, run:run, id_perfil:id_perfil,
-                                id_estado_usuario:id_estado_usuario, nombres:nombres,
-                                primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf,imagen_firma:imagen_firma
-                                },
-                        success: function(data) {
-                            if(data.status=='400'){
-                                toastr.error(data.data.comentario,"Oops...");
+            if(password == re_password){
+                $.ajax({
+                    url: "{{route('usuarios.update')}}",
+                    type:'POST',
+                    data:formData,
+                    contentType: false,
+                    cache: false,
+                    processData: false,                    
+                    success: function(data) {
+                        if(data.status=='400'){
+                            toastr.error(data.data.comentario,"Oops...");
 
-                            }else{
-                                if(data.status=='200' || data.status=='201'){
-                                    $('#card_usuario_crear_editar').hide();
-                                    $('#form_usuario_crear_editar').trigger("reset");
-                                    toastr.success("Guardado exitoso","Aviso!");
-                                    location.reload();
-                                }
+                        }else{
+                            if(data.status=='200' || data.status=='201'){
+                                $('#card_usuario_crear_editar').hide();
+                                $('#form_usuario_crear_editar').trigger("reset");
+                                toastr.success("Guardado exitoso","Aviso!");
+                                location.reload();
                             }
-                            $('.btn-actualizar').prop("disabled", false);
-                            $('.btn-actualizar').html( 'Actualizar' );
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-actualizar').prop("disabled", false);
-                            $('.btn-actualizar').html( 'Actualizar' );
                         }
-                    });
-                }else{
-                    printErrorMsg({'password':'Las contraseñas no coinciden.'});
-                    $('.btn-actualizar').prop("disabled", false);
-                    $('.btn-actualizar').html( 'Actualizar' );
-                }
+                        $('.btn-actualizar').prop("disabled", false);
+                        $('.btn-actualizar').html( 'Actualizar' );
+                    },
+                    error: function (e) {
+                        data = e.responseJSON;
+                        if (typeof data.errors !== 'undefined') {
+                            printErrorMsg(data.errors);
+                        }
+                        $('.btn-actualizar').prop("disabled", false);
+                        $('.btn-actualizar').html( 'Actualizar' );
+                    }
+                });
+            }else{
+                printErrorMsg({'password':'Las contraseñas no coinciden.'});
+                $('.btn-actualizar').prop("disabled", false);
+                $('.btn-actualizar').html( 'Actualizar' );
+            }
 
 
 
         });
+
         $(".btn-submit").click(function(e){
             e.preventDefault();
             $('.btn-submit').prop("disabled", true);
@@ -349,57 +340,49 @@
             });
 
             $(".print-error-msg").hide();
-            var _token = $("input[name='_token']").val();
-            var id_perfil = $("select[name='id_perfil']").val();
-            var id_estado_usuario = $("select[name='id_estado_usuario']").val();
-            var run = $("input[name='run']").val();
-            var nombres = $("input[name='nombres']").val();
-            var primer_apellido = $("input[name='primer_apellido']").val();
-            var segundo_apellido = $("input[name='segundo_apellido']").val();
+            
             var password = $("input[name='password']").val();
             var re_password = $("input[name='re_password']").val();
-            var email = $("input[name='email']").val();
-            var aplica_fea = $("select[name='aplica_fea']").val();
-            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
+            
+            var formData = new FormData($("#form_usuario_crear_editar")[0]);
 
-                if(password==re_password){
-                    $.ajax({
-                        url: "{{route('usuarios.store')}}",
-                        type:'POST',
-                        data: { _token:_token, run:run, id_perfil:id_perfil,
-                                id_estado_usuario:id_estado_usuario, nombres:nombres,
-                                primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
-                                },
-                        success: function(data) {
-                            if(data.status=='400'){
-                                toastr.error(data.data.comentario,"Oops...");
-                            }else{
-                                if(data.status=='200' || data.status=='201'){
-                                    $('#card_usuario_crear_editar').hide();
-                                    $('#form_usuario_crear_editar').trigger("reset");
-                                    toastr.success("Guardado exitoso","Aviso!");
+            if(password == re_password){
+                $.ajax({
+                    url: "{{route('usuarios.store')}}",
+                    type:'POST',
+                    data:formData,
+                    contentType: false,
+                    cache: false,
+                    processData: false,     
+                    success: function(data) {
+                        if(data.status=='400'){
+                            toastr.error(data.data.comentario,"Oops...");
+                        }else{
+                            if(data.status=='200' || data.status=='201'){
+                                $('#card_usuario_crear_editar').hide();
+                                $('#form_usuario_crear_editar').trigger("reset");
+                                toastr.success("Guardado exitoso","Aviso!");
 
-                                    location.reload();
-                                }
+                                location.reload();
                             }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            if (typeof data.errors !== 'undefined') {
-                                printErrorMsg(data.errors);
-                            }
-                            $('.btn-submit').prop("disabled", false);
-                            $('.btn-submit').html( 'Guardar' );
                         }
-                    });
-                }else{
-                    printErrorMsg({'password':'Las contraseñas no coinciden.'});
-                    $('.btn-submit').prop("disabled", false);
-                    $('.btn-submit').html( 'Guardar' );
-                }
+                        $('.btn-submit').prop("disabled", false);
+                        $('.btn-submit').html( 'Guardar' );
+                    },
+                    error: function (e) {
+                        data = e.responseJSON;
+                        if (typeof data.errors !== 'undefined') {
+                            printErrorMsg(data.errors);
+                        }
+                        $('.btn-submit').prop("disabled", false);
+                        $('.btn-submit').html( 'Guardar' );
+                    }
+                });
+            }else{
+                printErrorMsg({'password':'Las contraseñas no coinciden.'});
+                $('.btn-submit').prop("disabled", false);
+                $('.btn-submit').html( 'Guardar' );
+            }
 
 
 
@@ -451,6 +434,7 @@
                                     }else if(data.data.genera_pdf==false){
                                         $("select[name='aplica_genera_pdf']").val('false');
                                     }
+                                    //$("select[name='form_imagen_firma']").val(data.data.img_firma);
 
                                 }
                             }

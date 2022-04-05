@@ -1258,6 +1258,9 @@
 
                     if (accion == 2)
                     {
+                        dropzonePrincipal.processQueue();   
+                        dropzoneOtros.processQueue();   
+                        dropzoneAnexo.processQueue();  
                         callback(data);
                         respuesta_guarda = data;
                     }                   
