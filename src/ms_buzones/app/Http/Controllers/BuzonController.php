@@ -71,7 +71,7 @@ class BuzonController extends Controller{
             {
                 $datosRequest = $request->json()->all();
 
-                $datosSearchBuzon = Buzon::where('nombre', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->orWhere('nombre_corto', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->get(["id_buzon","id_tipo_buzon","nombre","nombre_corto"]);
+                $datosSearchBuzon = Buzon::where('nombre', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->orWhere('nombre_corto', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->orderBy('nombre')->get(["id_buzon","id_tipo_buzon","nombre","nombre_corto"]);
 
                 foreach($datosSearchBuzon as $datos)
                 {

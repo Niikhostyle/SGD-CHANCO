@@ -6,6 +6,7 @@ use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 use Illuminate\Http\Request;
 use App\Providers\AppServiceProvider;
+use Illuminate\Cache\NullStore;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
@@ -19,9 +20,10 @@ class DocumentoValidadorController extends Controller
     public function index()
     {
         $lista_documentos=['data'=>[
-            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'',]
+            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'', 'version'=>'']
         ]];
-        return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
+        $status=null;
+        return View::make('validador.index',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
     }
 
     public function store(Request $request)
@@ -37,32 +39,30 @@ class DocumentoValidadorController extends Controller
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
         
-        //return $lista_documentos;
+        return $lista_documentos;
         if($lista_documentos->failed()){
             //return $lista_documentos ;
             $mensaje= $lista_documentos->json()['data']['comentario'];
 
             $lista_documentos=['data'=>[
-                0=>['hash_validacion'=>'sin datos','folio'=>'sin datos','fecha_documento'=>'sin datos','materia'=>'sin datos', 'id_nivel_acceso'=>'',]
+                0=>['hash_validacion'=>'sin datos','folio'=>'sin datos','fecha_documento'=>'sin datos','materia'=>'sin datos', 'id_nivel_acceso'=>'', 'version'=>'']
             ]];
             toast($mensaje,'error');
         }else{
             $lista_documentos->json();
         }
-         
-        
-        
-        return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
-        
-    }
 
-    public function hash()
-    {
-        $lista_documentos=['data'=>[
-            0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'',]
-        ]];
+        $status = 1;
+        foreach($lista_documentos['data'] as $list){
+            if ($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3 || $list['id_nivel_acceso']==1){
+                $status = 0;
 
-        return View::make('validador.index',['lista_documentos'=>$lista_documentos]);
+            }
+        }
+        
+        
+        
+        return View::make('validador.index',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
         
     }
 
