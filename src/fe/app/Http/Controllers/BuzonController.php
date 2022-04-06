@@ -108,7 +108,9 @@ class BuzonController extends Controller
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
-            'usuarios_asignados'=> $aUsuarios
+            'usuarios_asignados'=> $aUsuarios,
+            'titular'=> $request->titular_firma,            
+            'cargo_firma'=>$request->cargo_firma
         ]);
 
         return $accionBuzon->json();
@@ -170,7 +172,9 @@ class BuzonController extends Controller
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
-            'usuarios_asignados'=> $aUsuarios
+            'usuarios_asignados'=> $aUsuarios,
+            'titular'=> $request->titular_firma,            
+            'cargo_firma'=>$request->cargo_firma
         ]);
 
         return $accionBuzon->json();

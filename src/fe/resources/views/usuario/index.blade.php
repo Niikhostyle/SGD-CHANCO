@@ -254,6 +254,7 @@
             $('#card_usuario_crear_editar').hide();
             $('#form_usuario_crear_editar').trigger("reset");
             $(".print-error-msg").hide();
+            $('#form_usuario_crear_editar').removeClass("was-validated");
         });
 
         $(".btn-actualizar").click(function(e){

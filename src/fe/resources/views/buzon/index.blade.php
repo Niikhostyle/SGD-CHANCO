@@ -63,7 +63,12 @@
         <ul></ul>
     </div>
     <div class="card" id="card_buzon_crear_editar" style="display:none">
-        <h5 id="titulo_buzon_crear_editar"class="card-header bg-success" >Nuevo Buzón</h5>
+        
+        <div class="card-header" >
+            <h4 id="titulo_buzon_crear_editar">Nuevo Buzón</h4>
+            <div class="linea_content_header"></div>
+        </div>        
+        
         <div class="card-body">
             <form class="needs-validation" id="form_buzon_crear_editar" method="POST" action="{{route('buzones.store')}}"  >
             @csrf
@@ -83,6 +88,24 @@
                 </div>
                 
             </div>
+
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="input_cargo">Nombre Cargo (firmantes):</label>
+                        <input type="text" class="form-control " id="form_cargo" aria-describedby="cargo_error" placeholder="" value="" name="cargo" required>
+                    </div>
+                </div>      
+                <div class="col-md-2">
+                </div>  
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="input_cargo">Usuario Titular (para firma):</label>
+                        <select name="titular" id="form_titular" class="form-control" style="text-align:left !important">                            
+                        </select>
+                    </div>
+                </div>                                  
+            </div>
             
             <div class="row">
                 <div class="col-md-12">
@@ -94,7 +117,9 @@
                                 <option value="{{$disponibles['id']}}">{{$disponibles['nombres']}} {{$disponibles['primer_apellido']}}</option>
                             @endforeach
 
-                        </select>                        
+                        </select> 
+                        
+                        
                     </div>                   
                 </div>
                 
@@ -107,7 +132,7 @@
                 <div class="col-md-2">
                     <button type="button" class="btn btn-success btn-submit w-100">Guardar</button>
                     <input type="hidden" name="hiddBuzon" id="hiddBuzon" value="">
-                    
+                   
                 </div>
             </div>
 
@@ -194,7 +219,8 @@
         dualListContainer.find('.remove i').removeClass().addClass('fa fa-arrow-left');
     }
 
-    function CustomizeDuallistbox(listboxID) {
+    function CustomizeDuallistbox(listboxID) 
+    {
         var customSettings = $('#' + listboxID).bootstrapDualListbox('getContainer');
         var buttons = customSettings.find('.btn.moveall, .btn.move, .btn.remove, .btn.removeall');
 
@@ -206,20 +232,52 @@
     }
 
     //seleccion de usuarios asignados en select
-    function dlb_repopulate (asignados, modificados) 
+    function dlb_repopulate (asignados, modificados, firmaTitular) 
     {
         $('[name=duallistbox] option').prop('selected', false);
         $('[name=duallistbox] option').prop('disabled', false);
 
         asignados.forEach(function(option, index) {
+
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
 
+            if (firmaTitular[index] == 1)
+                itemTitular = option;
            // if(modificados[index] == 0)
            //     $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
-         });
+        });
 
         $('[name=duallistbox]').bootstrapDualListbox('refresh', true);
+
+        $('#form_titular').empty();
+        duallist.find(":selected").each(function(ind,sel)
+        {         
+            var $this = $(this);
+            var selText = $this.text();
+            var selValue = $this.val();
+
+            if (selValue == itemTitular) 
+                $('#form_titular').append("<option selected value='"+selValue+"' >"+selText+"</option>");
+            else
+                $('#form_titular').append("<option value='"+selValue+"' >"+selText+"</option>");
+
+        })
     }
+
+    duallist.on('change',function(){
+        let val = $(this).val();
+        
+        $('#form_titular').empty();
+        
+        duallist.find(":selected").each(function(ind,sel)
+        {         
+           var $this = $(this);
+           var selText = $this.text();
+           var selValue = $this.val();
+
+           $('#form_titular').append("<option value='"+selValue+"' >"+selText+"</option>");
+        })
+    })
 
     function ver_buzon(id,op)
     { 
@@ -248,32 +306,36 @@
                 type:'GET', 
                 dataType: 'json',
                 success: function(data) { 
-                    if(data.status=='400'){ 
-                        Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Oops...', 
-                        text: data.data.comentario, 
-                        confirmButtonText: 'Cerrar', 
-                    }); 
-                    }else{ 
+
+                    if(data.status=='400') {
+                        toastr.error(data.data.comentario,"Aviso!");
+                    }          
+                    else{ 
                         if(data.status=='200' || data.status=='201'){ 
 
                             $("input[name='nombre']").val(data.data.nombre);
                             $("input[name='nombre_corto']").val(data.data.nombre_corto);
+                            $("input[name='cargo']").val(data.data.cargo_firma);
                             $("input[name='hiddBuzon']").val(data.data.id_buzon);
+                            $("select[name='titular']").val(data.data.titular_firma);
                                                         
                             var aUsuarios = [];
                             var aUsuariosModificar = [];
+                            var aUsuariosFirma = [];
 
                             $.each(data.data.usuarios_asignados, function(key, item) 
                             {
                                 aUsuarios.push(item.id_usuario);
                                 aUsuariosModificar.push(item.permite_modificar);
+                                aUsuariosFirma.push(item.id_tipo_firma);
+
+                                if(item.id_tipo_firma == 1)
+                                    $("select[name='titular']").val(item.id_usuario);    
                             });                            
 
                             //seleccionar los usuarios asignados
                             //dlb_repopulate(['3', '1']);
-                            dlb_repopulate(aUsuarios, aUsuariosModificar);
+                            dlb_repopulate(aUsuarios, aUsuariosModificar, aUsuariosFirma);
                         } 
                     } 
                     $('.btn-submit').prop("disabled", false); 
@@ -302,7 +364,7 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-                console.log(result);
+
             if (result.value==true) 
             {
                 $.ajax({ 
@@ -344,6 +406,7 @@
         
         $(".print-error-msg").hide();
         $('#form_buzon_crear_editar').trigger("reset");
+        $('#form_titular').empty();
         $('#titulo_buzon_crear_editar').html('Nuevo Buzón');
         $('#card_buzon_crear_editar').show();
         $('.form-control').prop("disabled", false);
@@ -360,6 +423,7 @@
     $(".btn_cerrar_guardar").click(function(e){
         $('#card_buzon_crear_editar').hide();
         $('#form_buzon_crear_editar').trigger("reset");
+        $('#form_titular').empty();
         $(".print-error-msg").hide();
         $('#form_buzon_crear_editar').removeClass("was-validated");
     });
@@ -373,13 +437,13 @@
 
         var forms = document.getElementsByClassName('needs-validation');
         var validation = Array.prototype.filter.call(forms, function(form) {
+            
             if (form.checkValidity() === false) {
                 e.preventDefault();
 				e.stopPropagation();
 
                 form.classList.add('was-validated');
-            }
-            
+            }            
             if(form.checkValidity() === true){
                 form.classList.remove("was-validated");
             }
@@ -390,7 +454,9 @@
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
+        var cargo_firma = $("input[name='cargo']").val();
         var hiddBuzon = $("input[name='hiddBuzon']").val();
+        var titular_firma = $("select[name='titular']").val();
         var usuarios_asignados = $('[name="duallistbox"]').val();
 
         if (hiddBuzon == '') //crear
@@ -409,7 +475,7 @@
             url: urlAccion,
             type: typeAccion,
             data: { 
-                    _token:_token, nombre:nombre, nombre_corto:nombre_corto, usuarios_asignados:usuarios_asignados, hiddBuzon:hiddBuzon                       
+                    _token:_token, nombre:nombre, nombre_corto:nombre_corto, usuarios_asignados:usuarios_asignados, hiddBuzon:hiddBuzon, cargo_firma:cargo_firma, titular_firma:titular_firma                       
                   },
             success: function(data) 
             {
