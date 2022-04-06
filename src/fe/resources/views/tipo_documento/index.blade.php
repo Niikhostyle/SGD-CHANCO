@@ -61,7 +61,12 @@
         <ul></ul>
     </div>
     <div class="card" id="card_crear_editar" style="display:none">
-        <h5 id="titulo_crear_editar"class="card-header bg-success" >Nuevo Tipo de Documento</h5>
+        
+        <div class="card-header" >
+            <h4 id="titulo_crear_editar">Nuevo Tipo de Documento</h4>
+            <div class="linea_content_header"></div>
+        </div>          
+        
         <div class="card-body">
             <form class="needs-validation" id="form_crear_editar" method="POST" action=""  >
             @csrf
@@ -76,7 +81,7 @@
                 <div class="col-md-7">
                     <div class="form-group">
                         <label for="input_descripcion">Descripción:</label>
-                        <input type="text" class="form-control " id="form_descripcion" name="descripcion" value="" aria-describedby="descripcion_error" placeholder="" required>
+                        <input type="text" class="form-control " id="form_descripcion" name="descripcion" value="" aria-describedby="descripcion_error" placeholder="" >
                     </div>
                 </div>
                 
@@ -182,7 +187,7 @@
                     <label for="input_buzon_flujo">Buzones flujo:</label>                                             
                 </div> 
                 <div class="col-md-6">
-                    <select  class="form-control" id="listado_buzones" name="listado_buzones" required>
+                    <select  class="form-control" id="listado_buzones" name="listado_buzones" >
                         <option value="">Busque y seleccione buzón</option>
                         @foreach($listado_buzones as $buzon)
                             <option value="{{$buzon['id_buzon']}}">{{$buzon['nombre']}}</option>
@@ -234,6 +239,16 @@
 @section('css')
 
     <link rel="stylesheet" href="/css/admin_custom.css">
+    <style type="text/css">
+    
+               
+        .form-control.is-valid, .was-validated .form-control:valid {
+            border-color: none !important;
+            background-image: none;
+        }
+
+
+     </style>
     
 @stop
 
@@ -357,6 +372,9 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $('#form_crear_editar').removeClass("was-validated");
         $('.bloque_buzones_flujo').hide();
         $('.bloque_flujo_interno').hide();
+        editor_encabezado.setReadOnly(true);
+        editor_cuerpo.setReadOnly(true);
+
         
         if (op == 2)
         {
@@ -430,6 +448,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $("#form_crear_editar :input").prop("disabled", false);
         editor_encabezado.setData();   
         editor_cuerpo.setData();   
+        editor_encabezado.setReadOnly(false);
+        editor_cuerpo.setReadOnly(false);
 
         $('#form_crear_editar').removeClass("was-validated");
 
@@ -501,6 +521,9 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $('#form_crear_editar').trigger("reset");
         $(".print-error-msg").hide();
         $('#form_crear_editar').removeClass("was-validated");
+
+        editor_encabezado.setReadOnly(false);
+        editor_cuerpo.setReadOnly(false);
     });
 
     function cargarDatosFlujoAcciones(datosTabla)
@@ -703,23 +726,15 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $('.btn-submit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardar'
         );
-            /*
+           
         var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            if (form.checkValidity() === false) {
-                e.preventDefault();
-				e.stopPropagation();
-
-                form.classList.add('was-validated');
-            }
-            
-            if(form.checkValidity() === true){
-                form.classList.remove("was-validated");
-            }
-        });
-        */
-
-        
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                if (form.checkValidity() === false) {
+                        //e.stopPropagation();
+                        form.classList.add('was-validated');
+                }
+            });
+         
         $(".print-error-msg").hide();
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
@@ -835,11 +850,14 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
 
                 $('.btn-submit').html( 'Guardar' );
             },
-            error: function (jqXHR, textStatus, errorThrown) {                                                      
-                toastr.error("Falla en el tipo de documento","Aviso!");
+            error: function (e) {
+                data = e.responseJSON;
+                if (typeof data.errors !== 'undefined') {
+                    printErrorMsg(data.errors);
+                }
 
                 $('.btn-submit').html( 'Guardar' );
-            } 
+            }
             
         });             
     });

@@ -31,16 +31,20 @@
 
 </head>   
 <body class="container" >
-    <div class="row" style="padding: 200px 50px 50px;">
-        <div class="col-8">
-            <h1>Validación de Documentos</h1>
-        </div>
-    </div>
     
-    <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
+        <div class="cover">
+            <h1>Validación de Documentos</h1>
+
+        
+        </div>
+
+    
+
+    
+    <div class="linea_content_header" ></div>
     <br>
 
-    <div class="card" id="card_crear_documento" style="border: 1px solid #cededf;   background-color: #cededf;">
+    <div class="card" id="card_crear_documento" >
         
                 <div class="card-body">
 
@@ -57,7 +61,7 @@
                             <div class="col-md-4 md-4">
                                 <div class="form-group">
                                 
-                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" style="background-color: #cededf; border: 1px solid #000000;">
+                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" >
                                 </div>
                             </div>
                             <div class="col-md-4 md-4">
@@ -70,12 +74,14 @@
                 </div>
 
     </div>
+
    
   
-    <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
-   
+    <div class="linea_content_header" ></div>
+    <br>
+    @if($status==0)
     @foreach($lista_documentos['data'] as $list)    
-            <div class="card" id="card_validar" style="border: 2px solid #cededf;   background-color: #cededf;">
+            <div class="card" id="card_validar" >
                 <div class="card-body">
 
                 
@@ -136,9 +142,29 @@
                             
                                 
                             </tr>
+                        
+
+                        @endif
+                    </table>
+                    
+                    @if($list['id_nivel_acceso']==1)
+                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
+                    @endif
+
+                </div> 
+            </div> 
+    @endforeach
+    @endif
+    @if($status==1)
+      <div class="card" id="card_invalido" style="border: 2px solid #cededf;   background-color: #cededf;">
+                <div class="card-body">
+
+                
+                    <table id="tabla_documento" class="table table-bordered">
+                        
 
                         
-                        @else
+                       
                         <tr>
                                 
                                 <th scope="row">Resultado</th>
@@ -161,17 +187,14 @@
                                 
                             </tr>
 
-                        @endif
+                        
                     </table>
                     
-                    @if($list['id_nivel_acceso']==1)
-                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
-                    @endif
+                    
 
                 </div> 
             </div> 
-    @endforeach
-        
+    @endif 
     
 
 <!--<div class="container">-->
@@ -200,12 +223,71 @@
             height: 50px;
         }
         body{
-            background-color: #5EFFDF;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1600 800'%3E%3Cg stroke='%2325CA9E' stroke-width='10.7' stroke-opacity='0.1' %3E%3Ccircle fill='%235EFFDF' cx='0' cy='0' r='1800'/%3E%3Ccircle fill='%2354f3d8' cx='0' cy='0' r='1700'/%3E%3Ccircle fill='%234be7d2' cx='0' cy='0' r='1600'/%3E%3Ccircle fill='%2342dccb' cx='0' cy='0' r='1500'/%3E%3Ccircle fill='%233ad0c3' cx='0' cy='0' r='1400'/%3E%3Ccircle fill='%2333c4bb' cx='0' cy='0' r='1300'/%3E%3Ccircle fill='%232db9b3' cx='0' cy='0' r='1200'/%3E%3Ccircle fill='%2328aeab' cx='0' cy='0' r='1100'/%3E%3Ccircle fill='%2324a2a3' cx='0' cy='0' r='1000'/%3E%3Ccircle fill='%2320979a' cx='0' cy='0' r='900'/%3E%3Ccircle fill='%231e8c91' cx='0' cy='0' r='800'/%3E%3Ccircle fill='%231c8188' cx='0' cy='0' r='700'/%3E%3Ccircle fill='%231b777e' cx='0' cy='0' r='600'/%3E%3Ccircle fill='%231a6c75' cx='0' cy='0' r='500'/%3E%3Ccircle fill='%2319626b' cx='0' cy='0' r='400'/%3E%3Ccircle fill='%23195861' cx='0' cy='0' r='300'/%3E%3Ccircle fill='%23184e57' cx='0' cy='0' r='200'/%3E%3Ccircle fill='%2317444D' cx='0' cy='0' r='100'/%3E%3C/g%3E%3C/svg%3E");
-            background-attachment: fixed;
-            background-size: cover;
+            
+            background-image: url("http://img.soy-chile.cl/Fotos/2015/12/15/file_20151215164156.jpg");
+            width:auto;
+            height:auto;
         }
-    </style>
+ 
+
+
+
+
+
+
+
+
+
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 1.5rem;
+}
+
+i {
+  font-size: 1.3rem;
+}
+
+
+
+
+
+/** .cover  {
+  height: 100vh;
+  width: 100%;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.05)), to(rgba(0,0,0,0)));
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%);
+  padding: 20px 50px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+}*/
+
+
+
+
+
+  
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .cover {
+    padding: 20px;
+  }
+
+  
+
+  </style>
 
 
 
@@ -222,8 +304,8 @@
 
 //hashValidador = $("input[name='codigo']").val();
 //console.log(hashValidador);
-$('#card_validar').hide();
-$('#card_invalido').hide();
+//$('#card_validar').hide();
+//$('#card_invalido').hide();
 
 $(".btn_validar").click(function(e){
             

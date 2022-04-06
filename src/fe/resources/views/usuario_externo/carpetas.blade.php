@@ -184,13 +184,27 @@
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
+                        <div class="form-row"> 
+                                <div id="carousel-responder" class="carousel slide w-50 flex-container" data-ride="carousel">
+                                    <div class="carousel-inner row mx-auto" id="carrousel-items" role="listbox"></div>
+                                    <a class="carousel-control-prev" href="#carousel-responder2" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#carousel-responder2" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+
+                        </div>
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
                                     <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
-                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></i></li>
-                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i>No Asignado</i></li>
+                                    <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
+                                    <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
                                 </ul>
                             </div>
                         </div>
@@ -236,6 +250,7 @@
                                         <option value="{{$doc['value']}}">{{$doc['title']}}</option>
                                     @endforeach
                                 </select>
+                                
                             </div>
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Materia:</label>
@@ -371,6 +386,7 @@
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+                                    <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
 
                                 </div>                          
                         </div>
@@ -1645,7 +1661,7 @@
             if (result.value==true) 
             {
                 $.ajax({
-                    url: "/actualizar_estado_documentoExterno/"+hiddIdDocumentoBuzon,
+                    url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -1968,26 +1984,28 @@
                     if(data.status=='200')
                     {
                         var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
-                        var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                        if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
+                        {
+                            var fechaContestarHasta = data.data.rel_documento_buzon[0]['contestar_hasta'].split(' ');
+                            $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+                        }
                         var idBuzon = $("input[name='hiddIdBuzon']").val();
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];    
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
-                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
+                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
+                        var jsonDocResponder = data.data.rel_responder;
                         
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
                         $("select[name='nivel_acceso']").val(data.data.id_nivel_acceso);
                         $("select[name='efectos_terceros']").val(""+data.data.efectos_terceros+"");
-                        $("input[name='contestar_hasta']").val(fechaContestarHasta[0]);
+   
                         $("input[name='materia']").val(data.data.materia);
                         $("input[name='anterior']").val(data.data.anterior);
                         $("textarea[name='descripcion']").val(data.data.descripcion);
 
-                        if (nFlujo != 1)
-                            $('#form_respuesta_a').multiselect('disable');
-                         
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
 
@@ -1996,8 +2014,14 @@
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
-                        $("#idAsignado").text(data.data.identificador);
-                        $("#idFolio").text(data.data.folio);
+                        $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
+
+                        if (data.data.folio != null)
+                            $("#idFolio").html("<b>"+data.data.folio+"</b>");
+
+                        if (data.data.fecha != null)
+                            $("#idFecha").html("<b>"+data.data.fecha+"</b>");
+
 
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
@@ -2015,25 +2039,6 @@
                             $('#form_archivo_principal_el').hide();
                             $('#cargar_archivo_principal_el').show();
                         }
-                        
-                        //selecciona documentos en respuesta a
-                       
-                        $('#form_respuesta_a').multiselect({numberDisplayed: 6});
-                        $('#form_respuesta_a').multiselect('deselectAll', true);
-                        //$('#form_respuesta_a').empty();                        
- 
-                        if (carpeta != 3 || (carpeta == 3 && accion == 0))
-                            $('#form_respuesta_a').empty();
-                        
-                        for (let j in jsonRespuesta) 
-                        {                           
-                            if (carpeta == 3 && accion != 0)
-                                $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
-                            else
-                                $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
-                        }
-
-                        $('#form_respuesta_a').multiselect('rebuild');
 
                         $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();   
@@ -2050,7 +2055,7 @@
                             var buzon_padre = id_documento_buzon_padre; 
                             var flujoSgte = json_tipo_doc['flujo_actual'];
                         }
-                         
+
                         //agrega las acciones correspondientes al tipo de flujo
                         if (nFlujo == 3)
                             var accionesFlujo = accionesFlujo3;
@@ -2096,7 +2101,7 @@
                                         aBuzonesDerivaciones.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                     }
                                 }
-
+                                
                                 //guarda buzon y acciones flujo anterior
                                 if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0 && ((jsonTipoAvance == 2 || jsonTipoAvance == 4) && jsonAcciones[i].orden != 1)) //validar que no se repita 
                                 {
@@ -2118,13 +2123,13 @@
                                 //    $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
                                 //else
                                     $('#form_acciones_solicitadas_el').append("<option value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
-
                             }
 
                             $('#form_acciones_solicitadas_el').multiselect('rebuild');
                             $('#form_acciones_solicitadas_el').multiselect('disable');
 
                             var bFlujo = false;
+
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
@@ -2141,7 +2146,7 @@
                                     for (let i in accionesSolicitadas) {
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
                                     }
-
+    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
 
                                 }
@@ -2157,10 +2162,12 @@
                             {
                                 if (idBuzonAccion != null && idBuzonAccion != '')
                                 {
+
                                     //agrega buzon q corresponde al flujo actual segun carpeta
                                     $("#form_destinatario_principal").val(idBuzonAccion);
                                     $("#form_destinatario_principal").trigger('change'); 
-
+                                    
+                                    
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in aAcciones) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', aAcciones[i]['id_accion']);
@@ -2208,15 +2215,7 @@
                                     $('#form_destinatario_principal').val(idBuzonAccion).trigger('change');                                   
 
                                 }   
-/*
-                                if (jsonTipoAvance == 3 && accion == 1) //bidireccional con reinicio
-                                {
-                                    $('#form_destinatario_principal').prop("disabled", false);    
-                                }
-
-                                if (jsonTipoAvance == 4 && accion == 1) //bidireccional con reinicio
-                                {}
-*/
+                               
                             }
                             //habilitar si tipo avance = 1
                             
@@ -2229,20 +2228,64 @@
                             {
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
+                                $('#form_respuesta_a').multiselect('enable'); 
                             } 
 
+                            /* responder a */
+
+                            //selecciona documentos en respuesta a
+                            $('#form_respuesta_a').multiselect({numberDisplayed: 6});
+                            $('#form_respuesta_a').multiselect('deselectAll', true);
+                            
+                            if (carpeta != 3 || (carpeta == 3 && accion == 0))
+                                $('#form_respuesta_a').empty();
+                            
+                            var sDivIzq = "";
+                            for (let j in jsonRespuesta) 
+                            {                           
+                                if (carpeta != 3 || (carpeta == 3 && accion == 0))
+                                    $('#form_respuesta_a').append("<option selected value='"+jsonRespuesta[j]['id_documento']+"' >"+jsonRespuesta[j]['identificador'] +"-"+jsonRespuesta[j]['materia']+"</option>");
+                                else
+                                    $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
+                            
+                                //completa carrusel lado izq
+                                sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
+                            }
+
+                            $('#form_respuesta_a').multiselect('rebuild');
+                            $('#form_respuesta_a').multiselect('refresh');
+
+                            //completar carrusel lado der
+                            var sDivDer = "";
+                            for (let d in jsonDocResponder)
+                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonDocResponder[d]['identificador']+'</div>'; 
+
+                            sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
+
+                            if((carpeta == 3 && accion == 0 && nFlujo == 1) )
+                            {
+                                if (sDivIzq != '' || sDivDer != '')
+                                {
+                                    $('#carousel-responder').show();
+
+                                    $('#carrousel-items').append(sDivIzq);
+                                    $('#carrousel-items').append(sDivActual);
+                                    $('#carrousel-items').append(sDivDer);  
+                                }             
+                            }
+
                             $.each(relDocumentoBuzon, function(i, item)
-                            {                       
+                            {                     
                                 
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
                                     $("#form_destinatario_principal").val(item.id_buzon);
                                     $("#form_destinatario_principal").trigger('change');    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
-
+                                    
                                     //seleccionar acciones
                                     var accionesSolicitadas = $.parseJSON(item.json_acciones);
-                                    
+                                                                       
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in accionesSolicitadas) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
@@ -2266,7 +2309,8 @@
                         aFilesPrincipal = [];
                         aFilesDelete = [];                  
 
-                        $.each(relDocumentoBuzonArchivo, function(key,value){
+                        $.each(relDocumentoBuzonArchivo, function(key,value)
+                        {
                             
                           /*  let mockFile = { name: value.nombre_archivo_original, size: 1024 };
 
@@ -2284,13 +2328,13 @@
                             //a.innerHTML = "Descargar";
                             mockFile.previewTemplate.appendChild(a);
                            
-*/                            
-                            
-                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/imagenes/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                            */ 
                             
                           // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
+
+                          htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
 
                            /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
@@ -2310,6 +2354,8 @@
                             
                             if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
+
+                            //versiones anteriores    
 
                         });
                        

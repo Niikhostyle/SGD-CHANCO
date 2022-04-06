@@ -33,7 +33,7 @@ class TipoDocValidator
     {
         return [
             'nombre' => 'max:50|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
-            'nombre_corto' => 'max:50|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
+            'nombre_corto' => 'max:50|regex:/^[a-zA-Z0-9]+$/',
             'id_tipo_origen' => 'required|integer',
             'id_tipo_flujo' => 'required|integer',
             'id_tipo_folio' => 'required|integer',
@@ -45,7 +45,7 @@ class TipoDocValidator
     {
         return [
             'nombre' => 'max:50|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
-            'nombre_corto' => 'max:50|regex:/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]+$/',
+            'nombre_corto' => 'max:50|regex:/^[a-zA-Z0-9]+$/',
             'id_tipo_origen' => 'required|integer',
             'id_tipo_flujo' => 'required|integer',
             'id_tipo_folio' => 'required|integer',

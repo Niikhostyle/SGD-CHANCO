@@ -6,6 +6,7 @@ use App\Models\TipoDocumento;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
+use App\Http\Requests\StoreTipoDoc;
 
 use Illuminate\Http\Request;
 
@@ -129,7 +130,7 @@ class TipoDocumentoController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreTipoDoc $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
@@ -168,7 +169,7 @@ class TipoDocumentoController extends Controller
         return $datosTipoDoc->json();
     }
 
-    public function update(Request $request)
+    public function update(StoreTipoDoc $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 

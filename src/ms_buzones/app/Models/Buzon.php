@@ -11,12 +11,12 @@ class Buzon extends Model{
     protected $hidden = ['created_at', 'updated_at'];
 
     protected $fillable = [
-        'nombre', 'nombre_corto', 'id_tipo_buzon'
+        'nombre', 'nombre_corto', 'id_tipo_buzon', 'cargo_firma'
     ];
 
     public function usuarios_asignados()
     {
-        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon')->select(['id_usuario']);
+        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon')->select(['id_usuario','id_tipo_firma']);
     } 
 
     public function documentos_buzon()
