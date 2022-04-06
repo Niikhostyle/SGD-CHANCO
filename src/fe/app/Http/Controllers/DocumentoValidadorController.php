@@ -39,7 +39,7 @@ class DocumentoValidadorController extends Controller
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
         
-        return $lista_documentos;
+        //return $lista_documentos;
         if($lista_documentos->failed()){
             //return $lista_documentos ;
             $mensaje= $lista_documentos->json()['data']['comentario'];
