@@ -17,7 +17,7 @@
         <div class="card-body">
             <div class=" form-row">   
                 <div class="col-md-8 md-4">  
-                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" placeholder="Folio o Materia.">
+                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" >
                 </div>
                 <div class="col-md-1 md-4">  
                     <i id="botones_busqueda_simple"></i>
@@ -66,6 +66,13 @@
                 </div>
             </div>
             <div class="form-row">
+
+                 <div class="col-md-4 md-4">
+                    <div class="form-group">
+                    <label for="id_folio">Folio: </label>
+                        <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
+                    </div>
+                </div>
                 <div class="col-md-4 md-4">
                     <div class="form-group">
                         <label for="">Rango de Fechas </label>
@@ -83,11 +90,9 @@
                         <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
                     </div>
                 </div>
-
-                <div class="col-md-4 md-4">
-                    <div class="form-group">
-                        <br>
-    
+                
+                <div class="form-row">
+                     <div class="col-md-12 md-4">
                         <i id="botones_grilla_despachados"></i>
                     </div>    
                 </div>
@@ -377,15 +382,12 @@
 </div>
    
     <!-- Bitacora fin-->
-
-<div class="row ">
+    <div class="row ">
     <div class="col-md-10"> </div>
     <div class="col-md-2">
         <p><button style="display:none" type="button" class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button></p>
     </div>
-</div> 
-
-    
+</div>  
 @stop
 
 @section('css')
@@ -394,6 +396,8 @@
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css">
+
 
 
 
@@ -468,26 +472,23 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 
- <!-- Required meta tags -->
+<!-- jquery y bootstrap -->
+ 
+ 
+ <!-- datatables con bootstrap -->
 
 
-<!-- Bootstrap CSS -->
+ <!-- Para usar los botones -->
+ 
+ 
 
-
-
-<!-- Datatables -->
-
-
-
-<!-- Buttons -->
-
-<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.53/build/pdfmake.min.js"></script>
-<script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.53/build/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 
 
 <script>
@@ -498,6 +499,7 @@
     
    
     $(document).ready(function () {
+
         $(function() {            
 
             fn_grilla_recibidos();
@@ -566,11 +568,38 @@
           //      $('#grilla_recibidos').DataTable().destroy();
        // }
         $('#grilla_recibidos tbody').empty();
+        
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
-                dom: 'Bfrtip',
+                dom: 'Brtip', 
+                buttons: {
+                    dom:{
+                        button:{
+                            className: 'btn'
+                        }
+                    },
+                    buttons:[
+                        {
+                            extend:"excel",
+                            exportOptions: { 
+                                columns: function(column, data, node) {
+                                    
+                                    if (column > 7) {
+                                        return false;
+                                    }
+                                    return true;
+                                }
+                             },
+                            text:'Descargar busqueda',
+                            className: 'btn btn-outline-success',
+                            excelStyles:{
+                                temlate:'header_blue'
+                            }
+                        }
+                    ]
+                },
                 processing: true,
-                serverSide: true,
+                //serverSide: true,
                 ajax: '/buscadorListar',
                 type:'json',
                 order: [[ 1, 'desc' ]], 
@@ -585,7 +614,7 @@
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
                     { data: 'materia', name: 'materia' },
-                    { data: 'efectos_terceros', searchable: true, visible: false},
+                    { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -664,6 +693,7 @@
                             .text('Limpiar')
                             .click(function() {
                                 $('#buscar_id_documento').val('');
+                                $('#buscar_folio').val('');
                                 $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
                                 $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
                                 $('#buscar_fecha_ini').find('option:eq(0)').prop('date', true);
@@ -677,6 +707,7 @@
                             
                                 grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
                                 grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
+                                grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();
                                 //grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
                                 //grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
                                 grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
@@ -686,7 +717,7 @@
                                     grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
                                 
                             })
-                    $simpleSearchButton = $('<button class="btn btn-light" id_btn_filtrar">')
+                    $simpleSearchButton = $('<button class="btn btn-success" id_btn_filtrar">')
                     .text('Buscar')
                     .click(function() {
                         self.search($('#busqueda_simple').val()).draw();
@@ -696,13 +727,13 @@
                     $('#botones_busqueda_simple').append($simpleSearchButton);
                     $('#grilla_despachados_filter').html('');
                    
-                },
-                buttons: [
-                    { extend: 'excel', text: 'Descargar Busqueda'}]
+                }
+                
+               
 
         });
-      
-
+   
+          
        
     }
 

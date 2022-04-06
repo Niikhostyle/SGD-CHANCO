@@ -1111,11 +1111,12 @@ class DocumentoController extends Controller{
                         'documento.materia as materia',
                         'documento.folio as folio',
                         'documento.hash_validacion as hash_validacion',
-                        'documento_buzon_archivo.nombre_archivo_codificado as nombre_codificado'
+                        'documento_buzon_archivo.version as version'
                         
                         
                         )
                     ->where('documento.hash_validacion','=',$datosRequest['hash_validacion'])
+                    ->where('documento_buzon_archivo.version','=', 1)
                     //->where('documento_buzon.favorito','=',1)
                 )
                 ->toJson();
