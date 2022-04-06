@@ -31,11 +31,15 @@
 
 </head>   
 <body class="container" >
-    <div class="row" style="padding: 200px 50px 50px;">
-        <div class="col-8">
+    
+        <div class="cover">
             <h1>Validación de Documentos</h1>
+
+        
         </div>
-    </div>
+
+    
+
     
     <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
     <br>
@@ -70,10 +74,11 @@
                 </div>
 
     </div>
+
    
   
     <div class="linea_content_header" style="border: 1px solid #cededf;"></div>
-   
+    @if($status==0)
     @foreach($lista_documentos['data'] as $list)    
             <div class="card" id="card_validar" style="border: 2px solid #cededf;   background-color: #cededf;">
                 <div class="card-body">
@@ -136,9 +141,29 @@
                             
                                 
                             </tr>
+                        
+
+                        @endif
+                    </table>
+                    
+                    @if($list['id_nivel_acceso']==1)
+                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
+                    @endif
+
+                </div> 
+            </div> 
+    @endforeach
+    @endif
+    @if($status==1)
+      <div class="card" id="card_invalido" style="border: 2px solid #cededf;   background-color: #cededf;">
+                <div class="card-body">
+
+                
+                    <table id="tabla_documento" class="table table-bordered">
+                        
 
                         
-                        @else
+                       
                         <tr>
                                 
                                 <th scope="row">Resultado</th>
@@ -161,17 +186,14 @@
                                 
                             </tr>
 
-                        @endif
+                        
                     </table>
                     
-                    @if($list['id_nivel_acceso']==1)
-                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
-                    @endif
+                    
 
                 </div> 
             </div> 
-    @endforeach
-        
+    @endif 
     
 
 <!--<div class="container">-->
@@ -205,7 +227,67 @@
             background-attachment: fixed;
             background-size: cover;
         }
-    </style>
+        @import url('https://fonts.googleapis.com/css?family=Lato:400,700');
+
+
+
+
+
+
+
+
+
+
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 1.5rem;
+}
+
+i {
+  font-size: 1.3rem;
+}
+
+
+
+
+
+/** .cover  {
+  height: 100vh;
+  width: 100%;
+  background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.05)), to(rgba(0,0,0,0)));
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%);
+  padding: 20px 50px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  align-items: center;
+}*/
+
+
+
+
+
+  
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .cover {
+    padding: 20px;
+  }
+
+  
+
+  </style>
 
 
 
@@ -222,8 +304,8 @@
 
 //hashValidador = $("input[name='codigo']").val();
 //console.log(hashValidador);
-$('#card_validar').hide();
-$('#card_invalido').hide();
+//$('#card_validar').hide();
+//$('#card_invalido').hide();
 
 $(".btn_validar").click(function(e){
             
