@@ -36,7 +36,7 @@ class BuzonController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al obtener buzón: revisar datos de entrada');
 
-                $datosBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','id_tipo_buzon'], 'No existe buzón');
+                $datosBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','cargo_firma','id_tipo_buzon'], 'No existe buzón');
                 $datosBuzon->usuarios_asignados;
 
                 //se agrega un item junto a usuario para que no se permita modificar desde el front, ya que el buzón al que pertenece está asignado en documentos_buzon
@@ -71,7 +71,10 @@ class BuzonController extends Controller{
             {
                 $datosRequest = $request->json()->all();
 
-                $datosSearchBuzon = Buzon::where('nombre', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->orWhere('nombre_corto', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')->get(["id_buzon","id_tipo_buzon","nombre","nombre_corto"]);
+                $datosSearchBuzon = Buzon::where('nombre', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')
+                                         ->orWhere('nombre_corto', 'ilike', '%' . $datosRequest['texto_busqueda'] . '%')
+                                         ->orderBy('nombre')
+                                         ->get(["id_buzon","id_tipo_buzon","nombre","nombre_corto"]);
 
                 foreach($datosSearchBuzon as $datos)
                 {
@@ -121,7 +124,7 @@ class BuzonController extends Controller{
                 //opcion de crear buzon sin usuarios
 
                 if(count($datosUsuario) > 0)
-                {
+                {                    
                     foreach ($datosUsuario as $datos)
                     {
                         $aUsuarios[] = $datos['id_usuario'];
@@ -140,17 +143,25 @@ class BuzonController extends Controller{
                         return $this->respondFail('Falla al crear buzón: asignacion de usuarios');
                 }
 
+                $nTitular = $datosBuzon['titular'];
+
                 $buzon = Buzon::create([
                     'nombre' => $datosBuzon['nombre_buzon'],
                     'nombre_corto' => $datosBuzon['nombre_corto_buzon'],
-                    'id_tipo_buzon' => $datosBuzon['tipo_buzon']
+                    'id_tipo_buzon' => $datosBuzon['tipo_buzon'],
+                    'cargo_firma' => $datosBuzon['cargo_firma'],
                 ]);
 
                 foreach ($datosUsuario as $datos)
                 {
+                    $nTipoFirma = 2;
+                    if ($datos['id_usuario'] == $datosBuzon['titular'])
+                        $nTipoFirma = 1;
+
                     $buzonUsuario = BuzonUsuario::create([
                         'id_buzon' => $buzon->id_buzon,
-                        'id_usuario' => $datos['id_usuario']
+                        'id_usuario' => $datos['id_usuario'],
+                        'id_tipo_firma' => $nTipoFirma
                     ]);
                 }
 
@@ -215,6 +226,8 @@ class BuzonController extends Controller{
                 $datoBuzon->nombre = $datosRequest['nombre_buzon'];
                 $datoBuzon->nombre_corto = $datosRequest['nombre_corto_buzon'];
                 $datoBuzon->id_tipo_buzon = $datosRequest['tipo_buzon'];
+                $datoBuzon->cargo_firma = $datosRequest['cargo_firma'];
+
 
                 $datoBuzon->save();
 
@@ -222,9 +235,14 @@ class BuzonController extends Controller{
 
                 foreach ($datosUsuario as $datos)
                 {
+                    $nTipoFirma = 2;
+                    if ($datos['id_usuario'] == $datosRequest['titular'])
+                        $nTipoFirma = 1;
+                    
                     $buzonUsuario = BuzonUsuario::create([
                         'id_buzon' => $datoBuzon->id_buzon,
-                        'id_usuario' => $datos['id_usuario']
+                        'id_usuario' => $datos['id_usuario'],
+                        'id_tipo_firma' => $nTipoFirma
                     ]);
                 }
 
