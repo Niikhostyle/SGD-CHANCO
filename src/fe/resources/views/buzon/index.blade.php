@@ -70,7 +70,7 @@
         </div>        
         
         <div class="card-body">
-            <form class="needs-validation" id="form_buzon_crear_editar" method="POST" action="{{route('buzones.store')}}"  >
+            <form class="needs-validation" id="form_buzon_crear_editar" method="POST">
             @csrf
 
             <div class="row">
@@ -93,7 +93,8 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="input_cargo">Nombre Cargo (firmantes):</label>
-                        <input type="text" class="form-control " id="form_cargo" aria-describedby="cargo_error" placeholder="" value="" name="cargo" required>
+                        <input type="text" class="form-control " id="form_cargo" name="cargo" value="" aria-describedby="cargo_error" placeholder="" required>
+
                     </div>
                 </div>      
                 <div class="col-md-2">
@@ -237,6 +238,7 @@
         $('[name=duallistbox] option').prop('selected', false);
         $('[name=duallistbox] option').prop('disabled', false);
 
+        itemTitular = "";
         asignados.forEach(function(option, index) {
 
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
@@ -289,13 +291,13 @@
 
         if (op == 2)
         {
-            $('#titulo_buzon_crear_editar').html('Editar Usuario'); 
+            $('#titulo_buzon_crear_editar').html('Editar Buzón'); 
             $('.form-control').prop("disabled", false);
             $('.btn-submit').show();
         }            
         else
         {
-            $('#titulo_buzon_crear_editar').html('Ver Usuario'); 
+            $('#titulo_buzon_crear_editar').html('Ver Buzón'); 
             $('.btn-submit').prop("disabled", false); 
             $('.form-control').prop("disabled", true);
             $('.btn-submit').hide(); 
@@ -436,18 +438,12 @@
         );
 
         var forms = document.getElementsByClassName('needs-validation');
-        var validation = Array.prototype.filter.call(forms, function(form) {
-            
-            if (form.checkValidity() === false) {
-                e.preventDefault();
-				e.stopPropagation();
-
-                form.classList.add('was-validated');
-            }            
-            if(form.checkValidity() === true){
-                form.classList.remove("was-validated");
-            }
-        });
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                if (form.checkValidity() === false) {
+                        //e.stopPropagation();
+                        form.classList.add('was-validated');
+                }
+            });
 
         $(".print-error-msg").hide();
         

@@ -26,7 +26,7 @@ class StoreBuzon extends FormRequest
         return [
             'nombre'=>'required|max:50',
             'nombre_corto'=>'required|max:50',
-            //'cargo'=>'required|max:50'
+            'cargo'=>'required|max:50'
         ];
     }
 
