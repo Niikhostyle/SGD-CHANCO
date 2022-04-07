@@ -78,6 +78,7 @@
                     <div class="form-group">
                         <label for="input_nombre">Nombre:</label>
                         <input type="text" class="form-control " id="form_nombre" aria-describedby="nombre_error" placeholder="" value="" name="nombre" required>
+                        
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -93,7 +94,7 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="input_cargo">Nombre Cargo (firmantes):</label>
-                        <input type="text" class="form-control " id="form_cargo" name="cargo" value="" aria-describedby="cargo_error" placeholder="" required>
+                        <input type="text" class="form-control " id="form_cargo_firma" aria-describedby="cargo_firma_error" placeholder="" value="" name="cargo_firma" required>
 
                     </div>
                 </div>      
@@ -317,7 +318,7 @@
 
                             $("input[name='nombre']").val(data.data.nombre);
                             $("input[name='nombre_corto']").val(data.data.nombre_corto);
-                            $("input[name='cargo']").val(data.data.cargo_firma);
+                            $("input[name='cargo_firma']").val(data.data.cargo_firma);
                             $("input[name='hiddBuzon']").val(data.data.id_buzon);
                             $("select[name='titular']").val(data.data.titular_firma);
                                                         
@@ -450,7 +451,7 @@
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
-        var cargo_firma = $("input[name='cargo']").val();
+        var cargo_firma = $("input[name='cargo_firma']").val();
         var hiddBuzon = $("input[name='hiddBuzon']").val();
         var titular_firma = $("select[name='titular']").val();
         var usuarios_asignados = $('[name="duallistbox"]').val();
