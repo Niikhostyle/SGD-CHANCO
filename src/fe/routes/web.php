@@ -115,6 +115,7 @@ Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderC
 Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderController@browserAction')->name('ckfinder_browser');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class,'showImage'])->name('images.show');
+Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_firma/{filename}', [DocumentoBuzonArchivoController::class,'showImageFirma'])->name('images.showFirma');
 
 
 

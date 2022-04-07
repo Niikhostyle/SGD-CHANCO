@@ -60,46 +60,45 @@ class UsuarioController extends Controller
 
     public function store(StoreUsuario $request)
     {
-        
-        $uploadImg = $this->uploadFile($request);
-        
-        if($uploadImg)  
-        {
-            $sesion_key =  AppServiceProvider::session_key_general();
-            $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-            ->timeout(10)
-            ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
-                'run'=>$request->run,
-                'nombres'=>$request->nombres,
-                'primer_apellido'=>$request->primer_apellido,
-                'segundo_apellido'=>$request->segundo_apellido,
-                'email'=>$request->email,
-                'password'=>$request->password,
-                'confirmar_password'=>$request->confirmar_password,
-                'aplica_fea'=>$request->aplica_fea,
-                'genera_pdf'=>$request->genera_pdf,
-                'id_estado_usuario'=>$request->id_estado_usuario,
-                'id_perfil'=>$request->id_perfil,
-                'img_firma'=>$uploadImg
-            ]);
-            
-            $response_json=$response->json(); 
+        if($request->hasFile('form_imagen_firma'))
+            $uploadImg = $this->uploadFile($request);
+        else
+            $uploadImg = $request->hiddFirma;       
 
-            if ($response_json['status'] == '201')
-            {
-                $response_object=$response->object();
-                $aUsuarios = [];
-                $aUsuarios[] = ['id_usuario' => $response_object->data->id];
-                
-                $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-                ->timeout(20)
-                ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
-                    'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
-                    'nombre_corto_buzon'=>'PRSNAL',
-                    'tipo_buzon'=>'1',
-                    'usuarios_asignados'=> $aUsuarios
-                ]);
-            }
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
+            'run'=>$request->run,
+            'nombres'=>$request->nombres,
+            'primer_apellido'=>$request->primer_apellido,
+            'segundo_apellido'=>$request->segundo_apellido,
+            'email'=>$request->email,
+            'password'=>$request->password,
+            'confirmar_password'=>$request->confirmar_password,
+            'aplica_fea'=>$request->aplica_fea,
+            'genera_pdf'=>$request->genera_pdf,
+            'id_estado_usuario'=>$request->id_estado_usuario,
+            'id_perfil'=>$request->id_perfil,
+            'img_firma'=>$uploadImg
+        ]);
+        
+        $response_json=$response->json(); 
+
+        if ($response_json['status'] == '201')
+        {
+            $response_object=$response->object();
+            $aUsuarios = [];
+            $aUsuarios[] = ['id_usuario' => $response_object->data->id];
+            
+            $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+            ->timeout(20)
+            ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
+                'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
+                'nombre_corto_buzon'=>'PRSNAL',
+                'tipo_buzon'=>'1',
+                'usuarios_asignados'=> $aUsuarios
+            ]);
         }
 
         return $response_json;
@@ -125,12 +124,14 @@ class UsuarioController extends Controller
 
     public function update(UpdateUsuario $request){
 
-        //return $request->file('form_imagen_firma')->getClientOriginalExtension();//->file('form_imagen_firma')->getClientOriginalExtension();$request->file('photo');
-        
-        $uploadImg = $this->uploadFile($request);
+        if($request->hasFile('form_imagen_firma'))
+            $uploadImg = $this->uploadFile($request);
+        else
+            $uploadImg = $request->hiddFirma;
         
         if($uploadImg)  
         {
+            
             $sesion_key =  AppServiceProvider::session_key_general();
             $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
             ->timeout(10)

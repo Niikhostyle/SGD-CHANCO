@@ -37,7 +37,7 @@ class UpdateUsuario extends FormRequest
         'password' => 'sometimes',
         'confirmar_password' => 'required_with:password|same:password',
         'email' => 'required|email|unique:users,email,'.$this->form_id_usuario, 
-        'form_imagen_firma'=>'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        //'form_imagen_firma'=>'required|image|mimes:jpeg,png,jpg,gif|max:2048'
 
 //        'email'=>'required|email',
         ];
