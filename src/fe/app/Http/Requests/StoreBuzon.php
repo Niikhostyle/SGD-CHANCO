@@ -22,11 +22,11 @@ class StoreBuzon extends FormRequest
      * @return array
      */
     public function rules()
-    {
+    { 
         return [
             'nombre'=>'required|max:50',
             'nombre_corto'=>'required|max:50',
-            //'cargo'=>'required|max:50'
+            'cargo_firma'=>'required|max:50'
         ];
     }
 

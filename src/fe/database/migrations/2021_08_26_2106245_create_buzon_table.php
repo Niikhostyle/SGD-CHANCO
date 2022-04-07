@@ -18,6 +18,7 @@ class CreateBuzonTable extends Migration
             $table->integer('id_tipo_buzon');
             $table->string('nombre')->nullable();
             $table->string('nombre_corto')->nullable();
+            $table->string('cargo_firma')->nullable();
             $table->timestamps();
             $table->foreign('id_tipo_buzon', 'fk_buzon_tipo_buzon')->references('id_tipo_buzon')->on('tipo_buzon');
         });
@@ -25,6 +26,7 @@ class CreateBuzonTable extends Migration
         DB::statement("COMMENT ON COLUMN  buzon.id_tipo_buzon IS 'Identificador de tipo de buzon'");
         DB::statement("COMMENT ON COLUMN  buzon.nombre IS 'Nombre buzon'");
         DB::statement("COMMENT ON COLUMN  buzon.nombre_corto IS 'Nombre corto buzon '");
+        DB::statement("COMMENT ON COLUMN  buzon.cargo_firma IS 'Nombre cargo para fea '");
         DB::statement("COMMENT ON TABLE   buzon IS 'Registro de buzones'");
     }
 

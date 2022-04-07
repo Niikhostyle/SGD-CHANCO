@@ -30,6 +30,8 @@ class CreateDocumentoTable extends Migration
             $table->boolean('efectos_terceros')->nullable();
             $table->longText('hash_validacion')->nullable();
             $table->boolean('archivo_existente')->nullable();
+            $table->integer('paginas_archivo')->nullable();
+            $table->string('img_firma')->nullable();
             $table->boolean('finalizado')->nullable();
             $table->timestamps();
             $table->foreign('id_nivel_acceso', 'fk_documento_nivel_acceso')->references('id_nivel_acceso')->on('nivel_acceso');
@@ -52,6 +54,8 @@ class CreateDocumentoTable extends Migration
         DB::statement("COMMENT ON COLUMN  documento.hash_validacion IS 'Resumen para validacion de autenticidad de documento y FE'");
         DB::statement("COMMENT ON COLUMN  documento.archivo_existente IS 'Marca indicativa de existencia fisica de archivo principal'");
         DB::statement("COMMENT ON COLUMN  documento.finalizado IS 'Marca indicativa de finalizacion de documento'");
+        DB::statement("COMMENT ON COLUMN  documento.paginas_archivo IS 'Numero de paginas del documento pdf generado'");
+        DB::statement("COMMENT ON COLUMN  documento.img_firma IS 'Nombre imagen asociada a la fea'");
         DB::statement("COMMENT ON TABLE   documento IS 'Registro de documentos'");
     }
 
