@@ -210,10 +210,9 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="form-group">
-                        <img id="displayImg" name="displayImg" src= "files/imagen_firma/66666666-6" with="150px" height="50px"> 
-                        
-                    </div>
+                    <div class="form-group">    
+                        <div class="displayImg"></div>
+                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
@@ -272,6 +271,7 @@
             $('#card_usuario_crear_editar').show();
             $('.btn-submit').show();
             $('#form_run').focus();
+            $(".displayImg").html('');
         });
 
         $(".btn_cerrar_guardar").click(function(e){
@@ -279,6 +279,7 @@
             $('#form_usuario_crear_editar').trigger("reset");
             $(".print-error-msg").hide();
             $('#form_usuario_crear_editar').removeClass("was-validated");
+            $(".displayImg").html('');
         });
 
         $(".btn-actualizar").click(function(e){
@@ -476,16 +477,14 @@
                                     $("input[name='hiddFirma']").val(data.data.img_firma); 
 
                                     //mostrar imagen
-                                    if (data.data.img_firma != "")
+                                    if (data.data.img_firma != "" && data.data.img_firma != null)
                                     {
-                                        var pathImg = '/files/imagen_firma/'.data.data.img_firma;
-                                       // $('#displayImg').attr('src', data.data.img_firma);
-                                        
-                                        //$('#displayImg').show();
-console.log(pathImg);
-                                        //img.src = "/images/img1.gif";
-                                       // $('#displayImgd').html(img); 
-                                    }                           
+                                        var pathImg = '/files/imagen_firma/' + data.data.img_firma;
+                                        $(".displayImg").html('<img src="'+pathImg+'"  width="300" height="100"/>');
+                                    } 
+                                    else
+                                        $(".displayImg").html('');
+
                                 }
                             }
                             $('.btn-submit').prop("disabled", false);
@@ -546,6 +545,14 @@ console.log(pathImg);
                                     }else if(data.data.genera_pdf==false){
                                         $("select[name='aplica_genera_pdf']").val('false');
                                     }
+                                    //mostrar imagen
+                                    if (data.data.img_firma != "" && data.data.img_firma != null)
+                                    {
+                                        var pathImg = '/files/imagen_firma/' + data.data.img_firma;
+                                        $(".displayImg").html('<img src="'+pathImg+'"  width="300" height="100"/>');
+                                    } 
+                                    else
+                                        $(".displayImg").html('');
                                 }
                             }
                             $('#cargando').hide();

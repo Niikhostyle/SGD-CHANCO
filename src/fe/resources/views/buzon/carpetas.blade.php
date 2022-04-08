@@ -1685,7 +1685,6 @@
                         },
                         success: function(data)
                         {
-                            console.log(data);
                             if(data.status == '200')
                             {
                                 toastr.success(data.data,"Aviso!");
@@ -1716,8 +1715,13 @@
                             $('.btn-recibir-submit').html( 'Firmar' );
 
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error("Falla en el documento","Aviso!");
+                        error: function (e) {
+                            data = e.responseJSON;
+                            console.log(data);
+                            if (data.data.comentario != "" && data.data.comentario != null)
+                                toastr.error(data.data.comentario,"Aviso!");
+                            else
+                                toastr.error("Falla en el documento","Aviso!");
 
                             $('.btn-recibir-submit').html( 'Firmar' );
                         }

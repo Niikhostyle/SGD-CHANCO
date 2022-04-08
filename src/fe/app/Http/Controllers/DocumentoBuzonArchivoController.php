@@ -153,7 +153,7 @@ class DocumentoBuzonArchivoController extends Controller
 
     public function showImageFirma($routefilename)
     {       
-        $path = storage_path(config('app.path_files')) . 'imagen_firma/' . $routefilename;
+        $path = storage_path(config('app.path_img_firma')) . $routefilename;
 
         if (!File::exists($path)) {
             abort(404);
