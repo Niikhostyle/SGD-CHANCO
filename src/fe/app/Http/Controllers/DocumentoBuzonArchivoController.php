@@ -151,6 +151,23 @@ class DocumentoBuzonArchivoController extends Controller
         return $response;
     }
 
+    public function showImageFirma($routefilename)
+    {       
+        $path = storage_path(config('app.path_img_firma')) . $routefilename;
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+        
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
+    }
+
     /* public function destroy (DocumentoBuzonArchivo $file)
     {
         //elimina el registro de la carpeta local

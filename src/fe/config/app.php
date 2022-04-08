@@ -244,6 +244,8 @@ return [
 
 
     'path_files' => 'app/public/files/',
+    'path_img_firma' => 'app/public/files/imagen_firma/',
+    'path_img_editor' => 'app/public/files/editor/images/',
 
     /*
     |--------------------------------------------------------------------------

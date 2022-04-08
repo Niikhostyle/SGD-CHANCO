@@ -17,9 +17,11 @@ class CreateBuzonUsuarioTable extends Migration
             $table->bigIncrements('id_buzon_usuario');
             $table->bigInteger('id_buzon');
             $table->bigInteger('id_usuario');
+            $table->bigInteger('id_tipo_firma');
             $table->timestamps();
             $table->foreign('id_buzon', 'fk_buzon_usuario_buzon')->references('id_buzon')->on('buzon');
             $table->foreign('id_usuario', 'fk_buzon_usuario_usuario')->references('id')->on('users');
+            $table->foreign('id_tipo_firma', 'fk_buzon_usuario_usuario')->references('id_tipo_firma')->on('tipo_firma');
         });
         DB::statement("COMMENT ON COLUMN  buzon_usuario.id_buzon_usuario IS 'Identificador de buzon_usuario'");
         DB::statement("COMMENT ON COLUMN  buzon_usuario.id_buzon IS 'Identificador e buzon'");
