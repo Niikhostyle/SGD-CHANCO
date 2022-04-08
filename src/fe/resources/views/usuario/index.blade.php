@@ -212,7 +212,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <img id="displayImg" name="displayImg" src= "files/imagen_firma/66666666-6" with="150px" height="50px"> 
-                        <span id="uploaded_image"></span>
+                        
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -483,8 +483,8 @@
                                         
                                         //$('#displayImg').show();
 console.log(pathImg);
-                                        img.src = "/images/img1.gif";
-                                        $('#displayImgd').html(img); 
+                                        //img.src = "/images/img1.gif";
+                                       // $('#displayImgd').html(img); 
                                     }                           
                                 }
                             }
@@ -528,7 +528,7 @@ console.log(pathImg);
                             }else{
                                 console.log(data);
                                 if(data.status==200 || data.status==201){
-                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    //$('#form_usuario_crear_editar').trigger("reset");
                                     $("select[name='id_perfil']").val(data.data.id_perfil);
                                     $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
                                     $("input[name='run']").val(data.data.run);
