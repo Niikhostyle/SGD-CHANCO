@@ -75,9 +75,9 @@ class UsuarioController extends Controller
             'segundo_apellido'=>$request->segundo_apellido,
             'email'=>$request->email,
             'password'=>$request->password,
-            'confirmar_password'=>$request->confirmar_password,
+            'confirmar_password'=>$request->re_password,
             'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf,
+            'genera_pdf'=>$request->aplica_genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil,
             'img_firma'=>$uploadImg
@@ -128,38 +128,29 @@ class UsuarioController extends Controller
             $uploadImg = $this->uploadFile($request);
         else
             $uploadImg = $request->hiddFirma;
-        
-        if($uploadImg)  
-        {
             
-            $sesion_key =  AppServiceProvider::session_key_general();
-            $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-            ->timeout(10)
-            ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/actualizar', [
-                'id'=>$request->form_id_usuario,
-                'run'=>$request->run,
-                'nombres'=>$request->nombres,
-                'primer_apellido'=>$request->primer_apellido,
-                'segundo_apellido'=>$request->segundo_apellido,
-                'email'=>$request->email,
-                'password'=>$request->password,
-                'confirmar_password'=>$request->confirmar_password,
-                'aplica_fea'=>$request->aplica_fea,
-                'genera_pdf'=>$request->genera_pdf,
-                'id_estado_usuario'=>$request->id_estado_usuario,
-                'id_perfil'=>$request->id_perfil,
-                'imagen_firma'=>$uploadImg
-            ]);
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/actualizar', [
+            'id'=>$request->form_id_usuario,
+            'run'=>$request->run,
+            'nombres'=>$request->nombres,
+            'primer_apellido'=>$request->primer_apellido,
+            'segundo_apellido'=>$request->segundo_apellido,
+            'email'=>$request->email,
+            'password'=>$request->password,
+            'confirmar_password'=>$request->re_password,
+            'aplica_fea'=>$request->aplica_fea,
+            'genera_pdf'=>$request->aplica_genera_pdf,
+            'id_estado_usuario'=>$request->id_estado_usuario,
+            'id_perfil'=>$request->id_perfil,
+            'imagen_firma'=>$uploadImg
+        ]);
 
-            $response_json = response()->json($response->json());
+        $response_json = response()->json($response->json());
 
-        }      
-        else
-        {
-            //elimina imagen
-            //muestra mensaje
-        }  
-
+        
         return $response_json;
     }
 

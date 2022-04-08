@@ -196,12 +196,28 @@
                     </div>
                 </div>
                 <div class="col-md-4">
+                    <div class="form-group">                       
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="input_imagen_firma">Imagen de firma</label>
-                        <img src="" style="display:none" with="100px" height="30px">
+                        <label for="input_imagen_firma">Imagen de firma</label>                        
                         <input type="file" accept="image/*" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="">
-                        <input type="text" id="hiddFirma" name="hiddFirma" >
+                        <input type="hidden" id="hiddFirma" name="hiddFirma" >
 
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <img id="displayImg" name="displayImg" src= "files/imagen_firma/66666666-6" with="150px" height="50px"> 
+                        <span id="uploaded_image"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                       
                     </div>
                 </div>
             </div>
@@ -459,6 +475,17 @@
                                     //cargar imagen                                    
                                     $("input[name='hiddFirma']").val(data.data.img_firma); 
 
+                                    //mostrar imagen
+                                    if (data.data.img_firma != "")
+                                    {
+                                        var pathImg = '/files/imagen_firma/'.data.data.img_firma;
+                                       // $('#displayImg').attr('src', data.data.img_firma);
+                                        
+                                        //$('#displayImg').show();
+console.log(pathImg);
+                                        img.src = "/images/img1.gif";
+                                        $('#displayImgd').html(img); 
+                                    }                           
                                 }
                             }
                             $('.btn-submit').prop("disabled", false);

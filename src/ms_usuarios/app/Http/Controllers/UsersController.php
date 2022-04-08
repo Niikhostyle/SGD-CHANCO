@@ -45,9 +45,9 @@ class UsersController extends Controller{
             {
                 DB::beginTransaction();
 
-                $datosUsuario = $request->json()->all();           
+                $datosUsuario = $request->json()->all();   
                 $datosUsuario['password'] = Hash::make($datosUsuario['password']);
-
+                
                 $validator = $this->validator->validateInsert();
 
                 if ($validator->fails())
