@@ -321,7 +321,7 @@ function descargar_documento( id_documento, id_documento_buzon)
         //var _token = $("input[name='_token']").val();
 
         $.ajax({
-            url: "/descargar_documento2/",
+            url: "/validarUrl/",
             type: 'GET',
             dataType: 'json',
             data: {
