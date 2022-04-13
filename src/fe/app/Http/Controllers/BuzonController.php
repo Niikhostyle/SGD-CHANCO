@@ -501,10 +501,10 @@ class BuzonController extends Controller
         //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
         $img = Image::make(storage_path(config('app.path_img_firma').$aInfoUsuarios['img_firma']));
         $dFechaCreacion = date('d.m.Y H:i:s');
-        $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 
-        $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); 
-        $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
+        $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); //$font->file(storage_path('../public/calibri.ttf'));
+        $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
+        $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+        $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
 
         $img->save(storage_path(config('app.path_img_firma').$sNombreImg));  
 
