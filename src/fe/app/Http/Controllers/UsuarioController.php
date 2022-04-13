@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuario;
 use App\Http\Requests\UpdateUsuario;
-
+use Exception;
 
 class UsuarioController extends Controller
 {
@@ -60,6 +60,11 @@ class UsuarioController extends Controller
 
     public function store(StoreUsuario $request)
     {
+        if($request->hasFile('form_imagen_firma'))
+            $uploadImg = $this->uploadFile($request);
+        else
+            $uploadImg = $request->hiddFirma;       
+
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -70,11 +75,12 @@ class UsuarioController extends Controller
             'segundo_apellido'=>$request->segundo_apellido,
             'email'=>$request->email,
             'password'=>$request->password,
-            'confirmar_password'=>$request->confirmar_password,
+            'confirmar_password'=>$request->re_password,
             'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf,
+            'genera_pdf'=>$request->aplica_genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil
+            'id_perfil'=>$request->id_perfil,
+            'img_firma'=>$uploadImg
         ]);
         
         $response_json=$response->json(); 
@@ -118,6 +124,11 @@ class UsuarioController extends Controller
 
     public function update(UpdateUsuario $request){
 
+        if($request->hasFile('form_imagen_firma'))
+            $uploadImg = $this->uploadFile($request);
+        else
+            $uploadImg = $request->hiddFirma;
+            
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -129,15 +140,17 @@ class UsuarioController extends Controller
             'segundo_apellido'=>$request->segundo_apellido,
             'email'=>$request->email,
             'password'=>$request->password,
-            'confirmar_password'=>$request->confirmar_password,
+            'confirmar_password'=>$request->re_password,
             'aplica_fea'=>$request->aplica_fea,
-            'genera_pdf'=>$request->genera_pdf,
+            'genera_pdf'=>$request->aplica_genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
-            'id_perfil'=>$request->id_perfil
+            'id_perfil'=>$request->id_perfil,
+            'imagen_firma'=>$uploadImg
         ]);
 
-        $response_json=response()->json($response->json());
+        $response_json = response()->json($response->json());
 
+        
         return $response_json;
     }
 
@@ -150,5 +163,29 @@ class UsuarioController extends Controller
 
         $response_json=response()->json($response->json());
         return $response_json;
+    }
+
+    public function uploadFile(Request $request) {
+
+        if(!$request->hasFile('form_imagen_firma')) {
+            //throw new Exception("upload_file_not_found.");
+            return $this->respondFail("upload_file_not_found.");
+        }
+        $file = $request->file('form_imagen_firma');
+        if(!$file->isValid()) {
+            return $this->respondFail("invalid_file_upload.");
+        }
+        
+        $extension = $file->getClientOriginalExtension();
+        $nNombreArchivoCargar = $request->run . '.' . $extension;
+        
+        $uploadSuccess = $file->move(storage_path('app/public/files/imagen_firma/'), $nNombreArchivoCargar);
+
+        if (!$uploadSuccess)
+            throw new Exception("No se pudo cargar la imagen.");
+
+            //return $this->respondSuccess($nNombreArchivoCargar, 201);
+        
+        return $nNombreArchivoCargar;
     }
 }

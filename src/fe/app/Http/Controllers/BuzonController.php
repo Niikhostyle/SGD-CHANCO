@@ -108,7 +108,9 @@ class BuzonController extends Controller
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
-            'usuarios_asignados'=> $aUsuarios
+            'usuarios_asignados'=> $aUsuarios,
+            'titular'=> $request->titular_firma,            
+            'cargo_firma'=>$request->cargo_firma
         ]);
 
         return $accionBuzon->json();
@@ -170,7 +172,9 @@ class BuzonController extends Controller
             'nombre_buzon'=>$request->nombre,
             'nombre_corto_buzon'=>$request->nombre_corto,
             'tipo_buzon'=>'2',
-            'usuarios_asignados'=> $aUsuarios
+            'usuarios_asignados'=> $aUsuarios,
+            'titular'=> $request->titular_firma,            
+            'cargo_firma'=>$request->cargo_firma
         ]);
 
         return $accionBuzon->json();
@@ -487,19 +491,22 @@ class BuzonController extends Controller
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
                     ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
                     ->first();   
-                    
+        
         if (!$DatosFirma['cargo_firma'])   
             return $this->respondFail("No existe cargo asociado al buzón.");
 
-        $img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png 
-        //$img = Image::make(storage_path('app/public/files/img_firma/'.$aInfoUsuarios['img_firma']));
+        if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
+            return $this->respondFail("No existe imagen para firma asociada al usuario.");
+            
+        //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
+        $img = Image::make(storage_path(config('app.path_img_firma').$aInfoUsuarios['img_firma']));
         $dFechaCreacion = date('d.m.Y H:i:s');
-        $img->text('Firmado electrónicamente por:', 132, 33, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 132, 50, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(13); }); 
-        $img->text('Fecha: '. $dFechaCreacion, 132, 68, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); }); 
-        $img->text($DatosFirma['cargo_firma'].$DatosFirma['sigla'], 132, 90, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(13); });         
+        $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); //$font->file(storage_path('../public/calibri.ttf'));
+        $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
+        $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+        $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
 
-        $img->save(storage_path('app/public/files/'.$sNombreImg));  
+        $img->save(storage_path(config('app.path_img_firma').$sNombreImg));  
 
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
@@ -510,6 +517,10 @@ class BuzonController extends Controller
             'id_buzon'=>$request->buzon,
             'img_firma' => $sNombreImg
         ]);
+
+        //elimina imagen generada
+
+        unlink(storage_path(config('app.path_img_firma').$sNombreImg));
         
         return $datosFea->json();
     }
@@ -535,7 +546,6 @@ class BuzonController extends Controller
     public function generar_archivo_pdf(Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();
-
         
         $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        

@@ -45,13 +45,13 @@ class UsersController extends Controller{
             {
                 DB::beginTransaction();
 
-                $datosUsuario = $request->json()->all();                
+                $datosUsuario = $request->json()->all();   
                 $datosUsuario['password'] = Hash::make($datosUsuario['password']);
-
+                
                 $validator = $this->validator->validateInsert();
 
                 if ($validator->fails())
-                    return $this->respondFail('No es posible crear el usuario: revisar datos de entrada');
+                    return $this->respondFail($validator);
 
                 $usuarios = Users::create($datosUsuario);                 
                 
@@ -87,7 +87,7 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al actualizar usuario: revisar datos de entrada');
 
-                $datosUsuario = Users::findOrFail($datosRequest['id'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil']);
+                $datosUsuario = Users::findOrFail($datosRequest['id'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma']);
                 
                 if (!empty($datosRequest['password']))
                     $datosUsuario->password = Hash::make($datosRequest['password']); 
@@ -101,6 +101,7 @@ class UsersController extends Controller{
                 $datosUsuario->genera_pdf = $datosRequest['genera_pdf'];
                 $datosUsuario->id_estado_usuario = $datosRequest['id_estado_usuario'];
                 $datosUsuario->id_perfil = $datosRequest['id_perfil'];
+                $datosUsuario->img_firma = $datosRequest['imagen_firma'];
 
                 $datosUsuario->save();
 
@@ -131,7 +132,7 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al obtener usuario: revisar datos de entrada');
 
-                $datosUsuario = Users::findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil']);
+                $datosUsuario = Users::findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma']);
                 
                 return $this->respondSuccess($datosUsuario, 200);
             }  

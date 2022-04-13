@@ -70,7 +70,7 @@ class FirmaController extends Controller
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                $imagen_firma = storage_path('app/public/files/'.$datos['img_firma']); 
+                $imagen_firma = storage_path('app/public/files/imagen_firma/'.$datos['img_firma']); 
 
                 if ( !file_exists($imagen_firma) )
                     return $this->respondFail('Existe un problema con la imagen relacionada a la firma electrónica.');

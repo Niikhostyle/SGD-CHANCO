@@ -98,7 +98,7 @@
         </div>
         
         <div class="card-body">
-            <form class="needs-validation" id="form_usuario_crear_editar"   >
+            <form class="needs-validation" id="form_usuario_crear_editar" method="POST"  enctype="multipart/form-data">
             @csrf
 
             <div class="row">
@@ -195,7 +195,30 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4"> </div>
+                <div class="col-md-4">
+                    <div class="form-group">                       
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="input_imagen_firma">Imagen de firma</label>                        
+                        <input type="file" accept="image/*" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="">
+                        <input type="hidden" id="hiddFirma" name="hiddFirma" >
+
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">    
+                        <div class="displayImg"></div>
+                     </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                       
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-8"> </div>
@@ -248,12 +271,15 @@
             $('#card_usuario_crear_editar').show();
             $('.btn-submit').show();
             $('#form_run').focus();
+            $(".displayImg").html('');
         });
 
         $(".btn_cerrar_guardar").click(function(e){
             $('#card_usuario_crear_editar').hide();
             $('#form_usuario_crear_editar').trigger("reset");
             $(".print-error-msg").hide();
+            $('#form_usuario_crear_editar').removeClass("was-validated");
+            $(".displayImg").html('');
         });
 
         $(".btn-actualizar").click(function(e){
@@ -271,31 +297,32 @@
             });
 
             $(".print-error-msg").hide();
-            var _token = $("input[name='_token']").val();
-            var id_perfil = $("select[name='id_perfil']").val();
-            var id_estado_usuario = $("select[name='id_estado_usuario']").val();
-            var run = $("input[name='run']").val();
-            var nombres = $("input[name='nombres']").val();
-            var primer_apellido = $("input[name='primer_apellido']").val();
-            var segundo_apellido = $("input[name='segundo_apellido']").val();
+            
             var password = $("input[name='password']").val();
             var re_password = $("input[name='re_password']").val();
-            var email = $("input[name='email']").val();
-            var aplica_fea = $("select[name='aplica_fea']").val();
-            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
-            var form_id_usuario = $("input[name='form_id_usuario']").val();
-                if(password==re_password){
+            var files = $('#form_imagen_firma')[0].files;
+           
+            if(files.length == 0 && $("input[name='hiddFirma']").val() == '' && $("select[name='aplica_fea']").val() == 'true')
+            {
+                printErrorMsg({'Firma':'Debe ingresar imagen de firma'});
+                $('.btn-actualizar').prop("disabled", false);
+                $('.btn-actualizar').html( 'Actualizar' );
+            }
+            else 
+            {
+                if(password == re_password)
+                {
+                    var formData = new FormData($("#form_usuario_crear_editar")[0]);
                     $.ajax({
                         url: "{{route('usuarios.update')}}",
-                        type:'PUT',
-                        data: { _token:_token,form_id_usuario:form_id_usuario, run:run, id_perfil:id_perfil,
-                                id_estado_usuario:id_estado_usuario, nombres:nombres,
-                                primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
-                                },
+                        type:'POST',
+                        data:formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,                    
                         success: function(data) {
                             if(data.status=='400'){
-                                toastr.error(data.data.comentario,"Oops...");
+                                toastr.error(data.data.comentario,"Aviso!");
 
                             }else{
                                 if(data.status=='200' || data.status=='201'){
@@ -322,11 +349,11 @@
                     $('.btn-actualizar').prop("disabled", false);
                     $('.btn-actualizar').html( 'Actualizar' );
                 }
-
-
-
+            }
         });
+
         $(".btn-submit").click(function(e){
+            
             e.preventDefault();
             $('.btn-submit').prop("disabled", true);
             $('.btn-submit').html(
@@ -341,31 +368,33 @@
             });
 
             $(".print-error-msg").hide();
-            var _token = $("input[name='_token']").val();
-            var id_perfil = $("select[name='id_perfil']").val();
-            var id_estado_usuario = $("select[name='id_estado_usuario']").val();
-            var run = $("input[name='run']").val();
-            var nombres = $("input[name='nombres']").val();
-            var primer_apellido = $("input[name='primer_apellido']").val();
-            var segundo_apellido = $("input[name='segundo_apellido']").val();
+            
             var password = $("input[name='password']").val();
             var re_password = $("input[name='re_password']").val();
-            var email = $("input[name='email']").val();
-            var aplica_fea = $("select[name='aplica_fea']").val();
-            var genera_pdf = $("select[name='aplica_genera_pdf']").val();
+            
+            var files = $('#form_imagen_firma')[0].files;
+           
+            if(files.length == 0 && $("input[name='hiddFirma']").val() == '' && $("select[name='aplica_fea']").val() == 'true')
+            {
+                printErrorMsg({'Firma':'Debe ingresar imagen de firma'});
+                $('.btn-submit').prop("disabled", false);
+                $('.btn-submit').html( 'Actualizar' );
+            }
+            else 
+            {
+                var formData = new FormData($("#form_usuario_crear_editar")[0]);
 
-                if(password==re_password){
+                if(password == re_password){
                     $.ajax({
                         url: "{{route('usuarios.store')}}",
                         type:'POST',
-                        data: { _token:_token, run:run, id_perfil:id_perfil,
-                                id_estado_usuario:id_estado_usuario, nombres:nombres,
-                                primer_apellido:primer_apellido, segundo_apellido:segundo_apellido,
-                                password:password,confirmar_password:re_password,email:email,aplica_fea:aplica_fea,genera_pdf:genera_pdf
-                                },
+                        data:formData,
+                        contentType: false,
+                        cache: false,
+                        processData: false,     
                         success: function(data) {
                             if(data.status=='400'){
-                                toastr.error(data.data.comentario,"Oops...");
+                                toastr.error(data.data.comentario,"Aviso!");
                             }else{
                                 if(data.status=='200' || data.status=='201'){
                                     $('#card_usuario_crear_editar').hide();
@@ -392,7 +421,7 @@
                     $('.btn-submit').prop("disabled", false);
                     $('.btn-submit').html( 'Guardar' );
                 }
-
+            }
 
 
         });
@@ -420,7 +449,7 @@
                         type:'GET',
                         success: function(data) {
                             if(data.status==400){
-                                toastr.error(data.data.comentario,"Oops...");
+                                toastr.error(data.data.comentario,"Aviso!");
                             }else{
                                 console.log(data);
                                 if(data.status==200 || data.status==201){
@@ -443,6 +472,18 @@
                                     }else if(data.data.genera_pdf==false){
                                         $("select[name='aplica_genera_pdf']").val('false');
                                     }
+                                    
+                                    //cargar imagen                                    
+                                    $("input[name='hiddFirma']").val(data.data.img_firma); 
+
+                                    //mostrar imagen
+                                    if (data.data.img_firma != "" && data.data.img_firma != null)
+                                    {
+                                        var pathImg = '/files/imagen_firma/' + data.data.img_firma;
+                                        $(".displayImg").html('<img src="'+pathImg+'"  width="300" height="100"/>');
+                                    } 
+                                    else
+                                        $(".displayImg").html('');
 
                                 }
                             }
@@ -481,12 +522,12 @@
                         type:'GET',
                         success: function(data) {
                             if(data.status==400){
-                                toastr.error(data.data.comentario,"Oops...");
+                                toastr.error(data.data.comentario,"Aviso!");
 
                             }else{
                                 console.log(data);
                                 if(data.status==200 || data.status==201){
-                                    $('#form_usuario_crear_editar').trigger("reset");
+                                    //$('#form_usuario_crear_editar').trigger("reset");
                                     $("select[name='id_perfil']").val(data.data.id_perfil);
                                     $("select[name='id_estado_usuario']").val(data.data.id_estado_usuario);
                                     $("input[name='run']").val(data.data.run);
@@ -504,6 +545,14 @@
                                     }else if(data.data.genera_pdf==false){
                                         $("select[name='aplica_genera_pdf']").val('false');
                                     }
+                                    //mostrar imagen
+                                    if (data.data.img_firma != "" && data.data.img_firma != null)
+                                    {
+                                        var pathImg = '/files/imagen_firma/' + data.data.img_firma;
+                                        $(".displayImg").html('<img src="'+pathImg+'"  width="300" height="100"/>');
+                                    } 
+                                    else
+                                        $(".displayImg").html('');
                                 }
                             }
                             $('#cargando').hide();

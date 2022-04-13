@@ -203,20 +203,17 @@
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
-                        <div class="form-row"> 
-                                <div id="carousel-responder" class="carousel slide w-50 flex-container" data-ride="carousel">
-                                    <div class="carousel-inner row mx-auto" id="carrousel-items" role="listbox"></div>
-                                    <a class="carousel-control-prev" href="#carousel-responder2" role="button" data-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-                                    <a class="carousel-control-next" href="#carousel-responder2" role="button" data-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
+                            
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="form-row section-carousel">
+                                    <div class="form-row carousel-wrapper">
+                                        <div class="owl-carousel owl-theme owl-loaded"></div>
+                                    </div>
                                 </div>
-
+                            </div>
                         </div>
+                        <br>
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
@@ -319,16 +316,28 @@
                             
                             <div class="card-body card-archivos" id="cargar_principal">
                                 <div id="dropzone-principal-view" class="dropzone-view"></div>
-                                <div id="dropzone-principal" class="dropzone dropzone-files"></div>                                                          
+                                <div id="dropzone-principal" class="dropzone dropzone-files"></div>    
+                                
+                                <div id="card_desplegar_versiones" class="bl1 header1" > 
+                                    <label class="">Versiones</label>                       
+                                    <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
+                                        <i class="fas fa-angle-double-left fa-3x"></i>
+                                    </button>
+                                </div> 
+                                <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
+                                    <div class="header1">
+                                        <label class="">Versiones</label>
+                                        <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
+                                            <i class="fas fa-angle-double-right fa-3x"></i>
+                                        </button>
+                                    </div>
+                                    <div class="display_va">
+                                        <div id="versiones_anteriores"></div>
+                                    </div>
+                                </div>    
                             </div>
-
-                        <!--    <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
-                                <form action=""
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-archivo-ppal">
-                                </form>
-                            </div>-->
+                                
+                        
                         </div>
 
                         <div class="form-group">
@@ -485,9 +494,11 @@
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
-    <link rel="stylesheet" href="/css/carrusel.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
 
-
+    
+    
     <style type="text/css">  
 
         .nav-header {
@@ -547,16 +558,7 @@
             margin-bottom: 30px;
         }
 
-        .carousel-item {
-            background-color: #aedd94;
-            border: 1px solid #005c9e;
-            width: 100px;
-            margin: 15px;
-            text-align: center;
-            line-height: 20px;
-            font-size: 15px;
-        }
-
+        
         .label-info {
             background-color:#5bc0de
         }
@@ -595,9 +597,105 @@
             background: whitesmoke;
         }
 
-        .carousel-control-next, .carousel-control-prev { border: 0; }
-
         
+        .header1 {            
+            margin: 0px 10px;
+            width: 100px;
+            text-align: center;
+            height: 150px;
+            cursor: pointer;
+            transform: rotate(180deg);
+            writing-mode: vertical-rl;
+            float:left;
+        }
+
+        .bl1, .bl2 {
+            border:1px solid #ced4da;
+        }
+
+        .bl2 {
+            flex:1;
+        }
+
+        .displayDropzone {
+            display:none;
+        }
+        
+        .display_va {
+            float:left;
+        }
+
+        .carousel-wrapper {
+            width: 1200px;
+            margin: auto;
+            position: relative;
+            text-align: center;
+            --background-color: #e9f1fe;
+            --border: 1px solid #005c9e;
+            
+        }
+        
+        .owl-carousel .owl-nav {
+            overflow: hidden;
+            height: 0px;
+        }
+        
+        .owl-carousel .item_display {
+            text-align: center;
+            border: 1px solid #005c9e;
+            background: #aedd94;
+            width: 100px;
+            height: 100px;
+            padding-top: 25px;
+        }
+
+        .owl-item {
+            width: 100px !important; 
+            margin-right: 10px; 
+        }
+
+        .item-doc {
+            background: #92d36e !important;
+            border: 2px solid #005c9e;           
+        }
+
+        .owl-carousel .nav-button {
+            height: 50px;
+            width: 30px;
+            cursor: pointer;
+            position: absolute;
+            top: 0px !important;
+        }
+        .owl-carousel .owl-prev.disabled,
+        .owl-carousel .owl-next.disabled {
+            pointer-events: none;
+            opacity: 0.25;
+        }
+        .owl-carousel .owl-prev {
+            left: -35px;
+        }
+        .owl-carousel .owl-next {
+            right: -35px;
+        }
+        .owl-theme .owl-nav [class*=owl-] {
+            color: #697680;
+            font-size: 40px;
+            border-radius: 3px;
+        }
+        .owl-carousel .prev-carousel:hover {
+            background-position: 0px -53px;
+        }
+        .owl-carousel .next-carousel:hover {
+            background-position: -24px -53px;
+        }
+        .item_prev
+        {
+            padding-top: 25px;
+        }
+        .item_next
+        {
+            padding-top: 25px;
+        }
      </style>
 @stop
 
@@ -607,15 +705,14 @@
 
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
-
-
-
+ 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
 <script>
     //globales
@@ -636,32 +733,9 @@
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
 
+    owl = $('.owl-carousel').owlCarousel(); 
     
-
-    /*
-	    Carousel
-	*/
-	$('#carousel-responder').on('slide.bs.carousel', function (e) {
-
-    var $e = $(e.relatedTarget);
-    var idx = $e.index();
-    var itemsPerSlide = 5;
-    var totalItems = $('.carousel-item').length;
-
-    if (idx >= totalItems-(itemsPerSlide-1)) {
-        var it = itemsPerSlide - (totalItems - idx);
-        for (var i=0; i<it; i++) {
-            // append slides to end
-            if (e.direction=="left") {
-                $('.carousel-item').eq(i).appendTo('.carousel-inner');
-            }
-            else {
-                $('.carousel-item').eq(0).appendTo('.carousel-inner');
-            }
-        }
-    }
-    });
-
+    
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
@@ -876,13 +950,19 @@
         }        
     };
 
+    /* VERSIONES PDF */
+
     $(".boton_desplegar_versiones_anteriores").click(function(e){
         $('#card_ocultar_versiones').show();
         $('#card_desplegar_versiones').hide();
+        $("#dropzone-principal").addClass("displayDropzone");
+        
     });
     $(".boton_ocultar_versiones_anteriores").click(function(e){
         $('#card_ocultar_versiones').hide();
         $('#card_desplegar_versiones').show();
+        $("#dropzone-principal").removeClass("displayDropzone");
+
     });
 
     /* **DOCUMENTOS** SCRIPT */
@@ -1039,7 +1119,11 @@
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
-        $('#carousel-responder').hide();
+        //$('#carousel-responder').hide();
+        owl.trigger('destroy.owl.carousel'); 
+        owl.find('.owl-stage-outer').children().unwrap();
+        owl.removeClass("owl-center owl-loaded owl-text-select-on");
+
         $('#row_cuerpo').hide();
         $('#row_anexo').hide();     
         $(".row_archivar").hide();  
@@ -1075,6 +1159,7 @@
         dropzoneOtros.removeAllFiles(true);
         dropzonePrincipal.removeAllFiles();
         dropzonePrincipal.removeAllFiles(true);
+        $("#dropzone-principal").removeClass("displayDropzone");
 
     }
 
@@ -1685,7 +1770,6 @@
                         },
                         success: function(data)
                         {
-                            console.log(data);
                             if(data.status == '200')
                             {
                                 toastr.success(data.data,"Aviso!");
@@ -1716,8 +1800,13 @@
                             $('.btn-recibir-submit').html( 'Firmar' );
 
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error("Falla en el documento","Aviso!");
+                        error: function (e) {
+                            data = e.responseJSON;
+                            console.log(data);
+                            if (data.data.comentario != "" && data.data.comentario != null)
+                                toastr.error(data.data.comentario,"Aviso!");
+                            else
+                                toastr.error("Falla en el documento","Aviso!");
 
                             $('.btn-recibir-submit').html( 'Firmar' );
                         }
@@ -2392,7 +2481,9 @@
                             
                             if (carpeta != 3 || (carpeta == 3 && accion == 0))
                                 $('#form_respuesta_a').empty();
-                            
+
+                            var sDivActualPrev = "";
+                            var sDivActualNext = "";
                             var sDivIzq = "";
                             for (let j in jsonRespuesta) 
                             {                           
@@ -2402,7 +2493,7 @@
                                     $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
                             
                                 //completa carrusel lado izq
-                                sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
+                                sDivIzq += ' <div class="item"><div class="item_display">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
                             }
 
                             $('#form_respuesta_a').multiselect('rebuild');
@@ -2411,21 +2502,40 @@
                             //completar carrusel lado der
                             var sDivDer = "";
                             for (let d in jsonDocResponder)
-                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonDocResponder[d]['identificador']+'</div>'; 
+                                sDivDer += ' <div class="item"><div class="item_display">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                                 
+                            
+                            sDivActual = '<div class="item"><div class="item_display item-doc">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                            
+                            if (sDivDer != '')
+                                sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';
 
-                            sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
+                            if (sDivIzq != '')
+                                sDivActualNext = '<div class="item"><div class="item_next"><i class="fas fa-reply-all fa-2x"></i></div></div>';
 
-                            if((carpeta == 3 && accion == 0 && nFlujo == 1) )
-                            {
+
+                            //if((carpeta == 3 && accion == 0 && nFlujo == 1) )
+                            //{
                                 if (sDivIzq != '' || sDivDer != '')
                                 {
-                                    $('#carousel-responder').show();
+                                    owl.trigger('destroy.owl.carousel'); 
+                                    owl.find('.owl-stage-outer').children().unwrap();
+                                    owl.removeClass("owl-center owl-loaded owl-text-select-on");
 
-                                    $('#carrousel-items').append(sDivIzq);
-                                    $('#carrousel-items').append(sDivActual);
-                                    $('#carrousel-items').append(sDivDer);  
+                                    var content = sDivIzq + sDivActualNext + sDivActual + sDivActualPrev + sDivDer;
+                                    owl.html(content);
+
+                                    //reinitialize the carousel (call here your method in which you've set specific carousel properties)
+                                    owl.owlCarousel({
+                                        items:8,
+                                        margin: 10,
+                                        dots: true,
+                                        nav: true,
+                                        navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
+                                        
+                                    }).trigger('refresh.owl.carousel');
                                 }             
-                            }
+                           // }
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
@@ -2458,36 +2568,20 @@
                         let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                         let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
                         let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
+                        let htmlFilePrincipal_va = '<div class="col-md-12 group-button-align file-container-all">';
                         
                         aFilesPrincipal = [];
                         aFilesDelete = [];                  
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         {
-                            
-                          /*  let mockFile = { name: value.nombre_archivo_original, size: 1024 };
-
-                            //dropzoneAnexo.displayExistingFile(mockFile, "{{ asset('/vendor/ckeditor/ckeditor.js') }}");
-                            
-                            dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
-                            dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg");
-                            //dropzoneAnexo.emit('complete', mockFile);
-                            mockFile.previewElement.classList.add('dz-complete');
-
-                            var a = document.createElement('a');
-                            a.setAttribute('href',"#");
-                            a.setAttribute('target',"_blank");
-                            a.innerHTML = "<i class='fas fa-download'></i>";
-                            //a.innerHTML = "Descargar";
-                            mockFile.previewTemplate.appendChild(a);
-                           
-                            */ 
-                            
-                          // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
-
-                          htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                           htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
                                            '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+
+                            htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
+                                    '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
 
                            /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
@@ -2508,7 +2602,10 @@
                             if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
 
-                            //versiones anteriores    
+                            //versiones anteriores 
+                            
+                            if (value.id_tipo_archivo == 1 && value.version != 1) 
+                                htmlFilePrincipal_va += htmlFile_va + '</div>'; 
 
                         });
                        
@@ -2516,6 +2613,8 @@
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
                         $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
                         $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+                        $('#versiones_anteriores').html(htmlFilePrincipal_va + '</div>');
+
 
                     }
                 }

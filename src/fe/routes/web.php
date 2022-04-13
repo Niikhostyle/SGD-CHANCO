@@ -27,8 +27,9 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/', function () {
 //usuarios
 Route::middleware(['auth:sanctum', 'verified'])->get('usuarios',[UsuarioController::class,'index'])->name('usuarios.index');
 Route::middleware(['auth:sanctum', 'verified'])->post('usuarios',[UsuarioController::class,'store'])->name('usuarios.store');
+//Route::middleware(['auth:sanctum', 'verified'])->post('usuarios_new',[UsuarioController::class,'store'])->name('usuarios.store');
 Route::middleware(['auth:sanctum', 'verified'])->get('usuarios/{id}',[UsuarioController::class,'show'])->name('usuarios.show');
-Route::middleware(['auth:sanctum', 'verified'])->put('usuarios',[UsuarioController::class,'update'])->name('usuarios.update');
+Route::middleware(['auth:sanctum', 'verified'])->post('usuarios_img',[UsuarioController::class,'update'])->name('usuarios.update');
 Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioController::class,'estado'])->name('usuarios.estado');
 
 //Documentos
@@ -115,6 +116,7 @@ Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderC
 Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderController@browserAction')->name('ckfinder_browser');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class,'showImage'])->name('images.show');
+Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_firma/{filename}', [DocumentoBuzonArchivoController::class,'showImageFirma'])->name('images.showFirma');
 
 
 
