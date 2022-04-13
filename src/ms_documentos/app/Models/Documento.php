@@ -8,7 +8,7 @@ class Documento extends Model{
     protected $table = "documento";
     protected $primaryKey = 'id_documento';
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
 
     protected $fillable = [
         'id_tipo_documento',

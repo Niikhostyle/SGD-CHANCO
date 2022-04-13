@@ -96,7 +96,7 @@ class DocumentoController extends Controller{
                     {                              
                         foreach($datosDocumento['json_respuesta_a'] as $resp)
                         {
-                            $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia')->first();
+                            $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia','created_at')->first();
                             $jsonRespuesta[] = $datosRespuesta;                            
                         }   
                     
@@ -265,7 +265,7 @@ class DocumentoController extends Controller{
                                 {   
                                     foreach($datosRequest['json_respuesta_a'] as $resp)
                                     {
-                                        $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia')->first();
+                                        $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia','created_at')->first();
                                         $jsonRespuesta[] = $datosRespuesta;                                        
                                     }   
                                 
@@ -811,7 +811,7 @@ class DocumentoController extends Controller{
 
                 $datosDocumento['rel_documento_buzon_actual'] =  $datosVerDoc; 
                 
-                $docEnRespuesta = Documento::where('json_respuesta_a', 'like', '%"id_documento": '.$datosRequest['id_documento'].'%')->select('id_documento','identificador', 'materia')->get();
+                $docEnRespuesta = Documento::where('json_respuesta_a', 'like', '%"id_documento": '.$datosRequest['id_documento'].'%')->select('id_documento','identificador', 'materia','created_at')->get();
                 $datosDocumento['rel_responder'] =  $docEnRespuesta; 
 
                 $datosDocumentoBuzon = DocumentoBuzon::join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
