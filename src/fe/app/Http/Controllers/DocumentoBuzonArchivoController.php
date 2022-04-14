@@ -159,7 +159,7 @@ class DocumentoBuzonArchivoController extends Controller
         //$buzonUsuario = $datos['id_usuario'];  
         $valido = false;
         $buzonUsuario = [];    
-        
+        //return $datos;
         foreach ($datos as $data){
             $nombre = $data->nombre_archivo_codificado;                              
             //$buzonUsuario = $data->id_usuario;
@@ -197,9 +197,9 @@ class DocumentoBuzonArchivoController extends Controller
         if($nAcceso=='2' || $nAcceso=='3'){
             
 
-            for($i=0; $i<count($datos); $i++){
+            for($i=0; $i<count($buzonUsuario); $i++){
                 
-                if ($buzonUsuario==$usuario){
+                if ($buzonUsuario[$i]==$usuario){
                     $valido = true;
                     $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
      
