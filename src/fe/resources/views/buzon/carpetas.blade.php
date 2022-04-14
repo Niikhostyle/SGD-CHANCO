@@ -734,8 +734,6 @@
     var idTipoFlujo = "";   
 
     owl = $('.owl-carousel').owlCarousel(); 
-    
-    
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
@@ -1124,6 +1122,12 @@
         owl.find('.owl-stage-outer').children().unwrap();
         owl.removeClass("owl-center owl-loaded owl-text-select-on");
 
+        //versiones
+
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+        $("#dropzone-principal").removeClass("displayDropzone");
+
         $('#row_cuerpo').hide();
         $('#row_anexo').hide();     
         $(".row_archivar").hide();  
@@ -1200,9 +1204,14 @@
 
                             //habilita respuesta a: solo a flujo libre
 
-                            $('#form_respuesta_a').multiselect('deselectAll', true);
+                           // if ($("input[name='hiddIdResponder']").val() )
+                           //     $('#form_respuesta_a').multiselect('deselectAll', true);
+
                             if (idTipoFlujo != 1)
+                            {
                                 $('#form_respuesta_a').multiselect('disable');
+                                $('#form_respuesta_a').multiselect('deselectAll', true);
+                            }
                             else
                                 $('#form_respuesta_a').multiselect('enable');
 
