@@ -65,7 +65,7 @@ class FirmaController extends Controller
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
-                $nRut = env('PLCSGD_RUT');//'18658044';//'18658044';//$aInfoUsuarios['run']
+                $nRut = env('PLCSGD_RUT');//'18658044';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
@@ -113,10 +113,17 @@ class FirmaController extends Controller
                     $n_urx = 280;
                     $n_ury = 160;
                 }
-                                
+                
+                $pdf = new PDF();
+                $pageCount = $pdf->setSourceFile($sArchivo);  
+
+                $nPaginasPdf = $aDocumentoBuzon['paginas_archivo'];
+                if ($aDocumentoBuzon['paginas_archivo'] == '' || $aDocumentoBuzon['paginas_archivo'] == null)
+                    $nPaginasPdf = $pageCount;
+                
                 $layout = array(
                     'filename' => $imagen_firma,//storage_path('app/public/files/logo_firma2.png'),
-                    'page'     => $aDocumentoBuzon['paginas_archivo'],
+                    'page'     => $nPaginasPdf,//$aDocumentoBuzon['paginas_archivo'],
                     'llx'      => $n_llx, //50
                     'lly'      => $n_lly, //50
                     'urx'      => $n_urx, //210
@@ -125,23 +132,15 @@ class FirmaController extends Controller
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-                $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']);                    
-
+                $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']); 
+                
+                //agrega Hash de validación
                 if (count($datosBitacora) == 0)
-                {
-                    //Obtiene pagina para agregar firma
-                    $pdfPages = file_get_contents($sArchivo);
-                    $count = 0;
-                    $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);         
-
-                    //agrega Hash de validación
-                    $pdf = new PDF();
-                    // set the source file
-                    $pageCount = $pdf->setSourceFile($sArchivo);            
+                {                              
                     $pdf->AliasNbPages();
                     $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
                     $pdf->footer_link = "http://sgd.padrelascasas.cl/verificador";
-                    $pdf->PageFirma = $aDocumentoBuzon['paginas_archivo'];
+                    $pdf->PageFirma = $nPaginasPdf;//$aDocumentoBuzon['paginas_archivo'];
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template

@@ -10,6 +10,7 @@ use App\Models\DocumentoBuzon;
 use App\Validator\BuzonValidator;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\TryCatch;
+use Exception;
 
 class BuzonController extends Controller{
 
@@ -198,6 +199,7 @@ class BuzonController extends Controller{
 
                 if ($validator->fails())
                     return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
+                    //throw new Exception("revisar datos de entrada.");
 
                 $datosUsuario = $datosRequest['usuarios_asignados'];
 
@@ -220,7 +222,7 @@ class BuzonController extends Controller{
                     if (count($datosUsuario) > 1 && $datosRequest['tipo_buzon'] == 1)
                         return $this->respondFail('Falla al actualizar buzón: asignacion de usuarios');
                 }
-
+                
                 $datoBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','id_tipo_buzon']);
 
                 $datoBuzon->nombre = $datosRequest['nombre_buzon'];
@@ -228,23 +230,27 @@ class BuzonController extends Controller{
                 $datoBuzon->id_tipo_buzon = $datosRequest['tipo_buzon'];
                 $datoBuzon->cargo_firma = $datosRequest['cargo_firma'];
 
-
                 $datoBuzon->save();
-
-                $datoBuzon->usuarios_asignados()->delete();
 
                 foreach ($datosUsuario as $datos)
                 {
                     $nTipoFirma = 2;
                     if ($datos['id_usuario'] == $datosRequest['titular'])
                         $nTipoFirma = 1;
-                    
-                    $buzonUsuario = BuzonUsuario::create([
+                                
+                    $buzonUsuario = BuzonUsuario::updateOrCreate([
+                        'id_buzon' => $datoBuzon->id_buzon,
+                        'id_usuario' => $datos['id_usuario']
+                    ],[
                         'id_buzon' => $datoBuzon->id_buzon,
                         'id_usuario' => $datos['id_usuario'],
                         'id_tipo_firma' => $nTipoFirma
                     ]);
+
                 }
+
+                //elimina usuarios asociados al buzon
+                $datosBuzonUsuario = BuzonUsuario::where('id_buzon','=', $datoBuzon->id_buzon)->whereNotIn('id_usuario',$aUsuarios)->delete();
 
                 $datoBuzon->usuarios_asignados;
 
@@ -252,10 +258,13 @@ class BuzonController extends Controller{
 
                 return $this->respondSuccess($datoBuzon, 200);
 
-            } catch (ModelNotFoundException $e) {
+            } catch (Exception $e) {
                 DB::rollBack();
 
-                return $this->respondError('Falla al actualizar buzón:' . $e->getMessage(), 500);
+                if ($e->errorInfo[0] == 23503 || $e->errorInfo[0] == 23500)
+                    return $this->respondError('Falla al actualizar buzón: No es posible eliminar algunos usuarios.', 500);
+                else  
+                    return $this->respondError('Falla al actualizar buzón:' . $e->getMessage(), 500);
             }
         }
         else
