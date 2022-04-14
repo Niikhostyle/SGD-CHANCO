@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DocumentoBuzonArchivo;
+use App\Models\TipoDocumento;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Response;
 use SebastianBergmann\Environment\Console;
 use PDF;
 use Illuminate\Support\Facades\View;
+
+use Barryvdh\DomPDF\Facade\Pdf;
 
 //use Image;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -50,11 +53,16 @@ class DocumentoBuzonArchivoController extends Controller
                     {
                         if(strlen($fileName) && $id_tipo_archivo == 1)
                         {
-                            /*$docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $id_documento_buzon)
-                                                    ->where('id_tipo_archivo', 1)
-                                                    ->get();
-                            */
+                            //calcula cant de paginas si es doc de origen externo - para futura firma
 
+                            $nTipoDocumento = TipoDocumento::join('documento', 'tipo_documento.id_tipo_documento','=','documento.id_tipo_documento')
+                                                            ->where('id_documento', $id_documento)
+                                                            ->select('id_tipo_origen')
+                                                            ->first();
+                            
+                            if ($nTipoDocumento['id_tipo_origen'] == 2)
+                                Documento::find($id_documento)->update(['archivo_existente' => true]);  //'paginas_archivo' => $count, 
+                            
                             $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                                                         ->where('id_documento', $id_documento)
                                                         ->where('id_tipo_archivo', 1)
