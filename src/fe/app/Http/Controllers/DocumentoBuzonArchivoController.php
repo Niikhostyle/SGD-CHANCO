@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 use SebastianBergmann\Environment\Console;
-use PDF;
 use Illuminate\Support\Facades\View;
-
-use Barryvdh\DomPDF\Facade\Pdf;
 
 //use Image;
 use Intervention\Image\ImageManagerStatic as Image;
