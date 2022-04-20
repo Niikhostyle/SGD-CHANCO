@@ -45,33 +45,33 @@
     <br>
 
     <div class="card" id="card_crear_documento" >
-        
-                <div class="card-body">
 
-                    <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.store')}}">
-                        @csrf
-                        
-                        <div class="form-row">                                
-                                <div class="col-md-4 md-4">
-                                <div class="form-group">
-                                <label for="id_documento" >Codigo de documento valido: </label>
-                                    
-                                </div>
-                            </div>
-                            <div class="col-md-4 md-4">
-                                <div class="form-group">
-                                
-                                    <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" >
-                                </div>
-                            </div>
-                            <div class="col-md-4 md-4">
-                                <div class="form-group">
-                                <button type="submit"  class="btn btn-success btn_validar">Validar Documento</button>
-                                </div>
-                            </div>                        
+        <div class="card-body">
+
+            <form class="needs-validation" id="form_crear_editar" method="POST" action="{{route('validador.store')}}">
+                @csrf
+                
+                <div class="form-row">                                
+                        <div class="col-md-4 md-4">
+                        <div class="form-group">
+                        <label for="id_documento" >Codigo de documento valido: </label>
+                            
                         </div>
-                    </form>
+                    </div>
+                    <div class="col-md-4 md-4">
+                        <div class="form-group">
+                        
+                            <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Codigo" >
+                        </div>
+                    </div>
+                    <div class="col-md-4 md-4">
+                        <div class="form-group">
+                        <button type="submit"  class="btn btn-success btn_validar">Validar Documento</button>
+                        </div>
+                    </div>                        
                 </div>
+            </form>
+        </div>
 
     </div>
 
@@ -79,9 +79,10 @@
   
     <div class="linea_content_header" ></div>
     <br>
-    @if($status==0)
-    @foreach($lista_documentos['data'] as $list)    
-            <div class="card" id="card_validar" >
+    
+        @if($status==0)
+        @foreach($lista_documentos['data'] as $list)    
+            <div class="card">
                 <div class="card-body">
 
                 
@@ -148,13 +149,14 @@
                     </table>
                     
                     @if($list['id_nivel_acceso']==1)
-                        <a class="btn-descargar" onclick="descargar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-download fa-icon1"></i> Descargar</a>
+                        <a class="btn-descargar"   href="/descargarPdf/{{$list['id_documento']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a>
                     @endif
 
                 </div> 
             </div> 
-    @endforeach
-    @endif
+        @endforeach
+        @endif
+    
     @if($status==1)
       <div class="card" id="card_invalido" style="border: 2px solid #cededf;   background-color: #cededf;">
                 <div class="card-body">
@@ -224,7 +226,7 @@
         }
         body{
             
-            background-image: url("http://img.soy-chile.cl/Fotos/2015/12/15/file_20151215164156.jpg");
+           
             width:auto;
             height:auto;
         }
@@ -293,6 +295,12 @@ i {
 
 
 
+
+
+</body>
+
+</html>
+
 <script src="{{ asset('/js/funciones.js') }}"></script>
 <script src="{{ asset('/vendor/ckeditor/ckeditor.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -307,56 +315,38 @@ i {
 //$('#card_validar').hide();
 //$('#card_invalido').hide();
 
+
 $(".btn_validar").click(function(e){
-            
     
-    $('#card_validar').show();
+    //document.getElementById('#card_crear_documento').style.visibility = "hidden";
+    $('#card_crear_documento').hide();
+    $('#card_documento').show();
     //$('#card_invalido').show();
-   
+ 
 });
+
 
 function descargar_documento( id_documento, id_documento_buzon)
     {
         
         //var _token = $("input[name='_token']").val();
+        var codigo = "tc4-191-20220320-58936705";
 
         $.ajax({
-            url: "/descargar_documento2/",
+            url: "/descargarPdf/"+codigo,
             type: 'GET',
             dataType: 'json',
             data: {
                 
                 idDocumento:id_documento,
                 idDocumentoBuzon:id_documento_buzon             
-            },
-            success: function(data){
-                //console.log(data.data);
-                //window.location = '/files/principal_191_.pdf' ;
-                if(data.status=='200')
-                    {
-                        console.log("hola");
-                        //window.location = (data.data.data);
-                        window.open(data.data.data, 'Download');
-                    }
-               
-                     
-                
             }
         });
          
              
     }
-$(document).ready(function(){
 
-    
-
-   
-});
 
    
 
 </script>
-
-</body>
-
-</html>
