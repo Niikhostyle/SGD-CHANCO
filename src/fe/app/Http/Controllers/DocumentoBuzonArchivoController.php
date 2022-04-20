@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DocumentoBuzonArchivo;
+use App\Models\DocumentoBuzonArchivoDescarga;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,8 @@ class DocumentoBuzonArchivoController extends Controller
                     $nVersion = null;
                     
                     $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
+
+
 
                     if ($uploadSuccess)
                     {
@@ -271,87 +274,37 @@ class DocumentoBuzonArchivoController extends Controller
         return redirect()->route('buscador.index');
     }*/
 
-    public function validarUrl (Request $request){
-        $nDocumento = 191;
+    public function validarUrl ($id){
+        
+        
+        $nDocumento =  $id;
 
-        $datos =  DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
-                                       
+        $archivo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
                                         ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
                                         ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-
                                         ->where('id_documento', $nDocumento)
                                         ->where('id_tipo_archivo', 1)
                                         ->where('version', 1)
                                         ->select(
                                             'nombre_archivo_codificado',
-                                            'buzon_usuario.id_usuario as id_usuario'
-                                           
+                                            'id_documento_buzon_archivo',
+                                            'buzon_usuario.id_buzon_usuario as id_buzon_usuario'
+
                                         )
-                                        ->get();
-
-
-        $nivelAcceso = Documento::where('id_documento', $nDocumento)->select('id_nivel_acceso')->get();
-        $usuario = Auth::user()->id;   
-        //$nombre = $datos->nombre_archivo_codificado;  
-        //$buzonUsuario = $datos['id_usuario'];  
-                                 
-        foreach ($datos as $data){
-            $nombre = $data->nombre_archivo_codificado;                              
-            $buzonUsuario = $data->id_usuario;
-        }
-
-        foreach ($nivelAcceso as $data){
-            $nAcceso = $data->id_nivel_acceso;                              
-            
-        }
-        //return $nivelAcceso;
+                                        ->get();   
+                                     
+        $dFechaCreacion = date('Y-m-d H:i:s'); 
+        foreach ($archivo as $file)
+            $nombre = $file->nombre_archivo_codificado;                              
+            DocumentoBuzonArchivoDescarga::create([
+                'id_documento_buzon_archivo' => $file['id_documento_buzon_archivo'],
+                'id_buzon_usuario' =>  $file['id_buzon_usuario'],
+                'fecha' => $dFechaCreacion 
+            ]); 
         
-        
-        if($nAcceso=='2' || $nAcceso=='3'){
-            //cuando le entreguen la url el usuario debera logearse y se tendra que verificar que tenga accesos a ese documento  
-            if ($buzonUsuario==$usuario){
-                $ruta = ('files/'). $nombre;
-                $result = array('status' => 'puedes verlo', 'data' => array('data' => $ruta));
-            
-                return response()->json($result, '200');  
-            }else{
-                //cuando no tiene acceso al documento
-                return View::make('pruebaPublica');
-            }
-            
+        $path = storage_path(config('app.path_files')) . $nombre ;
 
-        }else{
-            $ruta = ('files/'). $nombre;
-            $result = array('status' => 'puedes verlo', 'data' => array('data' => $ruta));
-            
-            return response()->json($result, '200'); 
-        }
-
-        //if($usuario==$buzonUsuario){
-
-        //}
-
-        
-
-        //return $buzonUsuario; 
-
-        $ruta = ('files/'). $nombre;
-       
-        //return response()->download($ruta, $nombre);
-
-        if (file_exists(storage_path('app/public/files/') . 'archivo_'.$nDocumento.'.pdf'))
-        {
-            return response()->json([
-                'status' => 200, 
-                'data' => 'ok'
-            ], 200); 
-        }else{
-
-            return response()->json([
-                'status' => 400, 
-                'data' => 'error'
-            ], 400);  
-        }
+        return response()->download($path);
             
     }
 
