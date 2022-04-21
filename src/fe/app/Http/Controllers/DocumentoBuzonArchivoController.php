@@ -166,16 +166,24 @@ class DocumentoBuzonArchivoController extends Controller
         //$nombre = $datos->nombre_archivo_codificado;  
         //$buzonUsuario = $datos['id_usuario'];  
         $valido = false;
-        $buzonUsuario = [];    
-        //return $datos;
+        $buzonUsuario = [];
+        $dataIdDocumento = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                            ->where('nombre_archivo_codificado', $filename) 
+                                            ->select('id_documento')
+                                            ->get();    
+        
         foreach ($datos as $data){
             $nombre = $data->nombre_archivo_codificado;                              
             //$buzonUsuario = $data->id_usuario;
-            $nDocumento =  $data->id_documento;
+            //$nDocumento =  $data->id_documento;
             //tomo los id de usuarios de los buzones y verifico que el usuario logeado este dentro de los id que tiene el buzon/ porque el buzon en el que esta el documento tiene distintos usuarios
             for($i=0; $i<count($datos); $i++){
                 $buzonUsuario[$i] = $data->id_usuario;
             }
+        }
+
+        foreach ($dataIdDocumento as $data){
+            $nDocumento =  $data->id_documento;                                
         }
 
         $nivelAcceso = Documento::where('id_documento', $nDocumento)->select('id_nivel_acceso')->get();
