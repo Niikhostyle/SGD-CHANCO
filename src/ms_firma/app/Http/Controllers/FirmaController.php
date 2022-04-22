@@ -17,11 +17,9 @@ use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzonArchivo;
 use setasign\Fpdi\Fpdi;
-
 use App\Libraries\PDF;
-
-
-//require_once('../../Libraries/fpdf.php');
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Str;
 
 class FirmaController extends Controller
 {
@@ -35,7 +33,36 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
+                //GENERACIÓN IMAGEN PARA FIRMA
+                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
+                $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
+                $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
+        
+                $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
+                            ->join('tipo_firma', 'buzon_usuario.id_tipo_firma','=', 'tipo_firma.id_tipo_firma')
+                            ->where('buzon.id_buzon','=', $datos['id_buzon'])
+                            ->where('buzon_usuario.id_usuario','=', $datos['id_usuario'])
+                            ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
+                            ->first();   
+        
+                if (!$DatosFirma['cargo_firma'])   
+                    return $this->respondFail("No existe cargo asociado al buzón.");
+        
+                if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
+                    return $this->respondFail("No existe imagen para firma asociada al usuario.");
+                    
+                //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
+                $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
+                $dFechaCreacion = date('d.m.Y H:i:s');
+                $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+                $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
+                $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+                $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
+        
+                $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
+
+                //INICIO PROCESO FIRMA
+                //$aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
                 $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion']);                
 
                 if (!$aInfoUsuarios['aplica_fea'])
@@ -64,13 +91,13 @@ class FirmaController extends Controller
                 $classFirma = new FirmaBase($firmaDigitalConfig);
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
-                $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];//sacar de tabla documentos
+                $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $nRut = env('PLCSGD_RUT');//'18658044';//$aInfoUsuarios['run']
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
                 $id_documento_buzon = $datos['id_documento_buzon'];
-                $imagen_firma = storage_path('app/public/files/imagen_firma/'.$datos['img_firma']); 
+                $imagen_firma = storage_path('app/public/files/imagen_firma/'.$sNombreImg); 
 
                 if ( !file_exists($imagen_firma) )
                     return $this->respondFail('Existe un problema con la imagen relacionada a la firma electrónica.');
@@ -122,8 +149,8 @@ class FirmaController extends Controller
                     $nPaginasPdf = $pageCount;
                 
                 $layout = array(
-                    'filename' => $imagen_firma,//storage_path('app/public/files/logo_firma2.png'),
-                    'page'     => $nPaginasPdf,//$aDocumentoBuzon['paginas_archivo'],
+                    'filename' => $imagen_firma,
+                    'page'     => $nPaginasPdf,
                     'llx'      => $n_llx, //50
                     'lly'      => $n_lly, //50
                     'urx'      => $n_urx, //210
@@ -140,7 +167,7 @@ class FirmaController extends Controller
                     $pdf->AliasNbPages();
                     $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
                     $pdf->footer_link = "http://sgd.padrelascasas.cl/verificador";
-                    $pdf->PageFirma = $nPaginasPdf;//$aDocumentoBuzon['paginas_archivo'];
+                    $pdf->PageFirma = $nPaginasPdf;
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template
@@ -149,8 +176,6 @@ class FirmaController extends Controller
                         $size = $pdf->getTemplateSize($tplId);
                         $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
 
-                        //create a page
-                        // $pdf->AddPage();
                         //use the template of the imporated page
                         $pdf->useTemplate($tplId);                    
                     }
@@ -229,8 +254,7 @@ class FirmaController extends Controller
                     }
 
                     //elimina imagen de firma
-                    //$imagen_firma
-
+                    unlink(storage_path('app/public/files/imagen_firma/'.$sNombreImg));
                     
                 }
 

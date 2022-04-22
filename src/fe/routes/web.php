@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
+use App\Http\Controllers\DescargaPdfController;
+
+use App\Jobs\Firma;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +68,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buzonesListar/',[BuzonCont
 Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
 Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_documento/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
 Route::middleware(['auth:sanctum', 'verified'])->put('firmar_documento/{id}',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
+Route::middleware(['auth:sanctum', 'verified'])->put('firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
 
 Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
 Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
@@ -118,5 +122,11 @@ Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderCon
 Route::middleware(['auth:sanctum', 'verified'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class,'showImage'])->name('images.show');
 Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_firma/{filename}', [DocumentoBuzonArchivoController::class,'showImageFirma'])->name('images.showFirma');
 
+//verificacion archivos
+Route::get('pdf/{id}', [DescargaPdfController::class,'descarga'])->name('pdf.descarga');
 
+Route::get('Firma', [DescargaPdfController::class,'descarga']);
 
+//Route::put('/firmamasiva', function () {
+//    Firma::dispatch("Mensaje de firma");
+//});

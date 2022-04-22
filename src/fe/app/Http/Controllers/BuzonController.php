@@ -13,6 +13,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Jobs\Firma;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 
@@ -33,6 +34,8 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 class BuzonController extends Controller
 {
+    private $userFirma;
+
     public function index(){
 
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -218,6 +221,16 @@ class BuzonController extends Controller
             }
         }
 
+        //add check fea masiva
+        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['aplica_fea']);
+        
+        $this->userFirma = $aInfoUsuarios['aplica_fea'];
+        $aplicaFrm = 0;
+        if($this->userFirma)
+            $aplicaFrm = 1;
+            //$aplicaFrm = "<input type='check' name='chkFrm'> Solo mostrar documentos por firmar";
+
+        
         /* NUEVO-DOCUMENTOS */
 
         //tipos de documentos
@@ -354,7 +367,8 @@ class BuzonController extends Controller
             'allBuzones2'=>$aAllBuzones2,
             'allBuzonesT2'=>$aAllBuzonesT2,
             'listDocPendientesBuzon' => $aDocumentos,
-            'listado_parametros'=>$listado_parametros['data']
+            'listado_parametros'=>$listado_parametros['data'],
+            'aplicaFrm'=>$aplicaFrm
         ]);
 
     }
@@ -477,10 +491,25 @@ class BuzonController extends Controller
         }        
     }
 
+    public function firma_masiva(Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+        
+        foreach($request->firmas as $idDoc)
+            Firma::dispatch($request->buzon, $idDoc, $request->docBuzon, $sesion_key, Auth::user()->id);
+
+        return $this->respondSuccess("Documentos enviados a firma.", 200);
+       
+        //llamada a firmar_documento con parametros correspondientes y ejecutar en segundo plano. Primero se debe cambiar estado a EP y despues ejecutar cada uno
+        //foreach($request->firmas as $idDoc)
+            //$this->firmar_documento($idDoc, $request);
+
+    }
+
     public function firmar_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
+/*
         $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma']);
         $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
         $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
@@ -491,7 +520,7 @@ class BuzonController extends Controller
                     ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
                     ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
                     ->first();   
-        
+
         if (!$DatosFirma['cargo_firma'])   
             return $this->respondFail("No existe cargo asociado al buzón.");
 
@@ -507,20 +536,15 @@ class BuzonController extends Controller
         $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
 
         $img->save(storage_path(config('app.path_img_firma').$sNombreImg));  
-
+*/
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_usuario'=>Auth::user()->id,
-            'id_buzon'=>$request->buzon,
-            'img_firma' => $sNombreImg
+            'id_buzon'=>$request->buzon
         ]);
-
-        //elimina imagen generada
-
-        unlink(storage_path(config('app.path_img_firma').$sNombreImg));
         
         return $datosFea->json();
     }
@@ -579,7 +603,7 @@ class BuzonController extends Controller
 
     public function listar(Request $request)
     {
-       
+           
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
@@ -600,7 +624,8 @@ class BuzonController extends Controller
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
-                        'estado_documento.nombre_corto as estado_documento',                        
+                        'estado_documento.nombre_corto as estado_documento', 
+                        'estado_documento.codigo_color as codigo_estado',                        
                         'documento.created_at as fecha_creacion', //carpeta 3
                         'documento_buzon.fecha as fecha_envio_recepcion',
                         'documento_buzon.fecha as fecha_envio', //carpeta 3 y 1
