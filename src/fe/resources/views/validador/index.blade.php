@@ -149,7 +149,7 @@
                     </table>
                     
                     @if($list['id_nivel_acceso']==1)
-                        <a class="btn-descargar"   href="/descargarPdf/{{$list['id_documento']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a>
+                        <a class="btn-descargar"   href="/descargarPdf/{{$list['hash_validacion']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a>
                     @endif
 
                 </div> 

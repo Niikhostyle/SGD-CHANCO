@@ -171,6 +171,12 @@ class DocumentoBuzonArchivoController extends Controller
                                             ->where('nombre_archivo_codificado', $filename) 
                                             ->select('id_documento')
                                             ->get();    
+        $datoIdBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                            ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                                            ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                                            ->where('nombre_archivo_codificado', $filename)
+                                            ->select('buzon_usuario.id_usuario as id_usuario')
+                                            ->get();
         
         foreach ($datos as $data){
             $nombre = $data->nombre_archivo_codificado;                              
@@ -184,6 +190,12 @@ class DocumentoBuzonArchivoController extends Controller
 
         foreach ($dataIdDocumento as $data){
             $nDocumento =  $data->id_documento;                                
+        }
+
+        foreach ($datoIdBuzon as $data){
+            for($i=0; $i<count($datoIdBuzon); $i++){
+                $buzonUsuario[$i] = $data->id_usuario;
+            }                             
         }
 
         $nivelAcceso = Documento::where('id_documento', $nDocumento)->select('id_nivel_acceso')->get();
