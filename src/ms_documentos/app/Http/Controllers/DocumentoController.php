@@ -673,12 +673,9 @@ class DocumentoController extends Controller{
                     
 
                     if ( $idTipoAsigFolio == 2)
-
-                    {                       
-                    
+                    {                                           
                         if ($idAccion == 9) //cambiar id_accion a 9
-                        {
-                    
+                        {                    
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -691,10 +688,9 @@ class DocumentoController extends Controller{
                                 'id_tipo_folio' => $idTipoFolio
                             ]), 'json')
                             ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
-                            //return $nFolio;  
+ 
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
                             Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
-                            //return "hola";
 
                         }
 
@@ -1002,6 +998,7 @@ class DocumentoController extends Controller{
                         'documento_buzon_bitacora.fecha as fecha_documento',
                         'buzon.nombre as buzon_destino',
                         'documento_buzon_bitacora.id_accion as accion',
+                        'documento_buzon_bitacora.comentario',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_tipo_destino as tipo_destino',
                         'documento.identificador as identificador',

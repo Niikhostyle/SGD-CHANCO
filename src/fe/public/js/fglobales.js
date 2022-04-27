@@ -246,7 +246,7 @@ function cargar_datos_bitacora(id_documento)
             $('#tabla_bitacora_grilla').DataTable().destroy();
     }
 
-    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizar en', '', 'Archivar en'];
+    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizar en', '', 'Archivar en', 'Enviado a Firma'];
 
     $.getJSON('/buscador/'+id_documento, function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
@@ -266,7 +266,7 @@ function cargar_datos_bitacora(id_documento)
                                 txtTipo = 'DDP';
                             else if (data == 2 && row.accion == 2)
                                 txtTipo = 'DOO';
-                            else if (row.accion == 4)
+                            else if (row.accion == 5)
                                 txtTipo = 'CAP';
 
                             return txtTipo;    
@@ -309,19 +309,28 @@ function cargar_datos_bitacora(id_documento)
             {data: 'comentario_principal',
                     render: function(data, type, row) {
                         if (type === 'display') 
-                        {
-                            if(data == null){
-                                return '';
-                            }
-                            else
+                        {                            
+                            if (row.tipo_destino == 1)
                             {
-                                if (row.tipo_destino == 1)
-                                    return data;
-                                else if (row.tipo_destino == 2)    
-                                    return row.comentario_secundario;
+                                //agrega comentario de la tabla bitacora, en caso de errores, principalmente en la firma
+                                let txtComentario = row.comentario;
+                                let txtComentarioPpal = data;
+
+                                if(txtComentarioPpal == null)
+                                {
+                                    if (txtComentario == null)
+                                        return '';
+                                    else
+                                        return txtComentario;
+                                }
                                 else
-                                    return '';                                
+                                    return txtComentarioPpal;
                             }
+                            else if (row.tipo_destino == 2)    
+                                return row.comentario_secundario;
+                            else
+                                return '';                                
+                            
                         }
                         return '';
                     }                   

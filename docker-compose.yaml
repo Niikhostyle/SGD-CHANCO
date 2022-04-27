@@ -207,7 +207,8 @@ services:
 
 
   sgd_ms_firma:
-    image: sgd_ms_master:latest
+    build: ./configs/ms_frm
+    image: sgd_ms_master_frm:latest
     container_name: sgd_ms_firma
     expose:
       - "3333"

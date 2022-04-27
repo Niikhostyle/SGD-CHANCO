@@ -13,6 +13,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
+use App\Jobs\Firma;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 
@@ -33,6 +34,8 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 class BuzonController extends Controller
 {
+    private $userFirma;
+
     public function index(){
 
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -218,6 +221,16 @@ class BuzonController extends Controller
             }
         }
 
+        //add check fea masiva
+        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['aplica_fea']);
+        
+        $this->userFirma = $aInfoUsuarios['aplica_fea'];
+        $aplicaFrm = 0;
+        if($this->userFirma)
+            $aplicaFrm = 1;
+            //$aplicaFrm = "<input type='check' name='chkFrm'> Solo mostrar documentos por firmar";
+
+        
         /* NUEVO-DOCUMENTOS */
 
         //tipos de documentos
@@ -354,7 +367,8 @@ class BuzonController extends Controller
             'allBuzones2'=>$aAllBuzones2,
             'allBuzonesT2'=>$aAllBuzonesT2,
             'listDocPendientesBuzon' => $aDocumentos,
-            'listado_parametros'=>$listado_parametros['data']
+            'listado_parametros'=>$listado_parametros['data'],
+            'aplicaFrm'=>$aplicaFrm
         ]);
 
     }
@@ -477,50 +491,32 @@ class BuzonController extends Controller
         }        
     }
 
-    public function firmar_documento($id, Request $request)
+    public function firma_masiva(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
-        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma']);
-        $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
-        $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
+        foreach($request->firmas as $idDoc)
+        {
+            $aValores = explode("-", $idDoc);
+            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
+        }
 
-        $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
-                    ->join('tipo_firma', 'buzon_usuario.id_tipo_firma','=', 'tipo_firma.id_tipo_firma')
-                    ->where('buzon.id_buzon','=', $request->buzon)
-                    ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
-                    ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
-                    ->first();   
-        
-        if (!$DatosFirma['cargo_firma'])   
-            return $this->respondFail("No existe cargo asociado al buzón.");
+        return $this->respondSuccess("Documentos enviados a firma.", 200);
 
-        if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
-            return $this->respondFail("No existe imagen para firma asociada al usuario.");
-            
-        //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
-        $img = Image::make(storage_path(config('app.path_img_firma').$aInfoUsuarios['img_firma']));
-        $dFechaCreacion = date('d.m.Y H:i:s');
-        $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
-        $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
-        $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
+    }
 
-        $img->save(storage_path(config('app.path_img_firma').$sNombreImg));  
-
+    public function firmar_documento($id, Request $request)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_usuario'=>Auth::user()->id,
-            'id_buzon'=>$request->buzon,
-            'img_firma' => $sNombreImg
+            'id_buzon'=>$request->buzon
         ]);
-
-        //elimina imagen generada
-
-        unlink(storage_path(config('app.path_img_firma').$sNombreImg));
         
         return $datosFea->json();
     }
@@ -579,7 +575,7 @@ class BuzonController extends Controller
 
     public function listar(Request $request)
     {
-       
+           
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
@@ -600,7 +596,8 @@ class BuzonController extends Controller
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
-                        'estado_documento.nombre_corto as estado_documento',                        
+                        'estado_documento.nombre_corto as estado_documento', 
+                        'estado_documento.codigo_color as codigo_estado',                        
                         'documento.created_at as fecha_creacion', //carpeta 3
                         'documento_buzon.fecha as fecha_envio_recepcion',
                         'documento_buzon.fecha as fecha_envio', //carpeta 3 y 1
