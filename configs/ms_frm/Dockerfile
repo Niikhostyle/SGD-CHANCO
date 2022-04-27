@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libpng-dev \
     libzip-dev \
+    parallel \
     #&& docker-php-ext-install -j$(nproc) zip mysqli pdo_mysql \
     && docker-php-ext-install -j$(nproc) zip \
     #&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
@@ -15,6 +16,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) gd
     #&& docker-php-ext-configure pdo_pgsql --with-pgsql \
     #&& docker-php-ext-install pdo_pgsql
+
+# Install supervisor
+RUN apt-get install -y supervisor
 
 #Instalar driver para pgsql
 RUN apt-get install -y libpq-dev \
@@ -30,9 +34,6 @@ RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/
 ENV TZ=America/Santiago
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-#WORKDIR /src/public
-#RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-#RUN chown -R appuser:appgroup /src/public
-#USER appuser
+COPY supervisord.conf /etc/supervisord.conf
 
-CMD php -S 0.0.0.0:3333 -t /src/public
+CMD parallel ::: "php -S 0.0.0.0:3333 -t /src/public" "/usr/bin/supervisord -c /etc/supervisord.conf"

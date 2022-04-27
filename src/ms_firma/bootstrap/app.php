@@ -61,6 +61,8 @@ $app->singleton(
 
 $app->configure('app');
 
+$app->configure('queue');
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

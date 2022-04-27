@@ -998,6 +998,7 @@ class DocumentoController extends Controller{
                         'documento_buzon_bitacora.fecha as fecha_documento',
                         'buzon.nombre as buzon_destino',
                         'documento_buzon_bitacora.id_accion as accion',
+                        'documento_buzon_bitacora.comentario',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_tipo_destino as tipo_destino',
                         'documento.identificador as identificador',

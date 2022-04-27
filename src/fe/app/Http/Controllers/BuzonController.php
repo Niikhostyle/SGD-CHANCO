@@ -494,49 +494,21 @@ class BuzonController extends Controller
     public function firma_masiva(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-        
+
         foreach($request->firmas as $idDoc)
-            Firma::dispatch($request->buzon, $idDoc, $request->docBuzon, $sesion_key, Auth::user()->id);
+        {
+            $aValores = explode("-", $idDoc);
+            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
+        }
 
         return $this->respondSuccess("Documentos enviados a firma.", 200);
-       
-        //llamada a firmar_documento con parametros correspondientes y ejecutar en segundo plano. Primero se debe cambiar estado a EP y despues ejecutar cada uno
-        //foreach($request->firmas as $idDoc)
-            //$this->firmar_documento($idDoc, $request);
 
     }
 
     public function firmar_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-/*
-        $aInfoUsuarios = Users::where('id', Auth::user()->id)->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma']);
-        $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
-        $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
-
-        $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
-                    ->join('tipo_firma', 'buzon_usuario.id_tipo_firma','=', 'tipo_firma.id_tipo_firma')
-                    ->where('buzon.id_buzon','=', $request->buzon)
-                    ->where('buzon_usuario.id_usuario','=', Auth::user()->id)
-                    ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
-                    ->first();   
-
-        if (!$DatosFirma['cargo_firma'])   
-            return $this->respondFail("No existe cargo asociado al buzón.");
-
-        if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
-            return $this->respondFail("No existe imagen para firma asociada al usuario.");
-            
-        //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
-        $img = Image::make(storage_path(config('app.path_img_firma').$aInfoUsuarios['img_firma']));
-        $dFechaCreacion = date('d.m.Y H:i:s');
-        $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); //$font->file(storage_path('../public/calibri.ttf'));
-        $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
-        $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
-        $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
-
-        $img->save(storage_path(config('app.path_img_firma').$sNombreImg));  
-*/
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  

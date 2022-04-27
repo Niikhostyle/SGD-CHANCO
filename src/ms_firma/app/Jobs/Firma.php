@@ -3,25 +3,24 @@
 namespace App\Jobs;
 
 use Exception;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
+//use Illuminate\Bus\Queueable;
+//use Illuminate\Contracts\Queue\ShouldBeUnique;
+//use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+//use Illuminate\Queue\InteractsWithQueue;
+//use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use RuntimeException;
 
 use App\Models\DocumentoBuzon;
 
-
-class Firma implements ShouldQueue
+class Firma extends Job
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    //use Dispatchable;
+   // use InteractsWithQueue;
+  //  use Queueable;
+  //  use SerializesModels;
 
     protected $buzon;
     protected $documento;
@@ -58,16 +57,28 @@ class Firma implements ShouldQueue
             'id_documento'=>$this->documento,
             'id_usuario'=>$this->user,
             'id_buzon'=>$this->buzon
-        ]);
+        ]);     
 
+        
         if ($datosFea->failed()) {
             dump($datosFea->json()); 
-            //si no se procesa el documento, se debe dejar en estado pendiente
             
+            //si no se procesa el documento, se debe dejar en estado pendiente
             DocumentoBuzon::find($this->documento_buzon)->update(['id_estado_documento' => 4]);
-
         }
 
+        /*
+        if ($datosArchivo->json()) {
+
+            //dump($datosArchivo->json());
+            $aSalida = $datosArchivo->json();
+            dump($aSalida['data']['comentario']);
+
+            if ($aSalida['status'] == 400)
+                throw new Exception($aSalida['data']['comentario']);            
+
+        }
+        */
     }
 
     

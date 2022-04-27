@@ -130,7 +130,7 @@
 
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab"  style="width: 100%;">
-                                <table border="0" cellspacing="5" cellpadding="5">
+                                <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
                                     <tbody>
                                         <tr>
                                             <td>ID Doc:</td>
@@ -704,7 +704,9 @@
 
         .btnFirma {
             float: right;
-            margin:10px;
+            margin-left:10px;
+            margin-bottom:10px;
+            line-height: 40px;
         }
 
         .fondo_estado{            
@@ -1099,8 +1101,6 @@
         var column = grilla_recibidos.column(0); 
         column.visible( !column.visible() );
     }
-
-
 
     function deshabilita_campos()
     {
@@ -1791,8 +1791,6 @@
         var _token = $("input[name='_token']").val();
         
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
-        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-
 
         var matches = [];
         var checkedcollection = grilla_recibidos.$("input[name='checkFrm']:checked", { "page": "all" });
@@ -1800,63 +1798,67 @@
             matches.push($(elem).val());
 
         });
-
-        Swal.fire({
-                title: 'Firma electrónica masiva',
-                html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Aceptar'
-                }).then((result) => {
-                if (result.value==true) 
-                {  
-                    $.ajax({
-                        url: "/firma_masiva/",
-                        type: 'PUT',
-                        dataType: 'json',
-                        data: {
-                            _token:_token,
-                            buzon:hiddIdBuzon,
-                            docBuzon:hiddIdDocumentoBuzon,
-                            firmas:matches,
-                            accion:7                
-                        },
-                        success: function(data)
-                        {
-                            if(data.status == '200')
+        console.log(matches.length);
+        if(matches.length > 0)
+        {
+            Swal.fire({
+                    title: 'Firma electrónica masiva',
+                    html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                    if (result.value==true) 
+                    {  
+                        $.ajax({
+                            url: "/firma_masiva/",
+                            type: 'PUT',
+                            dataType: 'json',
+                            data: {
+                                _token:_token,
+                                buzon:hiddIdBuzon,
+                                //docBuzon:matchesBuzon,
+                                firmas:matches,
+                                accion:7                
+                            },
+                            success: function(data)
                             {
-                                toastr.success(data.data,"Aviso!");
+                                if(data.status == '200')
+                                {
+                                    toastr.success(data.data,"Aviso!");
 
-                                $('#card_crear_documento').hide();        
-                                fn_grilla_recibidos();
-                                $("#collapseOne").collapse('show');
+                                    $('#card_crear_documento').hide();        
+                                    fn_grilla_recibidos();
+                                    $("#collapseOne").collapse('show');
+                                }
+                                else
+                                {
+                                    toastr.error(data.data.comentario,"Aviso!");
+                                }
+                            
+                            
+
+                            },
+                            error: function (e) {
+                                data = e.responseJSON;
+                                console.log(data);
+                                if (data.data.comentario != "" && data.data.comentario != null)
+                                    toastr.error(data.data.comentario,"Aviso!");
+                                else
+                                    toastr.error("Falla en el documento","Aviso!");
+
+                            
                             }
-                            else
-                            {
-                                toastr.error(data.data.comentario,"Aviso!");
-                            }
-                           
-                            $('.btn-recibir-submit').html( 'Firmar' );
+                        });
 
-                        },
-                        error: function (e) {
-                            data = e.responseJSON;
-                            console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null)
-                                toastr.error(data.data.comentario,"Aviso!");
-                            else
-                                toastr.error("Falla en el documento","Aviso!");
-
-                            $('.btn-recibir-submit').html( 'Firmar' );
-                        }
-                    });
-
-                
-                }
+                    
+                    }
             }) 
-
+        }
+        else
+            toastr.error("No hay documentos seleccionados para firmar.","Aviso!");
     }
 
 
@@ -2924,7 +2926,7 @@
                                     {
                                         //agrega listado de acciones
 
-                                        if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                        if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                         {
                                             if (row.json_acciones != null)
                                             {
@@ -2936,7 +2938,7 @@
                                                 for (let i in accionesSolicitadas) 
                                                 {                                                    
                                                     if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
-                                                        return '<input type="checkbox" name="checkFrm" value="'+row.id_documento+'">';
+                                                        return '<input type="checkbox" name="checkFrm" value="'+row.id_documento+'-'+row.id_documento_buzon+'">';
                                                 } 
                                             }                                                
                                             
@@ -3020,9 +3022,8 @@
 
                                         if (row.id_tipo_destino == 1) //principal
                                         {
-                                            //agrega listado de acciones
-
-                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            //agrega listado de acciones                                            
+                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
                                                 if (row.json_acciones != null)
                                                 {
@@ -3054,7 +3055,7 @@
 
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                                                                         
-                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 13)
+                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 13)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
@@ -3108,7 +3109,7 @@
                     $('#grilla_recibidos_filter').html('');                    
 
                     if(aplicaFrm == 1)
-                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div id='btnFirma'></div>");
+                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
                 }
         });
         

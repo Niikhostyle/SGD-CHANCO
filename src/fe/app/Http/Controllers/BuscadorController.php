@@ -116,8 +116,6 @@ class BuscadorController extends Controller
 
     public function show($id)
     {
-        
-        //return "hola";
         $sesion_key =  AppServiceProvider::session_key_general();
         $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -125,7 +123,7 @@ class BuscadorController extends Controller
             'id_documento' => $id,
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora');
-        //->get('http://sgd_ms_bitacora:3333/api/sgd-bitacora/listarDocumentosBitacora');
+        
         return $lista_bitacora;
         
 
@@ -139,11 +137,6 @@ class BuscadorController extends Controller
         }else{
             return $lista_bitacora->json();
         }
-        
-        //return View::make('buscador.index', [
-        //    'lista_bitacora'=>$lista_bitacora,
-
-       // ]);
          
     }  
 
