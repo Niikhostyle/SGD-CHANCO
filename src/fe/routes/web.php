@@ -49,7 +49,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzo
 //Route::middleware(['auth:sanctum', 'verified'])->post('files',[DocumentoBuzonArchivoController::class,'store'])->name('files.store');
 
 //Route::middleware(['auth:sanctum', 'verified'])->get('files/{filename}', [DocumentoBuzonArchivoController::class,'show'])->name('files.show');
-Route::get('validarUrl', [DocumentoBuzonArchivoController::class,'validarUrl']);
+
+Route::get('descargarPdf/{filename}', [DocumentoBuzonArchivoController::class,'validarUrl']);
 Route::get('pruebaPublica', [DocumentoBuzonArchivoController::class,'pruebaPublica']);
 
 //buzones
