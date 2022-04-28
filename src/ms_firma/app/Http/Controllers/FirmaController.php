@@ -20,6 +20,7 @@ use setasign\Fpdi\Fpdi;
 use App\Libraries\PDF;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class FirmaController extends Controller
 {
@@ -44,9 +45,9 @@ class FirmaController extends Controller
                             ->where('buzon.id_buzon','=', $datos['id_buzon'])
                             ->where('buzon_usuario.id_usuario','=', $datos['id_usuario'])
                             ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
-                            ->first();   
-        
-                if (!$DatosFirma['cargo_firma'])  
+                            ->first();
+
+                if (!isset($DatosFirma['cargo_firma']))  
                 { 
                     $comentario = "No existe cargo asociado al buzón.";
                     throw new Exception($comentario);
@@ -89,8 +90,8 @@ class FirmaController extends Controller
                                                         ->where('nombre_archivo_codificado','!=', null)
                                                         ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-
-                if($aDocumentoBuzon == null)
+                                      
+                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
                     $comentario = "No existe archivo para realizar firma electrónica.";
                     //return $this->respondFail($comentario);
@@ -126,9 +127,9 @@ class FirmaController extends Controller
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
-                ->whereIn('documento_buzon.id_estado_documento',array(9,10))
+                //->whereIn('documento_buzon.id_estado_documento',array(9,10))
                 ->get();
-
+                
                 if (count($datosBitacora) > 3)
                 {
                     $comentario = "Excede el máximo de firmas electróncas posibles.";
@@ -204,7 +205,9 @@ class FirmaController extends Controller
                         $pdf->useTemplate($tplId);                    
                     }
                     
-                    $pdf->Output($sArchivo, 'F');   
+                    $sArchivo = storage_path('app/public/files/'.$nNombreArchivoCargar);                 
+                    $pdf->Output($sArchivo, 'F');                    
+                    
                 }
 
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
@@ -275,13 +278,14 @@ class FirmaController extends Controller
                             
                             //actualiza estado
                             DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
-
+                            $valor = count($datosBitacora) . ":" . $datos['id_documento'] . ":" . $datos['id_documento_buzon'];
                             //registrar accion en bitacora
                             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $id_documento_buzon,
                                 'id_accion' => 7,
                                 'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datos['id_usuario']
+                                'id_usuario' => $datos['id_usuario'],
+                                'comentario' => $valor  
                             ]);   
                         }               
                             
@@ -302,6 +306,8 @@ class FirmaController extends Controller
 
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'], $e->getMessage(),13);
                 $this->deleteImg($sNombreImg);
+
+                Log::error("Error al procesar la firma: " . $e->getMessage()); 
 
                 return $this->respondFail("Error al procesar la firma: " . $e->getMessage());
             }
@@ -327,6 +333,8 @@ class FirmaController extends Controller
     public function deleteImg($sImg)
     {
         //elimina imagen de firma
-        unlink(storage_path('app/public/files/imagen_firma/'.$sImg));
+        $filename = storage_path('app/public/files/imagen_firma/'.$sImg);
+        if (file_exists($filename))
+            unlink($filename);
     }
 }
