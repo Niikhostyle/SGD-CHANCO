@@ -820,6 +820,7 @@ class DocumentoController extends Controller{
                                                         'documento_buzon_archivo.nombre_archivo_codificado',
                                                         'documento_buzon_archivo.fecha',
                                                         'documento_buzon_archivo.version')
+                                                    ->orderBy('documento_buzon_archivo.version')
                                                     ->get();
                             
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
@@ -999,6 +1000,7 @@ class DocumentoController extends Controller{
                         'buzon.nombre as buzon_destino',
                         'documento_buzon_bitacora.id_accion as accion',
                         'documento_buzon_bitacora.comentario',
+                        'documento_buzon_bitacora.mensaje_respuesta',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_tipo_destino as tipo_destino',
                         'documento.identificador as identificador',

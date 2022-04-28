@@ -20,6 +20,7 @@ use setasign\Fpdi\Fpdi;
 use App\Libraries\PDF;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class FirmaController extends Controller
 {
@@ -44,9 +45,9 @@ class FirmaController extends Controller
                             ->where('buzon.id_buzon','=', $datos['id_buzon'])
                             ->where('buzon_usuario.id_usuario','=', $datos['id_usuario'])
                             ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
-                            ->first();   
-        
-                if (!$DatosFirma['cargo_firma'])  
+                            ->first();
+
+                if (!isset($DatosFirma['cargo_firma']))  
                 { 
                     $comentario = "No existe cargo asociado al buzón.";
                     throw new Exception($comentario);
@@ -62,10 +63,10 @@ class FirmaController extends Controller
 
                 //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
-                $dFechaCreacion = date('d.m.Y H:i:s');
+                $dFechaCreacionImg = date('d.m.Y H:i:s');
                 $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
                 $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
-                $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+                $img->text('Fecha: '. $dFechaCreacionImg, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
                 $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
         
                 $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
@@ -89,8 +90,8 @@ class FirmaController extends Controller
                                                         ->where('nombre_archivo_codificado','!=', null)
                                                         ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-
-                if($aDocumentoBuzon == null)
+                                      
+                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
                     $comentario = "No existe archivo para realizar firma electrónica.";
                     //return $this->respondFail($comentario);
@@ -126,9 +127,9 @@ class FirmaController extends Controller
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
-                ->whereIn('documento_buzon.id_estado_documento',array(9,10))
+                //->whereIn('documento_buzon.id_estado_documento',array(9,10))
                 ->get();
-
+                
                 if (count($datosBitacora) > 3)
                 {
                     $comentario = "Excede el máximo de firmas electróncas posibles.";
@@ -204,13 +205,15 @@ class FirmaController extends Controller
                         $pdf->useTemplate($tplId);                    
                     }
                     
-                    $pdf->Output($sArchivo, 'F');   
+                    $sArchivo = storage_path('app/public/files/'.$nNombreArchivoCargar);                 
+                    $pdf->Output($sArchivo, 'F');                    
+                    
                 }
-
+                
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();                
-
+                //return $aRespuestaFirma;
                 if (isset($aRespuestaFirma['status'])) 
                 {
                     $comentario = "Error al generar Firma electónica: " . $aRespuestaFirma['error'];
@@ -275,21 +278,23 @@ class FirmaController extends Controller
                             
                             //actualiza estado
                             DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
-
-                            //registrar accion en bitacora
+                            
+                            //registrar accion de firma en bitacora
                             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $id_documento_buzon,
                                 'id_accion' => 7,
                                 'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datos['id_usuario']
+                                'id_usuario' => $datos['id_usuario'] 
                             ]);   
+
+                            //registrar accion de cambio de archivo ppal en bitacora
+                            $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
                         }               
                             
                     }
 
                     //elimina imagen de firma
-                    $this->deleteImg($sNombreImg);
-                    //unlink(storage_path('app/public/files/imagen_firma/'.$sNombreImg));                    
+                    $this->deleteImg($sNombreImg);                   
                 }
 
                 DB::commit();
@@ -300,8 +305,11 @@ class FirmaController extends Controller
 
                 DB::rollBack();
 
-                $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'], $e->getMessage(),13);
+                $msgError = "Error al procesar la firma: " . $e->getMessage();
+                $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);
+
+                Log::error("Error al procesar la firma: " . $e->getMessage()); 
 
                 return $this->respondFail("Error al procesar la firma: " . $e->getMessage());
             }
@@ -320,13 +328,15 @@ class FirmaController extends Controller
             'id_accion' => $accion,
             'fecha' => $fecha,
             'id_usuario' => $usuario,
-            'comentario' => $comentario
+            'mensaje_respuesta' => $comentario
         ]);  
     }
 
     public function deleteImg($sImg)
     {
         //elimina imagen de firma
-        unlink(storage_path('app/public/files/imagen_firma/'.$sImg));
+        $filename = storage_path('app/public/files/imagen_firma/'.$sImg);
+        if (file_exists($filename))
+            unlink($filename);
     }
 }

@@ -17,7 +17,7 @@ class DocumentoBuzonBitacora extends Model{
         'id_usuario',
         'comentario',
         'informacion_solicitud',
-        'mensaje_respueta'
+        'mensaje_respuesta'
     ];
 
     public function rel_documento_buzon()

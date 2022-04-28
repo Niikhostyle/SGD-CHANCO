@@ -97,9 +97,13 @@ class ArchivoController extends Controller{
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
                 {                                
-                    $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
+                    /*$docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
                                                         ->where('id_tipo_archivo', 1)
-                                                        ->get();
+                                                        ->get();*/
+                    $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->where('id_documento', $nDocumento)
+                                                        ->where('id_tipo_archivo', 1)
+                                                        ->get();                                                        
                 
                     foreach ($docsPpales as $archFile)
                     {                        
@@ -115,6 +119,15 @@ class ArchivoController extends Controller{
                         'version' => 1,
                         'fecha' => $dFechaCreacion
                     ]);
+
+                    //registrar accion de cambio de archivo ppal en bitacora
+                    $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                        'id_documento_buzon' => $idDocumentoBuzon,
+                        'id_accion' => 5,
+                        'fecha' => $dFechaCreacion,
+                        'id_usuario' => $datosRequest['id_usuario'],
+                        'mensaje_respuesta' => "Cambio en archivo principal por generación de pdf."
+                    ]);  
 
                     //registrar accion en bitacora
 
