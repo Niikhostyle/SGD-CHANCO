@@ -765,9 +765,6 @@
 
     aplicaFrm = @json($aplicaFrm);
 
-    console.log(aplicaFrm);
-    //aplicaFrm = "<input type='check' name='chkFrm'> Solo mostrar documentos por firmar";
-
     owl = $('.owl-carousel').owlCarousel(); 
 
     $('#form_acciones_solicitadas_el').multiselect({
@@ -821,8 +818,11 @@
 
     }).on('select2:select', function (e) {
        
-        $('#form_acciones_solicitadas_el').multiselect('select', 6);
-       
+        if (form_acciones_solicitadas_el.disabled == true)
+            $('#form_acciones_solicitadas_el').multiselect('select', 6);       
+        else
+            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+
     });
 
     $('#form_otros_destinatarios_el').tagsinput({
@@ -979,7 +979,6 @@
             formData.append('id_documento', idoc);
 
 
-           // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
     };
 
@@ -999,60 +998,7 @@
     });
 
     /* **DOCUMENTOS** SCRIPT */
-/*
-    //si se elimina destinatario principal se quita selecció a las acciones asociadas
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-    });
 
-    $('#form_destinatario_principal_el').on('itemAdded', function(event) {
-        var js_tipo_doc = datoTipoJson;
-                        
-        var jsAcciones = js_tipo_doc['buzones_flujo'];    
-        var jsTipoAvance = js_tipo_doc['id_tipo_avance'];  
-        var jsTipoflujo = js_tipo_doc['id_tipo_flujo'];
-        var jsFlujoActual = js_tipo_doc['flujo_actual'];
-        
-        if (jsTipoflujo != 1)
-        {
-            if (jsFlujoActual == 0 || jsFlujoActual == 1)
-                $('#form_acciones_solicitadas_el').multiselect('select', 6);    
-        }
-
-        //obtener datos de json_tipo_documento
-        //if flujo controlado/mixto 
-        //if se agrega destinatario en orden 0
-        //si no es orden 0 ver tipo de avance y validar segun corresponda
-
-    });
-
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        console.log(event.item);
-        console.log(aBuzonesReinicio);
-
-        var allBuzonesReset = new Bloodhound({
-                            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
-                            queryTokenizer: Bloodhound.tokenizers.whitespace,
-                            local: aBuzonesReinicio
-        });
-        allBuzonesReset.initialize();
-        
-        $('#form_destinatario_principal_el').tagsinput('destroy'); 
-        
-        $('#form_destinatario_principal_el').tagsinput({
-            maxTags: 1,
-            itemValue: 'value',
-            itemText: 'text',
-            typeaheadjs: {
-                name: 'allBuzonesReset',
-                displayKey: 'text',
-                source: allBuzonesReset.ttAdapter()
-            }
-        });  
-
-
-    });
-*/
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
              
         filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
@@ -1161,7 +1107,6 @@
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
-        //$('#carousel-responder').hide();
         owl.trigger('destroy.owl.carousel'); 
         owl.find('.owl-stage-outer').children().unwrap();
         owl.removeClass("owl-center owl-loaded owl-text-select-on");
@@ -1247,9 +1192,6 @@
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
 
                             //habilita respuesta a: solo a flujo libre
-
-                           // if ($("input[name='hiddIdResponder']").val() )
-                           //     $('#form_respuesta_a').multiselect('deselectAll', true);
 
                             if (idTipoFlujo != 1)
                             {
@@ -2586,6 +2528,8 @@
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
                                 $('#form_respuesta_a').multiselect('enable'); 
+
+                                console.log('habilita');
                             } 
 
                             /* responder a */

@@ -63,10 +63,10 @@ class FirmaController extends Controller
 
                 //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
-                $dFechaCreacion = date('d.m.Y H:i:s');
+                $dFechaCreacionImg = date('d.m.Y H:i:s');
                 $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
                 $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
-                $img->text('Fecha: '. $dFechaCreacion, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
+                $img->text('Fecha: '. $dFechaCreacionImg, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
                 $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
         
                 $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
@@ -209,11 +209,11 @@ class FirmaController extends Controller
                     $pdf->Output($sArchivo, 'F');                    
                     
                 }
-
+                
                 $aRespuestaFirma = $classFirma->setRUN($nRut)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();                
-
+                //return $aRespuestaFirma;
                 if (isset($aRespuestaFirma['status'])) 
                 {
                     $comentario = "Error al generar Firma electónica: " . $aRespuestaFirma['error'];
@@ -278,22 +278,23 @@ class FirmaController extends Controller
                             
                             //actualiza estado
                             DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
-                            $valor = count($datosBitacora) . ":" . $datos['id_documento'] . ":" . $datos['id_documento_buzon'];
-                            //registrar accion en bitacora
+                            
+                            //registrar accion de firma en bitacora
                             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $id_documento_buzon,
                                 'id_accion' => 7,
                                 'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datos['id_usuario'],
-                                'comentario' => $valor  
+                                'id_usuario' => $datos['id_usuario'] 
                             ]);   
+
+                            //registrar accion de cambio de archivo ppal en bitacora
+                            $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
                         }               
                             
                     }
 
                     //elimina imagen de firma
-                    $this->deleteImg($sNombreImg);
-                    //unlink(storage_path('app/public/files/imagen_firma/'.$sNombreImg));                    
+                    $this->deleteImg($sNombreImg);                   
                 }
 
                 DB::commit();
@@ -304,7 +305,8 @@ class FirmaController extends Controller
 
                 DB::rollBack();
 
-                $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'], $e->getMessage(),13);
+                $msgError = "Error al procesar la firma: " . $e->getMessage();
+                $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);
 
                 Log::error("Error al procesar la firma: " . $e->getMessage()); 
@@ -326,7 +328,7 @@ class FirmaController extends Controller
             'id_accion' => $accion,
             'fecha' => $fecha,
             'id_usuario' => $usuario,
-            'comentario' => $comentario
+            'mensaje_respuesta' => $comentario
         ]);  
     }
 

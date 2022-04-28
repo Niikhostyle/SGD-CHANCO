@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonArchivoDescarga;
+use App\Models\DocumentoBuzonBitacora;
 use App\Models\TipoDocumento;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +87,18 @@ class DocumentoBuzonArchivoController extends Controller
                             'fecha' => $dFechaCreacion,
                             'version' => $nVersion
                         ]);
+
+                        if ($nVersion == 1)
+                        {
+                            //registrar accion de cambio de archivo ppal en bitacora
+                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                                'id_documento_buzon' => $id_documento_buzon,
+                                'id_accion' => 5,
+                                'fecha' => $dFechaCreacion,
+                                'id_usuario' => Auth::user()->id,
+                                'mensaje_respuesta' => "Cambio en archivo principal"
+                            ]);  
+                        }
                     }
                     else
                     {
