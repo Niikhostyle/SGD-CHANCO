@@ -120,6 +120,15 @@ class ArchivoController extends Controller{
                         'fecha' => $dFechaCreacion
                     ]);
 
+                    //registrar accion en bitacora
+
+                    $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                        'id_documento_buzon' => $idDocumentoBuzon,
+                        'id_accion' => 8,
+                        'fecha' => $dFechaCreacion,
+                        'id_usuario' => $datosRequest['id_usuario']
+                    ]);            
+                    
                     //registrar accion de cambio de archivo ppal en bitacora
                     $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                         'id_documento_buzon' => $idDocumentoBuzon,
@@ -129,14 +138,6 @@ class ArchivoController extends Controller{
                         'mensaje_respuesta' => "Cambio en archivo principal por generación de pdf."
                     ]);  
 
-                    //registrar accion en bitacora
-
-                    $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                        'id_documento_buzon' => $idDocumentoBuzon,
-                        'id_accion' => 8,
-                        'fecha' => $dFechaCreacion,
-                        'id_usuario' => $datosRequest['id_usuario']
-                    ]);                 
                 }
 
                 

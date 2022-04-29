@@ -2765,8 +2765,51 @@
         $('#addButton').append(buttonRecibir);
     }
 
-    function eliminar_despachados(identificador){
-        alert(identificador)
+    function eliminar_despachados(id_documento,id_documento_buzon)
+    {
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Eliminar documento', 
+            html: "Se realizará la eliminación del documento <br>",                      
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/documento/",
+                        type: 'delete',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success(data.data,"Aviso!");                                
+                                fn_grilla_despachados();
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');  
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (data, jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en la eliminación del documento","Aviso!");
+                        }
+                    });
+            }
+        })             
+        
      
     }
 

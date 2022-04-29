@@ -70,6 +70,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonCon
 Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_documento/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
 Route::middleware(['auth:sanctum', 'verified'])->put('firmar_documento/{id}',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
 Route::middleware(['auth:sanctum', 'verified'])->put('firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
+Route::middleware(['auth:sanctum', 'verified'])->delete('documento',[BuzonController::class,'delete_documento'])->name('buzones.delete_documento');
 
 Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
 Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');

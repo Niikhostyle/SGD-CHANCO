@@ -445,6 +445,50 @@ class DocumentoController extends Controller{
 
     }
 
+    public function eliminar(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();                             
+                
+                //verifica que el documento este en estado borrador
+                $datoDocBuzon = DocumentoBuzon::where('id_documento_buzon', $datosRequest['id_documento_buzon'])
+                                               ->where('id_estado_documento', '1')                          
+                                               ->first();
+
+                if ($datoDocBuzon['id_documento_buzon'])
+                {
+                    //elimina de las tablas relacionadas
+                    $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+
+                    DocumentoBuzonBitacora::where('id_documento_buzon',$datosRequest['id_documento_buzon'])->delete();
+                    $datosDocumento->rel_documento_buzon()->delete();
+                    $datosDocumento->delete();     
+                    
+                    DB::commit();
+
+                    return $this->respondSuccess("Documento eliminado", 200);           
+                }
+                else
+                    return $this->respondError('Falla al eliminar documento:', 500);
+               
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al eliminar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+
+    }
+
     public function enviar(Request $request)
     {
         //DERIVAR
