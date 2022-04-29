@@ -433,6 +433,20 @@ class BuzonController extends Controller
         return $accionDocumento->json();
     }
 
+    public function delete_documento(Request $request)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_documento' => $request->idDocumento,
+            'id_documento_buzon'=>$request->idDocumentoBuzon
+        ]), 'json')
+        ->delete('http://sgd_ms_documentos:3333/api/sgd-documentos/eliminar');
+
+        return $accionDocumento->json();
+    }
+
     public function enviar_documento($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();

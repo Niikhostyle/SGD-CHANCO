@@ -110,7 +110,8 @@ class FirmaController extends Controller
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
-                $nRut = env('PLCSGD_RUT');//'18658044';//$aInfoUsuarios['run']
+                $nRut = explode("-",$aInfoUsuarios['run']);//'18658044';//env('PLCSGD_RUT')
+                $nRutFirma = $nRut[0];
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
                 $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
                 //$sArchivo = storage_path($sPath.$request['archivo']);                
@@ -210,7 +211,7 @@ class FirmaController extends Controller
                     
                 }
                 
-                $aRespuestaFirma = $classFirma->setRUN($nRut)                        
+                $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();                
                 //return $aRespuestaFirma;
