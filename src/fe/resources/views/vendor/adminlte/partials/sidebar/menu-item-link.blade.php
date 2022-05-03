@@ -8,9 +8,10 @@
             isset($item['icon_color']) ? 'text-'.$item['icon_color'] : ''
         }}"></i>
 
-        <p>
+        <p class="txt_fila_menu">
+            
             {{ $item['text'] }}
-
+             
             @isset($item['label'])
                 <span class="badge badge-{{ $item['label_color'] ?? 'primary' }} right">
                     {{ $item['label'] }}
