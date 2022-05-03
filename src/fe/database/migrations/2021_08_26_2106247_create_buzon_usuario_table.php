@@ -24,7 +24,7 @@ class CreateBuzonUsuarioTable extends Migration
             $table->foreign('id_tipo_firma', 'fk_buzon_usuario_usuario')->references('id_tipo_firma')->on('tipo_firma');
         });
         DB::statement("COMMENT ON COLUMN  buzon_usuario.id_buzon_usuario IS 'Identificador de buzon_usuario'");
-        DB::statement("COMMENT ON COLUMN  buzon_usuario.id_buzon IS 'Identificador e buzon'");
+        DB::statement("COMMENT ON COLUMN  buzon_usuario.id_buzon IS 'Identificador de buzon'");
         DB::statement("COMMENT ON COLUMN  buzon_usuario.id_usuario IS 'Identificador de usuario'");
         DB::statement("COMMENT ON TABLE   buzon_usuario IS 'Registro de relación entre buzones y usuarios'");
     }
