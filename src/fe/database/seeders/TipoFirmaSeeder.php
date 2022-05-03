@@ -20,6 +20,5 @@ class TipoFirmaSeeder extends Seeder
         ];
 
         DB::table('tipo_firma')->insert($records);
-
     }
 }

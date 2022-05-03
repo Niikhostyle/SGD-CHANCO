@@ -128,7 +128,7 @@
 
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                         
-                            <div class="card" id="card_buscador_grilla">
+                            <div class="" id="card_buscador_grilla">
                                 <div class="card-body">
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>

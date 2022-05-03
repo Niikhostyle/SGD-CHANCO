@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->boolean('aplica_fea')->nullable();
             $table->boolean('genera_pdf')->nullable();
+            $table->string('img_firma')->nullable();
             $table->longText('hash_recuperacion')->nullable();
             $table->dateTime('hash_recuperacion_fecha')->nullable();
             $table->rememberToken();

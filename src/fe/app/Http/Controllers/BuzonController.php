@@ -40,6 +40,7 @@ class BuzonController extends Controller
 
         $sesion_key =  AppServiceProvider::session_key_general();
 
+        $aBuzones = array();
         $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
         ->withBody(json_encode([
@@ -66,7 +67,7 @@ class BuzonController extends Controller
         }
 
         //listado de usuarios
-
+        $aUsuarios = array();
         $listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
         ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver_todos');

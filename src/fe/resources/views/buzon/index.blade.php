@@ -397,10 +397,7 @@
         })        
     }
 
-    $('#tabla_buzones_grilla').DataTable({
-        rowReorder: {
-            selector: 'td:nth-child(2)'
-        },
+    $('#tabla_buzones_grilla').DataTable({        
         responsive: true,
         language: lenguaje_datatable
     });
