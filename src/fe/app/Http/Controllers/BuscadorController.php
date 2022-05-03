@@ -181,8 +181,7 @@ class BuscadorController extends Controller
         , us.id    
         , td.nombre
         , buzon_origen
-        , buzon_actual    
-    order by d.identificador desc");
+        , buzon_actual");
     
                     
         return datatables( $datos )->toJson();

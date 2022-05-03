@@ -322,14 +322,14 @@
                                 <div id="card_desplegar_versiones" class="bl1 header1" > 
                                     <label class="">Versiones</label>                       
                                     <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
-                                        <i class="fas fa-angle-double-left fa-3x"></i>
+                                        <i class="fas fa-angle-double-right fa-3x"></i>
                                     </button>
                                 </div> 
                                 <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
                                     <div class="header1">
                                         <label class="">Versiones</label>
                                         <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
-                                            <i class="fas fa-angle-double-right fa-3x"></i>
+                                            <i class="fas fa-angle-double-left fa-3x"></i>
                                         </button>
                                     </div>
                                     <div class="display_va">
@@ -529,10 +529,24 @@
             display: flex;
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
+            background-color: #e9f1fe;
         }
 
         .dropzone-files {
             flex:1;
+        }
+
+        .dropzone-view {
+            --background-color: #e9f1fe;
+            margin-right: 30px;
+            padding:20px;
+        }
+
+        .dropzone {
+            background-color: #d4e3fc;
+            border: 1px dashed #005c9e;
+            color: #0844a4;
+            font-weight: 700;
         }
 
         .dz-max-files-reached {
@@ -611,7 +625,9 @@
         }
 
         .bl1, .bl2 {
-            border:1px solid #ced4da;
+            border:1px solid #005c9e;
+            color: #697680;
+            font-weight: 700;
         }
 
         .bl2 {
@@ -624,6 +640,7 @@
         
         .display_va {
             float:left;
+            padding:20px;
         }
 
         .carousel-wrapper {
@@ -1010,7 +1027,6 @@
 
     $(".nuevo_documento").click(function(e)
     {
-        console.log(e, e.isTrigger);
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();  
