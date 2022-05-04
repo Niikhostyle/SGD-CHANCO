@@ -312,15 +312,16 @@ class DocumentoBuzonArchivoController extends Controller
         return redirect()->route('buscador.index');
     }*/
 
-    public function validarUrl ($id){
+    public function validarUrl ($hash){
         
         
-        $nDocumento =  $id;
+        $hash =  $hash;
 
         $archivo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
                                         ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
                                         ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                                        ->where('id_documento', $nDocumento)
+                                        ->join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
+                                        ->where('hash_validacion', $hash)
                                         ->where('id_tipo_archivo', 1)
                                         ->where('version', 1)
                                         ->select(

@@ -32,6 +32,10 @@ use Yajra\DataTables\DataTables;
 
 use Intervention\Image\ImageManagerStatic as Image;
 
+use App\Mail\MailController;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+
 class BuzonController extends Controller
 {
     private $userFirma;
@@ -450,6 +454,9 @@ class BuzonController extends Controller
 
     public function enviar_documento($id, Request $request)
     {
+
+        
+
         $sesion_key = AppServiceProvider::session_key_general();
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -464,6 +471,22 @@ class BuzonController extends Controller
             'json_respuesta_a'=>$request->responder,
             'carpeta'=>$request->carpeta
         ]);
+
+       /**
+        *$dPrincipal = $request->destinatarioPrincipal;
+       
+        *if ($dPrincipal!= "" || $dPrincipal != null)
+        *    {
+        *        $user = User::findOrFail($dPrincipal);
+         *       $documento = Documento::findOrFail($request->hiddIdDocumento);
+         *       $documentoBuzon = DocumentoBuzon::findOrFail($request->hiddIdDocumentoBuzon);
+         *       $buzon = Buzon::findOrFail($request->buzon);
+          *      //return $user->email;
+         *       Mail::to($user)->queue(new MailController($user, $documento, $documentoBuzon, $buzon));
+         *   
+         *   }
+        
+         */ 
 
         return $accionDocumento->json();
     }
