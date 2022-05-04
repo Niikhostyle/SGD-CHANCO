@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Buzon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -10,27 +9,24 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\User;
+use App\Models\Buzon;
 
-class OrderShipped extends Mailable
+class MailController extends Mailable
 {
     use Queueable, SerializesModels;
-
-    /**
-     * 
-     * @var \App\Models\Documento
-     * 
-     */
-    public $subject = "";
-    public $user;
-    public $documento;   
-    public $documentoBuzon; 
-    public $buzon;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
+
+    public $subject = "";
+    public $user;
+    public $documento;   
+    public $documentoBuzon; 
+    public $buzon;
+
     public function __construct(User $user, Documento $documento, DocumentoBuzon $documentoBuzon, Buzon $buzon)
     {
         $this->user = $user;
@@ -47,11 +43,7 @@ class OrderShipped extends Mailable
      */
     public function build()
     {
-       
         return $this->markdown('mails.emails')
             ->with(['name' => $this->user->email]);
-
-        //return $this->from('example@example.com')
-        //->markdown('mails.emails');
     }
 }
