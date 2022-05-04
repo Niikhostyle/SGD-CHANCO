@@ -169,47 +169,34 @@ class DocumentoBuzonArchivoController extends Controller
                                             'nombre_archivo_codificado',
                                             'buzon_usuario.id_usuario as id_usuario',
                                             'id_documento'
-                                            
-                                           
                                         )
                                         ->get();
 
 
           
-        //$nombre = $datos->nombre_archivo_codificado;  
-        //$buzonUsuario = $datos['id_usuario'];  
+        $idUsuarios =  DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')                               
+                                        ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                                        ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                                        ->where('nombre_archivo_codificado', $filename)
+                                        ->where('id_usuario', '>', 0)
+                                        ->select('buzon_usuario.id_usuario as id_usuario')
+                                        ->get(); 
+
         $valido = false;
-        $buzonUsuario = [];
         $dataIdDocumento = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
                                             ->where('nombre_archivo_codificado', $filename) 
                                             ->select('id_documento')
                                             ->get();    
-        $datoIdBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
-                                            ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                                            ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                                            ->where('nombre_archivo_codificado', $filename)
-                                            ->select('buzon_usuario.id_usuario as id_usuario')
-                                            ->get();
-        
-        foreach ($datos as $data){
-            $nombre = $data->nombre_archivo_codificado;                              
-            //$buzonUsuario = $data->id_usuario;
-            //$nDocumento =  $data->id_documento;
-            //tomo los id de usuarios de los buzones y verifico que el usuario logeado este dentro de los id que tiene el buzon/ porque el buzon en el que esta el documento tiene distintos usuarios
-            for($i=0; $i<count($datos); $i++){
-                $buzonUsuario[$i] = $data->id_usuario;
-            }
-        }
 
         foreach ($dataIdDocumento as $data){
             $nDocumento =  $data->id_documento;                                
         }
 
-        foreach ($datoIdBuzon as $data){
-            for($i=0; $i<count($datoIdBuzon); $i++){
-                $buzonUsuario[$i] = $data->id_usuario;
-            }                             
-        }
+        foreach ($idUsuarios as $valor ){
+            $aUsuarios[] = $valor['id_usuario'];
+        }                             
+    
+        //return $aUsuarios;
 
         $nivelAcceso = Documento::where('id_documento', $nDocumento)->select('id_nivel_acceso')->get();
         $usuario = Auth::user()->id; 
@@ -236,27 +223,24 @@ class DocumentoBuzonArchivoController extends Controller
             return $response;
         }
         if($nAcceso=='2' || $nAcceso=='3'){
-            
-
-            for($i=0; $i<count($buzonUsuario); $i++){
                 
-                if ($buzonUsuario[$i]==$usuario){
-                    $valido = true;
-                    $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
-     
-                    if (!File::exists($path)) {
-                        abort(404);
-                    }
+            if (in_array($usuario, $aUsuarios)){
+                $valido = true;
+                $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
     
-                    $file = File::get($path);
-                    $type = File::mimeType($path);
-                    
-                    $response = Response::make($file, 200);
-                    $response->header("Content-Type", $type);
-    
-                    return $response;
+                if (!File::exists($path)) {
+                    abort(404);
                 }
+
+                $file = File::get($path);
+                $type = File::mimeType($path);
+                
+                $response = Response::make($file, 200);
+                $response->header("Content-Type", $type);
+
+                return $response;
             }
+
             if($valido==false){
                  //cuando no tiene acceso al documento
                  return View::make('pruebaPublica');
