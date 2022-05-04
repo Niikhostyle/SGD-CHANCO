@@ -77,7 +77,7 @@
                                 </table>
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
-                                <table border="0" cellspacing="5" cellpadding="5">
+                                <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
                                     <tbody>
                                         <tr>
                                             <td>ID Doc:</td>
@@ -109,9 +109,10 @@
                                             </td>
                                         </tr>
                                 </tbody></table>
-                                <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;padding-top:20px;">
+                                <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
+                                            <th></th>
                                             <th></th>
                                             <th>E</th>
                                             <th>ID Doc</th>
@@ -129,7 +130,7 @@
 
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab"  style="width: 100%;">
-                                <table border="0" cellspacing="5" cellpadding="5">
+                                <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
                                     <tbody>
                                         <tr>
                                             <td>ID Doc:</td>
@@ -321,14 +322,14 @@
                                 <div id="card_desplegar_versiones" class="bl1 header1" > 
                                     <label class="">Versiones</label>                       
                                     <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
-                                        <i class="fas fa-angle-double-left fa-3x"></i>
+                                        <i class="fas fa-angle-double-right fa-3x"></i>
                                     </button>
                                 </div> 
                                 <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
                                     <div class="header1">
                                         <label class="">Versiones</label>
                                         <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
-                                            <i class="fas fa-angle-double-right fa-3x"></i>
+                                            <i class="fas fa-angle-double-left fa-3x"></i>
                                         </button>
                                     </div>
                                     <div class="display_va">
@@ -415,7 +416,7 @@
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
                                     <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
-
+                                    
                                 </div>                          
                         </div>
                     </form>
@@ -528,10 +529,24 @@
             display: flex;
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
+            background-color: #e9f1fe;
         }
 
         .dropzone-files {
             flex:1;
+        }
+
+        .dropzone-view {
+            --background-color: #e9f1fe;
+            margin-right: 30px;
+            padding:20px;
+        }
+
+        .dropzone {
+            background-color: #d4e3fc;
+            border: 1px dashed #005c9e;
+            color: #0844a4;
+            font-weight: 700;
         }
 
         .dz-max-files-reached {
@@ -610,7 +625,9 @@
         }
 
         .bl1, .bl2 {
-            border:1px solid #ced4da;
+            border:1px solid #005c9e;
+            color: #697680;
+            font-weight: 700;
         }
 
         .bl2 {
@@ -623,6 +640,7 @@
         
         .display_va {
             float:left;
+            padding:20px;
         }
 
         .carousel-wrapper {
@@ -696,6 +714,35 @@
         {
             padding-top: 25px;
         }
+
+        .addFrm {
+            float:right;
+        }
+
+        .btnFirma {
+            float: right;
+            margin-left:10px;
+            margin-bottom:10px;
+            line-height: 40px;
+        }
+
+        .fondo_estado{            
+     
+            border-radius: 50%;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            --color: #999;
+            display: inline-block;
+            font-weight: bold;
+            line-height: 1.6em;
+            --margin-right: 15px;
+            text-align: center;
+            width: 30px; 
+            border: 1px solid #005c9e;
+            height:30px;
+            vertical-align: -webkit-baseline-middle;
+          
+        }
      </style>
 @stop
 
@@ -731,7 +778,9 @@
     var allBuzones = @json($allBuzones);
     var allBuzones2 = @json($allBuzones2);
     var listadoDocPendientes = @json($listDocPendientesBuzon);
-    var idTipoFlujo = "";   
+    var idTipoFlujo = "";  
+
+    aplicaFrm = @json($aplicaFrm);
 
     owl = $('.owl-carousel').owlCarousel(); 
 
@@ -786,8 +835,11 @@
 
     }).on('select2:select', function (e) {
        
-        $('#form_acciones_solicitadas_el').multiselect('select', 6);
-       
+        if (form_acciones_solicitadas_el.disabled == true)
+            $('#form_acciones_solicitadas_el').multiselect('select', 6);       
+        else
+            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+
     });
 
     $('#form_otros_destinatarios_el').tagsinput({
@@ -944,7 +996,6 @@
             formData.append('id_documento', idoc);
 
 
-           // formData.append('ids_buzon_archivo', $("input[name='hiddIdFileDelete']").val());
         }        
     };
 
@@ -964,60 +1015,7 @@
     });
 
     /* **DOCUMENTOS** SCRIPT */
-/*
-    //si se elimina destinatario principal se quita selecció a las acciones asociadas
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-    });
 
-    $('#form_destinatario_principal_el').on('itemAdded', function(event) {
-        var js_tipo_doc = datoTipoJson;
-                        
-        var jsAcciones = js_tipo_doc['buzones_flujo'];    
-        var jsTipoAvance = js_tipo_doc['id_tipo_avance'];  
-        var jsTipoflujo = js_tipo_doc['id_tipo_flujo'];
-        var jsFlujoActual = js_tipo_doc['flujo_actual'];
-        
-        if (jsTipoflujo != 1)
-        {
-            if (jsFlujoActual == 0 || jsFlujoActual == 1)
-                $('#form_acciones_solicitadas_el').multiselect('select', 6);    
-        }
-
-        //obtener datos de json_tipo_documento
-        //if flujo controlado/mixto 
-        //if se agrega destinatario en orden 0
-        //si no es orden 0 ver tipo de avance y validar segun corresponda
-
-    });
-
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        console.log(event.item);
-        console.log(aBuzonesReinicio);
-
-        var allBuzonesReset = new Bloodhound({
-                            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
-                            queryTokenizer: Bloodhound.tokenizers.whitespace,
-                            local: aBuzonesReinicio
-        });
-        allBuzonesReset.initialize();
-        
-        $('#form_destinatario_principal_el').tagsinput('destroy'); 
-        
-        $('#form_destinatario_principal_el').tagsinput({
-            maxTags: 1,
-            itemValue: 'value',
-            itemText: 'text',
-            typeaheadjs: {
-                name: 'allBuzonesReset',
-                displayKey: 'text',
-                source: allBuzonesReset.ttAdapter()
-            }
-        });  
-
-
-    });
-*/
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
              
         filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
@@ -1029,7 +1027,6 @@
 
     $(".nuevo_documento").click(function(e)
     {
-        console.log(e, e.isTrigger);
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();  
@@ -1057,6 +1054,15 @@
             $("input[name='hiddIdResponder']").val('');
        
     });
+
+    function addBtnFirma()
+    {
+        var buttonFrmMasiva = '<button onClick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button> ';
+        $('#btnFirma').html(buttonFrmMasiva);
+
+        var column = grilla_recibidos.column(0); 
+        column.visible( !column.visible() );
+    }
 
     function deshabilita_campos()
     {
@@ -1117,7 +1123,6 @@
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
-        //$('#carousel-responder').hide();
         owl.trigger('destroy.owl.carousel'); 
         owl.find('.owl-stage-outer').children().unwrap();
         owl.removeClass("owl-center owl-loaded owl-text-select-on");
@@ -1203,9 +1208,6 @@
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
 
                             //habilita respuesta a: solo a flujo libre
-
-                           // if ($("input[name='hiddIdResponder']").val() )
-                           //     $('#form_respuesta_a').multiselect('deselectAll', true);
 
                             if (idTipoFlujo != 1)
                             {
@@ -1742,6 +1744,82 @@
             })                 
     }
 
+    function envioFrm()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+
+        var matches = [];
+        var checkedcollection = grilla_recibidos.$("input[name='checkFrm']:checked", { "page": "all" });
+        checkedcollection.each(function (index, elem) {
+            matches.push($(elem).val());
+
+        });
+        console.log(matches.length);
+        if(matches.length > 0)
+        {
+            Swal.fire({
+                    title: 'Firma electrónica masiva',
+                    html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                    if (result.value==true) 
+                    {  
+                        $.ajax({
+                            url: "/firma_masiva/",
+                            type: 'PUT',
+                            dataType: 'json',
+                            data: {
+                                _token:_token,
+                                buzon:hiddIdBuzon,
+                                //docBuzon:matchesBuzon,
+                                firmas:matches,
+                                accion:7                
+                            },
+                            success: function(data)
+                            {
+                                if(data.status == '200')
+                                {
+                                    toastr.success(data.data,"Aviso!");
+
+                                    $('#card_crear_documento').hide();        
+                                    fn_grilla_recibidos();
+                                    $("#collapseOne").collapse('show');
+                                }
+                                else
+                                {
+                                    toastr.error(data.data.comentario,"Aviso!");
+                                }
+                            
+                            
+
+                            },
+                            error: function (e) {
+                                data = e.responseJSON;
+                                console.log(data);
+                                if (data.data.comentario != "" && data.data.comentario != null)
+                                    toastr.error(data.data.comentario,"Aviso!");
+                                else
+                                    toastr.error("Falla en el documento","Aviso!");
+
+                            
+                            }
+                        });
+
+                    
+                    }
+            }) 
+        }
+        else
+            toastr.error("No hay documentos seleccionados para firmar.","Aviso!");
+    }
+
+
     function firmar_documento()
     {
         var _token = $("input[name='_token']").val();
@@ -1791,21 +1869,7 @@
                             {
                                 toastr.error(data.data.comentario,"Aviso!");
                             }
-                            /*
-                            if(data['status'] == '1')
-                            {
-                                toastr.success(data['comentario'],"Aviso!");
-
-                                $('#card_crear_documento').hide();        
-                                fn_grilla_recibidos();
-                                $("#collapseOne").collapse('show');
-                            }
-                            else
-                            {
-                                toastr.error(data['comentario'],"Aviso!");
-                            }
-                            */
-
+                           
                             $('.btn-recibir-submit').html( 'Firmar' );
 
                         },
@@ -2480,6 +2544,8 @@
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
                                 $('#form_respuesta_a').multiselect('enable'); 
+
+                                console.log('habilita');
                             } 
 
                             /* responder a */
@@ -2715,8 +2781,51 @@
         $('#addButton').append(buttonRecibir);
     }
 
-    function eliminar_despachados(identificador){
-        alert(identificador)
+    function eliminar_despachados(id_documento,id_documento_buzon)
+    {
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Eliminar documento', 
+            html: "Se realizará la eliminación del documento <br>",                      
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/documento/",
+                        type: 'delete',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success(data.data,"Aviso!");                                
+                                fn_grilla_despachados();
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');  
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"Aviso!");
+                            }
+                        },
+                        error: function (data, jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en la eliminación del documento","Aviso!");
+                        }
+                    });
+            }
+        })             
+        
      
     }
 
@@ -2793,29 +2902,83 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
+                dom: 'l<"addFrm">tip',
                 processing: true,
-                serverSide: true,
+                serverSide: false,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
-                order: [[ 2, 'desc' ]],        
+                order: [[ 3, 'desc' ]],        
                 responsive: true,
-                language: lenguaje_datatable,
+                language: lenguaje_datatable,                
                 columns: [
+                    {
+                        data: 'estado_documento',
+                        targets: 0,
+                        searchable:false,
+                        orderable:false,
+                        className: 'dt-body-center',
+                        render: function(data, type, row, full, meta){
+                            if (type === 'display') 
+                            {
+                                if(data==null){
+                                    return '';
+                                }
+                                else
+                                {
+                                    if (row.id_tipo_destino == 1) //principal
+                                    {
+                                        //agrega listado de acciones
+
+                                        if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                        {
+                                            if (row.json_acciones != null)
+                                            {
+                                                var accionesSolicitadas = row.json_acciones
+                                                
+                                                accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g,"\""));                                                
+                                                jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g,"\""));                                                
+
+                                                for (let i in accionesSolicitadas) 
+                                                {                                                    
+                                                    if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
+                                                        return '<input type="checkbox" name="checkFrm" value="'+row.id_documento+'-'+row.id_documento_buzon+'">';
+                                                } 
+                                            }                                                
+                                            
+                                        }  
+                                    }
+                                    return '';
+                                }
+                        }
+                        return '';
+                        }
+                    },
                     { data: 'recibido',
                     render: function(data, type) {
                         if (type === 'display') {
                             if(data==null){
-                                return '';
+                                return '<div id="addChkFrm"></div>';
                             }else{
                                 if(data==true){
-                                    return '<span class="fas fa-check text-green"></span>';
+                                    return '<span class="fas fa-check text-green"></span><div id="addChkFrm"></div>';
                                 }
                             }
                         }
-                        return '';
-                    }
+                        return '<div id="addChkFrm"></div>';
+                        }
                     },
-                    { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
+                    { data: 'estado_documento', 
+                            render: function(data, type, row)
+                            {
+                                if (type === 'display') 
+                                {
+                                    let htmlColor = '<div class="fondo_estado" style=" background-color: '+ row.codigo_estado +';">'+data+'</div>';
+
+                                    return htmlColor;
+                                }
+                                return data;                                   
+                            }
+                    },
                     { data: 'identificador', name: 'documento.identificador' },
                     { data: 'fecha_envio_recepcion', 
                             render: function(data)
@@ -2862,9 +3025,8 @@
 
                                         if (row.id_tipo_destino == 1) //principal
                                         {
-                                            //agrega listado de acciones
-
-                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            //agrega listado de acciones                                            
+                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
                                                 if (row.json_acciones != null)
                                                 {
@@ -2896,7 +3058,7 @@
 
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                                                                         
-                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 13)
+                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 13)
                                                 botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
@@ -2947,9 +3109,15 @@
                             })
                     $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
-                    $('#grilla_recibidos_filter').html('');
+                    $('#grilla_recibidos_filter').html('');                    
+
+                    if(aplicaFrm == 1)
+                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
                 }
         });
+        
+        var column = grilla_recibidos.column(0); 
+        column.visible( ! column.visible() );           
     }
 
     async function fn_grilla_despachados(){
@@ -2981,7 +3149,18 @@
                     return '';
                   }
                 },
-                { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
+                { data: 'estado_documento', 
+                            render: function(data, type, row)
+                                        {
+                                            if (type === 'display') 
+                                            {
+                                                let htmlColor = '<div class="fondo_estado" style=" background-color: '+ row.codigo_estado +';">'+data+'</div>';
+
+                                                return htmlColor;
+                                            }
+                                            return data;                                   
+                                        }
+                },
                 { data: 'identificador', name: 'documento.identificador' },
                 { data: 'fecha_envio', 
                             render: function(data, type, row)

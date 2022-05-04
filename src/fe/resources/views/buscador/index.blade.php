@@ -7,7 +7,7 @@
     
     <div class="row">
         <div class="col-8">
-            <h1>Buscar Documentos</h1>
+            <h1>Búsqueda de Documentos</h1>
         </div>
     </div>
     
@@ -24,7 +24,7 @@
                 </div>
                 <div class="col-md-3 md-4">  
                     <a href="#" class="btn btn-link desplegar_opciones_avanzadas">
-                    <i class="fa fa-angle-double-down "></i> Búsqueda avanzadas</a>
+                    <i class="fa fa-angle-double-down "></i> Búsqueda avanzada</a>
                     <a href="#" style="display:none" class="btn btn-link cerrar_opciones_avanzadas">
                     <i class="fa fa-angle-double-up "></i> Búsqueda simple</a>
                 </div>
@@ -34,13 +34,13 @@
     <div class="card" id="card_opciones_avanzadas" style="display:none">
         <div class="card-body">
             <div class="form-row">
-                <div class="col-md-4 md-4">
+                <div class="col-md-2 md-2">
                     <div class="form-group">
                     <label for="id_documento">ID Documento: </label>
                         <input type="text" class="form-control" id="buscar_id_documento" name="buscar_id_documento">
                     </div>
                 </div>
-                <div class="col-md-4 md-4">
+                <div class="col-md-5 md-5">
                     <div class="form-group">
                         <label for="select_tipo_documento" >Tipo Documento</label>
                         <br>
@@ -52,49 +52,52 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4 md-4">
+                <div class="col-md-5 md-5 buscar_fila">
+                    <div class="form-group">
+                        <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
+                        <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="form-row">
+
+                 <div class="col-md-2 md-2">
+                    <div class="form-group">
+                    <label for="id_folio">Folio: </label>
+                        <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
+                    </div>
+                </div>
+                <div class="col-md-1 md-1">
+                    <div class="form-group">
+                        <label for="">Rango de Fechas </label>                  
+                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="col-md-1 md-1">
+                    <div class="form-group">
+                        <label for="">&nbsp;</label>                  
+                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
+                    </div>
+                </div>     
+                
+                <div class="col-md-3 md-3">
                     <div class="form-group">
                         <label for="select_buzon_origen">Buzón Orígen</label>
-                        <br>
                         <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
                             @foreach($listBuzones as $list)
                             <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div>                    
                 </div>
-            </div>
-            <div class="form-row">
 
-                 <div class="col-md-4 md-4">
+                <div class="col-md-5 md-5 buscar_fila">
                     <div class="form-group">
-                    <label for="id_folio">Folio: </label>
-                        <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
-                    </div>
-                </div>
-                <div class="col-md-4 md-4">
-                    <div class="form-group">
-                        <label for="">Rango de Fechas </label>
-                    
-                        <br>
-                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini">
-                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin">
-                    </div>
-                </div>
-                
-                
-                <div class="col-md-4 md-4">
-                    <div class="form-group">
-                        <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
-                        <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                     <div class="col-md-12 md-4">
                         <i id="botones_grilla_despachados"></i>
-                    </div>    
+                    </div>
                 </div>
             </div>    
         </div>
@@ -105,8 +108,6 @@
 
 @section('content')
 <!--<div class="container">-->
-    
-   
 
             <div class="accordion" id="carpetas">
                 <div class="card">
@@ -117,7 +118,7 @@
                             <i type="button" class="fa fa-chevron-circle-up  cerrar_grilla_documento" style="display:none"></i> </a>
                         </div>-->
                         <button class="btn btn-block text-left buzones_carpetas_btn_colapsable_text" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            <span id="boton_carpetas_texto"> Documentos  <i><b> </b></i> </span>
+                            <span id="boton_carpetas_texto"> Resultado de búsqueda  <i><b> </b></i> </span>
                             <i class="fa fa-chevron-circle-up" style="float:right;margin-top: 8px;"></i>
                             <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
                         </button>
@@ -127,7 +128,7 @@
 
                     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#carpetas">
                         
-                            <div class="card" id="card_buscador_grilla">
+                            <div class="" id="card_buscador_grilla">
                                 <div class="card-body">
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
@@ -154,10 +155,6 @@
                 </div>
             </div>
 
-
-    
-       
-    
         <!-- Form Documentos -->
 
         <div class="row" id="card_documento" style="display:none">
@@ -457,6 +454,20 @@
         .odd:hover, .even:hover{
             background: whitesmoke;
         }
+
+        .buttons-excel {
+            margin-bottom: 10px;
+            float:right;
+        }
+
+        .buscar_fila {
+            padding-top:30px;
+            padding-left:50px !important; 
+        }
+
+        .btn_busqueda {
+            margin-right: 20px;
+        }
     </style>
 
 @stop
@@ -470,6 +481,7 @@
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
 <!-- jquery y bootstrap -->
  
@@ -562,12 +574,7 @@
 
     async function fn_grilla_recibidos(){
 
-        //$('#documento').hide();
-        //if ( $.fn.DataTable.isDataTable('#grilla_recibidos') ) {
-          //      $('#grilla_recibidos').DataTable().destroy();
-       // }
-        $('#grilla_recibidos tbody').empty();
-        
+        $('#grilla_recibidos tbody').empty();        
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
                 dom: 'Brtip', 
@@ -590,7 +597,7 @@
                                 }
                              },
                             text:'Descargar busqueda',
-                            className: 'btn btn-outline-success',
+                            className: 'btn btn-success',
                             excelStyles:{
                                 temlate:'header_blue'
                             }
@@ -598,16 +605,27 @@
                     ]
                 },
                 processing: true,
-                //serverSide: true,
+                serverSide: false,
                 ajax: '/buscadorListar',
                 type:'json',
-                order: [[ 1, 'desc' ]], 
+                order: [[ 0, 'desc' ]], 
                 responsive: true,                
                 language: lenguaje_datatable,
                 columns: [
-                    
                     { data: 'identificador', name: 'identificador' },
-                    { data: 'fecha_documento', name: 'documento.fecha' },
+                    { data: 'fecha_documento', render: function(data, type, row)
+                            {
+                                if(data == null)
+                                    return '';
+                                else
+                                { 
+                                    return data;//moment(data).format('DD-MM-YYYY');
+                                }
+
+                                return '';
+                            }
+                
+                    },
                     { data: 'tipo_documento', name: 'tipo_documento' },
                     { data: 'folio', name: 'folio' },
                     { data: 'buzon_origen', name: 'buzon_origen' },
@@ -686,9 +704,10 @@
                     
                 ],
                 initComplete : function() {
+                    
                     var input = $('#busqueda_simple input').unbind(),
                     self = this.api(),
-                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
+                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
                             .text('Limpiar')
                             .click(function() {
                                 $('#buscar_id_documento').val('');
@@ -700,41 +719,60 @@
                                 $('#buscar_efectos_sobre_terceros').prop('checked', false);
                                 $searchButton.click();
                             }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
+                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
                             .text('Buscar')
                             .click(function() {
-                            
-                                grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
-                                grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();
-                                //grilla_recibidos.columns(1).search($("#buscar_fecha_ini").val()).draw();
-                                //grilla_recibidos.columns(1).search($("#buscar_fecha_fin").val()).draw();
-                                grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
-                                if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                    grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
-                                else
-                                    grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
                                 
+                                    grilla_recibidos.draw();
+                                
+                                    grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
+                                    grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
+                                    grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();                               
+                                    
+                                    grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                    if ($('#buscar_efectos_sobre_terceros').is(':checked'))
+                                        grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
+                                    else
+                                        grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
+                                
+
                             })
                     $simpleSearchButton = $('<button class="btn btn-success" id_btn_filtrar">')
                     .text('Buscar')
                     .click(function() {
                         self.search($('#busqueda_simple').val()).draw();
+                        $(".btn_cerrar_guardar").trigger("click");
                     })
                     $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#botones_busqueda_simple').append($simpleSearchButton);
                     $('#grilla_despachados_filter').html('');
-                   
+                    
+                    
                 }
                 
                
 
-        });
-   
-          
-       
+        }); 
     }
+
+    $.fn.dataTable.ext.search.push(
+        
+        function (settings, data, dataIndex) {
+            var dateFrom = $('#buscar_fecha_ini').val();
+            var dateTo = $('#buscar_fecha_fin').val();
+            var date = data[1];
+
+            if ((dateFrom == '' && dateTo == '') ||
+                (dateFrom == '' && Date.parse(date) <= Date.parse(dateTo)) ||
+                (Date.parse(dateFrom) <= Date.parse(date) && dateTo == '') ||
+                (Date.parse(dateFrom) <= Date.parse(date) && Date.parse(date) <= Date.parse(dateTo))) {
+                return true;
+            }
+            return false;
+        }
+    );
+
 
         // VER DOCUMENTO Y CARGAR BITACORA
 

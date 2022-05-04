@@ -32,10 +32,9 @@ class BuscadorController extends Controller
             'id_usuario' => Auth::user()->id,
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentos');
-        //->get('http://sgd_ms_buscador:3333/api/sgd-buscador/listarDocumentos');
 
         if($lista_documento->failed()){
-            $mensaje= $lista_documento->json()['data']['comentario'];
+            $mensaje = $lista_documento->json()['data']['comentario'];
 
             $lista_documento=['data'=>[
                 0=>['id_documento'=>'','rel_documento_buzon'=>'','id_tipo_documento'=>'','folio'=>'','rel_documento_buzon'=>'','rel_documento_buzon'=>'','materia'=>'']
@@ -44,9 +43,6 @@ class BuscadorController extends Controller
         }else{
             $lista_documento->json();
         }
-
-        /* LISTAR DOCUMENTO BITACORA */
-        
 
         /* LISTADO TIPO DE DOCUMENTO */
 
@@ -62,10 +58,11 @@ class BuscadorController extends Controller
         else
         {
             $datosTipoDoc = $listado_tiposdoc['data'];
-
         }
 
         /* LISTADO BUZONES */
+        $datosBuzones = array();
+        $aBuzones = array();
 
         $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
@@ -73,14 +70,14 @@ class BuscadorController extends Controller
             'texto_busqueda' => '',
         ]), 'json')
         ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
-        //return $listado_buzones;
+
         if($listado_buzones->failed()){
-            $listado_buzones->json()['data']['comentario'];
+            $mensaje = $listado_buzones->json()['data']['comentario'];
 
             $listado_buzones=['data'=>[
                 0=>['id'=>'0','nombre'=>'Sin Datos']
             ]];
-            toast($mensaje,'error');
+            //toast($mensaje,'error');
         }else{
 
             $datosBuzones = $listado_buzones['data'];
@@ -89,7 +86,7 @@ class BuscadorController extends Controller
                 $aBuzones[$dato['id_buzon']] = $dato['nombre'];                  
             }
         }
-        //return $aBuzones;
+
         //parametros
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
@@ -103,8 +100,7 @@ class BuscadorController extends Controller
         $datosAccion = $listado_parametros['data']['accion'];
 
         return View::make('buscador.index',[
-            'lista_documento'=>$lista_documento,
-            
+            'lista_documento'=>$lista_documento,            
             'listado_tiposdoc'=>$datosTipoDoc,
             'listBuzones'=>$datosBuzones,
             'listadoBuzones'=>$aBuzones,
@@ -116,8 +112,6 @@ class BuscadorController extends Controller
 
     public function show($id)
     {
-        
-        //return "hola";
         $sesion_key =  AppServiceProvider::session_key_general();
         $lista_bitacora = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -125,7 +119,7 @@ class BuscadorController extends Controller
             'id_documento' => $id,
         ]), 'json')
         ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora');
-        //->get('http://sgd_ms_bitacora:3333/api/sgd-bitacora/listarDocumentosBitacora');
+        
         return $lista_bitacora;
         
 
@@ -139,11 +133,6 @@ class BuscadorController extends Controller
         }else{
             return $lista_bitacora->json();
         }
-        
-        //return View::make('buscador.index', [
-        //    'lista_bitacora'=>$lista_bitacora,
-
-       // ]);
          
     }  
 
@@ -188,8 +177,7 @@ class BuscadorController extends Controller
         , us.id    
         , td.nombre
         , buzon_origen
-        , buzon_actual    
-    order by d.identificador desc");
+        , buzon_actual");
     
                     
         return datatables( $datos )->toJson();

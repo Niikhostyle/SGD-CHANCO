@@ -140,3 +140,8 @@ color: #ffffff;
 .grilla_header {
   background-color: rgba(0,0,0,.1);
 }
+
+.txt_fila_menu {
+  display: inline-flex !important;
+  width: 80%;  
+}

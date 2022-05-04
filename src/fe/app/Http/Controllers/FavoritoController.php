@@ -50,7 +50,7 @@ class FavoritoController extends Controller
         $datosAccion = $listado_parametros['data']['accion'];
 
         //listado de buzones
-
+        $aBuzones = array();
         $listado_buzones = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
         ->withBody(json_encode([
@@ -59,12 +59,12 @@ class FavoritoController extends Controller
         ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
-            $listado_buzones->json()['data']['comentario'];
+            $mensaje = $listado_buzones->json()['data']['comentario'];
 
             $listado_buzones=['data'=>[
                 0=>['id'=>'0','nombre'=>'Sin Datos']
             ]];
-            toast($mensaje,'error');
+            //toast($mensaje,'error');
         }else{
 
             foreach ($listado_buzones['data'] as $dato)

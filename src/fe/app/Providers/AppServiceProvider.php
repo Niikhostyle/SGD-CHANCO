@@ -101,12 +101,6 @@ class AppServiceProvider extends ServiceProvider
                 $color_personal='green';
                 foreach ($buzones as $key => $value)
                 {
-                    /*"id_buzon": 3,
-                    "nombre_buzon": "Personal",
-                    "nombre_corto_buzon": "PRSNAL",
-                    "tipo_buzon": 1,
-                    "n_docs_por_recibir": 4,
-                    "n_docs_recibidos_pendientes": 2*/
                   $icon = 'fas fa-fw fa-archive';
                   $seleccion_color= array_rand($colores,1);
                   if($value['nombre_buzon']=='Personal'){
@@ -194,27 +188,6 @@ class AppServiceProvider extends ServiceProvider
 
 
             }
-
-           
-            /*array_push($submenu_buzones_usuarios,
-            [
-                'text'       => 'Tránsito',
-                    'icon'    => 'fas fa-fw fa-archive',
-                    'icon_color' => 'yellow',
-                    'url'        => '#',
-                    'label'     => 3,
-                    'label_color'=>'success'
-            ]);
-            array_push($submenu_buzones_usuarios,
-            [
-                'text'       => 'Alcaldia',
-                'icon'    => 'fas fa-fw fa-archive',
-                'icon_color' => 'cyan',
-                'url'        => '#',
-                'label'     => 5,
-                'label_color'=>'success'
-            ]);*/
-
 
             $event->menu->add(
             [

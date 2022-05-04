@@ -445,6 +445,50 @@ class DocumentoController extends Controller{
 
     }
 
+    public function eliminar(Request $request)
+    {
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();                             
+                
+                //verifica que el documento este en estado borrador
+                $datoDocBuzon = DocumentoBuzon::where('id_documento_buzon', $datosRequest['id_documento_buzon'])
+                                               ->where('id_estado_documento', '1')                          
+                                               ->first();
+
+                if ($datoDocBuzon['id_documento_buzon'])
+                {
+                    //elimina de las tablas relacionadas
+                    $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+
+                    DocumentoBuzonBitacora::where('id_documento_buzon',$datosRequest['id_documento_buzon'])->delete();
+                    $datosDocumento->rel_documento_buzon()->delete();
+                    $datosDocumento->delete();     
+                    
+                    DB::commit();
+
+                    return $this->respondSuccess("Documento eliminado", 200);           
+                }
+                else
+                    return $this->respondError('Falla al eliminar documento:', 500);
+               
+
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return $this->respondError('Falla al eliminar documento:' . $e->getMessage(), 500);
+            }
+        }
+        else
+            return $this->respondError('Json inválido', 406);
+
+
+    }
+
     public function enviar(Request $request)
     {
         //DERIVAR
@@ -673,12 +717,9 @@ class DocumentoController extends Controller{
                     
 
                     if ( $idTipoAsigFolio == 2)
-
-                    {                       
-                    
+                    {                                           
                         if ($idAccion == 9) //cambiar id_accion a 9
-                        {
-                    
+                        {                    
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -691,10 +732,9 @@ class DocumentoController extends Controller{
                                 'id_tipo_folio' => $idTipoFolio
                             ]), 'json')
                             ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
-                            //return $nFolio;  
+ 
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
                             Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
-                            //return "hola";
 
                         }
 
@@ -824,6 +864,7 @@ class DocumentoController extends Controller{
                                                         'documento_buzon_archivo.nombre_archivo_codificado',
                                                         'documento_buzon_archivo.fecha',
                                                         'documento_buzon_archivo.version')
+                                                    ->orderBy('documento_buzon_archivo.version')
                                                     ->get();
                             
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
@@ -1002,6 +1043,8 @@ class DocumentoController extends Controller{
                         'documento_buzon_bitacora.fecha as fecha_documento',
                         'buzon.nombre as buzon_destino',
                         'documento_buzon_bitacora.id_accion as accion',
+                        'documento_buzon_bitacora.comentario',
+                        'documento_buzon_bitacora.mensaje_respuesta',
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_tipo_destino as tipo_destino',
                         'documento.identificador as identificador',
