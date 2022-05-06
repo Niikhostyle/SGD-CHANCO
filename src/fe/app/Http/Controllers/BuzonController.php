@@ -616,7 +616,6 @@ class BuzonController extends Controller
                         'documento.created_at as fecha_creacion', //carpeta 3
                         'documento_buzon.fecha as fecha_envio_recepcion',
                         'documento_buzon.fecha as fecha_envio', //carpeta 3 y 1
-                        //'documento_buzon_bitacora.fecha as fecha_recepcion',
                         'tipo_documento.nombre as tipo_documento',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
@@ -626,8 +625,8 @@ class BuzonController extends Controller
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                         DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
                         DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1) as destinatario'),
+                        DB::raw('(select dbb.fecha from documento_buzon_bitacora dbb join documento_buzon db4 on dbb.id_documento_buzon = db4.id_documento_buzon where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon and dbb.id_accion = 3) as fecha_recepcion'),
                         'documento_buzon.contestar_hasta as contestas_hasta',
-                        //'documento_favorito_usuario.id_documento as favorito'
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);

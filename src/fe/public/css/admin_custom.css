@@ -145,3 +145,78 @@ color: #ffffff;
   display: inline-flex !important;
   width: 80%;  
 }
+
+/* carrusel responder a*/
+
+.carousel-wrapper {
+  width: 1200px;
+  margin: auto;
+  position: relative;
+  text-align: center;
+  --background-color: #e9f1fe;
+  --border: 1px solid #005c9e;
+  
+}
+
+.owl-carousel .owl-nav {
+  overflow: hidden;
+  height: 0px;
+}
+
+.owl-carousel .item_display {
+  text-align: center;
+  border: 1px solid #005c9e;
+  background: #aedd94;
+  width: 100px;
+  height: 100px;
+  padding-top: 25px;
+}
+
+.owl-item {
+  width: 100px !important; 
+  margin-right: 10px; 
+}
+
+.item-doc {
+  background: #92d36e !important;
+  border: 2px solid #005c9e;           
+}
+
+.owl-carousel .nav-button {
+  height: 50px;
+  width: 30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0px !important;
+}
+.owl-carousel .owl-prev.disabled,
+.owl-carousel .owl-next.disabled {
+  pointer-events: none;
+  opacity: 0.25;
+}
+.owl-carousel .owl-prev {
+  left: -35px;
+}
+.owl-carousel .owl-next {
+  right: -35px;
+}
+.owl-theme .owl-nav [class*=owl-] {
+  color: #697680;
+  font-size: 40px;
+  border-radius: 3px;
+}
+.owl-carousel .prev-carousel:hover {
+  background-position: 0px -53px;
+}
+.owl-carousel .next-carousel:hover {
+  background-position: -24px -53px;
+}
+.item_prev
+{
+  padding-top: 25px;
+}
+.item_next
+{
+  padding-top: 25px;
+}
+

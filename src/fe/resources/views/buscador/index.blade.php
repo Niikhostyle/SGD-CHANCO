@@ -168,7 +168,17 @@
     
                         <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                             @csrf
-                            
+
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <div class="form-row section-carousel">
+                                        <div class="form-row carousel-wrapper">
+                                            <div class="owl-carousel owl-theme owl-loaded"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>                            
                             <div class="form-row">
                                 <div class="col-md-12">
                                     <ul class="list-group list-group-horizontal">
@@ -392,9 +402,7 @@
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
-
-
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
 
 
     <style type="text/css">
@@ -482,6 +490,7 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
 <!-- jquery y bootstrap -->
  
@@ -519,6 +528,8 @@
         
        
     });
+
+    owl = $('.owl-carousel').owlCarousel(); 
       
     $("#buscar_efectos_sobre_terceros").click(function(e){
         console.log($('#buscar_efectos_sobre_terceros').val());
