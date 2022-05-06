@@ -64,16 +64,17 @@ class FirmaController extends Controller
                 //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
-                $img->text('Firmado electrónicamente por:', 330, 75, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
-                $img->text(Str::upper($sNombre), 330, 125, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(40); }); 
-                $img->text('Fecha: '. $dFechaCreacionImg, 330, 175, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); }); 
-                $img->text($DatosFirma['cargo_firma'] . ' ' . $DatosFirma['sigla'], 330, 250, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(40); });         
+                $img->text('Firmado electrónicamente por:', 330, 60, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
+                $img->text(Str::upper($sNombre), 330, 110, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(34); }); 
+                $img->text('Fecha: '. $dFechaCreacionImg, 330, 160, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
+
+                $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
+                $img->text($string, 330, 235, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); });         
         
                 $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
 
                 //INICIO PROCESO FIRMA
-                //$aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['aplica_fea','run','nombres', 'primer_apellido', 'segundo_apellido']);
-                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion']);                
+                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador']);                
 
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
@@ -139,34 +140,34 @@ class FirmaController extends Controller
                 }
 
                 if (count($datosBitacora) == 0) //firma 1
-                {
+                {//270 - 90 : 90% | 255 - 85 : 85%
                     $n_llx = 300;
                     $n_lly = 180;
-                    $n_urx = 550;
-                    $n_ury = 250;
+                    $n_urx = 555;
+                    $n_ury = 265;
                 }
 
                 if (count($datosBitacora) == 1) //firma 2
                 {
-                    $n_llx = 40;
+                    $n_llx = 30;
                     $n_lly = 180;
-                    $n_urx = 280;
-                    $n_ury = 250;
+                    $n_urx = 285;
+                    $n_ury = 265;
                 }
                 if (count($datosBitacora) == 2) //firma 3
                 {
                     $n_llx = 300;
-                    $n_lly = 90;
-                    $n_urx = 550;
-                    $n_ury = 160;
+                    $n_lly = 80;
+                    $n_urx = 555;
+                    $n_ury = 165;
                 }
 
                 if (count($datosBitacora) == 3) //firma 4
                 {
-                    $n_llx = 40;
-                    $n_lly = 90;
-                    $n_urx = 280;
-                    $n_ury = 160;
+                    $n_llx = 30;
+                    $n_lly = 80;
+                    $n_urx = 285;
+                    $n_ury = 165;
                 }
                 
                 $pdf = new PDF();
@@ -192,8 +193,10 @@ class FirmaController extends Controller
                 {                              
                     $pdf->AliasNbPages();
                     $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
+                    $pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
                     $pdf->footer_link = env('PLCSGD_LINKVALIDADOR');
                     $pdf->PageFirma = $nPaginasPdf;
+                    
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template

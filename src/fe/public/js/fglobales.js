@@ -1,3 +1,4 @@
+
 function add_favorito(id_documento){
     Swal.fire({
         title: 'Agregar a favoritos',
@@ -220,6 +221,55 @@ function cargar_datos_grilla(id_documento)
                             $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
                         }  
                     });
+
+                    /* responder a */                   
+
+                    var sDivActualPrev = "";
+                    var sDivActualNext = "";
+                    var sDivIzq = "";
+                    var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
+                    var jsonDocResponder = data.data.rel_responder;
+
+                    for (let j in jsonRespuesta) 
+                    {                           
+                        //completa carrusel lado izq
+                        sDivIzq += ' <div class="item"><div class="item_display">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
+                    }
+
+                    //completar carrusel lado der
+                    var sDivDer = "";
+                    for (let d in jsonDocResponder)
+                        sDivDer += ' <div class="item"><div class="item_display">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                     
+                    sDivActual = '<div class="item"><div class="item_display item-doc">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                    
+                    if (sDivDer != '')
+                        sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';
+
+                    if (sDivIzq != '')
+                        sDivActualNext = '<div class="item"><div class="item_next"><i class="fas fa-reply-all fa-2x"></i></div></div>';
+
+
+                    if (sDivIzq != '' || sDivDer != '')
+                    {
+                        owl.trigger('destroy.owl.carousel'); 
+                        owl.find('.owl-stage-outer').children().unwrap();
+                        owl.removeClass("owl-center owl-loaded owl-text-select-on");
+
+                        var content = sDivIzq + sDivActualNext + sDivActual + sDivActualPrev + sDivDer;
+                        owl.html(content);
+
+                        //reinitialize the carousel (call here your method in which you've set specific carousel properties)
+                        owl.owlCarousel({
+                            items:8,
+                            margin: 10,
+                            dots: true,
+                            nav: true,
+                            navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
+                            
+                        }).trigger('refresh.owl.carousel');
+                    }             
+
 
                }
             }
