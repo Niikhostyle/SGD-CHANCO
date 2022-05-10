@@ -725,9 +725,10 @@
                                 $('#buscar_folio').val('');
                                 $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
                                 $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
-                                $('#buscar_fecha_ini').find('option:eq(0)').prop('date', true);
-                                $('#buscar_fecha_fin').find('option:eq(0)').prop('date', true);
+                                $('#buscar_fecha_ini').val('');
+                                $('#buscar_fecha_fin').val('');
                                 $('#buscar_efectos_sobre_terceros').prop('checked', false);
+
                                 $searchButton.click();
                             }),
                     $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
@@ -768,7 +769,8 @@
     }
 
     $.fn.dataTable.ext.search.push(
-        
+
+       
         function (settings, data, dataIndex) {
             var dateFrom = $('#buscar_fecha_ini').val();
             var dateTo = $('#buscar_fecha_fin').val();
@@ -782,6 +784,7 @@
             }
             return false;
         }
+        
     );
 
 
