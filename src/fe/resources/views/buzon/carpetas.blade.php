@@ -603,7 +603,16 @@
 
 
         .file-container-all { display: flex; }
-        .file-container { position: relative; }
+        .file-container { 
+            position: relative; 
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px 0 rgb(0 0 0 / 20%);
+            padding: 5px;
+            float: left;
+            text-align: center;
+            background-color: white;
+            margin-right: 10px;
+        }
         .file-container img { display: block; }
         .fa-icon1 { position: absolute; bottom:0; left:0; }
         .fa-icon2 { position: absolute; bottom:0; left:30px; }
@@ -2578,21 +2587,24 @@
                         aFilesDelete = [];                  
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
-                        {
+                        { //https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                       ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                        //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="View Details" style="position: absolute;top: 72px;"><i class="fa fa-download"></i></button>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                    '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                    //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="View Details" style="position: absolute;top: 72px;"><i class="fa fa-download"></i></button>';
 
                            /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
                                 htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                             
                             if (carpeta == 3 && accion == 1)               
-                                htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                htmlFile += '<button type="button" class="kv-file-remove btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="Remove file" style=""><i class="fa fa-trash-o"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -2619,6 +2631,8 @@
                         $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
                         $('#versiones_anteriores').html(htmlFilePrincipal_va + '</div>');
 
+                        if (carpeta == 3)
+                            $('#card_desplegar_versiones').hide();                        
 
                     }
                 }
@@ -2630,6 +2644,12 @@
                 }
             }
         });
+    }
+
+    function ver_archivo(file)
+    {
+        window.open('/files/'+file);
+        return false;
     }
 
     function deleteFile(codFile){

@@ -371,19 +371,21 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $('#card_crear_editar').show(); 
         $('#form_crear_editar').removeClass("was-validated");
         $('.bloque_buzones_flujo').hide();
-        $('.bloque_flujo_interno').hide();
-        editor_encabezado.setReadOnly(true);
-        editor_cuerpo.setReadOnly(true);
+        $('.bloque_flujo_interno').hide();     
 
         
         if (op == 2)
         {
+            editor_encabezado.setReadOnly(false);
+            editor_cuerpo.setReadOnly(false);
             $('#titulo_crear_editar').html('Editar Tipo de Documento'); 
             $('.form-control').prop("disabled", false);
             $('.btn-submit').show();
         }            
         else
         {
+            editor_encabezado.setReadOnly(true);
+            editor_cuerpo.setReadOnly(true);
             $('#titulo_crear_editar').html('Ver Tipo de Documento'); 
             $('.btn-submit').prop("disabled", false); 
             $('.form-control').prop("disabled", true);

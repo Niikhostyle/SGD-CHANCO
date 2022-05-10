@@ -47,6 +47,20 @@ class ArchivoController extends Controller{
                 if (!$aInfoUsuarios['genera_pdf'])
                     return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
                     
+                //verifica que no se genere 2 veces
+                //busca en bitacora
+                $existePdfGenerado = DocumentoBuzonBitacora::where('accion', 8)
+                                                           ->where('id_documento_buzon', $idDocumentoBuzon)->first();
+
+                return $existePdfGenerado;
+                //busca en archivo_existente
+                $existeDocPpal = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
+                                                        ->where('id_tipo_archivo', 1)
+                                                        ->where('version', 1)
+                                                        ->first();
+
+                                                    
+
                 $datosDocumentos = Documento::findOrFail($nDocumento); 
                 
                 //reemplazar valores en encabezado
@@ -97,9 +111,6 @@ class ArchivoController extends Controller{
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
                 {                                
-                    /*$docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
-                                                        ->where('id_tipo_archivo', 1)
-                                                        ->get();*/
                     $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                                                         ->where('id_documento', $nDocumento)
                                                         ->where('id_tipo_archivo', 1)
