@@ -16,6 +16,13 @@ use Illuminate\Support\Facades\DB;
 use App\Validator\DocumentoValidator;
 
 
+use App\Http\Controllers\MailController;
+use App\Mail\MailController as MailMailController;
+use App\Models\Buzon;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+
+
 class DocumentoController extends Controller{
 
     /**
@@ -79,7 +86,7 @@ class DocumentoController extends Controller{
                 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
-                $dFechaCreacion = date('Y-m-d H:i:s');
+                $dFechaCreacion = date('Y-m-d');
                 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
 
@@ -115,7 +122,7 @@ class DocumentoController extends Controller{
                     'descripcion' => $datosDocumento['descripcion'],
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
-                    //'fecha' => $dFechaCreacion,
+                    'fecha' => $dFechaCreacion,
                     'hash_validacion' => $sHash,
                     'folio' => $nFolio                    
                 ]);
@@ -607,6 +614,9 @@ class DocumentoController extends Controller{
                
                 if ($datosRequest['destinatarioPrincipal'] != "" || $datosRequest['destinatarioPrincipal'] != null)
                 {
+
+                    
+
                     $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
                                     ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
                                     ->where('id_tipo_destino', '1')
