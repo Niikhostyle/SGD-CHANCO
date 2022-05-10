@@ -539,7 +539,7 @@
         .dropzone-view {
             --background-color: #e9f1fe;
             margin-right: 30px;
-            padding:20px;
+            --padding:20px;
         }
 
         .dropzone {
@@ -681,6 +681,12 @@
             vertical-align: -webkit-baseline-middle;
           
         }
+
+        .btn-arch {
+            position: absolute;
+            top: 72px;
+            display: inline;    
+        }
      </style>
 @stop
 
@@ -813,7 +819,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         maxFiles: 1,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
@@ -858,7 +864,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
@@ -904,7 +910,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
@@ -2581,7 +2587,7 @@
                         let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                         let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
                         let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
-                        let htmlFilePrincipal_va = '<div class="col-md-12 group-button-align file-container-all">';
+                        let htmlFilePrincipal_va = '<div class="col-md-12 file-container-all">';
                         
                         aFilesPrincipal = [];
                         aFilesDelete = [];                  
@@ -2591,20 +2597,21 @@
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                         //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="View Details" style="position: absolute;top: 72px;"><i class="fa fa-download"></i></button>';
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                     //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="View Details" style="position: absolute;top: 72px;"><i class="fa fa-download"></i></button>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
 
-                           /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                                htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+
                             
                             if (carpeta == 3 && accion == 1)               
                                 //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button type="button" class="kv-file-remove btn btn-sm btn-kv btn-default btn-outline-secondary rounded-circle" title="Remove file" style=""><i class="fa fa-trash-o"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 

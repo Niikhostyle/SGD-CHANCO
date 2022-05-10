@@ -49,18 +49,19 @@ class ArchivoController extends Controller{
                     
                 //verifica que no se genere 2 veces
                 //busca en bitacora
-                $existePdfGenerado = DocumentoBuzonBitacora::where('accion', 8)
-                                                           ->where('id_documento_buzon', $idDocumentoBuzon)->first();
+                $existePdfGenerado = DocumentoBuzonBitacora::where('id_accion', 8)
+                                                           ->where('id_documento_buzon', $idDocumentoBuzon)
+                                                           ->first();
 
-                return $existePdfGenerado;
                 //busca en archivo_existente
                 $existeDocPpal = DocumentoBuzonArchivo::where('id_documento_buzon', $idDocumentoBuzon)
                                                         ->where('id_tipo_archivo', 1)
                                                         ->where('version', 1)
                                                         ->first();
 
-                                                    
-
+                if (isset($existePdfGenerado['id_documento_buzon']) && isset($existeDocPpal['id_documento_buzon']))                                    
+                    return $this->respondError('El archivo PDF ya fue generado.', 400);
+                
                 $datosDocumentos = Documento::findOrFail($nDocumento); 
                 
                 //reemplazar valores en encabezado
