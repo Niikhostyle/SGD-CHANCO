@@ -1593,7 +1593,7 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "../buzonesCarpetasDerivar/"+hiddIdDocumento,
+                        url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
                         dataType: 'json',
                         data: {
