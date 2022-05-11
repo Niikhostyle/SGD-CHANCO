@@ -455,7 +455,18 @@ class BuzonController extends Controller
     public function enviar_documento($id, Request $request)
     {
 
+        $dPrincipal = $request->destinatarioPrincipal;
+       
+        if ($dPrincipal!= "" || $dPrincipal != null)
+        {
+            $user = User::findOrFail($dPrincipal);
+            $documento = Documento::findOrFail($request->hiddIdDocumento);
+            $documentoBuzon = DocumentoBuzon::findOrFail($request->hiddIdDocumentoBuzon);
+            $buzon = Buzon::findOrFail($request->buzon);
+            //return $user->email;
+            Mail::to($user)->queue(new MailController($user, $documento, $documentoBuzon, $buzon));
         
+        }
 
         $sesion_key = AppServiceProvider::session_key_general();
 
@@ -472,25 +483,11 @@ class BuzonController extends Controller
             'carpeta'=>$request->carpeta
         ]);
 
-       /**
-        *$dPrincipal = $request->destinatarioPrincipal;
-       
-        *if ($dPrincipal!= "" || $dPrincipal != null)
-        *    {
-        *        $user = User::findOrFail($dPrincipal);
-         *       $documento = Documento::findOrFail($request->hiddIdDocumento);
-         *       $documentoBuzon = DocumentoBuzon::findOrFail($request->hiddIdDocumentoBuzon);
-         *       $buzon = Buzon::findOrFail($request->buzon);
-          *      //return $user->email;
-         *       Mail::to($user)->queue(new MailController($user, $documento, $documentoBuzon, $buzon));
-         *   
-         *   }
-        
-         */ 
 
         return $accionDocumento->json();
     }
 
+    
     public function ver_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -510,7 +507,7 @@ class BuzonController extends Controller
     public function actualizar_estado_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
+        
         if ($request->accion != 7)
         {
             $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
