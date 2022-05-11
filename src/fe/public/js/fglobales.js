@@ -94,6 +94,10 @@ function del_favorito(id)
 
 function cargar_datos_grilla(id_documento)
 {
+    owl.trigger('destroy.owl.carousel'); 
+    owl.find('.owl-stage-outer').children().unwrap();
+    owl.removeClass("owl-center owl-loaded owl-text-select-on");
+
     $.ajax({
         url: "/documentos/"+id_documento,
         type:'GET',
@@ -172,13 +176,23 @@ function cargar_datos_grilla(id_documento)
                     let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                     let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
                     let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
+                    let htmlFilePrincipal_va = '<div class="col-md-12 file-container-all">';
+                    
+                    aFilesPrincipal = [];
+                    aFilesDelete = [];                  
 
                     $.each(relDocumentoBuzonArchivo, function(key,value)
                     {   
                         htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                    ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                        '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                            
+                                       ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                        //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+
+                        htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                            '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+
                         if (value.id_tipo_archivo == 2) //anexo
                             htmlFileAnexo += htmlFile + '</div>';       
 
@@ -187,12 +201,20 @@ function cargar_datos_grilla(id_documento)
                         
                         if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                             htmlFilePrincipal += htmlFile + '</div>'; 
+
+                        //versiones anteriores 
+                        
+                        if (value.id_tipo_archivo == 1 && value.version != 1) 
+                            htmlFilePrincipal_va += htmlFile_va + '</div>'; 
  
                     });
 
                     $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
-                    $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
-                    $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+                        $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
+                        $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+                        $('#versiones_anteriores').html(htmlFilePrincipal_va + '</div>');
+                     
+
 
                     //destinatarios
 
@@ -283,6 +305,11 @@ function cargar_datos_grilla(id_documento)
     });
 }
 
+function ver_archivo(file)
+{
+    window.open('/files/'+file);
+    return false;
+}
 
 function cargar_datos_bitacora(id_documento)
 {
@@ -290,7 +317,6 @@ function cargar_datos_bitacora(id_documento)
     //ocultar campo de busqueda por defecto 
 
     $('#tabla_bitacora_grilla_filter').hide();   
-
 
     if ( $.fn.DataTable.isDataTable('#tabla_bitacora_grilla') ) {
             $('#tabla_bitacora_grilla').DataTable().destroy();
@@ -335,6 +361,7 @@ function cargar_datos_bitacora(id_documento)
                         return '';
                     }     
             },
+            {data: 'nombre_usuario'},
             {data: 'accion',
                     render: function(data, type, row) {
                         if (type === 'display') 

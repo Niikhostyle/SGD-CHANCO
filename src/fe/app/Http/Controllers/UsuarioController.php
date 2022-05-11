@@ -87,7 +87,7 @@ class UsuarioController extends Controller
 
         if ($response_json['status'] == '201')
         {
-            $response_object=$response->object();
+            $response_object = $response->object();
             $aUsuarios = [];
             $aUsuarios[] = ['id_usuario' => $response_object->data->id];
             
@@ -97,14 +97,13 @@ class UsuarioController extends Controller
                 'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
                 'nombre_corto_buzon'=>'PRSNAL',
                 'tipo_buzon'=>'1',
-                'usuarios_asignados'=> $aUsuarios
+                'usuarios_asignados'=> $aUsuarios,
+                'titular'=> null,      
+                'cargo_firma' => null
             ]);
         }
 
         return $response_json;
-        
-
-        //return $response->json();
     }
 
 

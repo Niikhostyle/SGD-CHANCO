@@ -261,7 +261,9 @@
                                 <label for="exampleFormControlTextarea1">Anexos:</label>
                                 
                                 <div class="card-body card-archivos" id="cargar_anexo">
-                                    <div id="dropzone-anexo-view" class="dropzone-view"></div>                                                                                        
+                                    <div id="dropzone-anexo-view" class="dropzone-view"></div>
+                                    <div id="dropzone-anexo" class="dropzone-files dropzone-none"></div>                                                          
+                                                                                          
                                 </div>
     
                             </div>
@@ -270,7 +272,26 @@
                                 <label for="exampleFormControlTextarea1">Archivo Principal</label>
                                 
                                 <div class="card-body card-archivos" id="cargar_principal">
-                                    <div id="dropzone-principal-view" class="dropzone-view"></div>                                                                                
+                                    <div id="dropzone-principal-view" class="dropzone-view"></div> 
+                                    <div id="dropzone-principal" class="dropzone-files dropzone-none"></div>       
+                                
+                                    <div id="card_desplegar_versiones" class="bl1 header1" > 
+                                        <label class="">Versiones</label>                       
+                                        <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
+                                            <i class="fas fa-angle-double-right fa-3x"></i>
+                                        </button>
+                                    </div> 
+                                    <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
+                                        <div class="header1">
+                                            <label class="">Versiones</label>
+                                            <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
+                                                <i class="fas fa-angle-double-left fa-3x"></i>
+                                            </button>
+                                        </div>
+                                        <div class="display_va">
+                                            <div id="versiones_anteriores"></div>
+                                        </div>
+                                    </div>                                                                                   
                                 </div>
     
                             </div>
@@ -279,7 +300,9 @@
                                 <label for="exampleFormControlTextarea1">Otros Archivos</label>
                                 
                                 <div class="card-body card-archivos" id="cargar_otros">
-                                    <div id="dropzone-otros-view" class="dropzone-view"></div>                                                                            
+                                    <div id="dropzone-otros-view" class="dropzone-view"></div>
+                                    <div id="dropzone-otros" class="dropzone-files dropzone-none"></div>   
+                                                                                              
                                 </div>
     
                             </div>
@@ -377,6 +400,7 @@
                             <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Buzón Origen</th>
+                            <th>Usuario </th>
                             <th>Acción </th>
                             <th>Mensaje</th>
                             
@@ -398,7 +422,7 @@
 @stop
 
 @section('css')
-<link rel="stylesheet" href="/css/admin_custom.css">
+
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
 <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
 <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
@@ -447,18 +471,6 @@
             font-size: 15px;
         }
 
-        .card-archivos {
-            display: flex;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-        }
-
-        .file-container-all { display: flex; }
-        .file-container { position: relative; }
-        .file-container img { display: block; }
-        .fa-icon1 { position: absolute; bottom:0; left:0; }
-        .fa-icon2 { position: absolute; bottom:0; left:30px; }
-
         .odd:hover, .even:hover{
             background: whitesmoke;
         }
@@ -477,7 +489,7 @@
             margin-right: 20px;
         }
     </style>
-
+    <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
 
 @section('js')
@@ -520,20 +532,27 @@
    
     $(document).ready(function () {
 
-        $(function() {            
-
+        $(function() {         
             fn_grilla_recibidos();
-       
-        });
-        
+         });
        
     });
 
     owl = $('.owl-carousel').owlCarousel(); 
-      
-    $("#buscar_efectos_sobre_terceros").click(function(e){
-        console.log($('#buscar_efectos_sobre_terceros').val());
-        console.log($('#buscar_efectos_sobre_terceros').is(':checked'));
+
+    /* VERSIONES PDF */
+
+    $(".boton_desplegar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').show();
+        $('#card_desplegar_versiones').hide();
+        $("#dropzone-principal").addClass("displayDropzone");
+        
+    });
+    $(".boton_ocultar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+        $("#dropzone-principal").removeClass("displayDropzone");
+
     });
 
     $(".desplegar_opciones_avanzadas").click(function(e){

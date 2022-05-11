@@ -220,3 +220,123 @@ color: #ffffff;
   padding-top: 25px;
 }
 
+.btn-arch {
+  position: absolute;
+  top: 72px;
+  display: inline;    
+}
+
+/* dropzone */
+
+.card {
+  overflow: visible !important;
+}
+
+.dropzone {
+  border: 2px dashed #ced4da;
+}
+
+.card-archivos {
+  display: flex;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  background-color: #e9f1fe;
+}
+
+.dropzone-files {
+  flex:1;
+}
+
+.dropzone-view {
+  --background-color: #e9f1fe;
+  margin-right: 30px;
+  --padding:20px;
+}
+
+.dropzone {
+  background-color: #d4e3fc;
+  border: 1px dashed #005c9e;
+  color: #0844a4;
+  font-weight: 700;
+}
+
+.dropzone-none {
+  border: none;
+  font-weight: 700;
+}
+
+.dz-max-files-reached {
+  pointer-events: none;
+  cursor: default;
+}
+.dz-remove { 
+  pointer-events: all; cursor: default; 
+}
+
+.file-container-all { display: flex; }
+.file-container { 
+    position: relative; 
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px 0 rgb(0 0 0 / 20%);
+    padding: 5px;
+    float: left;
+    text-align: center;
+    background-color: white;
+    margin-right: 10px;
+}
+.file-container img { display: block; }
+.fa-icon1 { position: absolute; bottom:0; left:0; }
+.fa-icon2 { position: absolute; bottom:0; left:30px; }
+
+.odd:hover, .even:hover{
+    background: whitesmoke;
+}
+
+
+.header1 {            
+    margin: 0px 10px;
+    width: 100px;
+    text-align: center;
+    height: 150px;
+    cursor: pointer;
+    transform: rotate(180deg);
+    writing-mode: vertical-rl;
+    float:left;
+}
+
+.bl1, .bl2 {
+    border:1px solid #005c9e;
+    color: #697680;
+    font-weight: 700;
+}
+
+.bl2 {
+    flex:1;
+}
+
+.displayDropzone {
+    display:none;
+}
+
+.display_va {
+    float:left;
+    padding:20px;
+}
+
+.fondo_estado{            
+        
+  border-radius: 50%;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  --color: #999;
+  display: inline-block;
+  font-weight: bold;
+  line-height: 1.6em;
+  --margin-right: 15px;
+  text-align: center;
+  width: 30px; 
+  border: 1px solid #005c9e;
+  height:30px;
+  vertical-align: -webkit-baseline-middle;
+
+}
