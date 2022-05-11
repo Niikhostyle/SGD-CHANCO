@@ -1967,7 +1967,7 @@
             if (result.value==true) 
             {
                 $.ajax({
-                    url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                    url: "/enviar_documento/"+hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {

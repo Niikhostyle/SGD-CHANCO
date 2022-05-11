@@ -689,9 +689,9 @@ class DocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-               
+                
                 $dFecha = date('Y-m-d H:i:s');
-
+                
                 //****** SI SE AGREGA EL CAMPO PROCESADO EN EL JSON POR CADA ACCION SE DEBE ACTUALIZAR A TRUE AL HACER EL CAMBIO DE ESTADO.    
                 //agregar estados 10 y 12
                
@@ -718,7 +718,6 @@ class DocumentoController extends Controller{
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                     
                     $datosJsonAcciones = json_decode($datosDocBuzon['json_acciones'],true);
-                    
 
                     foreach($datosJsonAcciones as $accion)
                     {

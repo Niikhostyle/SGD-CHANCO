@@ -65,7 +65,6 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buzonesCarpetas/{id}',[Buz
 Route::middleware(['auth:sanctum', 'verified'])->post('buzonesCarpetas',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
 Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas',[BuzonController::class,'update_documento'])->name('buzones.update_documento');
 Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetas/{id}',[BuzonController::class,'enviar_documento'])->name('buzones.enviar_documento');
-Route::middleware(['auth:sanctum', 'verified'])->put('buzonesCarpetasDerivar/{id}',[BuzonController::class,'derivar_documento'])->name('buzones.derivar_documento');
 Route::middleware(['auth:sanctum', 'verified'])->get('buzonesListar/',[BuzonController::class,'listar'])->name('buzones.listar');
 Route::middleware(['auth:sanctum', 'verified'])->get('documentos/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
 Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_documento/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
@@ -114,9 +113,9 @@ Route::middleware(['auth:sanctum', 'verified'])->put('accion_editarExterno/{id}'
 Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno',[BuzonUsuarioExternoController::class,'generar_archivo_pdf'])->name('documentosExterno.generar');
 
 //imagenes ckeditor
-Route::middleware(['auth:sanctum', 'verified'])->get('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
+//Route::middleware(['auth:sanctum', 'verified'])->get('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
 
-Route::middleware(['auth:sanctum', 'verified'])->post('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
+//Route::middleware(['auth:sanctum', 'verified'])->post('add_imagen',[DocumentoBuzonArchivoController::class,'add'])->name('add_imagen.add');
 
 //ckfinder
 Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderController@requestAction')->name('ckfinder_connector');

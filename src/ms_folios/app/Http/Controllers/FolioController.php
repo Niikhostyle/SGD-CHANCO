@@ -71,8 +71,11 @@ class FolioController extends Controller{
                 {
                     if( $datos['id_tipo_documento'] == $datosRequest['id_tipo_documento'])
                     {
+                        if( $datos['id_buzon'] == $datosRequest['id_buzon']){
+
+                            $nFolio = $datos['valor'] +1;
+                        }
                         
-                        $nFolio = $datos['valor'] +1;
             
                     }
                 }
@@ -90,6 +93,7 @@ class FolioController extends Controller{
                 'id_buzon' => $datosRequest['id_buzon'],
                 'valor' => $nFolio,
             ]);
+            
         } 
 
         if ($datosRequest['id_tipo_folio'] == 3)

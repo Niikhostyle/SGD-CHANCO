@@ -455,30 +455,6 @@ class BuzonController extends Controller
     public function enviar_documento($id, Request $request)
     {
 
-       
-
-        $sesion_key = AppServiceProvider::session_key_general();
-
-        $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/enviar', [
-            'id_documento'=>$request->hiddIdDocumento,
-            'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
-            'id_buzon'=>$request->buzon,
-            'id_usuario'=>Auth::user()->id,
-            'destinatarioPrincipal'=>$request->destinatarioPrincipal,
-            'destinatarioOtros'=>$request->destinatarioOtros,
-            'json_respuesta_a'=>$request->responder,
-            'carpeta'=>$request->carpeta
-        ]);
-
-
-        return $accionDocumento->json();
-    }
-
-    public function derivar_documento($id, Request $request)
-    {
-
         $dPrincipal = $request->destinatarioPrincipal;
        
         if ($dPrincipal!= "" || $dPrincipal != null)
@@ -491,6 +467,7 @@ class BuzonController extends Controller
             Mail::to($user)->queue(new MailController($user, $documento, $documentoBuzon, $buzon));
         
         }
+
         $sesion_key = AppServiceProvider::session_key_general();
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -510,6 +487,7 @@ class BuzonController extends Controller
         return $accionDocumento->json();
     }
 
+    
     public function ver_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
@@ -529,7 +507,7 @@ class BuzonController extends Controller
     public function actualizar_estado_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
+        
         if ($request->accion != 7)
         {
             $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
