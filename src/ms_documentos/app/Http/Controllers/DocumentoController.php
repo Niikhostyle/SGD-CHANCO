@@ -726,9 +726,7 @@ class DocumentoController extends Controller{
                     
 
                     if ( $idTipoAsigFolio == 2)
-                    {                                           
-                        if ($idAccion == 9) //cambiar id_accion a 9
-                        {                    
+                    {                                                          
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -743,9 +741,7 @@ class DocumentoController extends Controller{
                             ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
  
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
-
-                        }
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);    
 
                     }
             
