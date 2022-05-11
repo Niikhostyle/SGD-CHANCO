@@ -718,7 +718,7 @@ class DocumentoController extends Controller{
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                     
                     $datosJsonAcciones = json_decode($datosDocBuzon['json_acciones'],true);
-
+                    //return $datosJsonAcciones;
                     foreach($datosJsonAcciones as $accion)
                     {
                         $idAccion = $accion['id_accion'];
@@ -727,7 +727,7 @@ class DocumentoController extends Controller{
 
                     if ( $idTipoAsigFolio == 2)
                     {                                           
-                        if ($idAccion == 9) //cambiar id_accion a 9
+                        if ($idAccion == 8) //cambiar id_accion a 9
                         {                    
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
