@@ -17,17 +17,28 @@
     
 @section('content')    
 
-<div class="row" id="card_documento" style="display:none">
+<div class="row" >
             <div class="col-12">
                 <div class="card">
                     <div class="card-header" >
-                        <h4 id="titulo_accion">Ver Documento</h4>
+                        <h4 id="titulo_accion">Seleccionar Descarga</h4>
                         <div class="linea_content_header"></div>
                     </div>
-                    <div class="card-body">
-    
-                       
+                    <select class="form-select" aria-label="Default select example">
+                    <option selected>Open this select menu</option>
+                    <option value="1">Registro de Descargas de documento principal</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                    </select>
 
+                    <div class="col-md-4 mb-3">
+                    <label for="inputState">Acciones Solicitadas:</label><br>
+                    <select id="" class="form-control" multiple="multiple" style="text-align:left !important">                                    
+                        
+                        <option value="1">Registro de Descargas de documento principal</option>
+                                
+                    </select>
+                    </div>
                             
                             
                             
@@ -48,7 +59,7 @@
     
                                     </div>                          
                             </div>
-                        </form>
+                        
                     </div>
     
                 </div>
