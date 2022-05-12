@@ -2472,7 +2472,7 @@
                         aFilesDelete = [];                  
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
-                        { //https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg
+                        { 
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                         //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
