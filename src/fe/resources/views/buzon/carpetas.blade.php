@@ -1539,9 +1539,9 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
-                        type: 'PUT',
-                        dataType: 'json',
+                        url:"/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type:'PUT',
+                        dataType:'json',
                         data: {
                             _token:_token,
                             hiddIdDocumento:hiddIdDocumento,
