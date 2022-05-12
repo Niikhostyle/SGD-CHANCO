@@ -24,21 +24,38 @@
                         <h4 id="titulo_accion">Seleccionar Descarga</h4>
                         <div class="linea_content_header"></div>
                     </div>
-                    <select class="form-select" aria-label="Default select example">
-                    <option selected>Open this select menu</option>
-                    <option value="1">Registro de Descargas de documento principal</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                    </select>
+                    
 
-                    <div class="col-md-4 mb-3">
-                    <label for="inputState">Acciones Solicitadas:</label><br>
-                    <select id="" class="form-control" multiple="multiple" style="text-align:left !important">                                    
-                        
-                        <option value="1">Registro de Descargas de documento principal</option>
-                                
-                    </select>
+                    <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="select_firma_electronica">Firma electrónica avanzada</label>
+                        <select  class="form-control" id="form_aplica_fea" name="aplica_fea">
+                            <option value="">Seleccionar</option>
+                            <option value="1">Registro de Descargas de documento principal</option>
+                            <option value="2">---------------</option>
+                        </select>
                     </div>
+                </div>
+
+                <div class="form-row">
+
+                
+                <div class="col-md-4 md-1">
+                    <div class="form-group">
+                        <label for="">Rango de Fechas </label>                  
+                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                    </div>
+                </div>
+                  
+                
+                
+
+                <div class="col-md-4 md-5 buscar_fila">
+                    <div class="form-group">
+                        <i id="botones_grilla_despachados"></i>
+                    </div>
+                </div>
+            </div>  
                             
                             
                             
