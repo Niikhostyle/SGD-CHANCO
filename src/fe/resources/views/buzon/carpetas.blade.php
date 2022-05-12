@@ -2855,7 +2855,7 @@
                                         if (row.id_tipo_destino == 1) //principal
                                         {
                                             //agrega listado de acciones                                            
-                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
                                                 if (row.json_acciones != null)
                                                 {
