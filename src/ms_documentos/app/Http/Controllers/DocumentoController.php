@@ -718,15 +718,20 @@ class DocumentoController extends Controller{
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                     
                     $datosJsonAcciones = json_decode($datosDocBuzon['json_acciones'],true);
-
+                    //return $datosJsonAcciones;
                     foreach($datosJsonAcciones as $accion)
                     {
-                        $idAccion = $accion['id_accion'];
+                        $idAccion[] = $accion['id_accion'];
                     }
                     
-
+                    
                     if ( $idTipoAsigFolio == 2)
-                    {                                                          
+                    {                                           
+                        if (in_array(9, $idAccion))//cambiar id_accion a 9
+                        {                    
+
+                                                                             
+
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -743,8 +748,9 @@ class DocumentoController extends Controller{
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
                             Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);    
 
+                        }
+                
                     }
-            
                 }
                 
                 if ($request->accion == 7) // firmar

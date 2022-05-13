@@ -9,6 +9,7 @@ use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
 use App\Http\Controllers\DescargaPdfController;
+use App\Http\Controllers\DescargaController;
 
 use App\Jobs\Firma;
 
@@ -132,3 +133,5 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 //Route::put('/firmamasiva', function () {
 //    Firma::dispatch("Mensaje de firma");
 //});
+
+Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');

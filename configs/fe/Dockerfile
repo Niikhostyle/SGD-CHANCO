@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     #&& docker-php-ext-install -j$(nproc) zip mysqli pdo_mysql \
     && docker-php-ext-install -j$(nproc) zip \
     #&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
     #&& docker-php-ext-configure pdo_pgsql --with-pgsql \
     #&& docker-php-ext-install pdo_pgsql
@@ -66,6 +66,16 @@ RUN sed -i 's/expose_php = On/expose_php = Off/' /usr/local/etc/php/php.ini
 RUN echo "ServerSignature Off\n" >> /etc/apache2/apache2.conf
 RUN echo "ServerTokens Prod\n" >> /etc/apache2/apache2.conf
 # Make laravel feel comfortable with mod-rewrite
-RUN a2enmod rewrite && service apache2 restart
+
+#AGREGADO PARA CERTIFICADOS SSL
+RUN sed -i 's/ssl-cert-snakeoil\.pem/sgd\.padrelascasas\.cl\.cert/g' /etc/apache2/sites-available/default-ssl.conf && sed -i 's/ssl-cert-snakeoil.key/sgd\.padrelascasas\.cl\.key/g' /etc/apache2/sites-available/default-ssl.conf
+RUN a2ensite default-ssl
+RUN apt-get update && apt-get upgrade -y
+#FIN AGREGADO PARA CERTIFICADOS SSL
+
+RUN a2enmod rewrite && a2enmod ssl && a2enmod socache_shmcb 
+#&& service apache2 restart
+#RUN service apache2 restart
 
 EXPOSE 80
+EXPOSE 443

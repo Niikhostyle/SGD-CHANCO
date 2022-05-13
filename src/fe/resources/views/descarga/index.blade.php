@@ -17,45 +17,66 @@
     
 @section('content')    
 
-<div class="row" id="card_documento" style="display:none">
+        <div class="row" >
             <div class="col-12">
                 <div class="card">
                     <div class="card-header" >
-                        <h4 id="titulo_accion">Ver Documento</h4>
+                        <h4 id="titulo_accion">Seleccionar Descarga</h4>
                         <div class="linea_content_header"></div>
                     </div>
-                    <div class="card-body">
-    
-                       
+                    
 
-                            
-                            
-                            
-                               
-                          
-                          
-                           
-    
-                          
-                           
-                                                    
-                            <div class="form-row">                                
-                                    <div class="col-md-12 group-button-align">
-                                        <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
-                                        <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
-                                        <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="">
-                                        <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
-    
-                                    </div>                          
-                            </div>
-                        </form>
+                    <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="select_firma_electronica">Firma electrónica avanzada</label>
+                        <select  class="form-control" id="tipo_descarga" name="tipo_descarga">
+                            <option value="0">Seleccionar</option>
+                            <option value="1">Registro de Descargas de documento principal</option>
+                            <option value="2">---------------</option>
+                        </select>
                     </div>
-    
                 </div>
-    
-            </div>
-        </div>       
 
+               
+            </div>  
+
+            <div class="col-12">
+                <div class="card " id="bloque_descarga" >
+                    <div class="form-group">
+                        <label for="">Rango de Fechas </label>  
+                        <div class="form-row">
+
+                        
+                        <div class="col-md-3 md-1">
+                            <div class="form-group">
+                                                
+                                <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                            </div>
+
+                            
+                        </div>
+
+                        <div class="col-md-3 md-1">
+                            <div class="form-group">
+                                                
+                                <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
+                            </div>
+                        </div>  
+                        
+                        
+                        
+
+                        <div class="col-md-2 md-5 ">
+                            <div class="form-group">
+                        
+                            <button class="btn btn-success"> Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                            
+                            
 @stop
 
 @section('css')
@@ -85,6 +106,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
 <script>
+
+
+
+
+$(function() {
+    $('#bloque_descarga').hide(); 
+    $('#tipo_descarga').change(function(){
+        if($('#tipo_descarga').val() == '1') {
+            $('#bloque_descarga').show(); 
+        } else {
+            $('#bloque_descarga').hide(); 
+        } 
+    });
+});
+                           
+
 
 
 
