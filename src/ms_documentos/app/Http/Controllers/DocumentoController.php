@@ -721,13 +721,13 @@ class DocumentoController extends Controller{
                     //return $datosJsonAcciones;
                     foreach($datosJsonAcciones as $accion)
                     {
-                        $idAccion = $accion['id_accion'];
+                        $idAccion[] = $accion['id_accion'];
                     }
                     
-
+                    
                     if ( $idTipoAsigFolio == 2)
                     {                                           
-                        if ($idAccion == 8) //cambiar id_accion a 9
+                        if (in_array(9, $idAccion))//cambiar id_accion a 9
                         {                    
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
