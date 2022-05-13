@@ -76,12 +76,12 @@ class AppServiceProvider extends ServiceProvider
                                     'icon_color' => 'green',
                                     'url'        => '/tipos_documentos',
                                 ],
-                                [
-                                    'text'       => 'Descargas',
-                                    'icon'    => 'fas fa-fw fa-download text-blue',
-                                    'icon_color' => 'blue',
-                                    'url'        => '/descargas',
-                                ],
+                                //[
+                                  //  'text'       => 'Descargas',
+                                    //'icon'    => 'fas fa-fw fa-download text-blue',
+                                    //'icon_color' => 'blue',
+                                    //'url'        => '/descargas',
+                                //],
                             ],
 
                     ]
