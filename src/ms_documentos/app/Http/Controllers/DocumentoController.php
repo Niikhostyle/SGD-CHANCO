@@ -751,6 +751,7 @@ class DocumentoController extends Controller{
                         }
                 
                     }
+                }
                 
                 if ($request->accion == 7) // firmar
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 9]);
