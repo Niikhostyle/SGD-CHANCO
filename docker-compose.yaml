@@ -30,8 +30,11 @@ services:
       - ./src/fe:/var/www/sgd
       - ./data/files:/var/www/sgd/storage/app/public/files
       - ./configs/fe/.env:/var/www/sgd/.env
+      - ./certificados/sgd.padrelascasas.cl.cert:/etc/ssl/certs/sgd.padrelascasas.cl.cert
+      - ./certificados/sgd.padrelascasas.cl.key:/etc/ssl/private/sgd.padrelascasas.cl.key
     ports: 
       - "82:80"
+      - "8443:443"
     restart: always
     depends_on:
       - sgd_bd

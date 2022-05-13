@@ -348,16 +348,7 @@
                                 <div id="dropzone-otros-view" class="dropzone-view"></div>
                                 <div id="dropzone-otros" class="dropzone dropzone-files"></div>                                                          
                             </div>
-                            <!--
-                            <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>
 
-                            <div class="card-body" id="cargar_otros_archivos" style="display:none">
-                                <form action=""
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-otros-archivos">
-                                </form>
-                            </div> -->
                         </div>
 
                         <div class="form-row">
@@ -466,6 +457,7 @@
                             <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Buzón Origen</th>
+                            <th>Usuario </th>
                             <th>Acción </th>
                             <th>Mensaje</th>
                             
@@ -490,18 +482,20 @@
 
 @section('css')
 
-    <link rel="stylesheet" href="/css/admin_custom.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-
+    
     
     
     <style type="text/css">  
 
+
+   
         .nav-header {
             text-align: center;
             --padding-bottom: 20px;
@@ -517,45 +511,7 @@
             border-radius: 4px;
             padding: 15px;
         }
-        .card {
-            overflow: visible !important;
-        }
-
-        .dropzone {
-            border: 2px dashed #ced4da;
-        }
-
-        .card-archivos {
-            display: flex;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-            background-color: #e9f1fe;
-        }
-
-        .dropzone-files {
-            flex:1;
-        }
-
-        .dropzone-view {
-            --background-color: #e9f1fe;
-            margin-right: 30px;
-            --padding:20px;
-        }
-
-        .dropzone {
-            background-color: #d4e3fc;
-            border: 1px dashed #005c9e;
-            color: #0844a4;
-            font-weight: 700;
-        }
-
-        .dz-max-files-reached {
-            pointer-events: none;
-            cursor: default;
-        }
-        .dz-remove { 
-            pointer-events: all; cursor: default; 
-        }
+        
 
         .disabled {
             background-color: #e9ecef !important;
@@ -600,58 +556,6 @@
         }
 
         .label-warning{background-color:#f0ad4e;}
-
-
-        .file-container-all { display: flex; }
-        .file-container { 
-            position: relative; 
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            box-shadow: 0 0 10px 0 rgb(0 0 0 / 20%);
-            padding: 5px;
-            float: left;
-            text-align: center;
-            background-color: white;
-            margin-right: 10px;
-        }
-        .file-container img { display: block; }
-        .fa-icon1 { position: absolute; bottom:0; left:0; }
-        .fa-icon2 { position: absolute; bottom:0; left:30px; }
-
-        .odd:hover, .even:hover{
-            background: whitesmoke;
-        }
-
-        
-        .header1 {            
-            margin: 0px 10px;
-            width: 100px;
-            text-align: center;
-            height: 150px;
-            cursor: pointer;
-            transform: rotate(180deg);
-            writing-mode: vertical-rl;
-            float:left;
-        }
-
-        .bl1, .bl2 {
-            border:1px solid #005c9e;
-            color: #697680;
-            font-weight: 700;
-        }
-
-        .bl2 {
-            flex:1;
-        }
-
-        .displayDropzone {
-            display:none;
-        }
-        
-        .display_va {
-            float:left;
-            padding:20px;
-        }
-
         
         .addFrm {
             float:right;
@@ -663,31 +567,10 @@
             margin-bottom:10px;
             line-height: 40px;
         }
-
-        .fondo_estado{            
-     
-            border-radius: 50%;
-            -moz-border-radius: 50%;
-            -webkit-border-radius: 50%;
-            --color: #999;
-            display: inline-block;
-            font-weight: bold;
-            line-height: 1.6em;
-            --margin-right: 15px;
-            text-align: center;
-            width: 30px; 
-            border: 1px solid #005c9e;
-            height:30px;
-            vertical-align: -webkit-baseline-middle;
-          
-        }
-
-        .btn-arch {
-            position: absolute;
-            top: 72px;
-            display: inline;    
-        }
+        
      </style>
+
+    <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
 
 @section('js')
@@ -1593,7 +1476,7 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "../enviar_documento/"+hiddIdDocumento,
+                        url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -1656,9 +1539,9 @@
                 if (result.value==true) 
                 {
                     $.ajax({
-                        url: "/enviar_documento/"+hiddIdDocumentoBuzon,
-                        type: 'PUT',
-                        dataType: 'json',
+                        url:"/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type:'PUT',
+                        dataType:'json',
                         data: {
                             _token:_token,
                             hiddIdDocumento:hiddIdDocumento,
@@ -2489,7 +2372,6 @@
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
                                 $('#form_respuesta_a').multiselect('enable'); 
 
-                                console.log('habilita');
                             } 
 
                             /* responder a */
@@ -2532,29 +2414,26 @@
                             if (sDivIzq != '')
                                 sDivActualNext = '<div class="item"><div class="item_next"><i class="fas fa-reply-all fa-2x"></i></div></div>';
 
+                            if (sDivIzq != '' || sDivDer != '')
+                            {
+                                owl.trigger('destroy.owl.carousel'); 
+                                owl.find('.owl-stage-outer').children().unwrap();
+                                owl.removeClass("owl-center owl-loaded owl-text-select-on");
 
-                            //if((carpeta == 3 && accion == 0 && nFlujo == 1) )
-                            //{
-                                if (sDivIzq != '' || sDivDer != '')
-                                {
-                                    owl.trigger('destroy.owl.carousel'); 
-                                    owl.find('.owl-stage-outer').children().unwrap();
-                                    owl.removeClass("owl-center owl-loaded owl-text-select-on");
+                                var content = sDivIzq + sDivActualNext + sDivActual + sDivActualPrev + sDivDer;
+                                owl.html(content);
 
-                                    var content = sDivIzq + sDivActualNext + sDivActual + sDivActualPrev + sDivDer;
-                                    owl.html(content);
+                                //reinitialize the carousel (call here your method in which you've set specific carousel properties)
+                                owl.owlCarousel({
+                                    items:8,
+                                    margin: 10,
+                                    dots: true,
+                                    nav: true,
+                                    navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
+                                    
+                                }).trigger('refresh.owl.carousel');
+                            }             
 
-                                    //reinitialize the carousel (call here your method in which you've set specific carousel properties)
-                                    owl.owlCarousel({
-                                        items:8,
-                                        margin: 10,
-                                        dots: true,
-                                        nav: true,
-                                        navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
-                                        
-                                    }).trigger('refresh.owl.carousel');
-                                }             
-                           // }
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
@@ -2593,7 +2472,7 @@
                         aFilesDelete = [];                  
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
-                        { //https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg
+                        { 
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                         //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
@@ -2651,13 +2530,7 @@
                 }
             }
         });
-    }
-
-    function ver_archivo(file)
-    {
-        window.open('/files/'+file);
-        return false;
-    }
+    }    
 
     function deleteFile(codFile){
         //obtener datos y eliminar el seleccionado
@@ -2982,7 +2855,7 @@
                                         if (row.id_tipo_destino == 1) //principal
                                         {
                                             //agrega listado de acciones                                            
-                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            if(row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                             {
                                                 if (row.json_acciones != null)
                                                 {

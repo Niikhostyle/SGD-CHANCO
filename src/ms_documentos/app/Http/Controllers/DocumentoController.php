@@ -729,6 +729,9 @@ class DocumentoController extends Controller{
                     {                                           
                         if (in_array(9, $idAccion))//cambiar id_accion a 9
                         {                    
+
+                                                                             
+
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -743,13 +746,11 @@ class DocumentoController extends Controller{
                             ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
  
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]); 
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);    
 
                         }
-
+                
                     }
-            
-                }
                 
                 if ($request->accion == 7) // firmar
                     DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 9]);
@@ -802,16 +803,6 @@ class DocumentoController extends Controller{
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
                 DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 6]);
-
-               /* 
-                $datosDocumentoBuzon = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
-                                                     ->where('id_estado_documento', '4')
-                                                     ->where('id_carpeta', '2')
-                                                     ->where('id_buzon', $datosRequest['id_buzon'])
-                                                     ->select('id_documento_buzon') 
-                                                     ->first();
-                $datosDocumentoBuzon->update(['id_estado_documento' => 6]);  
-                */
 
                 $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                             'id_documento_buzon' => $datosRequest["id_documento_buzon"],
@@ -1047,6 +1038,7 @@ class DocumentoController extends Controller{
                     ->join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                    ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
                     ->select(
                         'documento_buzon_bitacora.id_accion as accion',
                         'documento_buzon_bitacora.fecha as fecha_documento',
@@ -1060,7 +1052,9 @@ class DocumentoController extends Controller{
                         'documento.materia as materia',
                         'documento_buzon.comentario_principal', 
                         'documento_buzon.comentario_secundario',
-                        DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
+                        DB::raw('users.nombres || \' \' || users.primer_apellido as nombre_usuario'),
+                        //DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
+                        DB::raw('(case when documento_buzon.id_documento_buzon_padre is not null then (select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) else documento_buzon.id_buzon end) as buzon_origen'),
                         )
                           
                      ->where('documento_buzon.id_documento','=',$datosRequest['id_documento']) 
