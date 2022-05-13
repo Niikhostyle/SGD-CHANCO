@@ -184,20 +184,16 @@
 
                     <form class="needs-validation" id="form_crear_editar" method="POST" action="">
                         @csrf
-                        <div class="form-row"> 
-                                <div id="carousel-responder" class="carousel slide w-50 flex-container" data-ride="carousel">
-                                    <div class="carousel-inner row mx-auto" id="carrousel-items" role="listbox"></div>
-                                    <a class="carousel-control-prev" href="#carousel-responder2" role="button" data-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Previous</span>
-                                    </a>
-                                    <a class="carousel-control-next" href="#carousel-responder2" role="button" data-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="sr-only">Next</span>
-                                    </a>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="form-row section-carousel">
+                                    <div class="form-row carousel-wrapper">
+                                        <div class="owl-carousel owl-theme owl-loaded"></div>
+                                    </div>
                                 </div>
-
+                            </div>
                         </div>
+                        <br>
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
@@ -299,17 +295,27 @@
                             <label for="exampleFormControlTextarea1">Archivo Principal</label>
                             
                             <div class="card-body card-archivos" id="cargar_principal">
-                                <div id="dropzone-principal-view" class="dropzone-view"></div>
-                                <div id="dropzone-principal" class="dropzone dropzone-files"></div>                                                          
-                            </div>
-
-                        <!--    <div class="card-body" id="cargar_archivo_principal_el" style="display:none">
-                                <form action=""
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-archivo-ppal">
-                                </form>
-                            </div>-->
+                                <div id="dropzone-principal-view" class="dropzone-view"></div>                                 
+                                <div id="dropzone-principal" class="dropzone dropzone-files"></div>    
+                                
+                                <div id="card_desplegar_versiones" class="bl1 header1" > 
+                                    <label class="">Versiones</label>                       
+                                    <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
+                                        <i class="fas fa-angle-double-right fa-3x"></i>
+                                    </button>
+                                </div> 
+                                <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
+                                    <div class="header1">
+                                        <label class="">Versiones</label>
+                                        <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
+                                            <i class="fas fa-angle-double-left fa-3x"></i>
+                                        </button>
+                                    </div>
+                                    <div class="display_va">
+                                        <div id="versiones_anteriores"></div>
+                                    </div>
+                                </div>    
+                            </div>                        
                         </div>
 
                         <div class="form-group">
@@ -319,16 +325,7 @@
                                 <div id="dropzone-otros-view" class="dropzone-view"></div>
                                 <div id="dropzone-otros" class="dropzone dropzone-files"></div>                                                          
                             </div>
-                            <!--
-                            <textarea class="form-control" id="form_otros_archivos_el" rows="4" disabled="disabled"></textarea>
-
-                            <div class="card-body" id="cargar_otros_archivos" style="display:none">
-                                <form action=""
-                                    method="POST"
-                                    class="dropzone"
-                                    id="dropzone-otros-archivos">
-                                </form>
-                            </div> -->
+                            
                         </div>
 
                         <div class="form-row">
@@ -437,6 +434,7 @@
                             <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Buzón Origen</th>
+                            <th>Usuario </th>
                             <th>Acción </th>
                             <th>Mensaje</th>
                             
@@ -461,40 +459,16 @@
 
 @section('css')
 
-    <link rel="stylesheet" href="/css/admin_custom.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" integrity="sha512-jU/7UFiaW5UBGODEopEqnbIAHOI8fO6T99m7Tsmqs2gkdujByJfkCbbfPSN4Wlqlb9TGnsuC0YgUgWkRBK7B9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ asset('/vendor/tagsinput/app.css') }}">
     <link rel="stylesheet" href="/css/bootstrap-multiselect.css" type="text/css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
 
     <style type="text/css">
    
-        .card {
-            overflow: visible !important;
-        }
-
-        .dropzone {
-            border: 2px dashed #ced4da;
-        }
-
-        .card-archivos {
-            display: flex;
-            border: 1px solid #ced4da;
-            border-radius: 0.25rem;
-        }
-
-        .dropzone-files {
-            flex:1;
-        }
-
-        .dz-max-files-reached {
-            pointer-events: none;
-            cursor: default;
-        }
-        .dz-remove { 
-            pointer-events: all; cursor: default; 
-        }
-
+ 
         .disabled {
             background-color: #e9ecef !important;
         }
@@ -547,18 +521,12 @@
 
         .label-warning{background-color:#f0ad4e;}
 
-
-        .file-container-all { display: flex; }
-        .file-container { position: relative; }
-        .file-container img { display: block; }
-        .fa-icon1 { position: absolute; bottom:0; left:0; }
-        .fa-icon2 { position: absolute; bottom:0; left:30px; }
-
         .odd:hover, .even:hover{
             background: whitesmoke;
         }
 
      </style>
+     <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
 
 @section('js')
@@ -572,6 +540,8 @@
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
 
 
 <script>
@@ -592,6 +562,8 @@
     var allBuzones2 = @json($allBuzones2);
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
+
+    owl = $('.owl-carousel').owlCarousel(); 
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
@@ -667,6 +639,21 @@
 
     $(".bootstrap-tagsinput").addClass("disabled");   
 
+    /* VERSIONES PDF */
+
+    $(".boton_desplegar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').show();
+        $('#card_desplegar_versiones').hide();
+        $("#dropzone-principal").addClass("displayDropzone");
+        
+    });
+    $(".boton_ocultar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+        $("#dropzone-principal").removeClass("displayDropzone");
+
+    });
+
     //dropzone
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -680,7 +667,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         maxFiles: 1,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
@@ -725,7 +712,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
@@ -771,7 +758,7 @@
         uploadMultiple: true,
         maxFilesize: 10, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
@@ -806,62 +793,6 @@
     };
 
     /* **DOCUMENTOS** SCRIPT */
-/*
-    //si se elimina destinatario principal se quita selecció a las acciones asociadas
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-    });
-
-    $('#form_destinatario_principal_el').on('itemAdded', function(event) {
-        var js_tipo_doc = datoTipoJson;
-                        
-        var jsAcciones = js_tipo_doc['buzones_flujo'];    
-        var jsTipoAvance = js_tipo_doc['id_tipo_avance'];  
-        var jsTipoflujo = js_tipo_doc['id_tipo_flujo'];
-        var jsFlujoActual = js_tipo_doc['flujo_actual'];
-        
-        if (jsTipoflujo != 1)
-        {
-            if (jsFlujoActual == 0 || jsFlujoActual == 1)
-                $('#form_acciones_solicitadas_el').multiselect('select', 6);    
-        }
-
-        //obtener datos de json_tipo_documento
-        //if flujo controlado/mixto 
-        //if se agrega destinatario en orden 0
-        //si no es orden 0 ver tipo de avance y validar segun corresponda
-
-    });
-
-    $('#form_destinatario_principal_el').on('itemRemoved', function(event) {
-        console.log(event.item);
-        console.log(aBuzonesReinicio);
-
-        var allBuzonesReset = new Bloodhound({
-                            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
-                            queryTokenizer: Bloodhound.tokenizers.whitespace,
-                            local: aBuzonesReinicio
-        });
-        allBuzonesReset.initialize();
-        
-        $('#form_destinatario_principal_el').tagsinput('destroy'); 
-        
-        $('#form_destinatario_principal_el').tagsinput({
-            maxTags: 1,
-            itemValue: 'value',
-            itemText: 'text',
-            typeaheadjs: {
-                name: 'allBuzonesReset',
-                displayKey: 'text',
-                source: allBuzonesReset.ttAdapter()
-            }
-        });  
-
-
-
-
-    });
-*/
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
 
     $(".nuevo_documento").click(function(e)
@@ -941,6 +872,10 @@
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
+        owl.trigger('destroy.owl.carousel'); 
+        owl.find('.owl-stage-outer').children().unwrap();
+        owl.removeClass("owl-center owl-loaded owl-text-select-on");
+
         $('#row_cuerpo').hide();
         $('#row_anexo').hide();     
         $(".row_archivar").hide();  
@@ -1014,9 +949,11 @@
 
                             //habilita respuesta a: solo a flujo libre
 
-                             $('#form_respuesta_a').multiselect('deselectAll', true);
-                            if (idTipoFlujo != 1)
+                             if (idTipoFlujo != 1)
+                            {
                                 $('#form_respuesta_a').multiselect('disable');
+                                $('#form_respuesta_a').multiselect('deselectAll', true);
+                            }
                             else
                                 $('#form_respuesta_a').multiselect('enable');
 
@@ -2240,6 +2177,8 @@
                             if (carpeta != 3 || (carpeta == 3 && accion == 0))
                                 $('#form_respuesta_a').empty();
                             
+                                var sDivActualPrev = "";
+                            var sDivActualNext = "";
                             var sDivIzq = "";
                             for (let j in jsonRespuesta) 
                             {                           
@@ -2249,7 +2188,7 @@
                                     $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
                             
                                 //completa carrusel lado izq
-                                sDivIzq += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonRespuesta[j]['identificador']+'</div>';
+                                sDivIzq += ' <div class="item"><div class="item_display">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
                             }
 
                             $('#form_respuesta_a').multiselect('rebuild');
@@ -2258,21 +2197,36 @@
                             //completar carrusel lado der
                             var sDivDer = "";
                             for (let d in jsonDocResponder)
-                                sDivDer += '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3">'+jsonDocResponder[d]['identificador']+'</div>'; 
+                                sDivDer += ' <div class="item"><div class="item_display">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                                 
+                            
+                            sDivActual = '<div class="item"><div class="item_display item-doc">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                            
+                            if (sDivDer != '')
+                                sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';
 
-                            sDivActual = '<div class="carousel-item col-12 col-sm-6 col-md-4 col-lg-3 active">ACTUAL</div>';
+                            if (sDivIzq != '')
+                                sDivActualNext = '<div class="item"><div class="item_next"><i class="fas fa-reply-all fa-2x"></i></div></div>';
 
-                            if((carpeta == 3 && accion == 0 && nFlujo == 1) )
+                            if (sDivIzq != '' || sDivDer != '')
                             {
-                                if (sDivIzq != '' || sDivDer != '')
-                                {
-                                    $('#carousel-responder').show();
+                                owl.trigger('destroy.owl.carousel'); 
+                                owl.find('.owl-stage-outer').children().unwrap();
+                                owl.removeClass("owl-center owl-loaded owl-text-select-on");
 
-                                    $('#carrousel-items').append(sDivIzq);
-                                    $('#carrousel-items').append(sDivActual);
-                                    $('#carrousel-items').append(sDivDer);  
-                                }             
-                            }
+                                var content = sDivIzq + sDivActualNext + sDivActual + sDivActualPrev + sDivDer;
+                                owl.html(content);
+
+                                //reinitialize the carousel (call here your method in which you've set specific carousel properties)
+                                owl.owlCarousel({
+                                    items:8,
+                                    margin: 10,
+                                    dots: true,
+                                    nav: true,
+                                    navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
+                                    
+                                }).trigger('refresh.owl.carousel');
+                            } 
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
@@ -2305,43 +2259,31 @@
                         let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                         let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
                         let htmlFilePrincipal = '<div class="col-md-12 group-button-align file-container-all">';
+                        let htmlFilePrincipal_va = '<div class="col-md-12 file-container-all">';
                         
                         aFilesPrincipal = [];
-                        aFilesDelete = [];                  
+                        aFilesDelete = [];                           
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         {
-                            
-                          /*  let mockFile = { name: value.nombre_archivo_original, size: 1024 };
+                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                       ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                        //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
 
-                            //dropzoneAnexo.displayExistingFile(mockFile, "{{ asset('/vendor/ckeditor/ckeditor.js') }}");
-                            
-                            dropzoneAnexo.options.addedfile.call(dropzoneAnexo, mockFile);
-                            dropzoneAnexo.options.thumbnail.call(dropzoneAnexo, mockFile, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg");
-                            //dropzoneAnexo.emit('complete', mockFile);
-                            mockFile.previewElement.classList.add('dz-complete');
+                            htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                    //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
 
-                            var a = document.createElement('a');
-                            a.setAttribute('href',"#");
-                            a.setAttribute('target',"_blank");
-                            a.innerHTML = "<i class='fas fa-download'></i>";
-                            //a.innerHTML = "Descargar";
-                            mockFile.previewTemplate.appendChild(a);
-                           
-                            */ 
-                            
-                          // htmlFile = '<a href="/imagenes/'+value.nombre_archivo_original+'" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" /></a>';
-
-                          htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       ' <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" width="75" height=75" style="height:75px;" />'+
-                                           '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-
-                           /// habilitar cuando esté operativo el eliminar
                             if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                                htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+
                             
                             if (carpeta == 3 && accion == 1)               
-                                htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -2355,14 +2297,21 @@
                             if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
 
-                            //versiones anteriores    
-
+                            //versiones anteriores 
+                            
+                            if (value.id_tipo_archivo == 1 && value.version != 1) 
+                                htmlFilePrincipal_va += htmlFile_va + '</div>'; 
                         });
                        
 
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
                         $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
                         $('#dropzone-otros-view').html(htmlFileOtros + '</div>');
+                        $('#versiones_anteriores').html(htmlFilePrincipal_va + '</div>');
+
+                        if (carpeta == 3)
+                            $('#card_desplegar_versiones').hide();                        
+
 
                     }
                 }
@@ -2554,7 +2503,18 @@
                         return '';
                     }
                     },
-                    { data: 'estado_documento', name: 'estado_documento.nombre_corto' },
+                    { data: 'estado_documento', 
+                            render: function(data, type, row)
+                            {
+                                if (type === 'display') 
+                                {
+                                    let htmlColor = '<div class="fondo_estado" style=" background-color: '+ row.codigo_estado +';">'+data+'</div>';
+
+                                    return htmlColor;
+                                }
+                                return data;                                   
+                            }
+                    },
                     { data: 'identificador', name: 'documento.identificador' },
                     { data: 'fecha_envio_recepcion', 
                             render: function(data)
