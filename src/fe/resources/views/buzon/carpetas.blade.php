@@ -1199,12 +1199,12 @@
                     html: "Se ha guardado exitosamente el borrador del documento: <br>" +
                           "<b>ID: " + data.data.identificador + "</b><br>" +
                           "<b>Materia: " + data.data.materia + "</b>",
-                    });
-
-                    $('#form_tipo_documento').prop("disabled", true);
+                    });                    
                     
                     habilita_campos();
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3,1);
+
+                    $('#form_tipo_documento').prop("disabled", true);
 
                     //habilita botón enviar y guardar
                     $('.btn-guardar-submit').show();   
