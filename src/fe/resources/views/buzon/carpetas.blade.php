@@ -92,7 +92,7 @@
                                                 <select id="gr_buscar_tipo_doc" name="gr_buscar_tipo_doc" class="form-control">
                                                     <option value=''>Todos</option>
                                                     @foreach($listado_tiposdoc as $list)
-                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                                    <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -100,7 +100,9 @@
                                                 <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
                                                     <option value=''> Todos </option>
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
-                                                        <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @if($estado_documento['id_estado_documento'] > 2)    
+                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @endif    
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -145,7 +147,7 @@
                                                 <select id="gd_buscar_tipo_doc" name="gd_buscar_tipo_doc" class="form-control">
                                                     <option value=''>Todos</option>
                                                     @foreach($listado_tiposdoc as $list)
-                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                                    <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -153,7 +155,9 @@
                                                 <select class="form-control"  id="gd_buscar_estado" name="gd_buscar_estado" >
                                                     <option value=''> Todos </option>
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
-                                                        <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @if($estado_documento['id_estado_documento'] < 3)    
+                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @endif 
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -2923,7 +2927,7 @@
                 initComplete : function() {
                     var input = $('#gr_buscar_origen_materia input').unbind(),
                     self = this.api(),
-                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
+                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
                             .text('Limpiar')
                             .click(function() {
                                 $('#gr_buscar_origen_materia').val('');
@@ -2935,9 +2939,9 @@
                     $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
-                                grilla_recibidos.columns(1).search($('#gr_buscar_estado').val()).draw();
-                                grilla_recibidos.columns(2).search($('#gr_buscar_id_doc').val()).draw();
-                                grilla_recibidos.columns(5).search($('#gr_buscar_tipo_doc').val()).draw();
+                                grilla_recibidos.columns(2).search($('#gr_buscar_estado').val()).draw();
+                                grilla_recibidos.columns(3).search($('#gr_buscar_id_doc').val()).draw();
+                                grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val()).draw();
                                 self.search($('#gr_buscar_origen_materia').val()).draw();
                             })
                     $('#botones_grilla_recibidos').html('');
@@ -2961,7 +2965,7 @@
         $('#grilla_despachados tbody').empty();
         grilla_despachados=  $('#grilla_despachados').DataTable({
             processing: true,
-            serverSide: true,
+            serverSide: false,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
             type:'json',
             order: [[ 2, 'desc' ]],  
@@ -2982,7 +2986,7 @@
                     return '';
                   }
                 },
-                { data: 'estado_documento', 
+                { data: 'estado_documento', name: 'estado_documento.nombre_corto',
                             render: function(data, type, row)
                                         {
                                             if (type === 'display') 
@@ -3108,7 +3112,7 @@
             initComplete : function() {
                     var input = $('#gd_buscar_destino_materia input').unbind(),
                     self = this.api(),
-                    $clearButton = $('<button class="btn btn-light buscar_btn_limpiar">')
+                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
                             .text('Limpiar')
                             .click(function() {
                                 $('#gd_buscar_destino_materia').val('');
@@ -3135,10 +3139,6 @@
 
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
-
-        //var div_por_recibir_width = document.getElementById('nav-por-recibir').getBoundingClientRect().width;
-        //$('#nav-despachados').attr("style","width:"+div_por_recibir_width+'px');
-        //$('#nav-recibidos').attr("style","width:"+div_por_recibir_width+'px');
 
         $(function() {
 
