@@ -667,7 +667,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             '         <i class="fas fa-bars"></i>'+
                             '     </button>'+
                             '    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">'+
-                            '         <a class="dropdown-item btn_ver" onclick="" href="#"><i class="fa-solid fa-grip text-blue"></i> Mover</a>'+
+                            //'         <a class="dropdown-item btn_ver" onclick="" href="#"><i class="fa-solid fa-grip text-blue"></i> Mover</a>'+
                             '         <a class="dropdown-item" onClick="eliminarBuzonFlujo('+orden+')" href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>'+
                             '    </div>'+
                             '</div>';

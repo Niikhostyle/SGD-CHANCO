@@ -614,8 +614,9 @@ class DocumentoController extends Controller{
                
                 if ($datosRequest['destinatarioPrincipal'] != "" || $datosRequest['destinatarioPrincipal'] != null)
                 {
-
-                    
+                    //valida acciones
+                    if (!isset($datosRequest['acciones_solicitadas']))
+                        return $this->respondFail('Falla al enviar documento: Acciones solicitadas no válidas.');
 
                     $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
                                     ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])

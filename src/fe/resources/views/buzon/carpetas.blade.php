@@ -1382,6 +1382,7 @@
         var responder = $('#form_respuesta_a').val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
 
         Swal.fire({
@@ -1413,6 +1414,7 @@
                             hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                             buzon:hiddIdBuzon,
                             destinatarioPrincipal:destinatarioPrincipal,
+                            acciones_solicitadas:acciones_solicitadas,
                             destinatarioOtros:otrosDestinatarios,
                             responder:responder,
                             carpeta:3                
@@ -1460,6 +1462,7 @@
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
 
             Swal.fire({
@@ -1484,9 +1487,10 @@
                             hiddIdDocumento:hiddIdDocumento,
                             hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                             buzon:hiddIdBuzon,
-                            destinatarioPrincipal:destinatarioPrincipal,
+                            destinatarioPrincipal:destinatarioPrincipal,                            
                             destinatarioOtros:otrosDestinatarios,
-                            carpeta:2                
+                            acciones_solicitadas:acciones_solicitadas,
+                            carpeta:2                                         
                         },
                         success: function(data)
                         {

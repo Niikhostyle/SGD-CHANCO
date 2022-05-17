@@ -454,20 +454,6 @@ class BuzonController extends Controller
 
     public function enviar_documento($id, Request $request)
     {
-
-        //$dPrincipal = $request->destinatarioPrincipal;
-       
-        //if ($dPrincipal!= "" || $dPrincipal != null)
-        //{
-          //  $user = User::findOrFail($dPrincipal);
-            //$documento = Documento::findOrFail($request->hiddIdDocumento);
-            //$documentoBuzon = DocumentoBuzon::findOrFail($request->hiddIdDocumentoBuzon);
-            //$buzon = Buzon::findOrFail($request->buzon);
-            //return $user->email;
-           // Mail::to($user)->queue(new MailController($user, $documento, $documentoBuzon, $buzon));
-        
-       // }
-
         $sesion_key = AppServiceProvider::session_key_general();
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -478,6 +464,7 @@ class BuzonController extends Controller
             'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
             'destinatarioPrincipal'=>$request->destinatarioPrincipal,
+            'acciones_solicitadas'=>$request->acciones_solicitadas,
             'destinatarioOtros'=>$request->destinatarioOtros,
             'json_respuesta_a'=>$request->responder,
             'carpeta'=>$request->carpeta
