@@ -484,10 +484,7 @@
             padding-top:30px;
             padding-left:50px !important; 
         }
-
-        .btn_busqueda {
-            margin-right: 20px;
-        }
+        
     </style>
     <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
