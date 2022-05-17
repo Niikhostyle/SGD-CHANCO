@@ -10,11 +10,18 @@ RUN apk add --no-cache \
     tzdata \
     oniguruma-dev \
     postgresql-dev \
+    zlib-dev \
+    freetype-dev \
+    libpng-dev \
+    jpeg-dev \
+    libjpeg-turbo-dev \
     && docker-php-ext-install mbstring \
     && docker-php-ext-enable mbstring \
     && rm -rf /tmp/* \
     && docker-php-ext-install pdo pdo_pgsql \
-    && docker-php-ext-enable pdo pdo_pgsql    
+    && docker-php-ext-enable pdo pdo_pgsql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd   
 
 ENV COMPOSER_HOME /composer
 ENV PATH ./vendor/bin:/composer/vendor/bin:$PATH
