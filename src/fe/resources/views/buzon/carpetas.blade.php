@@ -704,7 +704,7 @@
         url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        maxFilesize: 10, //MB
+        maxFilesize: 50, //MB
         maxFiles: 1,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         acceptedFiles: "application/pdf",
@@ -749,7 +749,7 @@
         url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        maxFilesize: 10, //MB
+        maxFilesize: 50, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
@@ -795,7 +795,7 @@
         url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        maxFilesize: 10, //MB
+        maxFilesize: 50, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",

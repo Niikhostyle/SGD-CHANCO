@@ -54,7 +54,7 @@ class DocumentoController extends Controller{
 
                 $nTipoDoc = $datosDocumento['id_tipo_documento']; //id_tipo_asignacion_folio = 1 se genera folio al crear doc
                 $idBuzon = $datosDocumento['id_buzon'];                 
-                
+                //return "paso val";
                 /** CODIGO CON EL CUAL SE LLAMA A OTRO MICROSERVICIO **/
                 
                 $msVerTipoDoc = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
@@ -161,9 +161,8 @@ class DocumentoController extends Controller{
             {
                 
                 DB::rollBack();
-                return $e->getMessage();
+                //return $e->getMessage();
                 return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
-
                 
             }
         }
@@ -196,6 +195,7 @@ class DocumentoController extends Controller{
                 if ($datosDocumento->id_documento != '')
                 {   
                     $dFechaCreacion = date('Y-m-d H:i:s');
+
                     if ($datosRequest['opcionGuardar'] != 1 || $datosRequest['opcionGuardar'] == null || $datosRequest['opcionGuardar'] == '')
                     {
                         //actualizar json - agregar orden 0 si corresponde para flujo controlado
@@ -424,13 +424,44 @@ class DocumentoController extends Controller{
 
                     //elimina archivos asociados
 
-                    if ($datosRequest['fileDelete'] != null)
+                    if (isset($datosRequest['fileDelete']))
+                    {
+
+                        $aFilesDelete = explode (',', $datosRequest['fileDelete']);
+                        
+                        foreach ($aFilesDelete as $idDocBuzArchivo)
+                        {
+                            $datosArchivo = DocumentoBuzonArchivo::findOrFail($idDocBuzArchivo);  
+                            
+                            if ($datosArchivo['id_tipo_archivo'] == 1)
+                            {
+                                $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $datosArchivo['id_documento_buzon'])
+                                                                ->where('id_tipo_archivo', 1)
+                                                                ->get();
+
+                                foreach ($docsPpales as $archFile)
+                                {
+                                    $nSalida = $archFile->version - 1;
+                                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);                
+                                }
+                            }
+
+                            //$sDocDelete = $datosArchivo['nombre_archivo_codificado'];
+                            //$filenameCodificado = storage_path('app/public/files/'.$sDocDelete);
+                            //if (file_exists($filenameCodificado))
+                            //    unlink($filenameCodificado);
+
+                            DocumentoBuzonArchivo::where('id_documento_buzon_archivo', $idDocBuzArchivo)->delete(); 
+                        }
+                    }
+
+                    /*if (isset($datosRequest['fileDelete']))
                     {
                         $aFilesDelete = explode (',', $datosRequest['fileDelete']);
                 
                         DocumentoBuzonArchivo::whereIn('id_documento_buzon_archivo', $aFilesDelete)->delete();
 
-                    }
+                    }*/
 
                     DB::commit();
 
