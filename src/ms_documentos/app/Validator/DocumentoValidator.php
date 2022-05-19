@@ -14,11 +14,25 @@ class DocumentoValidator
         $this->request = $request;
     }
 
+    public function validateInsert()
+    {
+        return Validator::make($this->request->all(), $this->rulesInsert(), $this->messages());
+    }
+
     public function validateFieldUser($campo)
     {
         return Validator::make($campo, $this->rules1(), $this->messages());
     }
 
+    private function rulesInsert()
+    {
+        return [
+            'id_tipo_documento' => 'required|integer',
+            'id_nivel_acceso' => 'required|integer',
+            'efectos_terceros' => 'required|in:true,false',
+            'materia' => 'required'
+        ];
+    }
 
     private function rules1()
     {
