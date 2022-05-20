@@ -19,6 +19,7 @@ class CreateDocumentoFavoritoUsuarioTable extends Migration
             $table->bigInteger('id_usuario');
             $table->bigInteger('id_buzon')->nullable();
             $table->boolean('favorito')->nullable();
+            $table->timestamps();
             $table->foreign('id_buzon', 'fk_favorito_buzon')->references('id_buzon')->on('buzon');
             $table->foreign('id_documento', 'fk_favorito_documento')->references('id_documento')->on('documento');
             $table->foreign('id_usuario', 'fk_favorito_usuario')->references('id')->on('users');     
