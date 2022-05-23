@@ -257,17 +257,7 @@
                                     <form> </form>
                                 </div>
                             </div>
-                            <div class="form-group row_anexo">
-                                <label for="exampleFormControlTextarea1">Anexos:</label>
                                 
-                                <div class="card-body card-archivos" id="cargar_anexo">
-                                    <div id="dropzone-anexo-view" class="dropzone-view"></div>
-                                    <div id="dropzone-anexo" class="dropzone-files dropzone-none"></div>                                                          
-                                                                                          
-                                </div>
-    
-                            </div>
-    
                             <div class="form-group row_arch_ppal">
                                 <label for="exampleFormControlTextarea1">Archivo Principal</label>
                                 
@@ -292,6 +282,17 @@
                                             <div id="versiones_anteriores"></div>
                                         </div>
                                     </div>                                                                                   
+                                </div>
+    
+                            </div>
+
+                            <div class="form-group row_anexo">
+                                <label for="exampleFormControlTextarea1">Anexos:</label>
+                                
+                                <div class="card-body card-archivos" id="cargar_anexo">
+                                    <div id="dropzone-anexo-view" class="dropzone-view"></div>
+                                    <div id="dropzone-anexo" class="dropzone-files dropzone-none"></div>                                                          
+                                                                                          
                                 </div>
     
                             </div>

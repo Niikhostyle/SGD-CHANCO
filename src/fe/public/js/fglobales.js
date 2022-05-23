@@ -164,7 +164,7 @@ function cargar_datos_grilla(id_documento)
                     {
                         $('.row_cuerpo').hide();
                         $('.row_arch_ppal').show();
-                        $('.row_anexo').hide();
+                        $('.row_anexo').show();
                         $('#form_archivo_principal_el').hide();
                         $('#cargar_archivo_principal_el').show();
                     }

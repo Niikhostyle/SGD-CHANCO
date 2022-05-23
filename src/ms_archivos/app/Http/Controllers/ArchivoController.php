@@ -93,6 +93,9 @@ class ArchivoController extends Controller{
                 
                 Documento::find($nDocumento)->update(['paginas_archivo' => $count, 'archivo_existente' => true]);
 
+                //se comenta merge por problemas de peso al generar firma
+                //23-05-2022
+                /*
                 $oMerger = PDFMerger::init();
                 $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
 
@@ -107,7 +110,7 @@ class ArchivoController extends Controller{
    
                 $oMerger->merge();
                 $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
-
+                */
                 $dFechaCreacion = date('Y-m-d H:i:s');        
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
@@ -151,7 +154,10 @@ class ArchivoController extends Controller{
                     ]);  
 
                 }
-
+                else
+                {
+                    return $this->respondError('No se encuentra el archivo generado. ', 400);
+                }
                 
                 $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
                 $datosJsonTipoDocumento['id_tipo_origen'] = 2;

@@ -306,16 +306,7 @@
                                 <form> </form>
                             </div>
                         </div>
-                        <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexos:</label>
-                            
-                            <div class="card-body card-archivos" id="cargar_anexo">
-                                <div id="dropzone-anexo-view" class="dropzone-view"></div>
-                                <div id="dropzone-anexo" class="dropzone dropzone-files"></div>                                                          
-                            </div>
-
-                        </div>
-
+                        
                         <div class="form-group row_arch_ppal">
                             <label for="exampleFormControlTextarea1">Archivo Principal</label>
                             
@@ -341,9 +332,19 @@
                                     </div>
                                 </div>    
                             </div>
-                                
                         
                         </div>
+
+                        <div class="form-group row_anexo">
+                            <label for="exampleFormControlTextarea1">Anexos:</label>
+                            
+                            <div class="card-body card-archivos" id="cargar_anexo">
+                                <div id="dropzone-anexo-view" class="dropzone-view"></div>
+                                <div id="dropzone-anexo" class="dropzone dropzone-files"></div>                                                          
+                            </div>
+
+                        </div>
+
 
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Otros Archivos</label>
@@ -2190,7 +2191,8 @@
                         {
                             $('.row_cuerpo').hide();
                             $('.row_arch_ppal').show();
-                            $('.row_anexo').hide();
+                            $('.row_anexo').show();
+                            //$('.row_anexo').hide();
                             $('#form_archivo_principal_el').hide();
                             $('#cargar_archivo_principal_el').show();
                         }
