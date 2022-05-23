@@ -109,7 +109,7 @@ class FirmaController extends Controller
                 $classFirma = new FirmaBase($firmaDigitalConfig);
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
-                $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
+                $sDescipcion = "Firmado electr?nicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $nRut = explode("-",$aInfoUsuarios['run']);//'18658044';//env('PLCSGD_RUT')
                 $nRutFirma = $nRut[0];
                 $sPath = config('app.path_upload') . '/'; //storage_path('app/public/files/')
