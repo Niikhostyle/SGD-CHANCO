@@ -415,9 +415,9 @@
             </label>
         </div>
             <div class="form-check" >
-            <input class="form-check-input" type="checkbox" value="DOO" name="buscar_accion" id="accion_doo">
+            <input class="form-check-input" type="checkbox" value="DOD" name="buscar_accion" id="accion_dod">
             <label class="form-check-label" for="defaultCheck1">
-                Derivaciones otros destinatarios (DOO)
+                Derivaciones otros destinatarios (DOD)
             </label>
             </div>
             <div class="form-check" >
@@ -562,6 +562,10 @@
     var allBuzones2 = @json($allBuzones2);
     var listadoDocPendientes = @json($listDocPendientesBuzon);
     var idTipoFlujo = "";   
+
+    const txtArchivado = [];
+    txtArchivado[0] = ['Archivar','archivará','Archivado'];
+    txtArchivado[1] = ['Desarchivar','desarchivará','Desarchivado'];
 
     owl = $('.owl-carousel').owlCarousel(); 
 
@@ -1638,7 +1642,7 @@
        
     }
 
-    function archivar_documento()
+    function archivar_documento(accion)
     {
         var _token = $("input[name='_token']").val();
         
@@ -1648,8 +1652,8 @@
         var comentario = $("textarea[id='form_comentario_archivar']").val();
 
         Swal.fire({
-            title: 'Archivar',
-            html: "Se archivará el documento: <br><br>" +
+            title: txtArchivado[accion][0],
+            html: "Se " + txtArchivado[accion][1] + " el documento: <br><br>" +
                   "<b>" + $("input[name='materia']").val() + "</b><br>",            
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
@@ -1668,13 +1672,14 @@
                         _token:_token,
                         hiddIdDocumento:hiddIdDocumento,
                         buzon:hiddIdBuzon,
-                        comentario:comentario                
+                        comentario:comentario,
+                        accion:accion               
                     },
                     success: function(data)
                     {
                         if(data.status == '200')
                         {
-                            toastr.success("Documento Archivado","Aviso!");
+                            toastr.success("Documento " + txtArchivado[accion][2],"Aviso!");
 
                             $('#card_crear_documento').hide();        
                             clear_form();
@@ -1856,7 +1861,7 @@
         
     }
 
-    function archivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){
+    function archivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre,accion){
 
         $('#titulo_accion').html('Ver Documento');         
 
@@ -1867,7 +1872,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
         
-        var buttonArchivar = '<button onClick="archivar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Archivar</button> ';
+        var buttonArchivar = '<button onClick="archivar_documento('+accion+')" type="button" class="btn btn-success btn-recibir-submit w-10">'+txtArchivado[accion][0]+'</button> ';
         $('#addButton').append(buttonArchivar);
 
         $(".row_archivar").show();       
@@ -2561,15 +2566,14 @@
 
                                         if (row.id_tipo_destino == 1) //principal
                                         {
-                                            
-
-                                            
-
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                                                                         
-                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 13)
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            if(row.id_estado_documento != 6 && row.id_estado_documento != 7  && row.id_estado_documento != 8 && row.id_estado_documento != 13)
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
                                            
+                                            if(row.id_estado_documento == 6)
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
+                                            
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
                                         }
                                         else
@@ -2577,7 +2581,10 @@
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                             
                                             if(row.id_estado_documento != 6)
-                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                            
+                                            if(row.id_estado_documento == 6)
+                                                botonera +=' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
                                             
                                             botonera +=' <a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
                                         }

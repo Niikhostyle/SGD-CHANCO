@@ -322,7 +322,7 @@ function cargar_datos_bitacora(id_documento)
             $('#tabla_bitacora_grilla').DataTable().destroy();
     }
 
-    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma'];
+    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
 
     $.getJSON('/buscador/'+id_documento, function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
@@ -341,7 +341,7 @@ function cargar_datos_bitacora(id_documento)
                             if (data == 1 && row.accion == 2)
                                 txtTipo = 'DDP';
                             else if (data == 2 && row.accion == 2)
-                                txtTipo = 'DOO';
+                                txtTipo = 'DOD';
                             else if (row.accion == 5)
                                 txtTipo = 'CAP';
 
@@ -400,7 +400,9 @@ function cargar_datos_bitacora(id_documento)
                                 else if(row.accion == 5)
                                     return row.mensaje_respuesta;  
                                 else if(row.accion == 12)
-                                    return row.comentario;         
+                                    return row.comentario;   
+                                else if(row.accion == 14)
+                                    return row.comentario;                                             
                                 else 
                                     return '';    
                             }
@@ -423,3 +425,5 @@ function cargar_datos_bitacora(id_documento)
 
 }
 
+
+//Archivar

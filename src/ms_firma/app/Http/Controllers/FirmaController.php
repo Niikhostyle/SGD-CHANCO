@@ -95,7 +95,6 @@ class FirmaController extends Controller
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
                     $comentario = "No existe archivo para realizar firma electrónica.";
-                    //return $this->respondFail($comentario);
                     throw new Exception($comentario);
                 }
 
@@ -216,106 +215,117 @@ class FirmaController extends Controller
                 
                 $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
-                                              ->sign();                
-                //return $aRespuestaFirma;
+                                              ->sign();   
+                
                 if (isset($aRespuestaFirma['status'])) 
                 {
-                    $comentario = "Error al generar Firma electónica: " . $aRespuestaFirma['error'];
+                    $comentario = $aRespuestaFirma['error'];
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }
-                
-                if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
+
+                if (isset($aRespuestaFirma['metadata']))
                 {
-                    $responseFile = $aRespuestaFirma['files'][0];            
-                    if($responseFile['status'] == 'OK') 
+                    if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
                     {
-                        $encondedFile = $responseFile['content'];  
-                        
-                        $decodedFile = base64_decode($encondedFile, true);
-                        if (empty($encondedFile) || ! base64_encode($decodedFile) === $encondedFile) {
-                            $comentario = "Error de codificación en archivo firmado.";
-                            throw new Exception($comentario);
-                            //return $this->respondFail("Error de codificación en archivo firmado.");
-                        }                
+                        $responseFile = $aRespuestaFirma['files'][0];            
+                        if($responseFile['status'] == 'OK') 
+                        {
+                            $encondedFile = $responseFile['content'];  
+                            
+                            $decodedFile = base64_decode($encondedFile, true);
+                            if (empty($encondedFile) || !base64_encode($decodedFile) === $encondedFile) {
+                                $comentario = "Error de codificación en archivo firmado.";
+                                throw new Exception($comentario);
+                                //return $this->respondFail("Error de codificación en archivo firmado.");
+                            }                
 
-                        $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargar),'w+');
-                        if (!$pdf)
-                        {
-                            $comentario = "Error al generar firma electónica, no se pudo crear archivo firmado. ";
-                            throw new Exception($comentario);
-                            //return $this->respondFail("Error al generar firma electónica, no se pudo crear archivo firmado. ");
-                        }
-
-                        fwrite ($pdf, $decodedFile);
-                        fclose ($pdf);
-                        
-                        if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargar)))
-                        {
-                            $comentario = "Error al generar Firma electónica, no se encuentra el archivo firmado. ";
-                            throw new Exception($comentario);
-                            //return $this->respondFail("Error al generar Firma electónica, no se encuentra el archivo firmado. ");
-                        }
-                        
-                        //actualizar archivo firmado
-                        if($aDocumentoBuzon['id_tipo_archivo'] == 1)
-                        {
-                            $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                        ->where('id_documento', $datos['id_documento'])
-                                                        ->where('id_tipo_archivo', 1)
-                                                        ->get();
-                
-                            foreach ($docsPpales as $archFile)
-                            {                        
-                                $nSalida = $archFile->version + 1;
-                                DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                            $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargar),'w+');
+                            if (!$pdf)
+                            {
+                                $comentario = "No se pudo crear archivo firmado. ";
+                                throw new Exception($comentario);
+                                //return $this->respondFail("Error al generar firma electónica, no se pudo crear archivo firmado. ");
                             }
 
-                            DocumentoBuzonArchivo::create([
-                                'id_documento_buzon' => $id_documento_buzon,
-                                'id_tipo_archivo' => 1,
-                                'nombre_archivo_original' => $sNombreArchivo, 
-                                'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                                'fecha' => $dFechaCreacion,
-                                'version' => 1
-                            ]); 
+                            fwrite ($pdf, $decodedFile);
+                            fclose ($pdf);
                             
-                            //actualiza estado
-                            DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
+                            if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargar)))
+                            {
+                                $comentario = "No se encuentra el archivo firmado. ";
+                                throw new Exception($comentario);
+                                //return $this->respondFail("Error al generar Firma electónica, no se encuentra el archivo firmado. ");
+                            }
                             
-                            //registrar accion de firma en bitacora
-                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                                'id_documento_buzon' => $id_documento_buzon,
-                                'id_accion' => 7,
-                                'fecha' => $dFechaCreacion,
-                                'id_usuario' => $datos['id_usuario'] 
-                            ]);   
+                            //actualizar archivo firmado
+                            if($aDocumentoBuzon['id_tipo_archivo'] == 1)
+                            {
+                                $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                            ->where('id_documento', $datos['id_documento'])
+                                                            ->where('id_tipo_archivo', 1)
+                                                            ->get();
+                    
+                                foreach ($docsPpales as $archFile)
+                                {                        
+                                    $nSalida = $archFile->version + 1;
+                                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                                }
 
-                            //registrar accion de cambio de archivo ppal en bitacora
-                            $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
-                        }               
+                                DocumentoBuzonArchivo::create([
+                                    'id_documento_buzon' => $id_documento_buzon,
+                                    'id_tipo_archivo' => 1,
+                                    'nombre_archivo_original' => $sNombreArchivo, 
+                                    'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                                    'fecha' => $dFechaCreacion,
+                                    'version' => 1
+                                ]); 
+                                
+                                //actualiza estado
+                                DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
+                                
+                                //registrar accion de firma en bitacora
+                                $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                                    'id_documento_buzon' => $id_documento_buzon,
+                                    'id_accion' => 7,
+                                    'fecha' => $dFechaCreacion,
+                                    'id_usuario' => $datos['id_usuario'] 
+                                ]);   
+
+                                //registrar accion de cambio de archivo ppal en bitacora
+                                $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
+                            }  
                             
+                            DB::commit();                    
+                            return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
+                                
+                        }
+
+                        //elimina imagen de firma
+                        $this->deleteImg($sNombreImg);                          
                     }
-
-                    //elimina imagen de firma
-                    $this->deleteImg($sNombreImg);                   
+                    else
+                    {
+                        $comentario = "No se pudo procesar la respuesta.";
+                        throw new Exception($comentario);
+                    }
                 }
 
-                DB::commit();
-                    
-                return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
+                $comentario = "Tamaño del archivo supera los 4MB.";
+                throw new Exception($comentario);                
+                
 
             } catch (Exception $e) {
 
                 DB::rollBack();
-
-                $msgError = "Error al procesar la firma: " . $e->getMessage();
+                
+                $msgError = "Error al generar la Firma Electónica:" . $e->getMessage();
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);
 
-                Log::error("Error al procesar la firma: " . $e->getMessage()); 
+                Log::error("Error al generar la Firma Electónica: " . $e->getMessage()); 
 
-                return $this->respondFail("Error al procesar la firma: " . $e->getMessage());
+                return $this->respondFail("Error al generar la Firma Electónica: " . $e->getMessage());
             }
         }
         else
