@@ -34,7 +34,7 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                //GENERACI��N IMAGEN PARA FIRMA
+                //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
@@ -49,7 +49,7 @@ class FirmaController extends Controller
 
                 if (!isset($DatosFirma['cargo_firma']))  
                 { 
-                    $comentario = "No existe cargo asociado al buz?n.";
+                    $comentario = "No existe cargo asociado al buzón.";
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }
@@ -64,7 +64,7 @@ class FirmaController extends Controller
                 //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
-                $img->text('Firmado electr?nicamente por:', 330, 60, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
+                $img->text('Firmado electrónicamente por:', 330, 60, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
                 $img->text(Str::upper($sNombre), 330, 110, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(34); }); 
                 $img->text('Fecha: '. $dFechaCreacionImg, 330, 160, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
 
@@ -78,7 +78,7 @@ class FirmaController extends Controller
 
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
-                    $comentario = "Usuario no tiene permiso para realizar firma electr?nica.";
+                    $comentario = "Usuario no tiene permiso para realizar firma electrónica.";
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }                    
@@ -94,7 +94,7 @@ class FirmaController extends Controller
                                       
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
-                    $comentario = "No existe archivo para realizar firma electr?nica.";
+                    $comentario = "No existe archivo para realizar firma electrónica.";
                     throw new Exception($comentario);
                 }
 
@@ -120,7 +120,7 @@ class FirmaController extends Controller
 
                 if ( !file_exists($imagen_firma) )
                 {
-                    $comentario = "Existe un problema con la imagen relacionada a la firma electr?nica.";
+                    $comentario = "Existe un problema con la imagen relacionada a la firma electrónica.";
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }
@@ -133,7 +133,7 @@ class FirmaController extends Controller
                 
                 if (count($datosBitacora) > 3)
                 {
-                    $comentario = "Excede el m?ximo de firmas electr?nicas posibles.";
+                    $comentario = "Excede el máximo de firmas electrónicas posibles.";
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }
@@ -221,7 +221,6 @@ class FirmaController extends Controller
                 {
                     $comentario = $aRespuestaFirma['error'];
                     throw new Exception($comentario);
-                    //return $this->respondFail($comentario);
                 }
 
                 if (isset($aRespuestaFirma['metadata']))
@@ -235,9 +234,8 @@ class FirmaController extends Controller
                             
                             $decodedFile = base64_decode($encondedFile, true);
                             if (empty($encondedFile) || !base64_encode($decodedFile) === $encondedFile) {
-                                $comentario = "Error de codificaci?n en archivo firmado.";
+                                $comentario = "Error de codificación en archivo firmado.";
                                 throw new Exception($comentario);
-                                //return $this->respondFail("Error de codificación en archivo firmado.");
                             }                
 
                             $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargar),'w+');
@@ -245,7 +243,6 @@ class FirmaController extends Controller
                             {
                                 $comentario = "No se pudo crear archivo firmado. ";
                                 throw new Exception($comentario);
-                                //return $this->respondFail("Error al generar firma electónica, no se pudo crear archivo firmado. ");
                             }
 
                             fwrite ($pdf, $decodedFile);
@@ -255,7 +252,6 @@ class FirmaController extends Controller
                             {
                                 $comentario = "No se encuentra el archivo firmado. ";
                                 throw new Exception($comentario);
-                                //return $this->respondFail("Error al generar Firma electónica, no se encuentra el archivo firmado. ");
                             }
                             
                             //actualizar archivo firmado
@@ -293,7 +289,7 @@ class FirmaController extends Controller
                                 ]);   
 
                                 //registrar accion de cambio de archivo ppal en bitacora
-                                $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electr?nica.",5);                            
+                                $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
                             }  
                             
                             DB::commit();                    
@@ -311,7 +307,7 @@ class FirmaController extends Controller
                     }
                 }
 
-                $comentario = "Tama?o del archivo supera los 4MB.";
+                $comentario = "Tamaño del archivo supera los 4MB.";
                 throw new Exception($comentario);                
                 
 
@@ -319,17 +315,17 @@ class FirmaController extends Controller
 
                 DB::rollBack();
                 
-                $msgError = "Error al generar la Firma Elect?nica:" . $e->getMessage();
+                $msgError = "Error al generar la Firma Electónica:" . $e->getMessage();
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);
 
-                Log::error("Error al generar la Firma Elect?nica: " . $e->getMessage()); 
+                Log::error("Error al generar la Firma Electónica: " . $e->getMessage()); 
 
-                return $this->respondFail("Error al generar la Firma Elect?nica: " . $e->getMessage());
+                return $this->respondFail("Error al generar la Firma Electónica: " . $e->getMessage());
             }
         }
         else
-            return $this->respondError('Json inv?lido', 406);    
+            return $this->respondError('Json inválido', 406);    
                 
 
     }
