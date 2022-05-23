@@ -835,11 +835,22 @@ class DocumentoController extends Controller{
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
-                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 6]);
+                //por defecto archivado 
+                $nEstadoAccion = 6;
+                $nAccion = 12;
+                
+                //accion desarchivado
+                if ($datosRequest['accion'] == 1)
+                {
+                    $nEstadoAccion = 4;
+                    $nAccion = 14;
+                }                       
+
+                DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => $nEstadoAccion]);
 
                 $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                                             'id_documento_buzon' => $datosRequest["id_documento_buzon"],
-                                            'id_accion' => 12,
+                                            'id_accion' => $nAccion,
                                             'fecha' => $dFechaCreacion,
                                             'id_usuario' => $datosRequest['id_usuario'],
                                             'comentario' => $datosRequest['comentario']

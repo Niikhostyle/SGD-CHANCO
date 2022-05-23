@@ -554,7 +554,8 @@ class BuzonController extends Controller
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
-            'comentario'=>$request->comentario
+            'comentario'=>$request->comentario,
+            'accion'=>$request->accion
         ]);
 
         return $datosDocumento->json();
