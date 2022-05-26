@@ -446,10 +446,10 @@ class DocumentoController extends Controller{
                                 }
                             }
 
-                            //$sDocDelete = $datosArchivo['nombre_archivo_codificado'];
-                            //$filenameCodificado = storage_path('app/public/files/'.$sDocDelete);
-                            //if (file_exists($filenameCodificado))
-                            //    unlink($filenameCodificado);
+                            $sDocDelete = $datosArchivo['nombre_archivo_codificado'];
+                            $filenameCodificado = storage_path('app/public/files/'.$sDocDelete);
+                            if (file_exists($filenameCodificado))
+                                unlink($filenameCodificado);
 
                             DocumentoBuzonArchivo::where('id_documento_buzon_archivo', $idDocBuzArchivo)->delete(); 
                         }
@@ -745,25 +745,23 @@ class DocumentoController extends Controller{
                     if ($datosDocBuzon->id_tipo_destino == 1)
                         DocumentoBuzon::find($idDocBuzonPadre)->update(['recibido' => true]);
 
+                    // ASIGNACION FOLIO EN LA RECEPCIÓN    
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'],true);
                     $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                     $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+                    $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
                     
                     $datosJsonAcciones = json_decode($datosDocBuzon['json_acciones'],true);
                     //return $datosJsonAcciones;
                     foreach($datosJsonAcciones as $accion)
                     {
                         $idAccion[] = $accion['id_accion'];
-                    }
+                    }                    
                     
-                    
-                    if ( $idTipoAsigFolio == 2)
+                    if ($idTipoAsigFolio == 2 && $idTipoFlujo != 1) //se aplica a flujo controlado, mixto y tipo asig en recepción
                     {                                           
                         if (in_array(9, $idAccion))//cambiar id_accion a 9
                         {                    
-
-                                                                             
-
                             $anio = date('Y');
                             $fecha = date('Y-m-d H:i:s');
 
@@ -782,7 +780,7 @@ class DocumentoController extends Controller{
 
                         }
                 
-                    }
+                    } 
                 }
                 
                 if ($request->accion == 7) // firmar

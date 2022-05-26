@@ -36,7 +36,7 @@ class ArchivoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();     
-                
+
                 $nDocumento = $datosRequest['id_documento'];
                 $idDocumentoBuzon = $datosRequest['id_documento_buzon'];
 
@@ -64,6 +64,40 @@ class ArchivoController extends Controller{
                 
                 $datosDocumentos = Documento::findOrFail($nDocumento); 
                 
+                //OBTENCION DE FOLIO
+                $idTipoDocumento = $datosDocumentos->id_tipo_documento;
+                $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
+                $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
+                $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+                $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+
+                if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
+                {                                           
+                    $anio = date('Y');
+                    $fecha = date('Y-m-d H:i:s');
+
+                    $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                    ->timeout(30)
+                    ->withBody(json_encode([
+                        'id_tipo_documento' => $idTipoDocumento,
+                        'anio' => $anio ,
+                        'id_buzon' => $datosRequest['id_buzon'],
+                        'id_tipo_folio' => $idTipoFolio
+                    ]), 'json')
+                    ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+
+                    if (isset($nFolio))
+                    {
+                        Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
+                        Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);                              
+                    }
+                    else
+                    {
+                        return $this->respondError('No fue posible generar el folio.', 400);
+                    }  
+            
+                }
+
                 //reemplazar valores en encabezado
                 //Nº {t_folio} {t_anio} {t_fecha}
 
@@ -71,7 +105,7 @@ class ArchivoController extends Controller{
                 $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
 
                 $sEncabezado = $datosDocumentos['encabezado'];
-                $sEncabezado = str_replace('{t_folio}', $datosDocumentos['folio'], $sEncabezado);
+                $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
 

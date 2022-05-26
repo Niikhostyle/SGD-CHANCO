@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 use App\Libraries\FirmaBase;
 use App\Models\Buzon;
@@ -21,6 +22,7 @@ use App\Libraries\PDF;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+
 
 class FirmaController extends Controller
 {
@@ -60,7 +62,7 @@ class FirmaController extends Controller
                     throw new Exception($comentario);
                    //return $this->respondFail($comentario);
                 }   
-
+                
                 //$img = Image::make(storage_path('../public/img/firma_base.png')); //debe ser la ing asociada al usuario rut+id.png
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
@@ -91,11 +93,38 @@ class FirmaController extends Controller
                                                         ->where('nombre_archivo_codificado','!=', null)
                                                         ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-                                      
+
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
                     $comentario = "No existe archivo para realizar firma electrónica.";
-                    throw new Exception($comentario);
+                    //throw new Exception($comentario);
+
+                    //generar pdf
+                    
+                    $datosArchivo = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
+                    ->timeout(30)        
+                    ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
+                        'id_documento'=>$datos['id_documento'],
+                        'id_documento_buzon'=>$datos['id_documento_buzon'],
+                        'id_usuario'=>$datos['id_usuario'],
+                        'id_buzon'=>$datos['id_buzon']
+                    ]);
+
+
+                    if (isset($datosArchivo['status']) && $datosArchivo['status'] == '400')
+                    {
+                        throw new Exception($datosArchivo['data']['comentario']);
+                    }
+
+                    $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                        ->where('documento_buzon.id_documento', '=', $datos['id_documento'])
+                                                        ->where('id_tipo_archivo','=', '1')
+                                                        ->where('version','=', '1')
+                                                        ->where('nombre_archivo_codificado','!=', null)
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
+                                                        ->first();
+                    
                 }
 
                 $firmaDigitalConfig = array(
