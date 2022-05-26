@@ -737,6 +737,7 @@
 
             this.on("queuecomplete", function (file) {
                 console.log('completado');
+
             });     
         },        
         sending: function(file, xhr, formData){
@@ -747,6 +748,7 @@
         }        
     };
 
+    
     Dropzone.options.dropzoneAnexo = {
         headers:{
             'X-CSRF-TOKEN' : "{{csrf_token()}}"
@@ -764,7 +766,7 @@
         createImageThumbnails: true,
         timeout: 50000,
         init: function() {
-            dropzoneAnexo = this; // closure              
+            dropzoneAnexo = this; // closure            
 
             if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
             {
@@ -779,10 +781,31 @@
                 dropzoneAnexo.removeAllFiles(true);
                 //console.log(Dropzone.forElement("#dropzoneAnexo"));
                         }
-                ); 
+            );
+            /*
+            this.on("success", function (file, response) {
+                console.log("success");                
+            });
 
+            this.on("error", function (file, errorMessage) {
+                console.log("error");
+               // submitButton.removeAttribute("disabled");
+            });
+*/
             this.on("queuecomplete", function (file) {
-                console.log('completado');
+                //console.log('completado');
+/*
+                if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                    console.log("END ", this.getQueuedFiles().length);
+                    //$("input[name='hiddTxt']").val('OK');
+                    //console.log($("input[name='hiddTxt']").val());
+                }
+                else {
+                    dropzoneAnexo.forElement("#dropzoneAnexo").processQueue();
+                }
+*/
+                
+
             });     
         },        
         sending: function(file, xhr, formData){
@@ -790,7 +813,27 @@
             var idoc = $("input[name='hiddIdDocumento']").val();
             formData.append('id_documento_buzon', idb);
             formData.append('id_documento', idoc);
-        }        
+
+        },
+/*        success(file) {
+            if (file.previewElement) {
+                console.log("EVENT SUCCESS");
+                
+            }
+        },  
+        complete(file) {
+            console.log('EVENT COMPLETE');
+            if (file._removeLink) {
+                file._removeLink.innerHTML = this.options.dictRemoveFile;
+            }
+            if (file.previewElement) {
+                return file.previewElement.classList.add("dz-complete");
+            }
+        },   
+        queuecomplete() {
+            console.log('EVENT QUEUE');
+            
+        }, */  
     };
 
     Dropzone.options.dropzoneOtros = {
@@ -1106,6 +1149,22 @@
 
     });
 
+
+    function testAsync(){
+        return new Promise((resolve,reject)=>{
+            //here our function should be implemented 
+            dropzoneAnexo.processQueue(); 
+        });
+    }
+
+    async function callerFun(){
+        console.log("Caller");
+        await testAsync();
+        console.log("After waiting");
+    }
+
+
+    //async function guarda_documento(accion, callback)
     function guarda_documento(accion, callback)
     {
        
@@ -1172,7 +1231,8 @@
                 carpeta:3
             },
             success: function(data)
-            {
+            {               
+
                 if(data.status == '200')
                 {                
                     if (accion == 1) //guarda
@@ -1979,10 +2039,11 @@
     function accion_pdf(id_documento,id_documento_buzon){
 
         var _token = $("input[name='_token']").val();
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
 
         Swal.fire({
             title: 'Generar Pdf',
-            html: "Se generará archivo pdf",                        
+            html: "El botón presionado asignará folio, fecha y generará un PDF que no podrá ser editado posteriormente.",                        
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
@@ -1998,7 +2059,8 @@
                         data: {
                             _token:_token,
                             idDocumento:id_documento,
-                            idDocumentoBuzon:id_documento_buzon             
+                            idDocumentoBuzon:id_documento_buzon,
+                            idBuzon:hiddIdBuzon             
                         },
                         success: function(data)
                         {
@@ -2387,6 +2449,9 @@
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
                                 $('#form_respuesta_a').multiselect('enable'); 
 
+                                //quita accion 9 del listado
+                                $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                $('#form_acciones_solicitadas_el').multiselect('rebuild');
                             } 
 
                             /* responder a */

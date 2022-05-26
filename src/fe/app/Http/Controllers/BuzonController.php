@@ -572,6 +572,7 @@ class BuzonController extends Controller
             'id_documento'=>$request->idDocumento,
             'id_documento_buzon'=>$request->idDocumentoBuzon,
             'id_usuario'=>Auth::user()->id,
+            'id_buzon'=>$request->idBuzon
         ]);
 
         return $datosArchivo->json();  
