@@ -1239,13 +1239,18 @@
                     {
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
-                        dropzoneAnexo.processQueue();  
-
-                        toastr.success("Documento actualizado","Aviso!");
+                        dropzoneAnexo.processQueue();                     
                         
-                        $('#card_crear_documento').hide();
-                        $("#collapseOne").collapse('show');     
-                        fn_grilla_despachados();
+                        setTimeout(function() {
+                            toastr.success("Documento actualizado","Aviso!");
+                            
+                            $('#card_crear_documento').hide();
+                            $("#collapseOne").collapse('show');     
+                            fn_grilla_despachados();
+
+                        }, 5000);
+
+                        
                     }
 
                     if (accion == 2)
@@ -1255,8 +1260,12 @@
                         dropzoneOtros.processQueue();   
                         dropzoneAnexo.processQueue();  
                         
-                        callback(data);
-                        respuesta_guarda = data;
+                        setTimeout(function() {
+                            callback(data);
+                            respuesta_guarda = data;                            
+                        }, 5000);
+
+
                     }                   
                         
                 }
@@ -1418,11 +1427,15 @@
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
                     
-                    toastr.success("Documento actualizado","Aviso!");
+                    setTimeout(function() {
+                        toastr.success("Documento actualizado","Aviso!");
 
-                    fn_grilla_recibidos();
-                    $('#card_crear_documento').hide();
-                    $("#collapseOne").collapse('show');
+                        fn_grilla_recibidos();
+                        $('#card_crear_documento').hide();
+                        $("#collapseOne").collapse('show');
+
+                    }, 5000);
+
 
                 }
                 else
@@ -2737,8 +2750,6 @@
         
      
     }
-
-
 
     async function fn_grilla_por_recibir(){
             $('#documento').hide();
