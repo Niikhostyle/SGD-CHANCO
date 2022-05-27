@@ -70,6 +70,7 @@ class ArchivoController extends Controller{
                 $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
                 $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                 $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+                $nFolio = $datosDocumentos['folio'];
 
                 if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
                 {                                           
