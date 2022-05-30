@@ -168,7 +168,7 @@ class FirmaController extends Controller
                 }
 
                 if (count($datosBitacora) == 0) //firma 1
-                {//270 - 90 : 90% | 255 - 85 : 85%
+                {
                     $n_llx = 300;
                     $n_lly = 180;
                     $n_urx = 555;
