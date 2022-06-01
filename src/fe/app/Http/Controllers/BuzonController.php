@@ -577,6 +577,23 @@ class BuzonController extends Controller
 
         return $datosArchivo->json();  
     }
+    
+    public function generar_vista_previa(Request $request)
+    {
+        $sesion_key = AppServiceProvider::session_key_general();
+
+        $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+        ->timeout(30)
+        ->withBody(json_encode([
+            'id_documento'=>$request->idDocumento,
+            'id_documento_buzon'=>$request->idDocumentoBuzon,
+            'id_usuario'=>Auth::user()->id,
+            'id_buzon'=>$request->idBuzon
+        ]), 'json')
+        ->get('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_vista_previa');
+
+        return $datosArchivo;  
+    }
 
     public function derivarOpcion1($id, Request $request)
     {

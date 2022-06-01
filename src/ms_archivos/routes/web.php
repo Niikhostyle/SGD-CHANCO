@@ -15,6 +15,7 @@
 
 $router->group(['middleware' => ['auth']], function () use ($router){
     $router->put('/api/sgd-archivos/generar_archivo_pdf', 'ArchivoController@generar_archivo_pdf');
+    $router->get('/api/sgd-archivos/generar_vista_previa', 'ArchivoController@generar_vista_previa');
 });
 
 /*

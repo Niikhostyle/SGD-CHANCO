@@ -5,9 +5,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 <body>
+<div style="">
     {!! $encabezado !!}
     {!! $cuerpo !!}
-    <div class="page-break"></div>
-
+</div>
+<div style="height:300px;page-break-inside: avoid !important;">
+<p>&nbsp;</p>
+</div>
 </body>
 </html>
