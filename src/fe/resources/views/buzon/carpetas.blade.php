@@ -287,7 +287,7 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 mb-3">
                                 <label for="floatingTextarea">Descripción o Extracto</label>
                                 <textarea class="form-control" id="form_descripcion" name="descripcion"></textarea>
                             </div>
@@ -295,11 +295,17 @@
 
                         <!--los campos cuerpo y anexo son los unicos que varian segun el documento por eso estan desactivado-->
                         <div class="form-row row_cuerpo" style="display:none">
-                            <div class="col-md-12">
-                                <label for="exampleFormControlTextarea1">Cuerpo:</label>
+                            <div class="col-md-12 mb-3">
+                                <label class="view-txt-row" for="exampleFormControlTextarea1">Cuerpo:</label>
+                                <label class="view-pdf">
+                                    <button onClick="vista_previa()" type="button" class="btn btn-default btn-vp">
+                                        <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa
+                                    </button>                                 
+                                </label>                                
                                 <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
                                 <input type="hidden" id="form_encabezado" name="encabezado">
                             </div>
+                        
                         </div>
                         <div style="display:none">
                             <div class="col-md-12">
@@ -376,7 +382,7 @@
                                 </div>
                         </div>
                         <div class="form-row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 mb-3">
                                 <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
                                 <textarea class="form-control"  id="form_comentario_el" disabled="false"></textarea>
                             </div>
@@ -388,13 +394,13 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="col-md-12">
+                            <div class="col-md-12 mb-3">
                                 <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
                                 <textarea class="form-control" id="form_comentario_otro_el" disabled="false"></textarea>
                             </div>
                         </div>
                         <div class="form-row row_archivar">
-                            <div class="col-md-12">
+                            <div class="col-md-12 mb-3">
                                 <label for="floatingTextarea">Ingrese fundamentación para archivar/desarchivar</label>
                                 <textarea class="form-control" id="form_comentario_archivar"></textarea>
                             </div>
@@ -571,6 +577,14 @@
             margin-left:10px;
             margin-bottom:10px;
             line-height: 40px;
+        }
+
+        .view-pdf {
+            float: right;
+        }
+
+        .cke {
+            margin-top: 15px !important;
         }
         
      </style>
@@ -901,7 +915,7 @@
         filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
         filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
     }); 
- 
+
     CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)
@@ -1285,7 +1299,8 @@
                     $('#form_tipo_documento').prop("disabled", true);
 
                     //habilita botón enviar y guardar
-                    $('.btn-guardar-submit').show();   
+                    $('.btn-guardar-submit').show(); 
+                    $('.btn-vp').prop("disabled", false);  
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
@@ -2099,6 +2114,53 @@
         })      
     }
 
+   
+    function vista_previa(){
+
+        var _token = $("input[name='_token']").val();
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        Swal.fire({
+            title: 'Vista previa',
+            html: "Se generará una vista previa del documento, recuerde guardar antes de generar.",                        
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/vista_previa",
+                        type: 'GET',
+                        dataType: 'binary',
+                        data: {
+                            _token:_token,
+                            idDocumento:hiddIdDocumento,
+                            idDocumentoBuzon:hiddIdDocumentoBuzon,
+                            idBuzon:hiddIdBuzon             
+                        },
+                        xhrFields: {
+                            responseType: 'blob'
+                        },
+                        success: function(response){
+                            var blob = new Blob([response]);
+                            var link = document.createElement('a');
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = "vista_previa.pdf";
+                            link.click();
+                        },
+                        error: function (data, jqXHR, textStatus, errorThrown) {
+                            toastr.error("No es posible generar la vista previa.","Aviso!");
+                        }
+                    });
+            }
+        })      
+    }
+
     function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
         $('#titulo_accion').html('Ver Documento');         
 
@@ -2108,6 +2170,7 @@
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
+        $('.btn-vp').prop("disabled", false);
 
         var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
         $('#addButton').append(buttonFirmar);
@@ -2667,6 +2730,7 @@
         $('.btn-guardar-submit').show();
         $('.btn-enviar-submit').show();
         $('#addButton').html('');
+        $('.btn-vp').prop("disabled", false);
 
     }
 
@@ -2682,6 +2746,7 @@
        
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
+        $('.btn-vp').prop("disabled", false);
 
         var buttonGuardar = '<button onClick="accion_editar_guardar()" type="button" class="btn btn-success btn-recibir-submit w-10">Guardar</button> ';
         $('#addButton').html('');
