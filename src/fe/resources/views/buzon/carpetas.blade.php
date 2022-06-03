@@ -111,6 +111,7 @@
                                             </td>
                                         </tr>
                                 </tbody></table>
+                                
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
@@ -128,6 +129,7 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                
 
 
                             </div>
@@ -403,6 +405,13 @@
                             <div class="col-md-12 mb-3">
                                 <label for="floatingTextarea">Ingrese fundamentación para archivar/desarchivar</label>
                                 <textarea class="form-control" id="form_comentario_archivar"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row row_txt_firmar" style="display:none">
+                            <div class="col-md-12 mb-3">
+                                <label for="floatingTextarea">Visaciones y Firmantes</label>
+                                <div id="datos_bitacora_simple"></div>
                             </div>
                         </div>
                         
@@ -1048,6 +1057,9 @@
         $("#idFolio").text('No Asignado');
         $("#idFecha").text('No Asignado');
 
+        //listado de visaciones y firmas
+        $('.row_txt_firmar').hide();
+        $('#datos_bitacora_simple').html('');
 
         //vaciar archivos pre cargados
 
@@ -2172,6 +2184,9 @@
         $('#addButton').html(''); 
         $('.btn-vp').prop("disabled", false);
 
+        //listado de visaciones y firmas
+        $('.row_txt_firmar').show();
+
         var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
         $('#addButton').append(buttonFirmar);
         
@@ -2339,6 +2354,21 @@
                         $('#cargar_otros_archivos').show();   
 
                         var relDocumentoBuzon = data.data.rel_documento_buzon;
+                        
+                        //acciones bitacora
+                        var relDatosBitacora = data.data.rel_bitacora;
+                        var htmlDatosbitacora = "";
+
+                        $.each(relDatosBitacora, function(i, item)
+                        {                    
+                            if (item.id_accion == 6)
+                                htmlDatosbitacora += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                            
+                            if (item.id_accion == 7)
+                                htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                        });
+
+                        $('#datos_bitacora_simple').html(htmlDatosbitacora);
 
                         if (carpeta == 3 || carpeta == 2)
                         {
