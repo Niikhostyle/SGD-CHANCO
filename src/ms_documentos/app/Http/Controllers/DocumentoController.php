@@ -910,6 +910,28 @@ class DocumentoController extends Controller{
                                                     ->get();
                             
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
+
+                //visaciones y firmas de un doc
+
+                $datosVisarFirmar = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
+                                                            ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+                                                            ->join('accion', 'accion.id_accion', '=', 'documento_buzon_bitacora.id_accion' )
+                                                            ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
+                                                            ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
+                                                            ->where('documento.id_documento', $datosRequest['id_documento'])
+                                                            ->whereIn('documento_buzon_bitacora.id_accion', array('6','7'))
+                                                            ->select(
+                                                                'documento_buzon_bitacora.id_accion', 
+                                                                'accion.nombre', 
+                                                                'documento_buzon_bitacora.id_usuario', 
+                                                                'users.nombres', 
+                                                                'users.primer_apellido', 
+                                                                'documento_buzon_bitacora.fecha',
+                                                                'buzon.nombre' 
+                                                            )
+                                                            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora')
+                                                            ->get();
+                $datosDocumento['rel_bitacora'] =  $datosVisarFirmar;
                               
                 return $this->respondSuccess($datosDocumento, 200);
             }  

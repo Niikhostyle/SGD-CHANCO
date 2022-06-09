@@ -214,6 +214,67 @@ class ArchivoController extends Controller{
             }      
     }
 
+    public function generar_vista_previa(Request $request)
+    { 
+        try 
+            {
+                $datosRequest = $request->json()->all(); 
+
+                $nDocumento = $datosRequest['id_documento'];
+                $idDocumentoBuzon = $datosRequest['id_documento_buzon'];
+
+                $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
+        
+                $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
+                    
+                $datosDocumentos = Documento::findOrFail($nDocumento); 
+
+                //OBTENCION DE FOLIO
+                $idTipoDocumento = $datosDocumentos->id_tipo_documento;
+                $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
+                $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
+                $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+                $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+                $nFolio = $datosDocumentos['folio'];
+
+                if (isset($nFolio) == null || isset($nFolio) == '')
+                    $nFolio = '000';
+
+                //reemplazar valores en encabezado
+                //Nº {t_folio} {t_anio} {t_fecha}
+
+                $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");                
+                $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
+
+                $sEncabezado = $datosDocumentos['encabezado'];
+                $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
+                $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
+                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
+
+                //reemplazar path imagenes antes de generar pdf
+                //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
+                
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+                
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
+
+                $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
+                
+                return $pdf->download('vista_previa.pdf');
+            
+            }
+            catch (ModelNotFoundException $e) {
+
+                return response()->json([
+                    'status' => 500, 
+                    'data' => [
+                        'comentario' => 'Error al generar vista previa.'
+                ]], 500);
+            }      
+    }
+
+
     public function getNombreDocumento($idDoc)
     {
         $datosDocumento = Documento::findOrFail($idDoc);
@@ -228,6 +289,5 @@ class ArchivoController extends Controller{
 
         return $nombreFinal;
     }
-
 
 }
