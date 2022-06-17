@@ -109,14 +109,14 @@ class ArchivoController extends Controller{
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
-
+                
                 //reemplazar path imagenes antes de generar pdf
                 //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
                 
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
                 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
                 
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);           
  
