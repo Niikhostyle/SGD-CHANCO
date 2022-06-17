@@ -2067,6 +2067,9 @@
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
         
+        //listado de visaciones y firmas
+        $('.row_txt_firmar').show();
+        
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
