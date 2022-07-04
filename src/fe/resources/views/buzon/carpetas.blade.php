@@ -65,6 +65,7 @@
                                 <table id="grilla_por_recibir"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
                                         <tr class="grilla_header">
+                                            <th>Sel</th>
                                             <th>ID Doc.</th>
                                             <th>F. Entrada</th>
                                             <th>Contestar Hasta</th>
@@ -75,6 +76,9 @@
                                         </tr>
                                     </thead>
                                 </table>
+                                <div>
+                                  <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary">Recibir Masivo</button>
+                                </div>
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
                                 <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
@@ -115,17 +119,17 @@
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
-                                            <th></th>
-                                            <th></th>
-                                            <th>E</th>
-                                            <th>ID Doc</th>
-                                            <th>Fecha Recepción</th>
-                                            <th>Contestar Hasta</th>
-                                            <th>TD</th>
-                                            <th>TE</th>
-                                            <th>Origen</th>
-                                            <th>Materia</th>
-                                            <th>Acciones</th>
+                                            <th data-priority="1"></th>
+                                            <th data-priority="2"></th>
+                                            <th data-priority="1">E</th>
+                                            <th data-priority="0">ID Doc</th>
+                                            <th data-priority="3">Fecha Recepción</th>
+                                            <th data-priority="0">Materia</th>
+                                            <th data-priority="2">TD</th>
+                                            <th data-priority="2">TE</th>
+                                            <th data-priority="2">Origen</th>
+                                            <th data-priority="2">Contestar Hasta</th>
+                                            <th data-priority="1">Acciones</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -168,7 +172,7 @@
                                             </td>
                                         </tr>
                                     </tbody></table>
-                                    <table id="grilla_despachados"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
+                                    <table id="grilla_despachados"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed " style="width:100%">
                                         <thead>
                                             <tr class="grilla_header">
                                                 <th></th>
@@ -181,7 +185,7 @@
                                                 <th>Materia</th>
                                                 <th>Rpta a</th>
                                                 <th>Fecha Doc</th>
-                                                <th>Acciones</th>
+                                                <th class="all">Acciones</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -615,7 +619,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
+<script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 <script>
     //globales
 
@@ -628,6 +632,7 @@
     const accionesFlujo3 = @json($acciones_tipoflujo3);
     const listadoBuzones = @json($listadoBuzones);
     const pathFiles = "";
+    var bloqueo_accion=false;
 
     var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
@@ -642,6 +647,10 @@
     aplicaFrm = @json($aplicaFrm);
 
     owl = $('.owl-carousel').owlCarousel(); 
+
+    $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
+        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+    });
 
     $('#form_acciones_solicitadas_el').multiselect({
         nonSelectedText: 'Seleccione Acciones',
@@ -1762,11 +1771,15 @@
 
     function firmar_documento()
     {
+        if(bloqueo_accion){
+            return false;
+        }
         var _token = $("input[name='_token']").val();
         
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        
 
         Swal.fire({
                 title: 'Firmar',
@@ -1784,7 +1797,7 @@
                     $('.btn-recibir-submit').html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmar'
                     );
-
+                    bloqueo_accion =true;
                     $.ajax({
                         url: "/firmar_documento/"+hiddIdDocumentoBuzon,
                         type: 'PUT',
@@ -1811,6 +1824,7 @@
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
+                            bloqueo_accion=false;
 
                         },
                         error: function (e) {
@@ -1822,6 +1836,7 @@
                                 toastr.error("Falla en el documento","Aviso!");
 
                             $('.btn-recibir-submit').html( 'Firmar' );
+                            bloqueo_accion=false;
                         }
                     });
 
@@ -2069,7 +2084,7 @@
         
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
-        
+
         $('.btn-guardar-submit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
@@ -2662,10 +2677,12 @@
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
+                            //console.log("archivo",value);
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                        //   '<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+                                        //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
+                                        '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
@@ -2861,12 +2878,35 @@
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
                 type:'json',
-                order: [[ 0, 'desc' ]],  
+                //order: [[ 0, 'desc' ]],  
                 responsive: true,
-                select: true,
+                //select: true,
                 language: lenguaje_datatable,
+                'columnDefs': [
+                    {
+                        'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    }
+                ],
+                'select': {'style': 'multi'},
+                'order': [[1, 'asc']],
                 columns: [
-                    { data: 'identificador', name: 'documento.identificador' },                    
+                    { data: 'identificador', name: 'documento.identificador',
+                        //  render:function(data){
+                        //      return '<input type="checkbox" id="doc_por_recibir" value="'+data+'">';
+                        // },
+                    },                    
+                    { data: 'identificador', name: 'documento.identificador',
+                    
+                        render:function(data,type,row){
+                            //return "<a href='javascript:void(0)'>"+data+"</a>";
+                            //visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
+                            return "<a href='javascript:visualizar_documento_por_recibir("+row.id_documento+","+row.id_documento_buzon+","+row.id_documento_buzon_padre+","+row.id_tipo_destino+")'>"+data+"</a>";
+                        }
+                    
+                    },                    
                     { data: 'fecha_envio', 
                             render: function(data)
                             {
@@ -2899,12 +2939,15 @@
                                 return '';
                             }     
                     },
-                    { data: 'materia', name: 'documento.materia' },
+                    { data: 'materia', name: 'documento.materia'
+                        
+                    
+                    },
                 ],
                 rowCallback: function (row, data, index ) {
-                    $(row).on("click", function (e) {
-                        visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
-                    });                
+                    // $(row).on("click", function (e) {
+                    //     visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
+                    // });                
                 }
             });
     }
@@ -2927,7 +2970,7 @@
                 type:'json',
                 order: [[ 3, 'desc' ]],        
                 responsive: true,
-                language: lenguaje_datatable,                
+                language: lenguaje_datatable,            
                 columns: [
                     {
                         data: 'estado_documento',
@@ -2997,21 +3040,22 @@
                                 return data;                                   
                             }
                     },
-                    { data: 'identificador', name: 'documento.identificador' },
+                    { data: 'identificador', name: 'documento.identificador',
+                        render:function(data,type,row){
+                            return "<a href='javascript:ver_recibidos("+row.id_documento+","+row.id_documento_buzon+","+row.id_documento_buzon_padre+")'>"+data+"</a>";
+                        }
+                    },
                     { data: 'fecha_envio_recepcion', 
                             render: function(data)
                             {
                                 return moment(data).format('DD-MM-YYYY HH:mm');
                             }
                     },
-                    { data: 'contestas_hasta', 
-                            render: function(data)
-                            {
-                                if(data == null)
-                                    return '';
-                                else                                 
-                                    return moment(data).format('DD-MM-YYYY');
-                            }
+                    { data: 'materia', name: 'documento.materia' ,'width':200,
+                        render:function(data){
+                            if(data==null){ return ''; }
+                            return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
+                        }
                     },
                     { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
@@ -3028,7 +3072,16 @@
                                 return '';
                             }     
                     },
-                    { data: 'materia', name: 'documento.materia' },
+                    { data: 'contestas_hasta', 
+                            render: function(data)
+                            {
+                                if(data == null)
+                                    return '';
+                                else                                 
+                                    return moment(data).format('DD-MM-YYYY');
+                            }
+                    },
+                    
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -3324,20 +3377,79 @@
         });
     }
 
+    function recepcion_masiva(){
+        var rows_selected = grilla_por_recibir.column(0).checkboxes.selected();
+        Swal.fire({
+            title: 'Recibir',
+            html: "Se recepcionarán <b>"+rows_selected.length+"</b> Documentos: <br>¿Desea Continuar?",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                console.log(result);
+            if (result.value==true) 
+            {
+                var promiseArray = [];
+                $.each(rows_selected, function(index,obj){
+                    $.each(grilla_por_recibir.rows().data(),function(idx,data){
+                        if(data.id_documento==obj){
+                            var p = new Promise(function(resolve, reject){
+                                $.ajax({
+                                        url: "/actualizar_estado_documento/"+data.id_documento_buzon,
+                                        type: 'PUT',
+                                        dataType: 'json',
+                                        data: {
+                                            _token:"{{csrf_token()}}",
+                                            hiddIdDocumento:data.id_documento,
+                                            buzon:data.id_buzon,
+                                            destino:data.id_tipo_destino,
+                                            accion:3
+                                        },
+                                        success: function(data)
+                                        {
+                                            console.log("success",data)
+                                            if(data.status == '200'){ return resolve();}else{return reject();}
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            console.log(textStatus);
+                                            reject(new Error('Error : ' + textStatus));
+                                        }
+                                    });
+                            });
+		                    promiseArray.push(p);
+                        }
+                    });
+                });
+                Swal.fire({
+                    title: 'Recepcionando documentos',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    onOpen: () => {
+                        swal.showLoading();
+                    }
+                })
+                Promise.all(promiseArray).then(function(obj) {
+                    Swal.close();
+                    toastr.success("Documentos Recepcionados","Aviso!");
+                    fn_grilla_por_recibir();
+                });
+            }
+        })  
+    }
+
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
 
         $(function() {
 
             fn_grilla_por_recibir();
-
-            $('#grilla_por_recibir tbody').on( 'click', 'tr', function () {
-                td_seleccionado=grilla_por_recibir.row( this ).data();
-                mostrar_documento(td_seleccionado['materia']);
-            });
-
+            // $('#grilla_por_recibir tbody').on( 'click', 'tr', function () {
+            //     td_seleccionado=grilla_por_recibir.row( this ).data();
+            //     mostrar_documento(td_seleccionado['materia']);
+            // });
             fn_grilla_recibidos();
-
             fn_grilla_despachados();
 
         });

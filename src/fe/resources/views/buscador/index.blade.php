@@ -17,7 +17,7 @@
         <div class="card-body">
             <div class=" form-row">   
                 <div class="col-md-8 md-4">  
-                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" >
+                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" placeholder="Buscar por materia, folio o ID" >
                 </div>
                 <div class="col-md-1 md-4">  
                     <i id="botones_busqueda_simple"></i>
@@ -133,13 +133,13 @@
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
                                             <tr class="grilla_header">
-                                                <th>ID</th>
-                                                <th>Fecha</th>
+                                                <th data-priority="0">ID</th>
+                                                <th data-priority="2">Fecha</th>
                                                 <th>TD</th>
                                                 <th>Folio</th>
-                                                <th>Buzón origen</th>
-                                                <th>Buzón Actual</th>
-                                                <th>Materia</th>
+                                                <th data-priority="2">Buzón origen</th>
+                                                <th data-priority="2">Buzón Actual</th>
+                                                <th data-priority="1">Materia</th>
                                                 <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
@@ -540,6 +540,7 @@
 
     /* VERSIONES PDF */
 
+   
     $(".boton_desplegar_versiones_anteriores").click(function(e){
         $('#card_ocultar_versiones').show();
         $('#card_desplegar_versiones').hide();
@@ -634,8 +635,8 @@
                 },
                 processing: true,
                 serverSide: false,
-                ajax: '/buscadorListar',
-                type:'json',
+                // ajax: '/buscadorListar',
+                // type:'json',
                 order: [[ 0, 'desc' ]], 
                 responsive: true,                
                 language: lenguaje_datatable,
@@ -658,7 +659,13 @@
                     { data: 'folio', name: 'folio' },
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
-                    { data: 'materia', name: 'materia' },
+                    { data: 'materia', name: 'documento.materia' ,'width':200,
+                        render:function(data){
+                            return "<span style='width:300px'>"+data+"</span>";
+                            // if(data==null){ return ''; }
+                            // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
+                        }
+                    },
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento',
                     render: function(data, type, row) {
@@ -748,21 +755,50 @@
 
                                 $searchButton.click();
                             }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
+                        $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
                             .text('Buscar')
                             .click(function() {
-                                
-                                    grilla_recibidos.draw();
-                                
-                                    grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
-                                    grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                    grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();                               
+                                    grilla_recibidos.clear();
+                                    $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).show();
+                                    //buscar en servidor
+                                    console.log($('#busqueda_simple').val())
+                                    //construir objeto de busqueda
+                                    let params = new FormData();
+                                    let queries =["busqueda_simple","buscar_id_documento","buscar_folio","buscar_tipo_documento","buscar_buzon_origen","buscar_fecha_ini","buscar_fecha_fin","buscar_efectos_sobre_terceros"];
+                                    for (let i = 0; i < queries.length; i++) {
+                                        //console.log(item);
+                                        //console.log($('#'+queries[i]).val());
+                                        if($('#'+queries[i]).val()!=''){
+                                            params.append(queries[i],$('#'+queries[i]).val());
+                                        }
+                                    }
+                                    $.ajax({
+                                        Type: 'GET',
+                                        url: '/buscadorListar',
+                                        data:[...params].reduce((o, [k, v]) => {o[k] = v;return o;}, {})
+                                    }).done(function (result) {
+                                        console.log(typeof result);
+                                        //result = JSON.parse(result);
+                                        
+                                        grilla_recibidos.rows.add(result.data).draw();
+                                        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+                                        $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).hide();
+                                        grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
+                                        grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
+                                        grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();                               
+                                        
+                                        grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                        if ($('#buscar_efectos_sobre_terceros').is(':checked'))
+                                            grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
+                                        else
+                                            grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
+
+                                    });
+
                                     
-                                    grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
-                                    if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                        grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
-                                    else
-                                        grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
+                                   // grilla_recibidos.draw();
+                                
+                                   
                                 
 
                             })
