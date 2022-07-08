@@ -104,7 +104,7 @@
                                                 <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
                                                     <option value=''> Todos </option>
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
-                                                        @if($estado_documento['id_estado_documento'] > 2)    
+                                                        @if($estado_documento['id_estado_documento'] > 3)    
                                                             <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
                                                         @endif    
                                                     @endforeach
@@ -144,7 +144,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Texto Libre:</td>
+                                            <td>Materia:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -632,7 +632,8 @@
     const accionesFlujo3 = @json($acciones_tipoflujo3);
     const listadoBuzones = @json($listadoBuzones);
     const pathFiles = "";
-    var bloqueo_accion=false;
+    var bloqueo_accion = false;
+    isDelete = true; 
 
     var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
@@ -992,6 +993,7 @@
         $('#dropzone-anexo').prop("disabled", true);
         
         $(".dz-hidden-input").prop("disabled",true);
+        isDelete = false;
 
         //form_destinatario_principal_el.disabled=true;
         form_acciones_solicitadas_el.disabled=true;
@@ -2349,8 +2351,6 @@
                         if (data.data.fecha != null)
                             $("#idFecha").html("<b>"+data.data.fecha+"</b>");
 
-
-
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
                             $('.row_cuerpo').show();
@@ -2384,6 +2384,10 @@
                             
                             if (item.id_accion == 7)
                                 htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                            
+                            if (item.id_accion == 7 || item.id_accion == 8)
+                                isDelete = false;
+                            
                         });
 
                         $('#datos_bitacora_simple').html(htmlDatosbitacora);
@@ -2677,26 +2681,25 @@
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
-                            //console.log("archivo",value);
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                         //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver Pdf" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
                                         '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                     //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver Pdf" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
 
-                            if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
+                            //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
+                            if (carpeta == 2 && accion == 1 && isDelete == true)               
                                 //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
-
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && accion == 1)               
                                 //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -2773,6 +2776,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
+        isDelete = true;
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,1); 
         
         $('#form_tipo_documento').prop("disabled", true); 
@@ -2789,6 +2793,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
+        isDelete = true;
         cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2,1);
 
         $('#form_tipo_documento').prop("disabled", true);
@@ -3205,7 +3210,7 @@
         $('#grilla_despachados tbody').empty();
         grilla_despachados=  $('#grilla_despachados').DataTable({
             processing: true,
-            serverSide: false,
+            serverSide: true,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
             type:'json',
             order: [[ 2, 'desc' ]],  
@@ -3262,7 +3267,7 @@
                                     return moment(data).format('DD-MM-YYYY HH:mm');                           
                             }
                 }, 
-                { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                { data: 'tipo_documento', name: 'tipo_documento.nombre' },
                 { data: 'destinatario', 
                             render: function(data, type, row) {
                                 if (type === 'display') 
@@ -3367,7 +3372,9 @@
                                 grilla_despachados.columns(1).search($('#gd_buscar_estado').val()).draw();
                                 grilla_despachados.columns(2).search($('#gd_buscar_id_doc').val()).draw();
                                 grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
-                                self.search($('#gd_buscar_destino_materia').val()).draw();
+                                grilla_despachados.columns(7).search($('#gd_buscar_destino_materia').val()).draw();
+
+                                //self.search($('#gd_buscar_destino_materia').val()).draw();
                             })
                     $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
@@ -3409,8 +3416,18 @@
                                         },
                                         success: function(data)
                                         {
-                                            console.log("success",data)
-                                            if(data.status == '200'){ return resolve();}else{return reject();}
+                                            if(data.status == '200')
+                                            { 
+                                                $('#card_crear_documento').hide();        
+                                                clear_form();
+                                                fn_grilla_recibidos();
+                                                location.reload();
+                                                //return resolve();
+                                            
+                                            }
+                                            else{
+                                                return reject();
+                                            }
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             console.log(textStatus);
