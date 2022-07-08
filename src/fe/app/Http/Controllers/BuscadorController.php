@@ -225,7 +225,7 @@ class BuscadorController extends Controller
 
     public function listar(Request $request)
     {
-
+        $extraquery = "";
         // //construir filtro
         $query = $request->busqueda_simple;
         if($query){
