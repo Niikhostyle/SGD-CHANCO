@@ -87,7 +87,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Texto Libre:</td>
+                                            <td>Materia:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -105,7 +105,7 @@
                                                     <option value=''> Todos </option>
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
                                                         @if($estado_documento['id_estado_documento'] > 3)    
-                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                            <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
                                                         @endif    
                                                     @endforeach
                                                 </select>
@@ -228,7 +228,7 @@
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
-                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
+                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i><span id="bzOrigen"></span></i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
@@ -2479,6 +2479,11 @@
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
+                                if (item.id_documento_buzon == id_documento_buzon_padre)
+                                {                                   
+                                    $('#bzOrigen').text(listadoBuzones[item.id_buzon]);
+                                }
+                                
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
                                 {
                                     bFlujo = true;
@@ -2645,7 +2650,10 @@
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
-                                
+                                if (item.id_documento_buzon == id_documento_buzon_padre)
+                                {                                   
+                                    $('#bzOrigen').text(listadoBuzones[item.id_buzon]);
+                                }
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
                                     $("#form_destinatario_principal").val(item.id_buzon);
@@ -2970,7 +2978,7 @@
         grilla_recibidos = $('#grilla_recibidos').DataTable({
                 dom: 'l<"addFrm">tip',
                 processing: true,
-                serverSide: false,
+                serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
                 order: [[ 3, 'desc' ]],        
@@ -3033,7 +3041,7 @@
                         return '<div id="addChkFrm"></div>';
                         }
                     },
-                    { data: 'estado_documento', 
+                    { data: 'estado_documento', name: 'documento_buzon.id_estado_documento', 
                             render: function(data, type, row)
                             {
                                 if (type === 'display') 
@@ -3062,7 +3070,7 @@
                             return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
                         }
                     },
-                    { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                    { data: 'tipo_documento', name: 'tipo_documento.nombre' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
                     { data: 'buzon_origen',
@@ -3187,7 +3195,8 @@
                                 grilla_recibidos.columns(2).search($('#gr_buscar_estado').val()).draw();
                                 grilla_recibidos.columns(3).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val()).draw();
-                                self.search($('#gr_buscar_origen_materia').val()).draw();
+                                grilla_recibidos.columns(5).search($('#gr_buscar_origen_materia').val()).draw();
+                                //self.search($('#gr_buscar_origen_materia').val()).draw();
                             })
                     $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
