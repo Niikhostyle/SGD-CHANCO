@@ -7,7 +7,7 @@
     
     <div class="row">
         <div class="col-8">
-            <h1>Búsqueda de Documentos</h1>
+            <h1>Búsqueda de Documentos - nueva</h1>
         </div>
     </div>
     
@@ -133,13 +133,13 @@
                                     <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                                         <thead>
                                             <tr class="grilla_header">
-                                                <th data-priority="0">ID</th>
-                                                <th data-priority="2">Fecha</th>
+                                                <th>ID</th>
+                                                <th>Fecha</th>
                                                 <th>TD</th>
                                                 <th>Folio</th>
-                                                <th data-priority="2">Buzón origen</th>
-                                                <th data-priority="2">Buzón Actual</th>
-                                                <th data-priority="1">Materia</th>
+                                                <th>Buzón origen</th>
+                                                <th>Buzón Actual</th>
+                                                <th>Materia</th>
                                                 <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
@@ -533,6 +533,8 @@
         $(function() {         
             fn_grilla_recibidos();
          });
+
+         
        
     });
 
@@ -601,6 +603,36 @@
         gridBitacora.fnFilter(types, 0, true, false, false, false);
     });
 
+    function newexportaction(e, dt, button, config) {
+         var self = this;
+         var oldStart = dt.settings()[0]._iDisplayStart;
+         dt.one('preXhr', function (e, s, data) {
+             // Just this once, load all data from the server...
+             data.start = 0;
+             data.length = 2147483647;
+             dt.one('preDraw', function (e, settings) {
+                 // Call the original action function
+                 if (button[0].className.indexOf('buttons-excel') >= 0) {
+                     $.fn.dataTable.ext.buttons.excelHtml5.available(dt, config) ?
+                         $.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config) :
+                         $.fn.dataTable.ext.buttons.excelFlash.action.call(self, e, dt, button, config);
+                 } 
+                 dt.one('preXhr', function (e, s, data) {
+                     // DataTables thinks the first item displayed is index 0, but we're not drawing that.
+                     // Set the property to what it was before exporting.
+                     settings._iDisplayStart = oldStart;
+                     data.start = oldStart;
+                 });
+                 // Reload the grid with the original page. Otherwise, API functions like table.cell(this) don't work properly.
+                 setTimeout(dt.ajax.reload, 0);
+                 // Prevent rendering of the full data to the DOM
+                 return false;
+             });
+         });
+         // Requery the server with the new one-time export settings
+         dt.ajax.reload();
+     }
+
     async function fn_grilla_recibidos(){
 
         $('#grilla_recibidos tbody').empty();        
@@ -629,14 +661,27 @@
                             className: 'btn btn-success',
                             excelStyles:{
                                 temlate:'header_blue'
-                            }
+                            },
+                            action: newexportaction
                         }
                     ]
                 },
                 processing: true,
-                serverSide: false,
-                // ajax: '/buscadorListar',
-                // type:'json',
+                serverSide: true,
+                ajax: {
+                    type: 'get',
+                    url: '/buscadorListar2', 
+                    data: function(data){
+                            // Read values
+                            var from_date = $('#buscar_fecha_ini').val();
+                            var to_date = $('#buscar_fecha_fin').val();
+
+                            // Append to data
+                            data.searchFromdate = from_date;
+                            data.searchTodate = to_date;
+                        }
+                },
+                //type:'json',
                 order: [[ 0, 'desc' ]], 
                 responsive: true,                
                 language: lenguaje_datatable,
@@ -659,14 +704,8 @@
                     { data: 'folio', name: 'folio' },
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
-                    { data: 'materia', name: 'documento.materia' ,'width':200,
-                        render:function(data){
-                            return "<span style='width:300px'>"+data+"</span>";
-                            // if(data==null){ return ''; }
-                            // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
-                        }
-                    },
-                    { data: 'efectos_terceros', searchable: true, visible: false,},
+                    { data: 'materia', name: 'materia' },
+                    { data: 'efectos_terceros', searchable: true, visible: false },
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -758,48 +797,16 @@
                         $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
                             .text('Buscar')
                             .click(function() {
-                                    grilla_recibidos.clear();
-                                    $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).show();
-                                    //buscar en servidor
-                                    console.log($('#busqueda_simple').val())
-                                    //construir objeto de busqueda
-                                    let params = new FormData();
-                                    let queries =["busqueda_simple","buscar_id_documento","buscar_folio","buscar_tipo_documento","buscar_buzon_origen","buscar_fecha_ini","buscar_fecha_fin","buscar_efectos_sobre_terceros"];
-                                    for (let i = 0; i < queries.length; i++) {
-                                        //console.log(item);
-                                        //console.log($('#'+queries[i]).val());
-                                        if($('#'+queries[i]).val()!=''){
-                                            params.append(queries[i],$('#'+queries[i]).val());
-                                        }
-                                    }
-                                    $.ajax({
-                                        Type: 'GET',
-                                        url: '/buscadorListar',
-                                        data:[...params].reduce((o, [k, v]) => {o[k] = v;return o;}, {})
-                                    }).done(function (result) {
-                                        console.log(typeof result);
-                                        //result = JSON.parse(result);
-                                        
-                                        grilla_recibidos.rows.add(result.data).draw();
-                                        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-                                        $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).hide();
-                                        grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
-                                        grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                        grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();                               
-                                        
-                                        grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
-                                        if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                            grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
-                                        else
-                                            grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
-
-                                    });
-
-                                    
-                                   // grilla_recibidos.draw();
-                                
+                                    grilla_recibidos.draw(); 
                                    
-                                
+                                    grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
+                                    grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
+                                    grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();  
+                                    grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                    if ($('#buscar_efectos_sobre_terceros').is(':checked'))
+                                        grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
+                                    else
+                                        grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
 
                             })
                     $simpleSearchButton = $('<button class="btn btn-success" id_btn_filtrar">')
@@ -821,27 +828,7 @@
         }); 
     }
 
-    $.fn.dataTable.ext.search.push(
-
-       
-        function (settings, data, dataIndex) {
-            var dateFrom = $('#buscar_fecha_ini').val();
-            var dateTo = $('#buscar_fecha_fin').val();
-            var date = data[1];
-
-            if ((dateFrom == '' && dateTo == '') ||
-                (dateFrom == '' && Date.parse(date) <= Date.parse(dateTo)) ||
-                (Date.parse(dateFrom) <= Date.parse(date) && dateTo == '') ||
-                (Date.parse(dateFrom) <= Date.parse(date) && Date.parse(date) <= Date.parse(dateTo))) {
-                return true;
-            }
-            return false;
-        }
-        
-    );
-
-
-        // VER DOCUMENTO Y CARGAR BITACORA
+    // VER DOCUMENTO Y CARGAR BITACORA
 
     function visualizar_documento(id_documento, id_documento_buzon, id_documento_buzon_padre)
     {
