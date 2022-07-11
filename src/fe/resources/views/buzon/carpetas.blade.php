@@ -2709,8 +2709,8 @@
                                 //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                                 htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
-                            if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                                htmlFile = "";                                 
+                            //if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
+                                //htmlFile = "";                                 
                              
                             if (value.id_tipo_archivo == 2) //anexo
                                 htmlFileAnexo += htmlFile + '</div>';       
