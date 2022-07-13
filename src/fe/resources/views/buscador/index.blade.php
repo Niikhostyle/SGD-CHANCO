@@ -619,7 +619,7 @@
                             exportOptions: { 
                                 columns: function(column, data, node) {
                                     
-                                    if (column > 7) {
+                                    if (column > 8) {
                                         return false;
                                     }
                                     return true;
@@ -648,7 +648,7 @@
                                     return '';
                                 else
                                 { 
-                                    return data;//moment(data).format('DD-MM-YYYY');
+                                    return moment(data).format('DD-MM-YYYY');
                                 }
 
                                 return '';
@@ -667,6 +667,11 @@
                         }
                     },
                     { data: 'efectos_terceros', searchable: true, visible: false,},
+                    { data: 'id_documento', name: 'descarga',
+                        render:function(data, type, row){
+                            return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                        }
+                    },
                     { data: 'id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -735,7 +740,9 @@
                         }
                         return '';
                     }
-                    }
+                    },
+                  
+                    
                     
                 ],
                 initComplete : function() {

@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
 use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
+use App\Http\Controllers\PLCController;
 
 use App\Jobs\Firma;
 
@@ -42,10 +43,6 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar/',[Buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[BuscadorController::class,'documentoBuzonArchivo'])->name('buscador.documentoBuzonArchivo');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
-
-//version 2 - buscador
-Route::middleware(['auth:sanctum', 'verified'])->get('buscador2',[BuscadorController::class,'index2'])->name('buscador.index2');
-Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar2/',[BuscadorController::class,'listar2'])->name('buscador.listar2');
 
 
 //files
@@ -140,3 +137,5 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 //});
 
 Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');
+
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');

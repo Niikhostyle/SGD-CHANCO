@@ -221,20 +221,25 @@ class DocumentoBuzonArchivoController extends Controller
         }
 
         //reservado
+        
         if($nAcceso=='2'){
+            
             $Usuariosderivaciones = DocumentoBuzon::join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
-            ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+           // ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
             ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
             ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
             ->where('documento.id_documento', $nDocumento)
-            ->select('buzon_usuario.id_usuario as id_usuario')
+            ->select(['buzon_usuario.id_usuario as id_usuario'])
             ->get();
-
+           
             $aUsuarios=[];
+
+            //dd($Usuariosderivaciones);
+
             foreach ($Usuariosderivaciones as $valor ){
                 $aUsuarios[] = $valor['id_usuario'];
             }
-
+            
             if (in_array($usuario, $aUsuarios)){
                 $valido = true;
                 $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
