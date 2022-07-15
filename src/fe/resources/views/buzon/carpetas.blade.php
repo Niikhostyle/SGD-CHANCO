@@ -228,7 +228,6 @@
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
-                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i>{{ $nombre_buzon }}</i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
@@ -633,6 +632,7 @@
     const listadoBuzones = @json($listadoBuzones);
     const pathFiles = "";
     var bloqueo_accion=false;
+    isDelete = true; 
 
     var allBuzonesT2 = @json($allBuzonesT2);
     var allBuzones = @json($allBuzones);
@@ -992,6 +992,7 @@
         $('#dropzone-anexo').prop("disabled", true);
         
         $(".dz-hidden-input").prop("disabled",true);
+        isDelete = false;
 
         //form_destinatario_principal_el.disabled=true;
         form_acciones_solicitadas_el.disabled=true;
@@ -2384,6 +2385,10 @@
                             
                             if (item.id_accion == 7)
                                 htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                            
+                            if (item.id_accion == 7 || item.id_accion == 8)
+                                isDelete = false;
+                            
                         });
 
                         $('#datos_bitacora_simple').html(htmlDatosbitacora);
@@ -2475,6 +2480,11 @@
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                       
+                                if (item.id_documento_buzon == id_documento_buzon_padre)
+                                {                                   
+                                    $('#bzOrigen').text(listadoBuzones[item.id_buzon]);
+                                }
+                                
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre)
                                 {
                                     bFlujo = true;
@@ -2641,6 +2651,10 @@
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
+                                if (item.id_documento_buzon == id_documento_buzon_padre)
+                                {                                   
+                                    $('#bzOrigen').text(listadoBuzones[item.id_buzon]);
+                                }
                                 
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
