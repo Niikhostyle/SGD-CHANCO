@@ -87,7 +87,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Materia:</td>
+                                            <td>Texto Libre:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -104,8 +104,8 @@
                                                 <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado" >
                                                     <option value=''> Todos </option>
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
-                                                        @if($estado_documento['id_estado_documento'] > 3)    
-                                                            <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @if($estado_documento['id_estado_documento'] > 2)    
+                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
                                                         @endif    
                                                     @endforeach
                                                 </select>
@@ -144,7 +144,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Materia:</td>
+                                            <td>Texto Libre:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -228,7 +228,6 @@
                         <div class="form-row">
                             <div class="col-md-12">
                                 <ul class="list-group list-group-horizontal">
-                                    <li class="list-group-item col-md-6"><b>Buzón Origen:</b> <i><span id="bzOrigen"></span></i></li>
                                     <li class="list-group-item col-md-2"><b>ID:</b> <i><span id="idAsignado">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Folio:</b> <i><span id="idFolio">No Asignado</span></i></li>
                                     <li class="list-group-item col-md-2"><b>Fecha:</b> <i><span id="idFecha">No Asignado</span></i></li>
@@ -632,7 +631,7 @@
     const accionesFlujo3 = @json($acciones_tipoflujo3);
     const listadoBuzones = @json($listadoBuzones);
     const pathFiles = "";
-    var bloqueo_accion = false;
+    var bloqueo_accion=false;
     isDelete = true; 
 
     var allBuzonesT2 = @json($allBuzonesT2);
@@ -2351,6 +2350,8 @@
                         if (data.data.fecha != null)
                             $("#idFecha").html("<b>"+data.data.fecha+"</b>");
 
+
+
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
                         {
                             $('.row_cuerpo').show();
@@ -2654,6 +2655,7 @@
                                 {                                   
                                     $('#bzOrigen').text(listadoBuzones[item.id_buzon]);
                                 }
+                                
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
                                     $("#form_destinatario_principal").val(item.id_buzon);
@@ -2689,28 +2691,29 @@
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
+                            //console.log("archivo",value);
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                         //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver Pdf" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
                                         '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
                                     //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
-                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver Pdf" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
-
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                            if (carpeta == 2 && accion == 1 && isDelete == true)               
+                            if (carpeta == 2 &&  accion == 1)               
                                 //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+
                             
                             if (carpeta == 3 && accion == 1)               
                                 //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
-                            //if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                                //htmlFile = "";                                 
+                            if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
+                                htmlFile = "";                                 
                              
                             if (value.id_tipo_archivo == 2) //anexo
                                 htmlFileAnexo += htmlFile + '</div>';       
@@ -2784,7 +2787,6 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
-        isDelete = true;
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,1); 
         
         $('#form_tipo_documento').prop("disabled", true); 
@@ -2801,7 +2803,6 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
-        isDelete = true;
         cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2,1);
 
         $('#form_tipo_documento').prop("disabled", true);
@@ -2978,7 +2979,7 @@
         grilla_recibidos = $('#grilla_recibidos').DataTable({
                 dom: 'l<"addFrm">tip',
                 processing: true,
-                serverSide: true,
+                serverSide: false,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
                 order: [[ 3, 'desc' ]],        
@@ -3041,7 +3042,7 @@
                         return '<div id="addChkFrm"></div>';
                         }
                     },
-                    { data: 'estado_documento', name: 'documento_buzon.id_estado_documento', 
+                    { data: 'estado_documento', 
                             render: function(data, type, row)
                             {
                                 if (type === 'display') 
@@ -3070,7 +3071,7 @@
                             return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
                         }
                     },
-                    { data: 'tipo_documento', name: 'tipo_documento.nombre' },
+                    { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
                     { data: 'buzon_origen',
@@ -3195,8 +3196,7 @@
                                 grilla_recibidos.columns(2).search($('#gr_buscar_estado').val()).draw();
                                 grilla_recibidos.columns(3).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val()).draw();
-                                grilla_recibidos.columns(5).search($('#gr_buscar_origen_materia').val()).draw();
-                                //self.search($('#gr_buscar_origen_materia').val()).draw();
+                                self.search($('#gr_buscar_origen_materia').val()).draw();
                             })
                     $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
@@ -3219,7 +3219,7 @@
         $('#grilla_despachados tbody').empty();
         grilla_despachados=  $('#grilla_despachados').DataTable({
             processing: true,
-            serverSide: true,
+            serverSide: false,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
             type:'json',
             order: [[ 2, 'desc' ]],  
@@ -3276,7 +3276,7 @@
                                     return moment(data).format('DD-MM-YYYY HH:mm');                           
                             }
                 }, 
-                { data: 'tipo_documento', name: 'tipo_documento.nombre' },
+                { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
                 { data: 'destinatario', 
                             render: function(data, type, row) {
                                 if (type === 'display') 
@@ -3381,9 +3381,7 @@
                                 grilla_despachados.columns(1).search($('#gd_buscar_estado').val()).draw();
                                 grilla_despachados.columns(2).search($('#gd_buscar_id_doc').val()).draw();
                                 grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val()).draw();
-                                grilla_despachados.columns(7).search($('#gd_buscar_destino_materia').val()).draw();
-
-                                //self.search($('#gd_buscar_destino_materia').val()).draw();
+                                self.search($('#gd_buscar_destino_materia').val()).draw();
                             })
                     $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
@@ -3425,18 +3423,8 @@
                                         },
                                         success: function(data)
                                         {
-                                            if(data.status == '200')
-                                            { 
-                                                $('#card_crear_documento').hide();        
-                                                clear_form();
-                                                fn_grilla_recibidos();
-                                                location.reload();
-                                                //return resolve();
-                                            
-                                            }
-                                            else{
-                                                return reject();
-                                            }
+                                            console.log("success",data)
+                                            if(data.status == '200'){ return resolve();}else{return reject();}
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             console.log(textStatus);

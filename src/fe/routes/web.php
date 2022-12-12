@@ -10,6 +10,7 @@ use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
 use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
+use App\Http\Controllers\PLCController;
 
 use App\Jobs\Firma;
 
@@ -140,3 +141,5 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 //});
 
 Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');
+
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');

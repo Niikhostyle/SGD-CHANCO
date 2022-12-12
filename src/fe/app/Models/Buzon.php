@@ -2,11 +2,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Buzon extends Model{
 
     protected $table = "buzon";
     protected $primaryKey = 'id_buzon';
+    use SoftDeletes;
 
     protected $hidden = ['created_at', 'updated_at'];
 
