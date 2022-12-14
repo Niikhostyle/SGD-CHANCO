@@ -47,7 +47,7 @@ ENV APACHE_DOCUMENT_ROOT /var/www/sgd/public
 ENV APP_NAME "sgd"
 
 # Install composer from image. You may change it to the latest
-COPY --from=composer:2.1.6 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.2.18 /usr/bin/composer /usr/bin/composer
 
 #RUN apt-get install curl nano && \
 #    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

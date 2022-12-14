@@ -2703,14 +2703,13 @@
                                     //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
                                     '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                            if (carpeta == 2 &&  accion == 1)               
+                            if (carpeta == 2 &&  accion == 1 && isDelete == true)               
                                 //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
-
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && accion == 1)               
                                 //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Remove file" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -2787,6 +2786,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
+        isDelete = true;
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,1); 
         
         $('#form_tipo_documento').prop("disabled", true); 
@@ -2803,6 +2803,7 @@
         $('#titulo_accion').html('Editar Documento'); 
         
         habilita_campos();
+        isDelete = true;
         cargar_datos_grilla(id_documento, id_documento_buzon,id_documento_buzon_padre,2,1);
 
         $('#form_tipo_documento').prop("disabled", true);
