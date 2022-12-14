@@ -5,10 +5,8 @@
     <!-- Main content -->
     
     <section class="content bg">
-        <div class="row  m-t-10 m-b-10">
-            <div class="col-md-1 col-sm-1"></div>
-            <div class="col-md-4 col-sm-7">
-            <br><br><br><br>
+        <div class="container  m-t-10 m-b-10">
+            <div class="col-md-6 col-sm-6">
                 <div class="box modif box-login">
                     @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
@@ -16,7 +14,7 @@
                         </div>
                     @endif
                     
-                    <div class="box-body">
+                    <div class="box-body" style="padding: 2em;">
                         <span class="help-block p-l-10">Ingrese su correo electrónico y contraseña</span>
 
 
@@ -70,24 +68,20 @@
                      </div>
                      
                  </div>
-
-                 <div>
-                     <br><br><br><br><br><br><br><br><br><br>
-                    <img src="{{ asset('img/logo_calidad_plc.png') }}" alt="" style="width: 50%; margin-right: auto;">
-                </div>
             </div>
 
-            
-            <div class="col-md-1 col-sm-1"></div>
-            <div class="col-md-5 text-center">
+            <div class="col-md-6 col-sm-6 text-center bg-white" style="opacity:0.8;border-radius: 10px;
+    padding: 3em;">
                 <div>
-                        <img src="{{ asset('img/logo_plc.png') }}" alt="" id="logo_plc" style="margin: 10%; ">
-                </div>
-               
-                <div>
-                    <div><span id="span-titulo1"> SISTEMA DE GESTIÓN DOCUMENTAL </span></div>
+                    <h2 id="span-titulo" style="color:#444;    font-size: 35px;letter-spacing: 2px;word-spacing: 2px;"> SISTEMA DE GESTIÓN DOCUMENTAL </h2>
                     <!--<div><span id="span-titulo2">Municipalidad De Padre Las Casas</span></div>-->
                 </div>
+                <div class="col-sm-6 col-sm-offset-3 ">
+                        <img class="img img-fluid m-1" src="{{ asset('img/logo_plc-2022.png') }}" alt="" id="logo_plcx" >
+                        <img class="img img-fluid m-1" src="{{ asset('img/logo_calidad_plc.png') }}" alt="" >
+                </div>
+               
+              
             </div>
             <div class="col-md-1 col-sm-1"></div>
 

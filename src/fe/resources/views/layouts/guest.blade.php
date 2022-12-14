@@ -28,15 +28,16 @@
         <link rel="stylesheet" href="css/inicio/_all-skins.min.css">
         <link rel="stylesheet" href="css/inicio/pace.min.css">
         <link rel="stylesheet" href="css/inicio/adminlte_config.css">
+        <link rel="stylesheet" href="css/admin_custom.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
 
 
     </head>
-    <body class="hold-transition skin-blue ">
-    <header class="main-header-guest">
-            <span class="logo-lg">SISTEMA DE GESTIÓN DOCUMENTAL - PADRE LAS CASAS</span>
-    </header>
+    <body class="row hold-transition skin-blue ">
+        <header class="main-header-guest">
+                <span class="logo-lg">SISTEMA DE GESTIÓN DOCUMENTAL - PADRE LAS CASAS</span>
+        </header>
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
@@ -54,7 +55,7 @@
         </footer>
 
 
-
+        </body>
 
   <!-- jQuery 3.3.1 -->
   <script src="js/inicio/jquery.min.js"></script>
@@ -87,5 +88,5 @@
 
       <!-- JavaScripts -->
 
-  </body>
+
   </html>
