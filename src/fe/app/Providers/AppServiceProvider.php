@@ -76,6 +76,12 @@ class AppServiceProvider extends ServiceProvider
                                     'icon_color' => 'green',
                                     'url'        => '/tipos_documentos',
                                 ],
+                                [
+                                    'text'       => 'Auditoría de Folios',
+                                    'icon'    => 'fas fa-fw fa-check-double text-blue',
+                                    'icon_color' => '',
+                                    'url'        => '/auditoria_folios',
+                                ],
                                 //[
                                   //  'text'       => 'Descargas',
                                     //'icon'    => 'fas fa-fw fa-download text-blue',

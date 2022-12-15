@@ -147,4 +147,5 @@ Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[
 
 //auditoria de folios
 Route::middleware(['auth:sanctum', 'verified'])->get('auditoria_folios',[AuditoriaFoliosController::class,'index'])->name('auditoria_folios.index');
-//Route::get('auditoria_folios',[AuditoriaFoliosController::class,'index'])->name('auditoria_folios.index');
+Route::middleware(['auth:sanctum', 'verified'])->get('obtener_tipos_documentos',[AuditoriaFoliosController::class,'obtener_tipos_documentos'])->name('auditoria_folios.obtener_tipos_documentos');
+Route::middleware(['auth:sanctum', 'verified'])->get('obtener_folios',[AuditoriaFoliosController::class,'obtener_folios'])->name('auditoria_folios.obtener_folios');
