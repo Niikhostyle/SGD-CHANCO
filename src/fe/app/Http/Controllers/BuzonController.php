@@ -641,6 +641,7 @@ class BuzonController extends Controller
                         'documento_buzon.id_estado_documento as id_estado_documento',
                         'documento_buzon.id_buzon as id_buzon',
                         'documento.id_documento as id_documento',
+                        'documento.folio as folio',
                         'documento_buzon.id_documento_buzon_padre as id_documento_buzon_padre',
                         'documento.identificador as identificador',
                         'documento_buzon.recibido as recibido',
@@ -674,6 +675,8 @@ class BuzonController extends Controller
                     if($request->id_carpeta==1){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(3)); //1- Por recibir
                     }
+                   // $datos->paginate(10);
+
 
                //return datatables( [])->toJson();
                return datatables( $datos )->toJson();

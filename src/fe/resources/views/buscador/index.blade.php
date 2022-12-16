@@ -17,7 +17,7 @@
         <div class="card-body">
             <div class=" form-row">   
                 <div class="col-md-8 md-4">  
-                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" placeholder="Buscar por materia, folio o ID" >
+                <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" placeholder="Buscar por materia, folio o ID" onkeypress="filtrar_enter()">
                 </div>
                 <div class="col-md-1 md-4">  
                     <i id="botones_busqueda_simple"></i>
@@ -134,12 +134,13 @@
                                         <thead>
                                             <tr class="grilla_header">
                                                 <th data-priority="0">ID</th>
-                                                <th data-priority="2">Fecha</th>
                                                 <th>TD</th>
-                                                <th>Folio</th>
+                                                <th data-priority="1">Materia</th>
+                                                <th data-priority="2">Fecha DOC</th>
+                                                <th data-priority="1">Folio</th>
+                                                <th data-priority="1">Fecha creación</th>
                                                 <th data-priority="2">Buzón origen</th>
                                                 <th data-priority="2">Buzón Actual</th>
-                                                <th data-priority="1">Materia</th>
                                                 <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
@@ -597,9 +598,17 @@
         var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
             return '^' + this.value + '\$';
         }).get().join('|');
-
         gridBitacora.fnFilter(types, 0, true, false, false, false);
     });
+
+
+    function filtrar_enter(){
+        if (event.key === "Enter") {
+            event.preventDefault();
+            $("#botones_busqueda_simple button").trigger("click");
+        }
+       // $("#botones_busqueda_simple button").trigger("click");
+    }
 
     async function fn_grilla_recibidos(){
 
@@ -619,7 +628,7 @@
                             exportOptions: { 
                                 columns: function(column, data, node) {
                                     
-                                    if (column > 8) {
+                                    if (column > 9) {
                                         return false;
                                     }
                                     return true;
@@ -642,7 +651,16 @@
                 language: lenguaje_datatable,
                 columns: [
                     { data: 'identificador', name: 'identificador' },
-                    { data: 'fecha_documento', render: function(data, type, row)
+                    { data: 'tipo_documento', name: 'tipo_documento' },
+                    { data: 'materia', name: 'documento.materia' ,'width':200,
+                        render:function(data){
+                            return "<span style='width:300px'>"+data+"</span>";
+                            // if(data==null){ return ''; }
+                            // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
+                        }
+                    },
+                    
+                    { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
                             {
                                 if(data == null)
                                     return '';
@@ -655,17 +673,25 @@
                             }
                 
                     },
-                    { data: 'tipo_documento', name: 'tipo_documento' },
+
+                    
                     { data: 'folio', name: 'folio' },
+                    { data: 'fecha_documento',data: 'fecha_documento', render: function(data, type, row)
+                            {
+                                if(data == null)
+                                    return '';
+                                else
+                                { 
+                                    return moment(data).format('DD-MM-YYYY');
+                                }
+
+                                return '';
+                            }
+                
+                    },
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
-                    { data: 'materia', name: 'documento.materia' ,'width':200,
-                        render:function(data){
-                            return "<span style='width:300px'>"+data+"</span>";
-                            // if(data==null){ return ''; }
-                            // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
-                        }
-                    },
+                    
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){
@@ -773,7 +799,7 @@
                                     let params = new FormData();
                                     let queries =["busqueda_simple","buscar_id_documento","buscar_folio","buscar_tipo_documento","buscar_buzon_origen","buscar_fecha_ini","buscar_fecha_fin","buscar_efectos_sobre_terceros"];
                                     for (let i = 0; i < queries.length; i++) {
-                                        //console.log(item);
+                                        console.log(queries);
                                         //console.log($('#'+queries[i]).val());
                                         if($('#'+queries[i]).val()!=''){
                                             params.append(queries[i],$('#'+queries[i]).val());
@@ -787,18 +813,21 @@
                                         console.log(typeof result);
                                         //result = JSON.parse(result);
                                         
+
+
+            
                                         grilla_recibidos.rows.add(result.data).draw();
                                         $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
                                         $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).hide();
                                         grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
-                                        grilla_recibidos.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                        grilla_recibidos.columns(3).search($('#buscar_folio').val()).draw();                               
+                                        grilla_recibidos.columns(1).search($('#buscar_tipo_documento').val()).draw();
+                                        grilla_recibidos.columns(4).search($('#buscar_folio').val()).draw();                               
                                         
-                                        grilla_recibidos.columns(4).search($('#buscar_buzon_origen').val()).draw();  
+                                        grilla_recibidos.columns(6).search($('#buscar_buzon_origen').val()).draw();  
                                         if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                            grilla_recibidos.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
+                                            grilla_recibidos.columns(8).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
                                         else
-                                            grilla_recibidos.columns(7).search("true|false", true, false).draw(); 
+                                            grilla_recibidos.columns(8).search("true|false", true, false).draw(); 
 
                                     });
 
@@ -820,7 +849,9 @@
                     $('#botones_busqueda_simple').append($simpleSearchButton);
                     $('#grilla_despachados_filter').html('');
                     
-                    
+                    $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
+                        console.log( 'Error DataTables: ', message);
+                    }); 
                 }
                 
                
