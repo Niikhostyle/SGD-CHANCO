@@ -242,6 +242,7 @@ class BuscadorController extends Controller
         , d.id_nivel_acceso
         , string_agg(cast(bu.id_usuario as varchar), ',') as list_usuarios
         , d.created_at as fecha_documento
+        , d.fecha as fecha_documento_firma
         , d.folio
         , d.materia 
         , d.json_tipo_documento 
@@ -273,6 +274,7 @@ class BuscadorController extends Controller
         , d.identificador
         , d.id_nivel_acceso
         , d.created_at        
+        , d.fecha        
         , d.folio        
         , d.materia        
         , d.json_tipo_documento    
