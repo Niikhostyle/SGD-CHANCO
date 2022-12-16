@@ -49,9 +49,9 @@
             <table id="grilla_folios"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                 <thead>
                     <tr class="grilla_header">
-                        <th>ID</th>
-                        <th>Fecha Asignación Folio</th>
                         <th>Folio</th>
+                        <th>Fecha Asignación Folio</th>
+                        <th>ID Documento</th>
                         <th>Buzón Actual</th>
                         <th>Materia</th>                                
                     </tr>
@@ -130,6 +130,7 @@
         padding-top:30px;
         padding-left:50px !important; 
     }
+
     
 </style>
 <link rel="stylesheet" href="/css/admin_custom.css">
@@ -163,7 +164,7 @@
         $('#grilla_folios tbody').empty();        
 
         grilla_folios = $('#grilla_folios').DataTable({
-            dom: 'Brtip', 
+            //dom: 'Brtip', 
             buttons: {
                 dom:{
                     button:{
@@ -192,13 +193,14 @@
             },
             processing: true,
             serverSide: false,
+            searching:true,
             order: [[ 0, 'desc' ]], 
             responsive: true,                
             language: lenguaje_datatable,
             columns: [
-                { data: 'id_documento', name: 'id_documento' },
-                { data:'fecha_folio',name:'fecha_folio'},
                 { data: 'folio', name: 'folio' },
+                { data:'fecha_folio',name:'fecha_folio'},
+                { data: 'id_documento', name: 'id_documento' },
                 { data: 'buzon', name: 'buzon' },
                 { data: 'materia', name: 'materia' 
                 }
