@@ -21,6 +21,7 @@ use App\Models\TipoFlujo;
 use App\Models\TipoFlujoAccion;
 use App\Models\TipoFolio;
 use App\Models\TipoOrigen;
+use App\Models\Anio;
 
 class Controller extends BaseController
 {
@@ -98,6 +99,9 @@ class Controller extends BaseController
 
                 $datosTipoDestino = TipoDestino::all('id_tipo_destino', 'nombre');
                 $aJsonSalida["tipo_destino"] = $datosTipoDestino;
+
+                $datosAnio = Anio::all('id_anio', 'descripcion','estado');
+                $aJsonSalida["anio"] = $datosAnio;
 
                 return $this->respondSuccess($aJsonSalida, 200);
             }  

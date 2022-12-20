@@ -207,6 +207,8 @@ class BuzonController extends Controller
 
         $buzon = Buzon::findOrFail($id);
 
+        $year_actual = session('year');
+
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos="";
         $estados_usuario="";
@@ -216,6 +218,7 @@ class BuzonController extends Controller
             ->timeout(100)
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
+                'year_actual' => $year_actual,
             ]), 'json')
             ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu')
             ->throw(function ($response, $e) {
@@ -226,6 +229,7 @@ class BuzonController extends Controller
         if(isset($menuBuzon['data'])){
             foreach ($menuBuzon['data'] as $key => $value)
             {
+                //echo $value['id_buzon'];
                 if($value['id_buzon']==$id){
                     $n_docs_por_recibir=$value['n_docs_por_recibir'];
                     $n_docs_recibidos_pendientes=$value['n_docs_recibidos_pendientes'];
@@ -623,7 +627,7 @@ class BuzonController extends Controller
 
     public function listar(Request $request)
     {
-           
+        $year_actual = session('year');   
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
@@ -665,7 +669,9 @@ class BuzonController extends Controller
                         'documento_buzon.contestar_hasta as contestas_hasta',
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
-                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta);
+                    ->where('documento_buzon.id_carpeta','=',$request->id_carpeta)
+                    ->whereYear('documento.created_at', $year_actual);
+                    
                     if($request->id_carpeta==3){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
                     }
