@@ -9,6 +9,8 @@ use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $events)
     {
-
+        
         view()->composer('*', function($view)
         {
             if (Auth::check()) {
@@ -48,6 +50,27 @@ class AppServiceProvider extends ServiceProvider
             }else {
                 $view->with('sesion_key', null);
             }
+
+            if (isset($sesion_key))
+            {
+                $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+                ->timeout(100)
+                ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+                
+                if($listado_parametros->failed()){
+                    
+                }else{            
+                    $datosAnio = $listado_parametros['data']['anio'];           
+                }
+                
+                if (session('year') == null)
+                    session(['year' => date('Y')]);
+                    
+                $view->with('listado_anios', $datosAnio);
+                //$view->with('anio_actual', $datoAnioActual);
+
+            }
+            
         });
 
         $events->listen(BuildingMenu::class, function (BuildingMenu $event) {
@@ -90,18 +113,19 @@ class AppServiceProvider extends ServiceProvider
             $submenu_buzones_usuarios=[];
 
             $sesion_key =  AppServiceProvider::session_key_general();
-
+            
             $menuBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
+                'year_actual' => session('year'),
             ]), 'json')
             ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
 
             if($menuBuzon->failed()){
 
             }else{
-
+                
                 $buzones = $menuBuzon['data'];
                 $colores = ['red','yellow','cyan','purple', 'blue', 'orange'];
                 $color_personal='green';
@@ -239,6 +263,13 @@ class AppServiceProvider extends ServiceProvider
             }
         }
         return $sesion_key;
+    }
+    public static function session_periodo($year){
+        $sesion_periodo=0;
+        if (Auth::check() && isset($year)) {
+            $sesion_periodo = $year;
+        }
+        return $sesion_periodo;
     }
 
 }

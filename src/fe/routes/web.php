@@ -11,6 +11,7 @@ use App\Http\Controllers\BuzonUsuarioExternoController;
 use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
 use App\Http\Controllers\PLCController;
+use App\Http\Controllers\PanelController;
 
 use App\Jobs\Firma;
 
@@ -23,11 +24,15 @@ use App\Jobs\Firma;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
+
+
+
 */
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/', function () {
-    return view('panel.index');
-})->name('panel');
+//Route::middleware(['auth:sanctum', 'verified'])->get('/', function () { return view('panel.index'); })->name('panel');
+
+Route::middleware(['auth:sanctum', 'verified'])->get('/',[PanelController::class,'index'])->name('panel.index');
+Route::middleware(['auth:sanctum', 'verified'])->post('captura',[PanelController::class,'captura'])->name('panel.captura');
 
 //usuarios
 Route::middleware(['auth:sanctum', 'verified'])->get('usuarios',[UsuarioController::class,'index'])->name('usuarios.index');

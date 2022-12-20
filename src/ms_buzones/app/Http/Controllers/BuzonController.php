@@ -331,22 +331,28 @@ class BuzonController extends Controller{
                 foreach ($datosBuzon as $buzon)
                 {
                     if(isset($buzon->buzon->id_buzon)){
-                        $documento_buzon_por_recibir = DocumentoBuzon::where('id_carpeta','=','1')
+                       
+                        $documento_buzon_por_recibir_count = DocumentoBuzon::join('documento', 'documento.id_documento','=','documento_buzon.id_documento')
+                        ->where('id_carpeta','=','1')
                         ->where('id_estado_documento','=','3')
                         ->where('id_buzon','=',$buzon->buzon->id_buzon)
-                        ->get();
-                        $documento_buzon_recibidos_pendientes = DocumentoBuzon::where('id_carpeta','=','2')
-                        ->where('id_estado_documento','=','4')
-                        ->where('id_buzon','=',$buzon->buzon->id_buzon)
-                        ->get();
+                        ->whereYear('documento.created_at', $datosRequest['year_actual'])
+                        ->get()->count();
+                        
+                        $documento_buzon_recibidos_pendientes_count= DocumentoBuzon::join('documento', 'documento.id_documento','=','documento_buzon.id_documento')
+                        ->where('documento_buzon.id_carpeta','=','2')
+                        ->where('documento_buzon.id_estado_documento','=','4')
+                        ->where('documento_buzon.id_buzon','=',$buzon->buzon->id_buzon)
+                        ->whereYear('documento.created_at', $datosRequest['year_actual'])
+                        ->get()->count();
 
                         array_push($arreglo_datos_enlazados,[
                             'id_buzon'=>$buzon->buzon->id_buzon,
                             'nombre_buzon'=>$buzon->buzon->nombre,
                             'nombre_corto_buzon'=>$buzon->buzon->nombre_corto,
                             'tipo_buzon'=>$buzon->buzon->id_tipo_buzon,
-                            'n_docs_por_recibir'=>count($documento_buzon_por_recibir),
-                            'n_docs_recibidos_pendientes'=>count($documento_buzon_recibidos_pendientes)
+                            'n_docs_por_recibir'=>$documento_buzon_por_recibir_count,
+                            'n_docs_recibidos_pendientes'=>$documento_buzon_recibidos_pendientes_count
                         ]) ;
                     }
                 }
