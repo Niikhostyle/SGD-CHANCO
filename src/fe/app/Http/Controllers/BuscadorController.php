@@ -225,6 +225,8 @@ class BuscadorController extends Controller
 
     public function listar(Request $request)
     {
+        $year_actual = session('year');  
+       
         $extraquery = "";
         // //construir filtro
         $query = $request->busqueda_simple;
@@ -235,6 +237,9 @@ class BuscadorController extends Controller
             }    
         }
 
+        if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin))
+            $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
+        
         $datos =  DB::select("select 
         distinct d.id_documento as id_documento
         , max(db.id_documento_buzon)
