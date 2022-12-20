@@ -12,6 +12,7 @@ use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
 use App\Http\Controllers\PLCController;
 use App\Http\Controllers\PanelController;
+use App\Http\Controllers\AuditoriaFoliosController;
 
 use App\Jobs\Firma;
 
@@ -148,3 +149,8 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
+
+//auditoria de folios
+Route::middleware(['auth:sanctum', 'verified'])->get('auditoria_folios',[AuditoriaFoliosController::class,'index'])->name('auditoria_folios.index');
+Route::middleware(['auth:sanctum', 'verified'])->get('obtener_tipos_documentos',[AuditoriaFoliosController::class,'obtener_tipos_documentos'])->name('auditoria_folios.obtener_tipos_documentos');
+Route::middleware(['auth:sanctum', 'verified'])->get('obtener_folios',[AuditoriaFoliosController::class,'obtener_folios'])->name('auditoria_folios.obtener_folios');

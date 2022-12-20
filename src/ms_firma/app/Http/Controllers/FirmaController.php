@@ -246,6 +246,10 @@ class FirmaController extends Controller
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();   
                 
+
+                //Log::error("Dump Respuesta: " . $nRutFirma); 
+                //Log::error("Dump Respuesta: " . $aRespuestaFirma); 
+
                 if (isset($aRespuestaFirma['status'])) 
                 {
                     $comentario = $aRespuestaFirma['error'];
@@ -332,6 +336,7 @@ class FirmaController extends Controller
                     else
                     {
                         $comentario = "No se pudo procesar la respuesta.";
+                        Log::error("Dump Respuesta: " . $aRespuestaFirma); 
                         throw new Exception($comentario);
                     }
                 }

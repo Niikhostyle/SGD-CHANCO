@@ -72,31 +72,36 @@ class ArchivoController extends Controller{
                 $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
                 $nFolio = $datosDocumentos['folio'];
 
-                if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
-                {                                           
-                    $anio = date('Y');
-                    $fecha = date('Y-m-d H:i:s');
+                //si existe folio, saltar proceso de obtención de folio
+                if($nFolio==null){
+                    if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
+                    {                                           
+                        $anio = date('Y');
+                        $fecha = date('Y-m-d H:i:s');
 
-                    $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-                    ->timeout(30)
-                    ->withBody(json_encode([
-                        'id_tipo_documento' => $idTipoDocumento,
-                        'anio' => $anio ,
-                        'id_buzon' => $datosRequest['id_buzon'],
-                        'id_tipo_folio' => $idTipoFolio
-                    ]), 'json')
-                    ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                        $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                        ->timeout(30)
+                        ->withBody(json_encode([
+                            'id_tipo_documento' => $idTipoDocumento,
+                            'anio' => $anio ,
+                            'id_buzon' => $datosRequest['id_buzon'],
+                            'id_tipo_folio' => $idTipoFolio
+                        ]), 'json')
+                        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
 
-                    if (isset($nFolio))
-                    {
-                        Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                        Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);                              
+                        if (isset($nFolio))
+                        {
+                            Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);                              
+                        }
+                        else
+                        {
+                            return $this->respondError('No fue posible generar el folio.', 400);
+                        }  
+                
                     }
-                    else
-                    {
-                        return $this->respondError('No fue posible generar el folio.', 400);
-                    }  
-            
+                }else{
+                    $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']);
                 }
 
                 //reemplazar valores en encabezado
@@ -228,23 +233,33 @@ class ArchivoController extends Controller{
                 $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
                     
                 $datosDocumentos = Documento::findOrFail($nDocumento); 
+                $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 
                 //OBTENCION DE FOLIO
-                $idTipoDocumento = $datosDocumentos->id_tipo_documento;
-                $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
-                $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
-                $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
-                $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
-                $nFolio = $datosDocumentos['folio'];
-
+                // si existe folio (por alguna razon, no volver a foliar)
+                if($datosDocumentos->folio==null){
+                    $idTipoDocumento = $datosDocumentos->id_tipo_documento;
+                    $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
+                    $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
+                    $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
+                    $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+                    $nFolio = $datosDocumentos['folio'];
+                    $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
+                }else{
+                    //$sfecha = $datosDocumentos->fecha;
+                    $date = strtotime($datosDocumentos->fecha);
+                    $sfecha = date('d',$date)." de ".$aMeses[date('n',$date)-1]. " del ".date('Y',$date);
+                    $nFolio = $datosDocumentos->folio;
+                }
+                
                 if (isset($nFolio) == null || isset($nFolio) == '')
                     $nFolio = '000';
 
                 //reemplazar valores en encabezado
                 //Nº {t_folio} {t_anio} {t_fecha}
 
-                $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");                
-                $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
+                               
+                               
 
                 $sEncabezado = $datosDocumentos['encabezado'];
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
@@ -256,6 +271,8 @@ class ArchivoController extends Controller{
                 
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+
+               // dd($datosDocumentosencabezado);
                 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
 
