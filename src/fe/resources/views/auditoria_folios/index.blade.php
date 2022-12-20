@@ -19,9 +19,9 @@
                 <div class="form-group">
                     <label for="id_documento">Tipo Folio: </label>
                     <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)">
-                        <option value="">Seleccionar</option>
+                        <option value="">Todos</option>
                         @foreach($tipos_folio as $tp)
-                            <option value="{{ $tp['id_tipo_folio'] }}">{{ $tp['nombre'] }}</option>
+                            <option value="{{ $tp['nombre'] }}">{{ $tp['nombre'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -37,7 +37,8 @@
             </div>
             <div class="col-md-4 md-4">
                 <div class="form-group">
-                    <i id="botones_grilla_despachados"></i>
+                    <!-- i id="botones_grilla_despachados"></i-->
+                    <button id="btnBuscar" class="btn btn-success">Buscar</button>
                 </div>
             </div>
         </div>
@@ -48,12 +49,14 @@
         <div class="card-body">
             <table id="grilla_folios"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                 <thead>
-                    <tr class="grilla_header">
-                        <th>Folio</th>
+                    <tr class="grilla_header text-center">
+                        <th class="">Folio</th>
                         <th>Fecha Asignación Folio</th>
                         <th>ID Documento</th>
                         <th>Buzón Actual</th>
                         <th>Materia</th>                                
+                        <th>Tipo Folio</th>                                
+                        <th>Tipo Documento</th>                                
                     </tr>
                 </thead>
                 <tbody>
@@ -151,118 +154,31 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 <script>
-
     $(document).ready(function () {
-        $(function() {         
-            fn_grilla_folios();
+        $('#grilla_folios').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '/obtener_folios',
+            order:[0,'DESC'],
+            language: lenguaje_datatable,
+            columns:[
+                {data:"folio",className: 'dt-body-right'},
+                {data:"fecha_folio","orderable": false,className: 'dt-body-center'},
+                {data:"id_documento","orderable": false,className: 'dt-body-right'},
+                {data:"buzon","orderable": false},
+                {data:"materia","orderable": false},
+                {data:"nombre_folio",visible:true, searchable: true,"orderable": false},
+                {data:"nombre_documento",visible:true, searchable: true ,"orderable": false}
+            ]
+            //,visible:true, searchable: true
         });
-
     });
 
-    async function fn_grilla_folios(){
-
-        $('#grilla_folios tbody').empty();        
-
-        grilla_folios = $('#grilla_folios').DataTable({
-            //dom: 'Brtip', 
-            buttons: {
-                dom:{
-                    button:{
-                        className: 'btn'
-                    }
-                },
-                buttons:[
-                    {
-                        extend:"excel",
-                        exportOptions: { 
-                            columns: function(column, data, node) {
-                                
-                                if (column > 8) {
-                                    return false;
-                                }
-                                return true;
-                            }
-                        },
-                        text:'Descargar busqueda',
-                        className: 'btn btn-success',
-                        excelStyles:{
-                            temlate:'header_blue'
-                        }
-                    }
-                ]
-            },
-            processing: true,
-            serverSide: false,
-            searching:true,
-            order: [[ 0, 'desc' ]], 
-            responsive: true,                
-            language: lenguaje_datatable,
-            columns: [
-                { data: 'folio', name: 'folio' },
-                { data:'fecha_folio',name:'fecha_folio'},
-                { data: 'id_documento', name: 'id_documento' },
-                { data: 'buzon', name: 'buzon' },
-                { data: 'materia', name: 'materia' 
-                }
-            ],
-            initComplete : function() {
-                self = this.api(),
-                $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
-                        .text('Limpiar')
-                        .click(function() {
-                            $('#tipo_documento').find('option:eq(0)').prop('selected', true);
-                            $('#tipo_folio').find('option:eq(0)').prop('selected', true);
-                            $searchButton.click();
-                        }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
-                        .text('Buscar')
-                        .click(function() {
-                                grilla_folios.clear();
-                                $('.dataTables_processing', $('#grilla_folios').closest('.dataTables_wrapper')).show();
-                                //buscar en servidor
-                                console.log($('#tipo_folio').val())
-                                //construir objeto de busqueda
-                                let params = new FormData();
-                                let queries =["tipo_folio","tipo_documento"];
-                                for (let i = 0; i < queries.length; i++) {
-                                    //console.log(item);
-                                    //console.log($('#'+queries[i]).val());
-                                    if($('#'+queries[i]).val()!=''){
-                                        params.append(queries[i],$('#'+queries[i]).val());
-                                    }
-                                }
-                                $.ajax({
-                                    Type: 'GET',
-                                    url: '/obtener_folios',
-                                    data:[...params].reduce((o, [k, v]) => {o[k] = v;return o;}, {}),
-                                    processing: true,
-                                    serverSide: true,
-                                    order: [[ 0, 'desc' ]], 
-                                }).done(function (result) {
-                                    console.log(typeof result);
-                                    //result = JSON.parse(result);
-                                    
-                                    grilla_folios.rows.add(result.data).draw();
-                                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-                                    $('.dataTables_processing', $('#grilla_folios').closest('.dataTables_wrapper')).hide();
-                                    grilla_folios.columns(0).search($('#buscar_id_documento').val()).draw();
-                                    grilla_folios.columns(2).search($('#buscar_tipo_documento').val()).draw();
-                                    grilla_folios.columns(3).search($('#buscar_folio').val()).draw();                               
-                                    
-                                    grilla_folios.columns(4).search($('#buscar_buzon_origen').val()).draw();  
-                                    if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                        grilla_folios.columns(7).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
-                                    else
-                                        grilla_folios.columns(7).search("true|false", true, false).draw(); 
-
-                                });
-                        })
-                $('#botones_grilla_despachados').html('');
-                $('#botones_grilla_despachados').append($clearButton,$searchButton);
-                $('#grilla_despachados_filter').html('');
-            }
-        }); 
-    }    
+    $('#btnBuscar').click(function() {
+        $('#grilla_folios').DataTable().columns(5).search($('#tipo_folio').val()).draw();
+        $('#grilla_folios').DataTable().columns(6).search($('#tipo_documento').val()).draw();
+    });
+    
 
     function obtenerTiposDocumentos(nTipoFolio){
         $('#tipo_documento').hide();
@@ -278,10 +194,10 @@
                 $('#tipo_documento option').remove();
                 let nFilas = 0;
                
-                $('#tipo_documento').append('<option value="">Seleccionar</option>');
+                $('#tipo_documento').append('<option value="">Todos</option>');
                 for (x of data) {
                     nFilas++;
-                    $('#tipo_documento').append('<option value="'+x.id_tipo_documento+'">'+x.nombre+'</option>');
+                    $('#tipo_documento').append('<option value="'+x.nombre+'">'+x.nombre+'</option>');
                 }
                 if(nFilas == 0){
                     $('#tipo_documento option').remove();

@@ -957,6 +957,7 @@
         editor_cuerpo.setReadOnly(false);
 
         $('.btn-guardar-submit').show();   
+        $('.btn-guardar-submit').prop("disabled",false);
         $('.btn-guardar-submit-edit').show();   
 
         /* responder a */
@@ -1183,6 +1184,7 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
+        $('.btn-guardar-submit').prop("disabled", true);
         guarda_documento(1);
     });
 
@@ -1195,6 +1197,7 @@
         );
 
         $(".print-error-msg").hide();
+        $('.btn-enviar-submit').prop("disabled",true);
 
         //guarda_documento();
         enviar_documento();
@@ -1339,12 +1342,14 @@
                     $('#form_tipo_documento').prop("disabled", true);
 
                     //habilita botón enviar y guardar
-                    $('.btn-guardar-submit').show(); 
+                    $('.btn-guardar-submit').show();
+                    $('.btn-guardar-submit').prop("disabled", false);
                     $('.btn-guardar-submit-edit').show();   
                     $('.btn-vp').prop("disabled", false);  
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
+                        $('.btn-enviar-submit').prop("disabled",false);
     
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
@@ -1572,12 +1577,14 @@
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
+                            $('.btn-enviar-submit').prop("disabled",false);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
 
                             toastr.error("Falla en el envío del documento","Aviso!");
 
                             $('.btn-enviar-submit').html( 'Enviar' );
+                            $('.btn-enviar-submit').prop("disabled",false);
                         }
                     });
 
@@ -1585,6 +1592,10 @@
                 });
 
                 
+            }
+            else{
+                $('.btn-enviar-submit').html( 'Enviar' );
+                $('.btn-enviar-submit').prop("disabled",false);
             }
         })               
     }
@@ -2879,8 +2890,10 @@
         $('#form_tipo_documento').prop("disabled", true); 
        
         $('.btn-guardar-submit').show();
+        $('.btn-guardar-submit').prop("disabled", false);
         $('.btn-guardar-submit-edit').show();
         $('.btn-enviar-submit').show();
+        $('.btn-enviar-submit').prop("disabled",false);
         $('#addButton').html('');
         $('.btn-vp').prop("disabled", false);
 
