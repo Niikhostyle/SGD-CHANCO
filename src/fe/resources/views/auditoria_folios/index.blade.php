@@ -19,7 +19,7 @@
                 <div class="form-group">
                     <label for="id_documento">Tipo Folio: </label>
                     <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)">
-                        <option value="">Todos</option>
+                        <option value="">Seleccione</option>
                         @foreach($tipos_folio as $tp)
                             <option value="{{ $tp['id_tipo_folio'] }}">{{ $tp['nombre'] }}</option>
                         @endforeach
@@ -49,12 +49,13 @@
         <div class="card-body">
             <table id="grilla_folios"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
                 <thead>
-                    <tr class="grilla_header text-center">
-                        <th class="">Folio</th>
-                        <th>Fecha Asignación Folio</th>
-                        <th>ID Documento</th>
-                        <th>Buzón Actual</th>
-                        <th>Materia</th>                                
+                    <tr class="grilla_header">
+                        <th class="text-center">Folio</th>
+                        <th class="text-left">Buzon Origen</th>
+                        <th class="text-center">Fecha Asignación Folio</th>
+                        <th class="text-center">ID Documento</th>
+                        <th class="text-left">Buzón Actual</th>
+                        <th class="text-left">Materia</th>                                
                     </tr>
                 </thead>
                 <tbody>
@@ -160,11 +161,12 @@
             order:[0,'DESC'],
             language: lenguaje_datatable,
             columns:[
-                {data:"folio",className: 'dt-body-right'},
+                {data:"folio",className: 'dt-body-center'},
+                {data:"buzon_origen",className:'dt-body-left'},
                 {data:"fecha_folio","orderable": false,className: 'dt-body-center'},
-                {data:"id_documento","orderable": false,className: 'dt-body-right'},
-                {data:"buzon","orderable": false},
-                {data:"materia","orderable": false}
+                {data:"id_documento","orderable": false,className: 'dt-body-center'},
+                {data:"buzon","orderable": false,className: 'dt-body-left'},
+                {data:"materia","orderable": false,className: 'dt-body-left'}
             ]
             //,visible:true, searchable: true
         });
