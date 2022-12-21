@@ -55,7 +55,7 @@ class AuditoriaFoliosController extends Controller
         }
         else{            
             $datos = DB::select("select 
-                        d.id_documento,to_char(d.fecha,'dd-mm-yyyy HH24:MI:SS') fecha_folio, d.folio ,b.nombre as buzon, d.materia
+                        d.id_documento,to_char(d.fecha,'dd-mm-yyyy HH24:MI:SS') fecha_folio, d.folio ,b.nombre as buzon, d.materia,(select bo.nombre from documento_buzon db2 join buzon bo on db2.id_buzon = bo.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon_padre limit 1) as buzon_origen
                     from
                         documento as d
                         join tipo_documento as td on td.id_tipo_documento = d.id_tipo_documento
