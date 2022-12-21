@@ -21,7 +21,7 @@
                     <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)">
                         <option value="">Todos</option>
                         @foreach($tipos_folio as $tp)
-                            <option value="{{ $tp['nombre'] }}">{{ $tp['nombre'] }}</option>
+                            <option value="{{ $tp['id_tipo_folio'] }}">{{ $tp['nombre'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -55,8 +55,6 @@
                         <th>ID Documento</th>
                         <th>Buzón Actual</th>
                         <th>Materia</th>                                
-                        <th>Tipo Folio</th>                                
-                        <th>Tipo Documento</th>                                
                     </tr>
                 </thead>
                 <tbody>
@@ -158,7 +156,7 @@
         $('#grilla_folios').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '/obtener_folios',
+            ajax: '/obtener_folios?tipo_folio=&tipo_documento=',
             order:[0,'DESC'],
             language: lenguaje_datatable,
             columns:[
@@ -166,17 +164,18 @@
                 {data:"fecha_folio","orderable": false,className: 'dt-body-center'},
                 {data:"id_documento","orderable": false,className: 'dt-body-right'},
                 {data:"buzon","orderable": false},
-                {data:"materia","orderable": false},
-                {data:"nombre_folio",visible:true, searchable: true,"orderable": false},
-                {data:"nombre_documento",visible:true, searchable: true ,"orderable": false}
+                {data:"materia","orderable": false}
             ]
             //,visible:true, searchable: true
         });
     });
 
     $('#btnBuscar').click(function() {
-        $('#grilla_folios').DataTable().columns(5).search($('#tipo_folio').val()).draw();
-        $('#grilla_folios').DataTable().columns(6).search($('#tipo_documento').val()).draw();
+        let tipo_folio = $('#tipo_folio').val();
+        let tipo_documento = $('#tipo_documento').val();
+        $('#grilla_folios').DataTable().ajax.url('/obtener_folios?tipo_folio='+tipo_folio+'&tipo_documento='+tipo_documento).load();
+        // $('#grilla_folios').DataTable().columns(5).search($('#tipo_folio').val()).draw();
+        // $('#grilla_folios').DataTable().columns(6).search($('#tipo_documento').val()).draw();
     });
     
 
@@ -197,7 +196,7 @@
                 $('#tipo_documento').append('<option value="">Todos</option>');
                 for (x of data) {
                     nFilas++;
-                    $('#tipo_documento').append('<option value="'+x.nombre+'">'+x.nombre+'</option>');
+                    $('#tipo_documento').append('<option value="'+x.id_tipo_documento+'">'+x.nombre+'</option>');
                 }
                 if(nFilas == 0){
                     $('#tipo_documento option').remove();
