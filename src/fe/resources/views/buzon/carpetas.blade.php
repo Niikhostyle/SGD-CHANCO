@@ -3090,7 +3090,7 @@
         grilla_recibidos = $('#grilla_recibidos').DataTable({
                 dom: 'l<"addFrm">Btip',
                 processing: true,
-                serverSide: false,
+                serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
                 order: [[ 3, 'desc' ]],        
@@ -3293,6 +3293,7 @@
                     }
                     }
                 ],
+                /*
                 initComplete : function() {
                     var input = $('#gr_buscar_origen_materia input').unbind(),
                     self = this.api(),
@@ -3333,6 +3334,7 @@
                     });
                     $('#filtro-td').trigger("change");
                 }
+                */
         });
         
         var column = grilla_recibidos.column(0); 
@@ -3353,7 +3355,7 @@
         $('#grilla_despachados tbody').empty();
         grilla_despachados=  $('#grilla_despachados').DataTable({
             processing: true,
-            serverSide: false,
+            serverSide: true,
             ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=3',
             type:'json',
             order: [[ 2, 'desc' ]],  
@@ -3497,6 +3499,7 @@
                   }
                 }
             ],
+            /*
             initComplete : function() {
                     var input = $('#gd_buscar_destino_materia input').unbind(),
                     self = this.api(),
@@ -3521,6 +3524,7 @@
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#grilla_despachados_filter').html('');
                 }
+                */
 
         });
         $('#despachados').on('error.dt', function(e, settings, techNote, message) {
