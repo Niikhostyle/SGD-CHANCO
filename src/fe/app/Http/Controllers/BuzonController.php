@@ -670,7 +670,9 @@ class BuzonController extends Controller
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta)
-                    ->whereYear('documento.created_at', $year_actual);
+                    ->whereYear('documento.created_at', $year_actual)
+                    //->whereRaw('documento_buzon.fecha = (select max(db.fecha) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon)')
+                    ;
                     
                     if($request->id_carpeta==3){
                         $datos->whereIn('documento_buzon.id_estado_documento',array(1,2)); //3- Despachado
