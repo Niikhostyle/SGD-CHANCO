@@ -56,6 +56,7 @@
                         <th class="text-center">ID Documento</th>
                         <th class="text-left">Buzón Actual</th>
                         <th class="text-left">Materia</th>                                
+                        <th class="text-left">Tipo Documento</th>                                
                     </tr>
                 </thead>
                 <tbody>
@@ -166,7 +167,8 @@
                 {data:"fecha_folio","orderable": false,className: 'dt-body-center'},
                 {data:"id_documento","orderable": false,className: 'dt-body-center'},
                 {data:"buzon","orderable": false,className: 'dt-body-left'},
-                {data:"materia","orderable": false,className: 'dt-body-left'}
+                {data:"materia","orderable": false,className: 'dt-body-left'},
+                {data:"nombre_documento","orderable": false,className: 'dt-body-left'}
             ]
             //,visible:true, searchable: true
         });
