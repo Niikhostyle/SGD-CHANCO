@@ -159,7 +159,7 @@
             processing: true,
             serverSide: true,
             ajax: '/obtener_folios?tipo_folio=&tipo_documento=',
-            order:[0,'DESC'],
+            order:[[0,'DESC'], [4,'asc'] ],
             language: lenguaje_datatable,
             columns:[
                 {data:"folio",className: 'dt-body-center'},
@@ -168,7 +168,7 @@
                 {data:"id_documento","orderable": false,className: 'dt-body-center'},
                 {data:"buzon","orderable": false,className: 'dt-body-left'},
                 {data:"materia","orderable": false,className: 'dt-body-left'},
-                {data:"nombre_documento","orderable": false,className: 'dt-body-left'}
+                {data:"nombre_documento","orderable": true,className: 'dt-body-left'}
             ]
             //,visible:true, searchable: true
         });
