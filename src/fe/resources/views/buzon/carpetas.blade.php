@@ -88,7 +88,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Texto Libre:</td>
+                                            <td>Materia:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -104,8 +104,8 @@
                                                 <select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado"  multiple="multiple">
                                                     
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
-                                                        @if($estado_documento['id_estado_documento'] > 2)    
-                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @if($estado_documento['id_estado_documento'] > 3)    
+                                                            <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
                                                         @endif    
                                                     @endforeach
                                                 </select>
@@ -147,7 +147,7 @@
                                             <td>ID Doc:</td>
                                             <td>Tipo Documento:</td>
                                             <td>Estado:</td>
-                                            <td>Texto Libre:</td>
+                                            <td>Materia:</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -165,12 +165,12 @@
                                                  
                                                     @foreach($listado_parametros['estado_documento'] as $estado_documento)
                                                         @if($estado_documento['id_estado_documento'] < 3)    
-                                                            <option value='{{$estado_documento['nombre_corto']}}'> {{$estado_documento['nombre']}} </option>
+                                                            <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
                                                         @endif 
                                                     @endforeach
                                                 </select>
                                             </td>
-                                            <td><input type="search" aria-controls="grilla_despachados" class="form-control"  id="gd_buscar_destino_materia" name="gd_buscar_destino_materia"></td>
+                                            <td><input type="text" class="form-control"  id="gd_buscar_destino_materia" name="gd_buscar_destino_materia"></td>
                                             <td id="botones_grilla_despachados">
                                             </td>
                                         </tr>
@@ -3101,7 +3101,7 @@
                 ],          
                 columns: [
                     {
-                        data: 'estado_documento',
+                        data: 'estado_documento', name: 'estado_documento.nombre_corto', 
                         targets: 0,
                         searchable:false,
                         orderable:false,
@@ -3156,7 +3156,7 @@
                         return '<div id="addChkFrm"></div>';
                         }
                     },
-                    { data: 'estado_documento', 
+                    { data: 'estado_documento', name: 'documento_buzon.id_estado_documento', 
                             render: function(data, type, row)
                             {
                                 if (type === 'display') 
@@ -3174,19 +3174,19 @@
                         }
                     },
                     
-                    { data: 'fecha_envio_recepcion', 
+                    { data: 'fecha_envio_recepcion',
                             render: function(data)
                             {
                                 return moment(data).format('DD-MM-YYYY HH:mm');
                             }
                     },
-                    { data: 'materia', name: 'documento.materia' ,'width':200,
+                    { data: 'materia', name:'documento.materia','width':200,
                         render:function(data){
                             if(data==null){ return ''; }
                             return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
                         }
                     },
-                    { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                    { data: 'tipo_documento'},
                     { data: 'tipo_envio', name: 'tipo_destino.nombre' },
                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
                     { data: 'buzon_origen',
@@ -3201,7 +3201,7 @@
                                 return '';
                             }     
                     },
-                    { data: 'contestas_hasta', 
+                    { data: 'contestas_hasta', name: 'documento_buzon.contestar_hasta',
                             render: function(data)
                             {
                                 if(data == null)
@@ -3211,7 +3211,7 @@
                             }
                     },
                     {data:'folio',name: 'documento.folio'},
-                    { data: 'id_documento',
+                    { data: 'id_documento', name:'documento.id_documento',
                     render: function(data, type, row) {
                         if (type === 'display') {
                             if(data==null){
@@ -3293,7 +3293,7 @@
                     }
                     }
                 ],
-                /*
+                
                 initComplete : function() {
                     var input = $('#gr_buscar_origen_materia input').unbind(),
                     self = this.api(),
@@ -3301,11 +3301,10 @@
                             .text('Limpiar')
                             .click(function() {
                                 $('#gr_buscar_origen_materia').val('');
-                                //$('#gr_buscar_estado').find('option:eq(0)').prop('selected', true);
                                 $('#gr_buscar_estado').multiselect('selectAll', true);
                                 $('#gr_buscar_estado').multiselect('deselect', ["A"]);
-
-                                //$('#gr_buscar_tipo_doc').find('option:eq(0)').prop('selected', true);
+                                $('#gr_buscar_tipo_doc').multiselect('selectAll', true);
+                                $('#gr_buscar_tipo_doc').multiselect('deselect', ["A"]);
                                 $('#gr_buscar_id_doc').val('');
                                 $searchButton.click();
                             }),
@@ -3313,20 +3312,22 @@
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
-                                grilla_recibidos.columns(2).search("(^"+estados+"$)",1,0).draw();
+                                grilla_recibidos.columns(2).search(""+estados+"",true,false).draw();
                                 grilla_recibidos.columns(3).search($('#gr_buscar_id_doc').val()).draw();
-                                grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val().join("|"),1,0).draw();
-                                self.search($('#gr_buscar_origen_materia').val()).draw();
+                                grilla_recibidos.columns(5).search($('#gr_buscar_origen_materia').val()).draw();    
+                                grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                //self.search($('#gr_buscar_origen_materia').val()).draw();
 
                             })
+                            
                     $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton,$searchButton);
                     $('#grilla_recibidos_filter').html('');      
-                    grilla_recibidos.columns(2).search($('#gr_buscar_estado').val().join("|"),1,0).draw();              
 
                     if(aplicaFrm == 1)
                         $("div.addFrm").append("<input type='checkbox' name='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
-                    //filtro por TD
+                    
+                        //filtro por TD
                     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
                     $('#filtro-td').multiselect('select', 'Principal');
                     $('#filtro-td').on("change",function(){
@@ -3334,7 +3335,7 @@
                     });
                     $('#filtro-td').trigger("change");
                 }
-                */
+                
         });
         
         var column = grilla_recibidos.column(0); 
@@ -3376,7 +3377,7 @@
                     return '';
                   }
                 },
-                { data: 'estado_documento', name: 'estado_documento.nombre_corto',
+                { data: 'estado_documento', name: 'documento_buzon.id_estado_documento',
                             render: function(data, type, row)
                                         {
                                             if (type === 'display') 
@@ -3412,7 +3413,7 @@
                                     return moment(data).format('DD-MM-YYYY HH:mm');                           
                             }
                 }, 
-                { data: 'tipo_documento', name: 'tipo_documento.id_tipo_documento' },
+                { data: 'tipo_documento'},
                 { data: 'destinatario', 
                             render: function(data, type, row) {
                                 if (type === 'display') 
@@ -3499,7 +3500,7 @@
                   }
                 }
             ],
-            /*
+            
             initComplete : function() {
                     var input = $('#gd_buscar_destino_materia input').unbind(),
                     self = this.api(),
@@ -3507,24 +3508,28 @@
                             .text('Limpiar')
                             .click(function() {
                                 $('#gd_buscar_destino_materia').val('');
-                                //$('#gd_buscar_estado').find('option:eq(0)').prop('selected', true);
-                                //$('#gd_buscar_tipo_doc').find('option:eq(0)').prop('selected', true);
+                                $('#gd_buscar_estado').multiselect('selectAll', true);
+                                $('#gd_buscar_estado').multiselect('deselect', ["A"]);
+                                $('#gd_buscar_tipo_doc').multiselect('selectAll', true);
+                                $('#gd_buscar_tipo_doc').multiselect('deselect', ["A"]);
                                 $('#gd_buscar_id_doc').val('');
                                 $searchButton.click();
                             }),
                     $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
-                                grilla_despachados.columns(1).search($('#gd_buscar_estado').val().join("|"),1,0).draw();
+                                let estados=$('#gd_buscar_estado').val().join("|");
+                                grilla_despachados.columns(1).search(""+estados+"",true,false).draw();
                                 grilla_despachados.columns(2).search($('#gd_buscar_id_doc').val()).draw();
-                                grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val().join("|"),1,0).draw();
-                                self.search($('#gd_buscar_destino_materia').val()).draw();
+                                grilla_despachados.columns(5).search($('#gd_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                grilla_despachados.columns(7).search($('#gd_buscar_destino_materia').val()).draw();
+
                             })
                     $('#botones_grilla_despachados').html('');
                     $('#botones_grilla_despachados').append($clearButton,$searchButton);
                     $('#grilla_despachados_filter').html('');
                 }
-                */
+                
 
         });
         $('#despachados').on('error.dt', function(e, settings, techNote, message) {

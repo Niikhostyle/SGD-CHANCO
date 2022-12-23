@@ -281,6 +281,7 @@ class BuzonController extends Controller
         
         $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
         $datosAccion = $listado_parametros['data']['accion'];
+        
 
         //acciones
         $aAcciones = [];
@@ -292,9 +293,14 @@ class BuzonController extends Controller
             {
                 $aFlujoAccionT1[$dato['id_accion']] = $dato['nombre'];
             }     
-        
-        }
 
+            //elimina generar pdf de acciones
+            $mykey = current($dato)-1;
+            
+            if ($dato['id_accion'] == 8)                
+                unset($datosAccion[$mykey]);
+        }
+        
         //acciones-flujo
 
         foreach ($datosFlujoAccion as $dato)
