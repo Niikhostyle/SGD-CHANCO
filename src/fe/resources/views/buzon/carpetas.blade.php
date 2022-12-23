@@ -959,6 +959,7 @@
         $('.btn-guardar-submit').show();   
         $('.btn-guardar-submit').prop("disabled",false);
         $('.btn-guardar-submit-edit').show();   
+        $('.btn-guardar-submit-edit').prop("disabled", false);
 
         /* responder a */
 
@@ -1156,10 +1157,12 @@
                         }
                     }
                     $('.btn-guardar-submit').prop("disabled", false);
+                    $('.btn-guardar-submit-edit').prop("disabled", false);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     toastr.error("Falla al obtener datos","Aviso!");
                     $('.btn-guardar-submit').prop("disabled", false);
+                    $('.btn-guardar-submit-edit').prop("disabled", false);
 
                 }
             });
@@ -1172,6 +1175,10 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
+        $('.btn-guardar-submit-edit').prop("disabled", true);
+        $('.btn-guardar-submit').prop("disabled", true);
+        $('.btn-enviar-submit').prop("disabled",true);
+        $('.btn_cerrar_guardar').prop("disabled", true);
         accion_editar_guardar(3);
     });
 
@@ -1185,6 +1192,9 @@
         );
         $(".print-error-msg").hide();
         $('.btn-guardar-submit').prop("disabled", true);
+        $('.btn-guardar-submit-edit').prop("disabled", true);
+        $('.btn-enviar-submit').prop("disabled",true);
+        $('.btn_cerrar_guardar').prop("disabled", true);
         guarda_documento(1);
     });
 
@@ -1198,7 +1208,9 @@
 
         $(".print-error-msg").hide();
         $('.btn-enviar-submit').prop("disabled",true);
-
+        $('.btn-guardar-submit').prop("disabled", true);
+        $('.btn-guardar-submit-edit').prop("disabled", true);
+        $('.btn_cerrar_guardar').prop("disabled", true);
         //guarda_documento();
         enviar_documento();
 
@@ -1245,6 +1257,7 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+       
 
         if (hiddIdDocumento == '') //crear
         {
@@ -1287,7 +1300,6 @@
             },
             success: function(data)
             {               
-
                 if(data.status == '200')
                 {                
                     if (accion == 1) //guarda
@@ -1295,7 +1307,6 @@
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
                         dropzoneAnexo.processQueue();                     
-                        
 
 
                         setTimeout(function() {
@@ -1304,9 +1315,13 @@
                             $('#card_crear_documento').hide();
                             $("#collapseOne").collapse('show');     
                             fn_grilla_despachados();
+                            $('.btn-guardar-submit').prop("disabled", false);
+                            $('.btn-guardar-submit-edit').prop("disabled", false);
+                            $('.btn-enviar-submit').prop("disabled",false);  
+                            $('.btn_cerrar_guardar').prop("disabled", false);
 
                         }, 5000);
-
+                        
                         
                     }
 
@@ -1319,12 +1334,15 @@
                         
                         setTimeout(function() {
                             callback(data);
-                            respuesta_guarda = data;                            
+                            respuesta_guarda = data;         
+                            $('.btn-guardar-submit').prop("disabled", false);
+                            $('.btn-guardar-submit-edit').prop("disabled", false);
+                            $('.btn-enviar-submit').prop("disabled",false);  
+                            $('.btn_cerrar_guardar').prop("disabled", false);                   
                         }, 5000);
-
-
-                    }                   
                         
+
+                    }                     
                 }
                 else if(data.status == '201')
                 {
@@ -1335,7 +1353,6 @@
                           "<b>ID: " + data.data.identificador + "</b><br>" +
                           "<b>Materia: " + data.data.materia + "</b>",
                     });                    
-                    
                     habilita_campos();
                     cargar_datos_grilla(data.data.id_documento,data.data.rel_documento_buzon[0]['id_documento_buzon'],data.data.rel_documento_buzon[0]['id_documento_buzon_padre'],3,1);
 
@@ -1345,12 +1362,18 @@
                     $('.btn-guardar-submit').show();
                     $('.btn-guardar-submit').prop("disabled", false);
                     $('.btn-guardar-submit-edit').show();   
+                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    $('.btn-enviar-submit').prop("disabled",false);
+                    $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-vp').prop("disabled", false);  
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
                         $('.btn-enviar-submit').prop("disabled",false);
-    
+                        $('.btn-guardar-submit').prop("disabled", false);
+                        $('.btn-guardar-submit-edit').prop("disabled", false);
+                        $('.btn_cerrar_guardar').prop("disabled", false);
+     
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
 
@@ -1358,17 +1381,25 @@
                 else
                 {
                     toastr.error(data.data.comentario,"Aviso!");
+                    $('.btn-guardar-submit').prop("disabled", false);
+                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    $('.btn-enviar-submit').prop("disabled",false);  
+                    $('.btn_cerrar_guardar').prop("disabled", false);
                 }
 
                 $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                
             },
             error: function (jqXHR, textStatus, errorThrown) {
-
                 toastr.error("Falla en el documento","Aviso!");
 
                 $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                $('.btn-guardar-submit').prop("disabled", false);
+                $('.btn-guardar-submit-edit').prop("disabled", false);
+                $('.btn-enviar-submit').prop("disabled",false);    
+                $('.btn_cerrar_guardar').prop("disabled", false);
             }
-
+        
         });
     }
 
@@ -1453,6 +1484,8 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        $('.btn-recibir-submit').prop("disabled", true);
+        $('.btn_cerrar_guardar').prop("disabled", true);
 
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
@@ -1495,19 +1528,35 @@
                         //fn_grilla_recibidos();
                         //$('#card_crear_documento').hide();
                         //$("#collapseOne").collapse('show');
+                        $('.btn-recibir-submit').prop("disabled", false);
+                        $('.btn_cerrar_guardar').prop("disabled", false);
+                        $('.btn-guardar-submit-edit').prop("disabled", false);
+                        $('.btn-guardar-submit').prop("disabled", false);
+                        $('.btn-enviar-submit').prop("disabled",false);
                     }, 5000);
                 }
                 else
                 {
                     toastr.error(data.data.comentario,"Aviso!");
+                    $('.btn-recibir-submit').prop("disabled", false);
+                    $('.btn_cerrar_guardar').prop("disabled", false);
+                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    $('.btn-guardar-submit').prop("disabled", false);
+                    $('.btn-enviar-submit').prop("disabled",false);
                 }
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
+                
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 toastr.error("Falla en el documento","Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
+                $('.btn-guardar-submit-edit').prop("disabled", false);
+                $('.btn-guardar-submit').prop("disabled", false);
+                $('.btn-enviar-submit').prop("disabled",false);
+                $('.btn_cerrar_guardar').prop("disabled", false);
+                $('.btn-recibir-submit').prop("disabled", false);
             }
 
         });
@@ -1525,7 +1574,6 @@
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
-
         Swal.fire({
             title: 'Enviar Documento',
             text: "¿Está seguro(a) que desea enviar este documento?",
@@ -1542,9 +1590,10 @@
                 
                 guarda_documento(2, function(data){                    
                     //continue your function here, inside of the callback
-
                     if (data.status == 200)
                     {
+                        $('.btn-guardar-submit').prop("disabled", true);
+                        $('.btn-guardar-submit-edit').prop("disabled", true); 
                         $.ajax({
                         url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
@@ -1562,6 +1611,8 @@
                         },
                         success: function(data)
                         {
+                            $('.btn-guardar-submit').prop("disabled", true);
+                            $('.btn-guardar-submit-edit').prop("disabled", true); 
                             if(data.status == '200')
                             {
                                 toastr.success("Documento enviado","Aviso!");
@@ -1569,15 +1620,24 @@
                                 $('#card_crear_documento').hide();        
                                 $("#collapseOne").collapse('show');
                                 clear_form();
-                                fn_grilla_despachados();        
+                                fn_grilla_despachados();  
+                                $('.btn-enviar-submit').prop("disabled",false);
+                                $('.btn-guardar-submit').prop("disabled", false);
+                                $('.btn-guardar-submit-edit').prop("disabled", false);      
+                                $('.btn_cerrar_guardar').prop("disabled", false);
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"Aviso!");
+                                $('.btn-enviar-submit').prop("disabled",false);
+                                $('.btn-guardar-submit').prop("disabled", false);
+                                $('.btn-guardar-submit-edit').prop("disabled", false);
+                                $('.btn_cerrar_guardar').prop("disabled", false);
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
-                            $('.btn-enviar-submit').prop("disabled",false);
+                            
+ 
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
 
@@ -1585,6 +1645,10 @@
 
                             $('.btn-enviar-submit').html( 'Enviar' );
                             $('.btn-enviar-submit').prop("disabled",false);
+                            $('.btn-guardar-submit').prop("disabled", false);
+                            $('.btn-guardar-submit-edit').prop("disabled", false);
+                            $('.btn_cerrar_guardar').prop("disabled", false);
+ 
                         }
                     });
 
@@ -1596,6 +1660,10 @@
             else{
                 $('.btn-enviar-submit').html( 'Enviar' );
                 $('.btn-enviar-submit').prop("disabled",false);
+                $('.btn-guardar-submit').prop("disabled", false);
+                $('.btn-guardar-submit-edit').prop("disabled", false);
+                $('.btn_cerrar_guardar').prop("disabled", false);
+ 
             }
         })               
     }
@@ -2892,8 +2960,10 @@
         $('.btn-guardar-submit').show();
         $('.btn-guardar-submit').prop("disabled", false);
         $('.btn-guardar-submit-edit').show();
+        $('.btn-guardar-submit-edit').prop("disabled", false);
         $('.btn-enviar-submit').show();
         $('.btn-enviar-submit').prop("disabled",false);
+        $('.btn_cerrar_guardar').prop("disabled", false);
         $('#addButton').html('');
         $('.btn-vp').prop("disabled", false);
 
