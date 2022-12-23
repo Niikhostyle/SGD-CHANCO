@@ -3088,7 +3088,7 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
-                dom: 'l<"addFrm">Btip',
+                //dom: 'l<"addFrm">Btip',
                 processing: true,
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
@@ -3096,9 +3096,7 @@
                 order: [[ 3, 'desc' ]],        
                 responsive: true,
                 language: lenguaje_datatable,  
-                buttons: [
-                    'copy', 'excel', 'pdf'
-                ],          
+                //buttons: [ 'copy', 'excel', 'pdf' ],          
                 columns: [
                     {
                         data: 'estado_documento', name: 'estado_documento.nombre_corto', 
