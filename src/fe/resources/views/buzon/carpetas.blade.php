@@ -2086,6 +2086,9 @@
                     }
                 });
             }
+            else{
+                $('.btn-recibir-submit').html( 'Recibir');
+            }
         })        
        
     }
