@@ -602,6 +602,8 @@
         .cke {
             margin-top: 15px !important;
         }
+
+        
         
      </style>
 
@@ -958,7 +960,12 @@
 
         $('.btn-guardar-submit').show();   
         $('.btn-guardar-submit').prop("disabled",false);
-        $('.btn-guardar-submit-edit').show();   
+        if($("#idAsignado").html() != "No Asignado"){
+            $('.btn-guardar-submit-edit').show();   
+        }
+        else{
+            $('.btn-guardar-submit').html("Guardar");
+        }
         $('.btn-guardar-submit-edit').prop("disabled", false);
 
         /* responder a */
@@ -1319,6 +1326,7 @@
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn-enviar-submit').prop("disabled",false);  
                             $('.btn_cerrar_guardar').prop("disabled", false);
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
 
                         }, 5000);
                         
@@ -1338,7 +1346,8 @@
                             $('.btn-guardar-submit').prop("disabled", false);
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn-enviar-submit').prop("disabled",false);  
-                            $('.btn_cerrar_guardar').prop("disabled", false);                   
+                            $('.btn_cerrar_guardar').prop("disabled", false);    
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
                         }, 5000);
                         
 
@@ -1365,6 +1374,7 @@
                     $('.btn-guardar-submit-edit').prop("disabled", false);
                     $('.btn-enviar-submit').prop("disabled",false);
                     $('.btn_cerrar_guardar').prop("disabled", false);
+                    $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     $('.btn-vp').prop("disabled", false);  
 
                     if(data.data.id_documento != '')
@@ -1373,6 +1383,7 @@
                         $('.btn-guardar-submit').prop("disabled", false);
                         $('.btn-guardar-submit-edit').prop("disabled", false);
                         $('.btn_cerrar_guardar').prop("disabled", false);
+                        $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
      
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
@@ -1385,15 +1396,26 @@
                     $('.btn-guardar-submit-edit').prop("disabled", false);
                     $('.btn-enviar-submit').prop("disabled",false);  
                     $('.btn_cerrar_guardar').prop("disabled", false);
+                    if($("#idAsignado").html() != "No Asignado"){
+                        $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                    }
+                    else{
+                        $('.btn-guardar-submit').html( 'Guardar' );
+                    }
                 }
 
-                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                //$('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 toastr.error("Falla en el documento","Aviso!");
 
-                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                if($("#idAsignado").html() != "No Asignado"){
+                    $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                }
+                else{
+                    $('.btn-guardar-submit').html( 'Guardar' );
+                }
                 $('.btn-guardar-submit').prop("disabled", false);
                 $('.btn-guardar-submit-edit').prop("disabled", false);
                 $('.btn-enviar-submit').prop("disabled",false);    
@@ -1463,6 +1485,12 @@
 
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
+        $('.btn-recibir-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+        );
+        $('.btn-guardar-submit-edit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+        );
         var _token = $("input[name='_token']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -1486,6 +1514,7 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         $('.btn-recibir-submit').prop("disabled", true);
         $('.btn_cerrar_guardar').prop("disabled", true);
+        
 
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
@@ -1525,6 +1554,7 @@
                     setTimeout(function() {
                         toastr.success("Documento actualizado","Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
+                        $('.btn-recibir-submit').html('Guardar');
                         //fn_grilla_recibidos();
                         //$('#card_crear_documento').hide();
                         //$("#collapseOne").collapse('show');
@@ -1545,7 +1575,7 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                 }
 
-                $('.btn-guardar-submit-edit').html( 'Guardar' );
+                //$('.btn-guardar-submit-edit').html( 'Guardar' );
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -2000,7 +2030,7 @@
     function recibir_documento(destino)
     {
         var _token = $("input[name='_token']").val();
-
+        $('.btn-recibir-submit').html( '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recibiendo');
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2034,7 +2064,7 @@
                         if(data.status == '200')
                         {
                             toastr.success("Documento Recepcionado","Aviso!");
-
+                            $('.btn-recibir-submit').html( 'Recibir');
                             $('#card_crear_documento').hide();        
                             clear_form();
                             fn_grilla_recibidos();
@@ -2043,6 +2073,7 @@
                         else
                         {
                             toastr.error(data.data.comentario,"Aviso!");
+                            $('.btn-recibir-submit').html( 'Recibir');
                         }
 
                         $('.btn-enviar-submit').html( 'Enviar' );
@@ -3638,7 +3669,12 @@
                                         success: function(data)
                                         {
                                             console.log("success",data)
-                                            if(data.status == '200'){ return resolve();}else{return reject();}
+                                            if(data.status == '200'){ 
+                                                return resolve();
+                                                
+                                            }else{
+                                                return reject();
+                                            }
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             console.log(textStatus);
@@ -3647,6 +3683,18 @@
                                     });
                             });
 		                    promiseArray.push(p);
+                            window.location.reload();
+                            // setTimeout(function() {
+                            //     $('#nav-por-recibir-tab').removeClass('active');
+                            //     $('#nav-por-recibir-tab').attr("aria-selected",false);
+                            //     $('#nav-recibidos-tab').addClass('active');
+                            //     $('#nav-recibidos-tab').attr("aria-selected",true);
+                            //     cambio_texto_boton_carpetas('Recibidos');
+                            //     $('#nav-por-recibir').removeClass('show active');
+                            //     $('#nav-recibidos').addClass('show active');
+                            //     $('#grilla_recibidos').DataTable().draw();
+                            // }, 3000);
+                            
                         }
                     });
                 });
