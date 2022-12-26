@@ -82,7 +82,7 @@
     {{-- Base Scripts --}}
     <script>
         var lenguaje_datatable = {
-        "sProcessing": "Procesando...",
+        "sProcessing": "Procesando...<span class='spinner-border spinner-border-xl' role='  status' aria-hidden='true'></span>",
         "sLengthMenu": "Mostrar _MENU_ registros",
         "sZeroRecords": "No se encontraron resultados",
         "sEmptyTable": "Ningún dato disponible en esta tabla",
