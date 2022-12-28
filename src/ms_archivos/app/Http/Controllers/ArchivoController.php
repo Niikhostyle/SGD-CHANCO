@@ -77,7 +77,7 @@ class ArchivoController extends Controller{
                     if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
                     {                                           
                         $anio = date('Y');
-                        $fecha = date('Y-m-d H:i:s');
+                        $fecha = new \DateTime('now');
 
                         $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
                         ->timeout(30)
@@ -92,7 +92,7 @@ class ArchivoController extends Controller{
                         if (isset($nFolio))
                         {
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);                              
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha->format('Y-m-d H:i:s')]);                              
                         }
                         else
                         {
@@ -108,7 +108,9 @@ class ArchivoController extends Controller{
                 //Nº {t_folio} {t_anio} {t_fecha}
 
                 $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");                
-                $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');                
+                //$sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
+                //unificacion para set encabezado de fecha cuando viene fecha seteada o cuando es actual    
+                $sfecha = $fecha->format('d')." de ".$aMeses[$fecha->format('n')-1]. " del ".$fecha->format('Y');                
 
                 $sEncabezado = $datosDocumentos['encabezado'];
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
