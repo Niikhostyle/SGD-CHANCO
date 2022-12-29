@@ -187,6 +187,8 @@
             ]
             //,visible:true, searchable: true
         });
+        $("#tipo_folio").select2();
+        $("#tipo_documento").select2();
         $("#id_buzon").select2();
     });
 
