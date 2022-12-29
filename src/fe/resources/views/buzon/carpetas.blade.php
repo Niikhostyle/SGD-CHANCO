@@ -2579,7 +2579,7 @@
                         //     console.log("Existe archivo :"+archivo_existente);
                         //     $('.row_cuerpo').show();
                         // }
-                        $('.row_cuerpo').show();
+                        //$('.row_cuerpo').show();
 
                         $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();   
