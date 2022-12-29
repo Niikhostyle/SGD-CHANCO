@@ -144,7 +144,9 @@
         padding-top:30px;
         padding-left:50px !important; 
     }
-
+    .bigdrop {
+        width: 100% !important;
+    }
     
 </style>
 <link rel="stylesheet" href="/css/admin_custom.css">
@@ -187,9 +189,9 @@
             ]
             //,visible:true, searchable: true
         });
-        $("#tipo_folio").select2();
-        $("#tipo_documento").select2();
-        $("#id_buzon").select2();
+        $("#tipo_folio").select2({dropdownCssClass : 'bigdrop'});
+        $("#id_buzon").select2({dropdownCssClass : 'bigdrop'});
+        $("#tipo_documento").select2({dropdownCssClass : 'bigdrop'}); 
     });
 
     $('#btnBuscar').click(function() {
