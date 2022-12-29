@@ -82,6 +82,7 @@ class DocumentoController extends Controller{
                         'id_tipo_folio' =>  $idTipoFolio,
                     ]), 'json')
                     ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                    
                 }
                 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
@@ -149,6 +150,17 @@ class DocumentoController extends Controller{
                     'fecha' => $dFechaCreacion,
                     'id_usuario' => $datosDocumento['id_usuario']
                 ]);
+
+                if ($nFolio != null)
+                {
+                    //registrar accion de asignacion de folio en bitacora
+                    $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
+                        'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
+                        'id_accion' => 9,
+                        'fecha' => $dFechaCreacion,
+                        'id_usuario' => $datosDocumento['id_usuario']
+                    ]);
+                }
                 
                 $documento->rel_documento_buzon;
 
