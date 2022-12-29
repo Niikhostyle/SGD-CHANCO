@@ -18,7 +18,7 @@
             <div class="col-md-3 md-3">
                 <div class="form-group">
                     <label for="id_documento">Tipo Folio</label><br/>
-                    <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)" class="form-control-sm">
+                    <select id="tipo_folio" style="width:100%" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)" class="form-control-sm">
                         <option value="">Seleccione</option>
                         @foreach($tipos_folio as $tp)
                             <option value="{{ $tp['id_tipo_folio'] }}">{{ $tp['nombre'] }}</option>
@@ -29,7 +29,7 @@
             <div class="col-md-4 md-4">
                 <div class="form-group">
                     <label for="id_documento">Tipo Documento</label><br/>
-                    <select id="tipo_documento" name="tipo_documento" class="form-control-sm">
+                    <select style="width:100%" id="tipo_documento" name="tipo_documento" class="form-control-sm">
                         <option value="">Seleccionar tipo folio</option>
                     </select>
                     <span id="mensaje" style="display:none;">Procesando...</span>
@@ -38,7 +38,7 @@
             <div class="col-md-4 md-4">
                 <div class="form-group">
                     <label for="id_buzon">Buzón Firma</label><br/>
-                    <select id="id_buzon" name="id_buzon" class="form-control-sm">
+                    <select style="width:100%" id="id_buzon" name="id_buzon" class="form-control-sm">
                     <option value="">Todos</option>
                         @foreach($buzones as $b)
                             <option value="{{ $b['id_buzon'] }}">{{ $b['nombre'] }}</option>
@@ -189,9 +189,9 @@
             ]
             //,visible:true, searchable: true
         });
-        $("#tipo_folio").select2({dropdownCssClass : 'bigdrop'});
-        $("#id_buzon").select2({dropdownCssClass : 'bigdrop'});
-        $("#tipo_documento").select2({dropdownCssClass : 'bigdrop'}); 
+        $("#tipo_folio").select2();
+        $("#id_buzon").select2({ width: 'resolve'});
+        $("#tipo_documento").select2({ width: 'resolve'}); 
     });
 
     $('#btnBuscar').click(function() {
