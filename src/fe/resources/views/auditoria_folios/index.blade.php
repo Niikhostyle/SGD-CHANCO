@@ -15,7 +15,7 @@
 <div class="card" id="">
     <div class="card-body">
         <div class="form-row">
-            <div class="col-md-4 md-4">
+            <div class="col-md-3 md-3">
                 <div class="form-group">
                     <label for="id_documento">Tipo Folio: </label>
                     <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)" class="form-control-sm">
@@ -35,7 +35,7 @@
                     <span id="mensaje" style="display:none;">Procesando...</span>
                 </div>
             </div>
-            <div class="col-md-3 md-3">
+            <div class="col-md-4 md-4">
                 <div class="form-group">
                     <label for="id_buzon">Buzón Firma: </label>
                     <select id="id_buzon" name="id_buzon" class="form-control-sm">
