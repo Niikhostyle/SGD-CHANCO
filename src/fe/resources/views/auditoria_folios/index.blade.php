@@ -17,7 +17,7 @@
         <div class="form-row">
             <div class="col-md-3 md-3">
                 <div class="form-group">
-                    <label for="id_documento">Tipo Folio: </label>
+                    <label for="id_documento">Tipo Folio</label><br/>
                     <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)" class="form-control-sm">
                         <option value="">Seleccione</option>
                         @foreach($tipos_folio as $tp)
@@ -28,7 +28,7 @@
             </div>
             <div class="col-md-4 md-4">
                 <div class="form-group">
-                    <label for="id_documento">Tipo Documento: </label>
+                    <label for="id_documento">Tipo Documento</label><br/>
                     <select id="tipo_documento" name="tipo_documento" class="form-control-sm">
                         <option value="">Seleccionar tipo folio</option>
                     </select>
@@ -37,7 +37,7 @@
             </div>
             <div class="col-md-4 md-4">
                 <div class="form-group">
-                    <label for="id_buzon">Buzón Firma: </label>
+                    <label for="id_buzon">Buzón Firma</label><br/>
                     <select id="id_buzon" name="id_buzon" class="form-control-sm">
                     <option value="">Todos</option>
                         @foreach($buzones as $b)
@@ -49,7 +49,7 @@
             <div class="col-md-1 md-1">
                 <div class="form-group">
                     <!-- i id="botones_grilla_despachados"></i-->
-                    <button id="btnBuscar" class="btn btn-success">Buscar</button>
+                    <br/><button id="btnBuscar" class="btn btn-success">Buscar</button>
                 </div>
             </div>
         </div>
