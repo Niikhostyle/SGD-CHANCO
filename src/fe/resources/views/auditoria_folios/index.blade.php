@@ -62,7 +62,7 @@
                 <thead>
                     <tr class="grilla_header">
                         <th class="text-center">Folio</th>
-                        <th class="text-left">Buzon Firma</th>
+                        <th class="text-left">Buzon Firma (Asigna Folio)</th>
                         <th class="text-center">Fecha Asignación Folio</th>
                         <th class="text-center">ID Documento</th>
                         <th class="text-left">Buzón Actual</th>
