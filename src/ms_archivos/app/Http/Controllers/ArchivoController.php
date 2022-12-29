@@ -92,7 +92,15 @@ class ArchivoController extends Controller{
                         if (isset($nFolio))
                         {
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
-                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha->format('Y-m-d H:i:s')]);                              
+                            Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha->format('Y-m-d H:i:s')]);    
+                            
+                            //registrar accion de asignacion de folio en bitacora
+                            $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
+                                'id_documento_buzon' => $idDocumentoBuzon,
+                                'id_accion' => 9,
+                                'fecha' => $fecha,
+                                'id_usuario' => $datosRequest['id_usuario']
+                            ]);
                         }
                         else
                         {
