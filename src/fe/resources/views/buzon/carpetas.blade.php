@@ -1906,8 +1906,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        
-
+        $('.btn-recibir-submit').prop("disabled",true);
         Swal.fire({
                 title: 'Firmar',
                 html: "Se realizará la firma del documento: <br>" +
@@ -1944,10 +1943,12 @@
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
+                                $('.btn-recibir-submit').prop("disabled",false);
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"Aviso!");
+                                $('.btn-recibir-submit').prop("disabled",false);
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
@@ -1957,17 +1958,23 @@
                         error: function (e) {
                             data = e.responseJSON;
                             console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null)
+                            if (data.data.comentario != "" && data.data.comentario != null){
                                 toastr.error(data.data.comentario,"Aviso!");
-                            else
+                                $('.btn-recibir-submit').prop("disabled",false);
+                            }
+                            else{
                                 toastr.error("Falla en el documento","Aviso!");
-
+                                $ ('.btn-recibir-submit').prop("disabled",false);
+                            }
                             $('.btn-recibir-submit').html( 'Firmar' );
                             bloqueo_accion=false;
                         }
                     });
 
                     
+                }
+                else{
+                    $('.btn-recibir-submit').prop("disabled",false);
                 }
             }) 
     }
@@ -1979,6 +1986,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        $('btn-recibir-submit').prop("disabled",true);
 
         Swal.fire({
                 title: 'Finalizar',
@@ -2009,7 +2017,7 @@
                             if(data.status == '200')
                             {
                                 toastr.success("Documento Finalizado","Aviso!");
-
+                                $('btn-recibir-submit').prop("disabled",false);
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
@@ -2017,12 +2025,17 @@
                             else
                             {
                                 toastr.error(data.data.comentario,"Aviso!");
+                                $('btn-recibir-submit').prop("disabled",false);
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","Aviso!");
+                            $('btn-recibir-submit').prop("disabled",false);
                         }
                     });
+                }
+                else{
+                    $('btn-recibir-submit').prop("disabled",false);
                 }
             })
     }
@@ -2562,10 +2575,10 @@
                             $('#cargar_archivo_principal_el').show();
                         }
 
-                        if(data.archivo_existente==false){
-                            console.log("Existe archivo :"+archivo_existente);
-                            $('.row_cuerpo').show();
-                        }
+                        // if(data.archivo_existente==false){
+                        //     console.log("Existe archivo :"+archivo_existente);
+                        //     $('.row_cuerpo').show();
+                        // }
                         $('.row_cuerpo').show();
 
                         $('#form_otros_archivos_el').hide();
@@ -3686,17 +3699,6 @@
                                     });
                             });
 		                    promiseArray.push(p);
-                            window.location.reload();
-                            // setTimeout(function() {
-                            //     $('#nav-por-recibir-tab').removeClass('active');
-                            //     $('#nav-por-recibir-tab').attr("aria-selected",false);
-                            //     $('#nav-recibidos-tab').addClass('active');
-                            //     $('#nav-recibidos-tab').attr("aria-selected",true);
-                            //     cambio_texto_boton_carpetas('Recibidos');
-                            //     $('#nav-por-recibir').removeClass('show active');
-                            //     $('#nav-recibidos').addClass('show active');
-                            //     $('#grilla_recibidos').DataTable().draw();
-                            // }, 3000);
                             
                         }
                     });
@@ -3713,6 +3715,7 @@
                     Swal.close();
                     toastr.success("Documentos Recepcionados","Aviso!");
                     fn_grilla_por_recibir();
+                    window.location.reload();
                 });
             }
         })  

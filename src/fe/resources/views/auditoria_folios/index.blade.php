@@ -18,7 +18,7 @@
             <div class="col-md-4 md-4">
                 <div class="form-group">
                     <label for="id_documento">Tipo Folio: </label>
-                    <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)">
+                    <select id="tipo_folio" name="tipo_folio" onchange="obtenerTiposDocumentos(this.value)" class="form-control-sm">
                         <option value="">Seleccione</option>
                         @foreach($tipos_folio as $tp)
                             <option value="{{ $tp['id_tipo_folio'] }}">{{ $tp['nombre'] }}</option>
@@ -29,13 +29,24 @@
             <div class="col-md-4 md-4">
                 <div class="form-group">
                     <label for="id_documento">Tipo Documento: </label>
-                    <select id="tipo_documento" name="tipo_documento">
+                    <select id="tipo_documento" name="tipo_documento" class="form-control-sm">
                         <option value="">Seleccionar tipo folio</option>
                     </select>
                     <span id="mensaje" style="display:none;">Procesando...</span>
                 </div>
             </div>
-            <div class="col-md-4 md-4">
+            <div class="col-md-3 md-3">
+                <div class="form-group">
+                    <label for="id_buzon">Buzón Firma: </label>
+                    <select id="id_buzon" name="id_buzon" class="form-control-sm">
+                    <option value="">Todos</option>
+                        @foreach($buzones as $b)
+                            <option value="{{ $b['id_buzon'] }}">{{ $b['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-1 md-1">
                 <div class="form-group">
                     <!-- i id="botones_grilla_despachados"></i-->
                     <button id="btnBuscar" class="btn btn-success">Buscar</button>
@@ -51,7 +62,7 @@
                 <thead>
                     <tr class="grilla_header">
                         <th class="text-center">Folio</th>
-                        <th class="text-left">Buzon Origen</th>
+                        <th class="text-left">Buzon Firma</th>
                         <th class="text-center">Fecha Asignación Folio</th>
                         <th class="text-center">ID Documento</th>
                         <th class="text-left">Buzón Actual</th>
@@ -153,6 +164,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
+
+<!-- Select2 JS --> 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#grilla_folios').DataTable({
@@ -172,14 +187,14 @@
             ]
             //,visible:true, searchable: true
         });
+        $("#id_buzon").select2();
     });
 
     $('#btnBuscar').click(function() {
         let tipo_folio = $('#tipo_folio').val();
         let tipo_documento = $('#tipo_documento').val();
-        $('#grilla_folios').DataTable().ajax.url('/obtener_folios?tipo_folio='+tipo_folio+'&tipo_documento='+tipo_documento).load();
-        // $('#grilla_folios').DataTable().columns(5).search($('#tipo_folio').val()).draw();
-        // $('#grilla_folios').DataTable().columns(6).search($('#tipo_documento').val()).draw();
+        let id_buzon = $('#id_buzon').val();
+        $('#grilla_folios').DataTable().ajax.url('/obtener_folios?tipo_folio='+tipo_folio+'&tipo_documento='+tipo_documento+'&buzon='+id_buzon).load();
     });
     
 
@@ -207,6 +222,36 @@
                     $('#tipo_documento').append('<option value="">No existen tipos de documentos</option>');
                 }
                 $('#tipo_documento').show();
+                $("#mensaje").hide();
+            }
+        });    
+    }
+
+    function obtenerBuzones(nTipoFolio,nTipoDoc){
+        $('#id_buzon').hide();
+        $("#mensaje").show();
+        $.ajax({
+            url: "/obtener_buzones/",
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                idTipo:nTipoFolio,
+                idTipoDoc:nTipoDoc      
+            },
+            success: function(data){
+                $('#id_buzon option').remove();
+                let nFilas = 0;
+               
+                $('#id_buzon').append('<option value="">Todos</option>');
+                for (x of data) {
+                    nFilas++;
+                    $('#id_buzon').append('<option value="'+x.id_buzon+'">'+x.buzon_origen+'</option>');
+                }
+                if(nFilas == 0){
+                    $('#id_buzon option').remove();
+                    $('#id_buzon').append('<option value="">No existen buzones</option>');
+                }
+                $('#id_buzon').show();
                 $("#mensaje").hide();
             }
         });    
