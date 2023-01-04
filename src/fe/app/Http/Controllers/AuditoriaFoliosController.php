@@ -78,7 +78,9 @@ class AuditoriaFoliosController extends Controller
                         and db.id_documento_buzon = (select max(db2.id_documento_buzon) from documento_buzon db2 where db.id_documento = db2.id_documento  )
                         join documento_buzon db2 on db2.id_documento = d.id_documento
                         join buzon b2 on b2.id_buzon = db2.id_buzon
-                        join documento_buzon_bitacora dbb on dbb.id_documento_buzon = db2.id_documento_buzon  and dbb.id_accion = 8
+                        join documento_buzon_bitacora dbb on dbb.id_documento_buzon = db2.id_documento_buzon 
+                        -- and dbb.id_accion = 8
+                        and dbb.id_accion = (case when EXTRACT(YEAR FROM d.created_at) <= 2022 then 8 else 9 end)
                     where 
                         d.folio is not null
                         and db.id_tipo_destino = 1
