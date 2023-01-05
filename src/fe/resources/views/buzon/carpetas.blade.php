@@ -3417,9 +3417,9 @@
                             .click(function() {
                                 $('#gr_buscar_origen_materia').val('');
                                 $('#gr_buscar_estado').multiselect('selectAll', true);
-                                $('#gr_buscar_estado').multiselect('deselect', ["A"]);
-                                $('#gr_buscar_tipo_doc').multiselect('selectAll', true);
-                                $('#gr_buscar_tipo_doc').multiselect('deselect', ["A"]);
+                                $('#gr_buscar_estado').multiselect('deselect', ["6"]);
+                               
+                                
                                 $('#gr_buscar_id_doc').val('');
                                 $searchButton.click();
                             }),
@@ -3769,7 +3769,7 @@
 
             $('#gr_buscar_estado').multiselect({includeSelectAllOption: true,maxHeight: 400});
             $('#gr_buscar_estado').multiselect('selectAll', true);
-            $('#gr_buscar_estado').multiselect('deselect', ["A"]);
+            $('#gr_buscar_estado').multiselect('deselect', ["6"]);
 
 
             $('#gd_buscar_tipo_doc').multiselect({includeSelectAllOption: true,maxHeight: 300});
