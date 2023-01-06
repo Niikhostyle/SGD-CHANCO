@@ -984,11 +984,17 @@
 
     function addBtnFirma()
     {
-        var buttonFrmMasiva = '<button onClick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button> ';
-        $('#btnFirma').html(buttonFrmMasiva);
+        if($('#chkFrm').prop("checked")){
+            $('#btnFirma').show();
+            var buttonFrmMasiva = '<button onClick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button> ';
+            $('#btnFirma').html(buttonFrmMasiva);
+        }
+        else{
+            $('#btnFirma').hide();
+        }
 
-        var column = grilla_recibidos.column(0); 
-        column.visible( !column.visible() );
+            var column = grilla_recibidos.column(0); 
+            column.visible( !column.visible() );
     }
 
     function deshabilita_campos()
@@ -3440,13 +3446,13 @@
                     $('#grilla_recibidos_filter').html('');      
 
                     if(aplicaFrm == 1)
-                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
+                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' id='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
                     
                         //filtro por TD
                     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
-                    $('#filtro-td').multiselect('select', 'Principal');
+                    $('#filtro-td').multiselect('select','Principal');
                     $('#filtro-td').on("change",function(){
-                        grilla_recibidos.columns(7).search($('#filtro-td').val().join("|"),1,0).draw();
+                        grilla_recibidos.columns(7).search($('#filtro-td').val().join("|"),true,false).draw();
                     });
                     $('#filtro-td').trigger("change");
                 }
