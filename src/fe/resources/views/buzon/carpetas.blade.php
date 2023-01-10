@@ -78,7 +78,7 @@
                                     </thead>
                                 </table>
                                 <div>
-                                  <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary">Recibir Masivo</button>
+                                  <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
@@ -115,10 +115,11 @@
                                             </td>
                                         </tr>
                                 </tbody></table>
-                                
+                                <div class="table-responsive">
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
+                                            <th data-priority="1">Sel</th>
                                             <th data-priority="1"></th>
                                             <th data-priority="2"></th>
                                             <th data-priority="1">E</th>
@@ -136,7 +137,10 @@
                                         </tr>
                                     </thead>
                                 </table>
-                                
+                                </div>
+                                <div>
+                                  &nbsp;&nbsp;&nbsp;<button onclick="archivar_masiva()" class="btn btn-sm btn-primary btn-archivar-masiva">Archivo Masivo</button>
+                                </div>
 
 
                             </div>
@@ -993,7 +997,7 @@
             $('#btnFirma').hide();
         }
 
-            var column = grilla_recibidos.column(0); 
+            var column = grilla_recibidos.column(1); 
             column.visible( !column.visible() );
     }
 
@@ -3216,14 +3220,34 @@
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
-                order: [[ 3, 'desc' ]],        
-                responsive: true,
+                order: [[ 4, 'desc' ]],        
+                responsive: false  ,
                 language: lenguaje_datatable,  
+                'columnDefs': [
+                    {
+                        'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    }
+                ],
+                'select': {'style': 'multi'},
                 buttons: [ 'copy', 'excel', 'pdf' ],          
                 columns: [
+                    { data: 'identificador', name: 'documento.identificador',
+                        render: function(data, type, row)
+                            {
+                                if(row.estado_documento == "P"){
+                                    return '<input type="checkbox" class="dt-checkboxes chkArchivar" name="chkArchivar" id="chkArchivar" value="'+row.id_documento +'" />';
+                                }
+                                else{
+                                    return '';
+                                }                                   
+                            }
+                    }, 
                     {
                         data: 'estado_documento', name: 'estado_documento.nombre_corto', 
-                        targets: 0,
+                        targets: 1,
                         searchable:false,
                         orderable:false,
                         className: 'dt-body-center',
@@ -3277,6 +3301,7 @@
                         return '<div id="addChkFrm"></div>';
                         }
                     },
+                    
                     { data: 'estado_documento', name: 'documento_buzon.id_estado_documento', 
                             render: function(data, type, row)
                             {
@@ -3433,10 +3458,10 @@
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
-                                grilla_recibidos.columns(2).search(""+estados+"",true,false).draw();
-                                grilla_recibidos.columns(3).search($('#gr_buscar_id_doc').val()).draw();
-                                grilla_recibidos.columns(5).search($('#gr_buscar_origen_materia').val()).draw();    
-                                grilla_recibidos.columns(6).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                grilla_recibidos.columns(3).search(""+estados+"",true,false).draw();
+                                grilla_recibidos.columns(4).search($('#gr_buscar_id_doc').val()).draw();
+                                grilla_recibidos.columns(6).search($('#gr_buscar_origen_materia').val()).draw();    
+                                grilla_recibidos.columns(7).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
                                 //self.search($('#gr_buscar_origen_materia').val()).draw();
 
                             })
@@ -3452,14 +3477,14 @@
                     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
                     $('#filtro-td').multiselect('select','Principal');
                     $('#filtro-td').on("change",function(){
-                        grilla_recibidos.columns(7).search($('#filtro-td').val().join("|"),true,false).draw();
+                        grilla_recibidos.columns(8).search($('#filtro-td').val().join("|"),true,false).draw();
                     });
                     $('#filtro-td').trigger("change");
                 }
                 
         });
         
-        var column = grilla_recibidos.column(0); 
+        var column = grilla_recibidos.column(1); 
         column.visible( ! column.visible() ); 
         $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
             console.log( 'Error DataTables: ', message);
@@ -3659,72 +3684,185 @@
     }
 
     function recepcion_masiva(){
+        
         var rows_selected = grilla_por_recibir.column(0).checkboxes.selected();
-        Swal.fire({
-            title: 'Recibir',
-            html: "Se recepcionarán <b>"+rows_selected.length+"</b> Documentos: <br>¿Desea Continuar?",
-            showCancelButton: true,
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                console.log(result);
-            if (result.value==true) 
-            {
-                var promiseArray = [];
-                $.each(rows_selected, function(index,obj){
-                    $.each(grilla_por_recibir.rows().data(),function(idx,data){
-                        if(data.id_documento==obj){
-                            var p = new Promise(function(resolve, reject){
-                                $.ajax({
-                                        url: "/actualizar_estado_documento/"+data.id_documento_buzon,
-                                        type: 'PUT',
-                                        dataType: 'json',
-                                        data: {
-                                            _token:"{{csrf_token()}}",
-                                            hiddIdDocumento:data.id_documento,
-                                            buzon:data.id_buzon,
-                                            destino:data.id_tipo_destino,
-                                            accion:3
-                                        },
-                                        success: function(data)
-                                        {
-                                            console.log("success",data)
-                                            if(data.status == '200'){ 
-                                                return resolve();
-                                                
-                                            }else{
-                                                return reject();
+        if(rows_selected.length > 0){
+            $('.btn-recepcion-masiva').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recibiendo'
+            );
+            $('.btn-recepcion-masiva').prop("disabled",true);
+            Swal.fire({
+                title: 'Recibir',
+                html: "Se recepcionarán <b>"+rows_selected.length+"</b> Documentos: <br>¿Desea Continuar?",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) 
+                {
+                    var promiseArray = [];
+                    $.each(rows_selected, function(index,obj){
+                        $.each(grilla_por_recibir.rows().data(),function(idx,data){
+                            if(data.id_documento==obj){
+                                var p = new Promise(function(resolve, reject){
+                                    $.ajax({
+                                            url: "/actualizar_estado_documento/"+data.id_documento_buzon,
+                                            type: 'PUT',
+                                            dataType: 'json',
+                                            data: {
+                                                _token:"{{csrf_token()}}",
+                                                hiddIdDocumento:data.id_documento,
+                                                buzon:data.id_buzon,
+                                                destino:data.id_tipo_destino,
+                                                accion:3
+                                            },
+                                            success: function(data)
+                                            {
+                                                console.log("success",data)
+                                                if(data.status == '200'){ 
+                                                    return resolve();
+                                                    
+                                                }else{
+                                                    return reject();
+                                                }
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                console.log(textStatus);
+                                                reject(new Error('Error : ' + textStatus));
+                                                $('.btn-recepcion-masiva').html('Recibir Masivo');
+                                                $('.btn-recepcion-masiva').prop("disabled",false);
                                             }
-                                        },
-                                        error: function (jqXHR, textStatus, errorThrown) {
-                                            console.log(textStatus);
-                                            reject(new Error('Error : ' + textStatus));
-                                        }
-                                    });
-                            });
-		                    promiseArray.push(p);
-                            
-                        }
+                                        });
+                                });
+                                promiseArray.push(p);
+                                
+                            }
+                        });
                     });
-                });
-                Swal.fire({
-                    title: 'Recepcionando documentos',
-                    allowEscapeKey: false,
-                    allowOutsideClick: false,
-                    onOpen: () => {
-                        swal.showLoading();
-                    }
-                })
-                Promise.all(promiseArray).then(function(obj) {
-                    Swal.close();
-                    toastr.success("Documentos Recepcionados","Aviso!");
-                    fn_grilla_por_recibir();
-                    window.location.reload();
-                });
+                    Swal.fire({
+                        title: 'Recepcionando documentos',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        onOpen: () => {
+                            swal.showLoading();
+                        }
+                    })
+                    Promise.all(promiseArray).then(function(obj) {
+                        Swal.close();
+                        toastr.success("Documentos Recepcionados","Aviso!");
+                        fn_grilla_por_recibir();
+                        $('.btn-recepcion-masiva').html('Recibir Masivo');
+                        $('.btn-recepcion-masiva').prop("disabled",false);
+                        window.location.reload();
+                    });
+                }
+                else{
+                    $('.btn-recepcion-masiva').prop("disabled",false);
+                    $('.btn-recepcion-masiva').html('Recibir Masivo');
+                }
+            }) 
+        }
+        else{
+            toastr.error("No hay documentos seleccionados para recibir.","Aviso!");
+        } 
+    }
+
+    function archivar_masiva(){
+        let arr_chequeados = new Array();
+        $(".chkArchivar").each(function() {
+            if($(this).is(":checked")){
+                arr_chequeados.push($(this).val())
             }
-        })  
+        });
+        if(arr_chequeados.length > 0){    
+            var rows_selected = grilla_recibidos.column(0).checkboxes.selected();
+            $('.btn-archivar-masiva').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Archivando'
+            );
+            $('.btn-archivar-masiva').prop("disabled",true);
+
+            Swal.fire({
+                title: 'Archivar',
+                html: "Se archivarán <b>"+arr_chequeados.length+"</b> Documentos: <br>¿Desea Continuar?",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                    if (result.value==true) {
+                        var promiseArray = [];
+
+
+                        $.each(rows_selected, function(index,obj){
+                            $.each(grilla_recibidos.rows().data(),function(idx,data){
+                                if(data.id_documento==obj){
+                                    if(arr_chequeados.includes(''+data.id_documento+'')){
+                                        var p = new Promise(function(resolve, reject){
+                                            
+                                            $.ajax({
+                                                url: "/archivar_documento/"+data.id_documento_buzon,
+                                                type: 'PUT',
+                                                dataType: 'json',
+                                                data: {
+                                                    _token:"{{csrf_token()}}",
+                                                    hiddIdDocumento:data.id_documento,
+                                                    buzon:data.id_buzon,
+                                                    comentario:"archivo masivo",
+                                                    accion:"0"                
+                                                },
+                                                success: function(data)
+                                                {
+                                                    if(data.status == '200'){ 
+                                                        return resolve();
+                                                        
+                                                    }else{
+                                                        return reject();
+                                                    }
+
+                                                },
+                                                error: function (jqXHR, textStatus, errorThrown) {
+
+                                                    toastr.error("Falla en el documento","Aviso!");
+
+                                                    $('.btn-archivar-masiva').prop("disabled",false);
+                                                    $('.btn-archivar-masiva').html('Archivo Masivo')
+                                                }
+                                            });
+                                        });
+                                    }
+                                    promiseArray.push(p);
+                                }
+                            });
+                        });
+                        Swal.fire({
+                            title: 'Archivando documentos',
+                            allowEscapeKey: false,
+                            allowOutsideClick: false,
+                            onOpen: () => {
+                                swal.showLoading();
+                            }
+                        })
+                        Promise.all(promiseArray).then(function(obj) {
+                            Swal.close();
+                            toastr.success("Documentos Archivados","Aviso!");
+                            fn_grilla_por_recibir();
+                            window.location.reload();
+                        });
+                    }
+                    else{
+                        $('.btn-archivar-masiva').prop("disabled",false);
+                        $('.btn-archivar-masiva').html('Archivar Masivo');
+                    }
+            })  
+        }
+        else{
+            toastr.error("No hay documentos seleccionados para archivar.","Aviso!");
+        }
     }
 
     function vernotas(tipo){
