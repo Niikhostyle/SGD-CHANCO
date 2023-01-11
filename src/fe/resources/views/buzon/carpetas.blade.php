@@ -3693,7 +3693,7 @@
             $('.btn-recepcion-masiva').prop("disabled",true);
             Swal.fire({
                 title: 'Recibir',
-                html: "Se recepcionarán <b>"+rows_selected.length+"</b> Documentos: <br>¿Desea Continuar?",
+                html: "Se recepcionará(n) <b>"+rows_selected.length+"</b> Documento(s) <br>¿Desea Continuar?",
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#3085d6',
@@ -3752,7 +3752,7 @@
                     })
                     Promise.all(promiseArray).then(function(obj) {
                         Swal.close();
-                        toastr.success("Documentos Recepcionados","Aviso!");
+                        toastr.success("Documentos Recepcionados","¡Aviso!");
                         fn_grilla_por_recibir();
                         $('.btn-recepcion-masiva').html('Recibir Masivo');
                         $('.btn-recepcion-masiva').prop("disabled",false);
@@ -3766,7 +3766,7 @@
             }) 
         }
         else{
-            toastr.error("No hay documentos seleccionados para recibir.","Aviso!");
+            toastr.error("No hay documentos seleccionados para recibir.","¡Aviso!");
         } 
     }
 
@@ -3786,7 +3786,14 @@
 
             Swal.fire({
                 title: 'Archivar',
-                html: "Se archivarán <b>"+arr_chequeados.length+"</b> Documentos: <br>¿Desea Continuar?",
+                input: 'textarea',
+                inputPlaceholder: 'Escriba aquí el motivo',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Debe ingresar un motivo'
+                    }
+                },
+                html: "Se archivará(n) <b>"+arr_chequeados.length+"</b> Documento(s) <br>¿Desea Continuar?",
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#3085d6',
@@ -3794,9 +3801,9 @@
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
                     console.log(result);
-                    if (result.value==true) {
+                    if (result.value){//==true || result.value.length > 0) {
                         var promiseArray = [];
-
+                        let comentario_archivo = $('.swal2-textarea').val();
 
                         $.each(rows_selected, function(index,obj){
                             $.each(grilla_recibidos.rows().data(),function(idx,data){
@@ -3812,7 +3819,7 @@
                                                     _token:"{{csrf_token()}}",
                                                     hiddIdDocumento:data.id_documento,
                                                     buzon:data.id_buzon,
-                                                    comentario:"archivo masivo",
+                                                    comentario:comentario_archivo,
                                                     accion:"0"                
                                                 },
                                                 success: function(data)
@@ -3827,7 +3834,7 @@
                                                 },
                                                 error: function (jqXHR, textStatus, errorThrown) {
 
-                                                    toastr.error("Falla en el documento","Aviso!");
+                                                    toastr.error("Falla en el documento","¡Aviso!");
 
                                                     $('.btn-archivar-masiva').prop("disabled",false);
                                                     $('.btn-archivar-masiva').html('Archivo Masivo')
@@ -3849,7 +3856,7 @@
                         })
                         Promise.all(promiseArray).then(function(obj) {
                             Swal.close();
-                            toastr.success("Documentos Archivados","Aviso!");
+                            toastr.success("Documentos Archivados","¡Aviso!");
                             fn_grilla_por_recibir();
                             window.location.reload();
                         });
@@ -3861,7 +3868,7 @@
             })  
         }
         else{
-            toastr.error("No hay documentos seleccionados para archivar.","Aviso!");
+            toastr.error("No hay documentos seleccionados para archivar.","¡Aviso!");
         }
     }
 
