@@ -83,7 +83,7 @@ class AuditoriaFoliosController extends Controller
                     where 
                         d.folio is not null
                         and db.id_tipo_destino = 1
-                        and EXTRACT(YEAR FROM d.created_at)  = ".$year_actual." ".$tWhere." 
+                        and EXTRACT(YEAR FROM d.fecha)  = ".$year_actual." ".$tWhere." 
             ");
         }
         //dd(DB::getQueryLog()); // Show results of log

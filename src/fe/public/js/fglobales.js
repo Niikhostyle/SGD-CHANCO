@@ -406,8 +406,13 @@ function cargar_datos_bitacora(id_documento)
                                 else 
                                     return '';    
                             }
-                            else if (row.tipo_destino == 2)    
-                                return row.comentario_secundario;
+                            else if (row.tipo_destino == 2){ 
+                                    if(row.accion == 12)   
+                                        return row.comentario;    
+                                    else
+                                        return row.comentario_secundario;
+                                }
+                                
                             else
                                 return '';                                
                             
