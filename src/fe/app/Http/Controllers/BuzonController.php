@@ -33,8 +33,10 @@ use Yajra\DataTables\DataTables;
 use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Mail\MailController;
+use App\Models\DocumentoTmp;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+//use Barryvdh\DomPDF\Facade\Pdf;
 
 class BuzonController extends Controller
 {
@@ -611,7 +613,45 @@ class BuzonController extends Controller
 
         return $datosArchivo;  
     }
+    
+    public function vp_sg($nID){
 
+        $datosDocumentos = DocumentoTmp::findOrFail($nID);
+
+        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo']  );
+
+        //Se elimina registro temporal
+        $registro = DocumentoTmp::find($nID);
+        $registro->delete();
+
+        $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
+                
+        return $pdf->stream('vista_previa.pdf');
+    }
+
+    public function generar_vista_previa_sg(Request $request)
+    { 
+        try 
+            {
+                //se crea documento con los datos básicos para la vista previa
+                $documento = new DocumentoTmp();
+                $documento->materia = $request->materia;
+                $documento->encabezado = $request->encabezado;
+                $documento->cuerpo = $request->cuerpo;
+                $documento->save();
+                
+                return $documento;
+            
+            }
+            catch (ModelNotFoundException $e) {
+
+                return response()->json([
+                    'status' => 500, 
+                    'data' => [
+                        'comentario' => 'Error al generar vista previa.'
+                ]], 500);
+            }      
+    }
     public function derivarOpcion1($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();

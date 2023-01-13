@@ -116,6 +116,13 @@
                                         </tr>
                                 </tbody></table>
                                 <div class="table-responsive">
+                                    <div class="text-right">
+                                        <input type="checkbox" name="chkFrm" id="chkFrm" onclick="addBtnFirma()"> Solo mostrar documentos por firmar 
+                                        <div class="btnFirma" id="btnFirma" style="display: none;">
+                                            <button onclick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button>
+                                        </div>
+                                        &nbsp;<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>
+                                    </div>
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
@@ -139,7 +146,7 @@
                                 </table>
                                 </div>
                                 <div>
-                                  &nbsp;&nbsp;&nbsp;<button onclick="archivar_masiva()" class="btn btn-sm btn-primary btn-archivar-masiva">Archivo Masivo</button>
+                                  &nbsp;&nbsp;&nbsp;<button onclick="archivar_masiva()" class="btn btn-sm btn-primary btn-archivar-masiva">Archivado Masivo</button>
                                 </div>
 
 
@@ -310,12 +317,15 @@
                             <div class="col-md-12 mb-3">
                                 <label class="view-txt-row" for="exampleFormControlTextarea1">Cuerpo:</label>
                                 <label class="view-pdf">
-                                    <button onClick="vista_previa()" type="button" class="btn btn-default btn-vp">
+                                    <button onClick="vista_previa_sg()" type="button" class="btn btn-default btn-vp">
                                         <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa
-                                    </button>                                 
+                                    </button>      
+                                    <!-- <a href="#" onclick="vista_previa_sg()" class="btn btn-default btn-vp-sg">
+                                        <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa sin guardar
+                                    </a>                            -->
                                 </label>                                
                                 <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
-                                <input type="hidden" id="form_encabezado" name="encabezado">
+                                <input type="hidden" id="form_encabezado" name="encabezado"> 
                             </div>
                         
                         </div>
@@ -950,9 +960,13 @@
 
     $(".nuevo_documento").click(function(e)
     {
+        
+        
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();  
+        //$('.btn-vp').hide();
+        //$('.btn-vp-sg').show();
         $('#card_bitacora').hide();	        
         
         clear_form();        
@@ -1337,9 +1351,10 @@
                             $('.btn-enviar-submit').prop("disabled",false);  
                             $('.btn_cerrar_guardar').prop("disabled", false);
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                            // $('.btn-vp-sg').hide();       
+                            // $('.btn-vp').show();       
 
-                        }, 5000);
-                        
+                        }, 5000);                        
                         
                     }
 
@@ -1352,7 +1367,9 @@
                         
                         setTimeout(function() {
                             callback(data);
-                            respuesta_guarda = data;         
+                            respuesta_guarda = data;  
+                            // $('.btn-vp-sg').hide();       
+                            // $('.btn-vp').show();       
                             $('.btn-guardar-submit').prop("disabled", false);
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn-enviar-submit').prop("disabled",false);  
@@ -1385,7 +1402,11 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                     $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                    //console.log('antes');
+                    // $('.btn-vp-sg').hide();       
+                    // $('.btn-vp').show();       
                     $('.btn-vp').prop("disabled", false);  
+                    //console.log('despues');
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
@@ -2319,8 +2340,7 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-                if (result.value==true) 
-                {
+                if (result.value==true) {
                     $.ajax({
                         url: "/vista_previa",
                         type: 'GET',
@@ -2335,18 +2355,72 @@
                             responseType: 'blob'
                         },
                         success: function(response){
-                            var blob = new Blob([response]);
+                            //var blob = new Blob([response]);
+                            let blob = new Blob([response], {type: 'application/pdf'});
+                            
                             var link = document.createElement('a');
                             link.href = window.URL.createObjectURL(blob);
-                            link.download = "vista_previa.pdf";
+                            link.target = "_blank";
+                            //link.download = "vista_previa.pdf";
                             link.click();
+
                         },
                         error: function (data, jqXHR, textStatus, errorThrown) {
                             toastr.error("No es posible generar la vista previa.","Aviso!");
                         }
                     });
-            }
+                }
         })      
+    }
+
+    function vista_previa_sg(){
+        var _token = $("input[name='_token']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var materia = $("input[name='materia']").val();
+        var encabezado = $("input[name='encabezado']").val();
+        var cuerpo = editor_cuerpo.getData();
+        urlAccion = "{{route('documentos.vista_previa_sg')}}";
+        $.ajax({
+            url: urlAccion,
+            type: 'POST',
+            dataType: 'json',
+            
+            data: {
+                _token:_token,
+                materia:materia,
+                encabezado:encabezado,
+                cuerpo:cuerpo,
+            },
+            success: function(data)
+            {   
+                Swal.close();            
+                window.open('/vista_previa_sg/'+data.id_documento);
+                
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr.error("Falla en el documento","Aviso!");
+
+                if($("#idAsignado").html() != "No Asignado"){
+                    $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                }
+                else{
+                    $('.btn-guardar-submit').html( 'Guardar' );
+                }
+                $('.btn-guardar-submit').prop("disabled", false);
+                $('.btn-guardar-submit-edit').prop("disabled", false);
+                $('.btn-enviar-submit').prop("disabled",false);    
+                $('.btn_cerrar_guardar').prop("disabled", false);
+            }
+        
+        });
+        Swal.fire({
+            title: 'Generando vista previa',
+            allowEscapeKey: false,
+            allowOutsideClick: false,
+            onOpen: () => {
+                swal.showLoading();
+            }
+        })
     }
 
     function accion_firmar(id_documento,id_documento_buzon,id_documento_buzon_padre){
@@ -3023,6 +3097,8 @@
         $('.btn_cerrar_guardar').prop("disabled", false);
         $('#addButton').html('');
         $('.btn-vp').prop("disabled", false);
+        // $('.btn-vp').show();
+        // $('.btn-vp-sg').hide();
 
     }
 
@@ -3215,7 +3291,7 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
-                dom: 'l<"addFrm">Btip',
+                //dom: 'l<"addFrm">Btip',
                 processing: true,
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
@@ -3263,6 +3339,7 @@
                                     {
                                         //agrega listado de acciones
 
+                                        //if(row.id_estado_documento != 6 && row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                         if(row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
                                         {
                                             if (row.json_acciones != null)
@@ -3706,6 +3783,7 @@
                     var promiseArray = [];
                     $.each(rows_selected, function(index,obj){
                         $.each(grilla_por_recibir.rows().data(),function(idx,data){
+                            //¡OJO! posible inconsistencia de datos
                             if(data.id_documento==obj){
                                 var p = new Promise(function(resolve, reject){
                                     $.ajax({
@@ -3837,7 +3915,7 @@
                                                     toastr.error("Falla en el documento","¡Aviso!");
 
                                                     $('.btn-archivar-masiva').prop("disabled",false);
-                                                    $('.btn-archivar-masiva').html('Archivo Masivo')
+                                                    $('.btn-archivar-masiva').html('Archivado Masivo')
                                                 }
                                             });
                                         });
@@ -3863,7 +3941,7 @@
                     }
                     else{
                         $('.btn-archivar-masiva').prop("disabled",false);
-                        $('.btn-archivar-masiva').html('Archivar Masivo');
+                        $('.btn-archivar-masiva').html('Archivado Masivo');
                     }
             })  
         }
