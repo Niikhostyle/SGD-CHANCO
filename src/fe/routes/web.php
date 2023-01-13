@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\BuscadorController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\BuzonController;
@@ -89,6 +91,8 @@ Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonCont
 Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
 Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
 Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
+Route::middleware(['auth:sanctum', 'verified'])->post('vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
+Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa_sg/{id}',[BuzonController::class,'vp_sg'])->name('documentos.vp_sg');
 
 
 //tipos de documentos
