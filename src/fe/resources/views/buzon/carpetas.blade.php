@@ -3215,12 +3215,12 @@
                 'select': {'style': 'multi'},
                 'order': [[1, 'asc']],
                 columns: [
-                    { data: 'identificador', name: 'documento.id_documento',
+                    { data: 'id_documento', name: 'documento.id_documento',
                         //  render:function(data){
                         //      return '<input type="checkbox" id="doc_por_recibir" value="'+data+'">';
                         // },
                     },                    
-                    { data: 'identificador', name: 'documento.id_documento',
+                    { data: 'id_documento', name: 'documento.id_documento',
                     
                         render:function(data,type,row){
                             //return "<a href='javascript:void(0)'>"+data+"</a>";
@@ -3311,7 +3311,7 @@
                 'select': {'style': 'multi'},
                 buttons: [ 'copy', 'excel', 'pdf' ],          
                 columns: [
-                    { data: 'identificador', name: 'documento.id_documento',
+                    { data: 'id_documento', name: 'documento.id_documento',
                         render: function(data, type, row)
                             {
                                 if(row.estado_documento == "P"){
@@ -3391,7 +3391,7 @@
                                 return data;                                   
                             }
                     },
-                    { data: 'identificador', name: 'documento.id_documento',
+                    { data: 'id_documento', name: 'documento.id_documento',
                         render:function(data,type,row){
                             return "<a href='javascript:ver_recibidos("+row.id_documento+","+row.id_documento_buzon+","+row.id_documento_buzon_padre+")'>"+data+"</a>";
                         }
@@ -3831,7 +3831,7 @@
                     Promise.all(promiseArray).then(function(obj) {
                         Swal.close();
                         toastr.success("Documentos Recepcionados","¡Aviso!");
-                        fn_grilla_por_recibir();
+                        fn_grilla_por_recibir();    
                         window.location.reload();
                     });
                 }

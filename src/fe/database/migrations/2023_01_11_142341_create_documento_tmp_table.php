@@ -13,14 +13,13 @@ class CreateDocumentoTmpTable extends Migration
      */
     public function up()
     {
-        DB::statement("CREATE SEQUENCE documento_tmp_identificador_seq;");
 
         Schema::create('documento_tmp', function (Blueprint $table) {
             $table->bigIncrements('id_documento');
-            $table->integer('id_tipo_documento');
-            $table->integer('id_nivel_acceso');
+            $table->integer('id_tipo_documento')->nullable();
+            $table->integer('id_nivel_acceso')->nullable();
             $table->jsonb('json_tipo_documento')->nullable();
-            $table->BigInteger('identificador');
+            $table->BigInteger('identificador')->nullable();
             $table->BigInteger('folio')->nullable();
             $table->dateTime('fecha')->nullable();
             $table->jsonb('json_respuesta_a')->nullable();
@@ -36,10 +35,7 @@ class CreateDocumentoTmpTable extends Migration
             $table->string('img_firma')->nullable();
             $table->boolean('finalizado')->nullable();
             $table->timestamps();
-            $table->foreign('id_nivel_acceso', 'fk_documento_nivel_acceso')->references('id_nivel_acceso')->on('nivel_acceso');
-            $table->foreign('id_tipo_documento', 'fk_documento_tipo_documento')->references('id_tipo_documento')->on('tipo_documento');
         });
-        DB::statement("ALTER TABLE documento ALTER COLUMN identificador set DEFAULT NEXTVAL('documento_tmp_identificador_seq');");
         DB::statement("COMMENT ON COLUMN  documento.id_documento IS 'Identificador de documento'");
         DB::statement("COMMENT ON COLUMN  documento.id_tipo_documento IS 'Identificador de tipo de documento'");
         DB::statement("COMMENT ON COLUMN  documento.id_nivel_acceso IS 'Identificador de nivel de acceso'");
