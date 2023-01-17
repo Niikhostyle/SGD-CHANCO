@@ -226,7 +226,7 @@ class BuscadorController extends Controller
     public function listar(Request $request)
     {
         $year_actual = session('year');  
-       
+        //dd($request);
         $extraquery = "";
         // //construir filtro
         $query = $request->busqueda_simple;
@@ -237,6 +237,26 @@ class BuscadorController extends Controller
             }    
             $extraquery=$extraquery.")"; 
         }
+        $filtroAvanzado = " and 1 = 1 ";
+        if($request->buscar_id_documento != ""){
+            $filtroAvanzado .= " and d.id_documento = ".$request->buscar_id_documento;
+        }
+        if($request->buscar_folio != ""){
+            if((int)$request->buscar_folio > 0){
+                $filtroAvanzado .= " and d.folio = ".$request->buscar_folio;
+            }
+        }
+        if($request->buscar_tipo_documento != ""){
+            $filtroAvanzado .= " and lower(td.nombre) = lower('".$request->buscar_tipo_documento."')";
+        }
+        if($request->buscar_buzon_origen != ""){
+            $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
+        }
+        // if($request->buscar_efectos_sobre_terceros != ""){
+        //     $filtroAvanzado .= "and d.id_documento = ".$request->buscar_id_documento;
+        // }
+
+
 
         if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin))
             $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
@@ -319,7 +339,7 @@ class BuscadorController extends Controller
             where 	        
                 d.id_nivel_acceso < 3
                 AND db.id_tipo_destino = 1 
-            ".$extraquery."
+            ".$extraquery.$filtroAvanzado."
             group by d.id_documento
                 , d.identificador
                 , d.id_nivel_acceso
