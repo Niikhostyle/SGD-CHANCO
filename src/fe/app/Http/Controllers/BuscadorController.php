@@ -317,7 +317,7 @@ class BuscadorController extends Controller
                 LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento AND dbo.id_documento_buzon_padre is null
                 LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
             where 	        
-                d.id_nivel_acceso in (1,2)
+                d.id_nivel_acceso < 3
                 AND db.id_tipo_destino = 1 
             ".$extraquery."
             group by d.id_documento
