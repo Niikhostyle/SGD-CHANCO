@@ -695,7 +695,13 @@
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){
-                            return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                            //console.log(row);
+                            if(row.id_nivel_acceso == 1){
+                                return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                            }
+                            else{
+                                return '';
+                            }
                         }
                     },
                     { data: 'id_documento',
@@ -705,63 +711,67 @@
                             if(data==null){
                                 return '';
                             }else{
-                                
-                                let botonera = '<div class="dropdown">';
-                                let botonera_confidencial = '<div class="dropdown">';
-                                
-                                    botonera_confidencial += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                        botonera_confidencial +=' <i class="fas fa-bars"></i>';
-                                        botonera_confidencial +=' </button>';
-                                        
+                                if(row.id_nivel_acceso == 1){
+                                    let botonera = '<div class="dropdown">';
+                                    let botonera_confidencial = '<div class="dropdown">';
+                                    
+                                        botonera_confidencial += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                            botonera_confidencial +=' <i class="fas fa-bars"></i>';
+                                            botonera_confidencial +=' </button>';
+                                            
 
-                                    botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                        botonera +=' <i class="fas fa-bars"></i>';
-                                        botonera +=' </button>';
-                                        botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-                                        
-                                        if(row.id_nivel_acceso == 1 )
+                                        botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                            botonera +=' <i class="fas fa-bars"></i>';
+                                            botonera +=' </button>';
+                                            botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                            
+                                            if(row.id_nivel_acceso == 1 )
+                                                {
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')" ><i class="fas fa-download text-blue"></i> Descargar</a>';
+
+                                                }   
+                                            if(row.id_nivel_acceso == 2 )
                                             {
                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')" ><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                            }
+                                            if(row.id_nivel_acceso == 3)
+                                            {   
+                                                var salida = row.list_usuarios.split(',');
+                                                var acciones = false;
 
-                                            }   
-                                        if(row.id_nivel_acceso == 2 )
-                                        {
-                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"><i class="fas fa-download text-blue"></i> Descargar</a>';
-                                        }
-                                        if(row.id_nivel_acceso == 3)
-                                        {   
-                                            var salida = row.list_usuarios.split(',');
-                                            var acciones = false;
+                                                for(i=0; i<salida.length; i++){
 
-                                            for(i=0; i<salida.length; i++){
-
-                                                if(salida[i]==row.id)
-                                                {
-                                                    
-                                                    acciones = true;
-                                                    if (acciones==true){
-                                                        i=salida.length;
+                                                    if(salida[i]==row.id)
+                                                    {
+                                                        
+                                                        acciones = true;
+                                                        if (acciones==true){
+                                                            i=salida.length;
+                                                        }
                                                     }
+                                            
                                                 }
-                                           
-                                            }
-                                            if (acciones==true){
-                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"  ><i class="fas fa-download text-blue"></i> Descargar</a>';
-                                                
-                                            }
-                                            //console.log(acciones)
-                                            if(acciones==false){
-                                                botonera_confidencial += '</div>';
-                                                botonera_confidencial += '</div>';
-                                                return botonera_confidencial;
-                                            }
-                                        }                                     
-                                    botonera += '</div>';
-                                    botonera += '</div>';
-                                return botonera;
+                                                if (acciones==true){
+                                                    botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                                    botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"  ><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                                    
+                                                }
+                                                //console.log(acciones)
+                                                if(acciones==false){
+                                                    botonera_confidencial += '</div>';
+                                                    botonera_confidencial += '</div>';
+                                                    return botonera_confidencial;
+                                                }
+                                            }                                     
+                                        botonera += '</div>';
+                                        botonera += '</div>';
+                                    return botonera;
+                                }
+                                else{
+                                    return '';
+                                }
                             }
                         }
                         return '';
@@ -794,12 +804,12 @@
                                     grilla_recibidos.clear();
                                     $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).show();
                                     //buscar en servidor
-                                    console.log($('#busqueda_simple').val())
+                                    //console.log($('#busqueda_simple').val())
                                     //construir objeto de busqueda
                                     let params = new FormData();
                                     let queries =["busqueda_simple","buscar_id_documento","buscar_folio","buscar_tipo_documento","buscar_buzon_origen","buscar_fecha_ini","buscar_fecha_fin","buscar_efectos_sobre_terceros"];
                                     for (let i = 0; i < queries.length; i++) {
-                                        console.log(queries);
+                                        //console.log(queries);
                                         //console.log($('#'+queries[i]).val());
                                         if($('#'+queries[i]).val()!=''){
                                             params.append(queries[i],$('#'+queries[i]).val());
@@ -810,7 +820,7 @@
                                         url: '/buscadorListar',
                                         data:[...params].reduce((o, [k, v]) => {o[k] = v;return o;}, {})
                                     }).done(function (result) {
-                                        console.log(typeof result);
+                                        //console.log(typeof result);
                                         //result = JSON.parse(result);
                                         
 
