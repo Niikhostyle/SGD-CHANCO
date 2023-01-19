@@ -719,12 +719,14 @@
         let ffin1 = $('#buscar_fecha_fin').val();
         let ffin = ffin1;
         let id_buzon = $('#buscar_buzon_origen').val();
-        let terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
-        console.log(terceros);
+        let terceros = ""
+        if($('#buscar_efectos_sobre_terceros').is(":checked")){
+            terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
+        }
 
         $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros).load();
     });
-    
+
     $('#btnLimpiar').click(function(){
         $('#buscar_id_documento').val('');
         $('#buscar_folio').val('');
