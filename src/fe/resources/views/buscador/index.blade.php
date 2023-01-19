@@ -21,12 +21,14 @@
                 </div>
                 <div class="col-md-1 md-4">  
                     <i id="botones_busqueda_simple"></i>
+                    <button id="btnBuscarSimple" class="btn btn-success">Buscar</button>
                 </div>
                 <div class="col-md-3 md-4">  
                     <a href="#" class="btn btn-link desplegar_opciones_avanzadas">
                     <i class="fa fa-angle-double-down "></i> Búsqueda avanzada</a>
                     <a href="#" style="display:none" class="btn btn-link cerrar_opciones_avanzadas">
                     <i class="fa fa-angle-double-up "></i> Búsqueda simple</a>
+                    
                 </div>
             </div> 
         </div>
@@ -68,14 +70,14 @@
                         <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
                     </div>
                 </div>
-                <div class="col-md-1 md-1">
+                <div class="col-md-2 md-2">
                     <div class="form-group">
                         <label for="">Rango de Fechas </label>                  
                         <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
                     </div>
                 </div>
                 
-                <div class="col-md-1 md-1">
+                <div class="col-md-2 md-2">
                     <div class="form-group">
                         <label for="">&nbsp;</label>                  
                         <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
@@ -94,9 +96,11 @@
                     </div>                    
                 </div>
 
-                <div class="col-md-5 md-5 buscar_fila">
+                <div class="col-md-3 md-3 buscar_fila">
                     <div class="form-group">
-                        <i id="botones_grilla_despachados"></i>
+                        <!-- <i id="botones_grilla_despachados"></i> 
+                        <br/>-->
+                        <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>&nbsp;&nbsp;<button id="btnBuscar" class="btn btn-success">Buscar</button>
                     </div>
                 </div>
             </div>    
@@ -530,92 +534,8 @@
     
    
     $(document).ready(function () {
-
-        $(function() {         
-            fn_grilla_recibidos();
-         });
-       
-    });
-
-    owl = $('.owl-carousel').owlCarousel(); 
-
-    /* VERSIONES PDF */
-
-   
-    $(".boton_desplegar_versiones_anteriores").click(function(e){
-        $('#card_ocultar_versiones').show();
-        $('#card_desplegar_versiones').hide();
-        $("#dropzone-principal").addClass("displayDropzone");
-        
-    });
-    $(".boton_ocultar_versiones_anteriores").click(function(e){
-        $('#card_ocultar_versiones').hide();
-        $('#card_desplegar_versiones').show();
-        $("#dropzone-principal").removeClass("displayDropzone");
-
-    });
-
-    $(".desplegar_opciones_avanzadas").click(function(e){
-        $('#card_opciones_avanzadas').show();
-        $(".desplegar_opciones_avanzadas").hide();
-        $(".cerrar_opciones_avanzadas").show();
-    });
-
-    $(".cerrar_opciones_avanzadas").click(function(e){
-        $('#card_opciones_avanzadas').hide();
-        $(".cerrar_opciones_avanzadas").hide();
-        $(".desplegar_opciones_avanzadas").show();
-    });     
-
-    $('#buzon_origen').select2();
-        $('#tipo_documento').select2();
-
-
-    $('#form_acciones_solicitadas_el').multiselect({
-            nonSelectedText: 'Seleccione Acciones'
-    });
-
-    $('#form_destinatario_principal_el').tagsinput({
-            maxTags: 1,
-            itemValue: 'value',
-            itemText: 'text'        
-    });
-
-    $('#form_otros_destinatarios_el').tagsinput({
-        itemValue: 'value',
-        itemText: 'text'
-    });
-
-    $(".btn_cerrar_guardar").click(function(e){
-        $('#card_documento').hide();
-        $('#card_bitacora').hide();	
-        $('.btn_cerrar_guardar').hide();
-        $("#collapseOne").collapse('show');
-    });
-
-    $('input[name="buscar_accion"]').on('change', function () 
-    {
-        var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
-            return '^' + this.value + '\$';
-        }).get().join('|');
-        gridBitacora.fnFilter(types, 0, true, false, false, false);
-    });
-
-
-    function filtrar_enter(){
-        if (event.key === "Enter") {
-            event.preventDefault();
-            $("#botones_busqueda_simple button").trigger("click");
-        }
-       // $("#botones_busqueda_simple button").trigger("click");
-    }
-
-    async function fn_grilla_recibidos(){
-
-        $('#grilla_recibidos tbody').empty();        
-
-        grilla_recibidos = $('#grilla_recibidos').DataTable({
-                dom: 'Brtip', 
+       $('#grilla_recibidos').DataTable({
+            dom: 'Blrtip', 
                 buttons: {
                     dom:{
                         button:{
@@ -642,22 +562,21 @@
                         }
                     ]
                 },
-                processing: true,
-                serverSide: false,
-                // ajax: '/buscadorListar',
-                // type:'json',
-                order: [[ 0, 'desc' ]], 
-                responsive: true,                
-                language: lenguaje_datatable,
-                columns: [
+            processing: true,
+            serverSide: true,
+            "lengthMenu": [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
+            ajax: '/buscadorListar?folio=0',
+            order:[[0,'DESC'], [4,'asc'] ],
+            language: lenguaje_datatable,
+            columns: [
                     { data: 'identificador', name: 'identificador' },
                     { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'materia', name: 'documento.materia' ,'width':200,
-                        render:function(data){
-                            return "<span style='width:300px'>"+data+"</span>";
-                            // if(data==null){ return ''; }
-                            // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
-                        }
+                    { data: 'materia', name: 'documento.materia' //,'width':200,
+                        // render:function(data){
+                        //     return "<span style='width:300px'>"+data+"</span>";
+                        //     // if(data==null){ return ''; }
+                        //     // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
+                        //}
                     },
                     
                     { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
@@ -682,7 +601,7 @@
                                     return '';
                                 else
                                 { 
-                                    return moment(data).format('DD-MM-YYYY');
+                                    return moment(row.fecha_documento).format('DD-MM-YYYY');
                                 }
 
                                 return '';
@@ -780,94 +699,116 @@
                   
                     
                     
-                ],
-                initComplete : function() {
-                    
-                    var input = $('#busqueda_simple input').unbind(),
-                    self = this.api(),
-                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
-                            .text('Limpiar')
-                            .click(function() {
-                                $('#buscar_id_documento').val('');
-                                $('#buscar_folio').val('');
-                                $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
-                                $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
-                                $('#buscar_fecha_ini').val('');
-                                $('#buscar_fecha_fin').val('');
-                                $('#buscar_efectos_sobre_terceros').prop('checked', false);
+                ]
+            //,visible:true, searchable: true
+        });
+    });
+       
+    
+    $('#btnBuscarSimple').click(function() {
+        let busqueda_simple = $('#busqueda_simple').val();
+        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?busqueda_simple='+busqueda_simple).load();
+    });
 
-                                $searchButton.click();
-                            }),
-                        $searchButton = $('<button class="btn btn-success buscar_btn_buscar btn_busqueda">')
-                            .text('Buscar')
-                            .click(function() {
-                                    grilla_recibidos.clear();
-                                    $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).show();
-                                    //buscar en servidor
-                                    //console.log($('#busqueda_simple').val())
-                                    //construir objeto de busqueda
-                                    let params = new FormData();
-                                    let queries =["busqueda_simple","buscar_id_documento","buscar_folio","buscar_tipo_documento","buscar_buzon_origen","buscar_fecha_ini","buscar_fecha_fin","buscar_efectos_sobre_terceros"];
-                                    for (let i = 0; i < queries.length; i++) {
-                                        //console.log(queries);
-                                        //console.log($('#'+queries[i]).val());
-                                        if($('#'+queries[i]).val()!=''){
-                                            params.append(queries[i],$('#'+queries[i]).val());
-                                        }
-                                    }
-                                    $.ajax({
-                                        Type: 'GET',
-                                        url: '/buscadorListar',
-                                        data:[...params].reduce((o, [k, v]) => {o[k] = v;return o;}, {})
-                                    }).done(function (result) {
-                                        //console.log(typeof result);
-                                        //result = JSON.parse(result);
-                                        
+    $('#btnBuscar').click(function() {
+        let id_documento = $('#buscar_id_documento').val();
+        let tipo_documento = $('#buscar_tipo_documento').val();
+        let folio = $('#buscar_folio').val();
+        let finicio1 = $('#buscar_fecha_ini').val();
+        let finicio = finicio1;
+        let ffin1 = $('#buscar_fecha_fin').val();
+        let ffin = ffin1;
+        let id_buzon = $('#buscar_buzon_origen').val();
+        let terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
+        console.log(terceros);
+
+        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros).load();
+    });
+    
+    $('#btnLimpiar').click(function(){
+        $('#buscar_id_documento').val('');
+        $('#buscar_folio').val('');
+        $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
+        $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
+        $('#buscar_fecha_ini').val('');
+        $('#buscar_fecha_fin').val('');
+        $('#buscar_efectos_sobre_terceros').prop('checked', false);
+    });
+
+    owl = $('.owl-carousel').owlCarousel(); 
+
+    /* VERSIONES PDF */
+
+   
+    $(".boton_desplegar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').show();
+        $('#card_desplegar_versiones').hide();
+        $("#dropzone-principal").addClass("displayDropzone");
+        
+    });
+    $(".boton_ocultar_versiones_anteriores").click(function(e){
+        $('#card_ocultar_versiones').hide();
+        $('#card_desplegar_versiones').show();
+        $("#dropzone-principal").removeClass("displayDropzone");
+
+    });
+
+    $(".desplegar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').show();
+        $(".desplegar_opciones_avanzadas").hide();
+        $(".cerrar_opciones_avanzadas").show();
+    });
+
+    $(".cerrar_opciones_avanzadas").click(function(e){
+        $('#card_opciones_avanzadas').hide();
+        $(".cerrar_opciones_avanzadas").hide();
+        $(".desplegar_opciones_avanzadas").show();
+    });     
+
+    $('#buzon_origen').select2();
+        $('#tipo_documento').select2();
 
 
-            
-                                        grilla_recibidos.rows.add(result.data).draw();
-                                        $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-                                        $('.dataTables_processing', $('#grilla_recibidos').closest('.dataTables_wrapper')).hide();
-                                        grilla_recibidos.columns(0).search($('#buscar_id_documento').val()).draw();
-                                        grilla_recibidos.columns(1).search($('#buscar_tipo_documento').val()).draw();
-                                        grilla_recibidos.columns(4).search($('#buscar_folio').val()).draw();                               
-                                        
-                                        grilla_recibidos.columns(6).search($('#buscar_buzon_origen').val()).draw();  
-                                        if ($('#buscar_efectos_sobre_terceros').is(':checked'))
-                                            grilla_recibidos.columns(8).search($('#buscar_efectos_sobre_terceros').is(':checked')).draw(); 
-                                        else
-                                            grilla_recibidos.columns(8).search("true|false", true, false).draw(); 
+    $('#form_acciones_solicitadas_el').multiselect({
+            nonSelectedText: 'Seleccione Acciones'
+    });
 
-                                    });
+    $('#form_destinatario_principal_el').tagsinput({
+            maxTags: 1,
+            itemValue: 'value',
+            itemText: 'text'        
+    });
 
-                                    
-                                   // grilla_recibidos.draw();
-                                
-                                   
-                                
+    $('#form_otros_destinatarios_el').tagsinput({
+        itemValue: 'value',
+        itemText: 'text'
+    });
 
-                            })
-                    $simpleSearchButton = $('<button class="btn btn-success" id_btn_filtrar">')
-                    .text('Buscar')
-                    .click(function() {
-                        self.search($('#busqueda_simple').val()).draw();
-                        $(".btn_cerrar_guardar").trigger("click");
-                    })
-                    $('#botones_grilla_despachados').html('');
-                    $('#botones_grilla_despachados').append($clearButton,$searchButton);
-                    $('#botones_busqueda_simple').append($simpleSearchButton);
-                    $('#grilla_despachados_filter').html('');
-                    
-                    $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
-                        console.log( 'Error DataTables: ', message);
-                    }); 
-                }
-                
-               
+    $(".btn_cerrar_guardar").click(function(e){
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
+    });
 
-        }); 
+    $('input[name="buscar_accion"]').on('change', function () 
+    {
+        var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
+            return '^' + this.value + '\$';
+        }).get().join('|');
+        gridBitacora.fnFilter(types, 0, true, false, false, false);
+    });
+
+
+    function filtrar_enter(){
+        if (event.key === "Enter") {
+            event.preventDefault();
+            $("#botones_busqueda_simple button").trigger("click");
+        }
+       // $("#botones_busqueda_simple button").trigger("click");
     }
+
+    
 
     $.fn.dataTable.ext.search.push(
 
