@@ -226,78 +226,95 @@ class BuscadorController extends Controller
     public function listar(Request $request)
     {
         $year_actual = session('year');  
-       
+        //dd($request);
         $extraquery = "";
         // //construir filtro
         $query = $request->busqueda_simple;
         if($query){
-            $extraquery=" AND lower(d.materia) like '%".strtolower($query)."%'"; 
+            $extraquery=" AND (lower(d.materia) like '%".strtolower($query)."%'"; 
             if((int)$query > 0){            
                 $extraquery=$extraquery." OR d.id_documento=".(int)$query." OR d.folio = ".(int)$query."";
             }    
+            $extraquery=$extraquery.")"; 
+        }
+        $filtroAvanzado = " and 1 = 1 ";
+        if($request->buscar_id_documento != ""){
+            $filtroAvanzado .= " and d.id_documento = ".$request->buscar_id_documento;
+        }
+        if($request->buscar_folio != ""){
+            if((int)$request->buscar_folio > 0){
+                $filtroAvanzado .= " and d.folio = ".$request->buscar_folio;
+            }
+        }
+        if($request->buscar_tipo_documento != ""){
+            $filtroAvanzado .= " and lower(td.nombre) = lower('".$request->buscar_tipo_documento."')";
+        }
+        if($request->buscar_buzon_origen != ""){
+            $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
+        }
+        if($request->terceros != ""){
+            $filtroAvanzado .= "and d.efectos_terceros = ".$request->terceros;
         }
 
-        if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin))
+
+
+        if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin)){
             $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
-        
+        }
+        else{
+            $extraquery .= " and d.created_at between to_date('".$request->buscar_fecha_ini."','yyyy-mm-dd') and to_date('".$request->buscar_fecha_fin."','yyyy-mm-dd') + INTERVAL '1 day'";
+        }
+
+        DB::enableQueryLog(); 
         $datos =  DB::select("select 
-        distinct d.id_documento as id_documento
-        , max(db.id_documento_buzon)
-        , d.identificador
-        , d.id_nivel_acceso
-        , string_agg(cast(bu.id_usuario as varchar), ',') as list_usuarios
-        , d.created_at as fecha_documento
-        , d.fecha as fecha_documento_firma
-        , d.folio
-        , d.materia 
-        , d.json_tipo_documento 
-        , d.id_tipo_documento 
-        , td.nombre as tipo_documento
-        , us.id        
-        , CASE
-			WHEN (d.efectos_terceros is true) THEN 'true'
-			ELSE 'false'
-		END AS efectos_terceros
-        , bo.nombre as buzon_origen
-        , 'ACTUAL' as buzon_actual
-    from 
-        documento_buzon db 
-        join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
-        join buzon b on b.id_buzon = db.id_buzon
-        join buzon_usuario bu on bu.id_buzon = b.id_buzon
-        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
-        join users us on us.id = ".Auth::user()->id." 
-        LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento AND dbo.id_documento_buzon_padre is null
-        LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
-
-    where 	        
-        ((d.id_nivel_acceso in (1,3)) 
-        or (bu.id_usuario = ".Auth::user()->id." and d.id_nivel_acceso = 2))
-        AND db.id_tipo_destino = 1 
-       ".$extraquery."
-    group by d.id_documento
-        , d.identificador
-        , d.id_nivel_acceso
-        , d.created_at        
-        , d.fecha        
-        , d.folio        
-        , d.materia        
-        , d.json_tipo_documento    
-        , d.id_tipo_documento 
-        , us.id    
-        , td.nombre
-        , buzon_origen
-        , buzon_actual");
-    
-                    
-       // return datatables( [] )->toJson();
+                distinct d.id_documento as id_documento
+                , max(db.id_documento_buzon)
+                , d.identificador
+                , d.id_nivel_acceso
+                , to_char(d.created_at,'yyyy-mm-dd') as fecha_documento
+                , to_char(d.fecha,'yyyy-mm-dd') as fecha_documento_firma
+                , d.folio
+                , d.materia 
+                , d.json_tipo_documento 
+                , d.id_tipo_documento 
+                , td.nombre as tipo_documento
+                , CASE
+                    WHEN (d.efectos_terceros is true) THEN 'true'
+                    ELSE 'false'
+                END AS efectos_terceros
+                , bo.nombre as buzon_origen
+                , 'ACTUAL' as buzon_actual
+            from 
+                documento_buzon db 
+                join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
+                join buzon b on b.id_buzon = db.id_buzon
+                join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
+                LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento AND dbo.id_documento_buzon_padre is null
+                LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
+            where 	        
+                d.id_nivel_acceso < 3
+                AND db.id_tipo_destino = 1 
+            ".$extraquery.$filtroAvanzado."
+            group by d.id_documento
+                , d.identificador
+                , d.id_nivel_acceso
+                , d.created_at        
+                , d.fecha        
+                , d.folio        
+                , d.materia        
+                , d.json_tipo_documento    
+                , d.id_tipo_documento 
+                , td.nombre
+                , buzon_origen
+                , buzon_actual");
+        
+        //dd(DB::getQueryLog());  
         return datatables( $datos )->toJson();
-
-
     }    
 
     public function listar2(Request $request)
     {
+        //dd($request);
         //filtro rangos de fecha
         $sWhereBetween = "";
 
