@@ -308,7 +308,7 @@ class BuscadorController extends Controller
                 , buzon_origen
                 , buzon_actual");
         
-        //dd(DB::getQueryLog());  
+        dd(DB::getQueryLog());  
         return datatables( $datos )->toJson();
     }    
 
