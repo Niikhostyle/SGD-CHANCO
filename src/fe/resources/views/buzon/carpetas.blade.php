@@ -3,8 +3,6 @@
 @section('title', 'Panel')
 
 @section('content_header')
-
-
     <div class="row">
         <div class="col-10">
             <h1>Buzón: {{$nombre_buzon}}</h1>
@@ -62,6 +60,9 @@
                         </nav>
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade show active" id="nav-por-recibir" role="tabpanel" aria-labelledby="nav-por-recibir-tab">
+                                <div class="pb-4 pt-2">
+                                    <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
+                                </div>
                                 <table id="grilla_por_recibir"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
                                         <tr class="grilla_header">
@@ -77,9 +78,7 @@
                                         </tr>
                                     </thead>
                                 </table>
-                                <div>
-                                  <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
-                                </div>
+                                
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
                                 <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
@@ -115,18 +114,27 @@
                                             </td>
                                         </tr>
                                 </tbody></table>
-                                <div class="table-responsive-old">
-                                    <div class="text-right">
-                                        <input type="checkbox" name="chkFrm" id="chkFrm" onclick="addBtnFirma()"> Solo mostrar documentos por firmar 
-                                        <div class="btnFirma" id="btnFirma" style="display: none;">
-                                            <button onclick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button>
-                                        </div>
-                                        &nbsp;<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>
+                                <div class="row">
+                                    <div class="text-left" style="width: 48%;">
+                                        <label class="text-bold">Acciones Masivas</label>
+                                        <select class="form-control-sm" onchange="seleccionarAccionMasiva(this.value);" id="selAccion">
+                                            <option value="">Seleccione</option>
+                                            <option value="1">Derivar</option>
+                                            <option value="0">Archivar</option>
+                                            <option value="2">Firmar</option>
+                                        </select>
+                                        &nbsp;&nbsp;<button class="btn btn-primary btn-aplicar" id="btnAplicar" style="display:none" >Aplicar</button>
                                     </div>
+                                    <div class="text-right" style="width: 50%;">
+                                        <select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>
+                                    </div>
+                                </div>
+                                <br/>
                                 <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%;">
                                     <thead>
                                         <tr class="grilla_header">
                                             <th data-priority="1">Sel</th>
+                                            <th data-priority="1"></th>
                                             <th data-priority="1"></th>
                                             <th data-priority="2"></th>
                                             <th data-priority="1">E</th>
@@ -144,12 +152,6 @@
                                         </tr>
                                     </thead>
                                 </table>
-                                </div>
-                                <div>
-                                  &nbsp;&nbsp;&nbsp;<button onclick="archivar_masiva()" class="btn btn-sm btn-primary btn-archivar-masiva">Archivado Masivo</button>
-                                </div>
-
-
                             </div>
                             <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab"  style="width: 100%;">
                                 <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
@@ -320,9 +322,6 @@
                                     <button onClick="vista_previa_sg()" type="button" class="btn btn-default btn-vp">
                                         <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa
                                     </button>      
-                                    <!-- <a href="#" onclick="vista_previa_sg()" class="btn btn-default btn-vp-sg">
-                                        <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa sin guardar
-                                    </a>                            -->
                                 </label>                                
                                 <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
                                 <input type="hidden" id="form_encabezado" name="encabezado"> 
@@ -387,7 +386,6 @@
                         <div class="form-row">
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Destinatario Principal:</label><br>
-                                <!--<input type="text" class="form-control" id="form_destinatario_principal_el" data-role="tagsinput" disabled="false">-->
                                 <select class="form-control" style="width: 100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
                                 </select>
                             </div>
@@ -617,6 +615,9 @@
             margin-top: 15px !important;
         }
 
+        .swal2-container {
+            z-index: 1050 !important;
+        }
         
         
      </style>
@@ -639,6 +640,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
+
+
 <script>
     //globales
 
@@ -831,34 +834,10 @@
 
             $(".btn-delete").click(function () {
                 console.log('delete');
-                //Dropzone.forElement("#dropzoneAnexo").removeAllFiles(true);
                 dropzoneAnexo.removeAllFiles(true);
-                //console.log(Dropzone.forElement("#dropzoneAnexo"));
-                        }
+                }
             );
-            /*
-            this.on("success", function (file, response) {
-                console.log("success");                
-            });
-
-            this.on("error", function (file, errorMessage) {
-                console.log("error");
-               // submitButton.removeAttribute("disabled");
-            });
-*/
             this.on("queuecomplete", function (file) {
-                //console.log('completado');
-/*
-                if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-                    console.log("END ", this.getQueuedFiles().length);
-                    //$("input[name='hiddTxt']").val('OK');
-                    //console.log($("input[name='hiddTxt']").val());
-                }
-                else {
-                    dropzoneAnexo.forElement("#dropzoneAnexo").processQueue();
-                }
-*/
-                
 
             });     
         },        
@@ -869,25 +848,6 @@
             formData.append('id_documento', idoc);
 
         },
-/*        success(file) {
-            if (file.previewElement) {
-                console.log("EVENT SUCCESS");
-                
-            }
-        },  
-        complete(file) {
-            console.log('EVENT COMPLETE');
-            if (file._removeLink) {
-                file._removeLink.innerHTML = this.options.dictRemoveFile;
-            }
-            if (file.previewElement) {
-                return file.previewElement.classList.add("dz-complete");
-            }
-        },   
-        queuecomplete() {
-            console.log('EVENT QUEUE');
-            
-        }, */  
     };
 
     Dropzone.options.dropzoneOtros = {
@@ -947,6 +907,7 @@
 
     });
 
+
     /* **DOCUMENTOS** SCRIPT */
 
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
@@ -965,8 +926,6 @@
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();  
-        //$('.btn-vp').hide();
-        //$('.btn-vp-sg').show();
         $('#card_bitacora').hide();	        
         
         clear_form();        
@@ -1034,7 +993,6 @@
         $(".dz-hidden-input").prop("disabled",true);
         isDelete = false;
 
-        //form_destinatario_principal_el.disabled=true;
         form_acciones_solicitadas_el.disabled=true;
         form_comentario_el.disabled=true;
         form_otros_destinatarios_el.disabled=true;
@@ -1096,7 +1054,6 @@
         $("#form_destinatario_principal").val(null);
         $("#form_destinatario_principal").trigger('change');  
 
-        //$('form_destinatario_principal').select2().val(null).trigger("change");
         $('#form_otros_destinatarios_el').tagsinput('removeAll');
      
         $("input[name='hiddIdDocumentoBuzon']").val('');
@@ -1402,11 +1359,7 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                     $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                    //console.log('antes');
-                    // $('.btn-vp-sg').hide();       
-                    // $('.btn-vp').show();       
                     $('.btn-vp').prop("disabled", false);  
-                    //console.log('despues');
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
@@ -1434,8 +1387,6 @@
                         $('.btn-guardar-submit').html( 'Guardar' );
                     }
                 }
-
-                //$('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -1586,9 +1537,6 @@
                         toastr.success("Documento actualizado","Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
                         $('.btn-recibir-submit').html('Guardar');
-                        //fn_grilla_recibidos();
-                        //$('#card_crear_documento').hide();
-                        //$("#collapseOne").collapse('show');
                         $('.btn-recibir-submit').prop("disabled", false);
                         $('.btn_cerrar_guardar').prop("disabled", false);
                         $('.btn-guardar-submit-edit').prop("disabled", false);
@@ -1606,7 +1554,6 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                 }
 
-                //$('.btn-guardar-submit-edit').html( 'Guardar' );
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -1646,9 +1593,7 @@
             }).then((result) => {
                 console.log(result);
             if (result.value==true) 
-            {
-                //guarda_documento(2);    
-                
+            {                
                 guarda_documento(2, function(data){                    
                     //continue your function here, inside of the callback
                     if (data.status == 200)
@@ -1863,9 +1808,12 @@
             matches.push($(elem).val());
 
         });
-        console.log(matches.length);
         if(matches.length > 0)
         {
+            $('.btn-aplicar').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
+            );
+            $('.btn-aplicar').prop("disabled",true);
             Swal.fire({
                     title: 'Firma electrónica masiva',
                     html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
@@ -1902,8 +1850,9 @@
                                 {
                                     toastr.error(data.data.comentario,"Aviso!");
                                 }
-                            
-                            
+                                $('.btn-aplicar').html('Aplicar');
+                                $('.btn-aplicar').prop("disabled",false);
+                                location.reload();
 
                             },
                             error: function (e) {
@@ -1914,11 +1863,17 @@
                                 else
                                     toastr.error("Falla en el documento","Aviso!");
 
+                                $('.btn-aplicar').html('Aplicar');
+                                $('.btn-aplicar').prop("disabled",false);
                             
                             }
                         });
 
                     
+                    }
+                    else{
+                        $('.btn-aplicar').html('Aplicar');
+                        $('.btn-aplicar').prop("disabled",false);
                     }
             }) 
         }
@@ -2355,15 +2310,11 @@
                             responseType: 'blob'
                         },
                         success: function(response){
-                            //var blob = new Blob([response]);
-                            let blob = new Blob([response], {type: 'application/pdf'});
-                            
+                            let blob = new Blob([response], {type: 'application/pdf'});                            
                             var link = document.createElement('a');
                             link.href = window.URL.createObjectURL(blob);
                             link.target = "_blank";
-                            //link.download = "vista_previa.pdf";
                             link.click();
-
                         },
                         error: function (data, jqXHR, textStatus, errorThrown) {
                             toastr.error("No es posible generar la vista previa.","Aviso!");
@@ -2483,60 +2434,6 @@
     }
 
     function archivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre,accion){
-
-        // //archivar_documento(accion);
-
-        // Swal.fire({
-        //     title: txtArchivado[accion][0],
-        //     html: "Se " + txtArchivado[accion][1] + " el documento: <br><br>" +
-        //           "<b>" + $("input[name='materia']").val() + "</b><br>",            
-        //     showCancelButton: true,
-        //     cancelButtonText: 'Cancelar',
-        //     confirmButtonColor: '#3085d6',
-        //     cancelButtonColor: '#d33',
-        //     confirmButtonText: 'Aceptar'
-        //     }).then((result) => {
-        //         console.log(result);
-        //     if (result.value==true) 
-        //     {
-        //         $.ajax({
-        //             url: "/archivar_documento/"+id_documento_buzon,
-        //             type: 'PUT',
-        //             dataType: 'json',
-        //             data: {
-        //                 _token:_token,
-        //                 hiddIdDocumento:id_documento,
-        //                 buzon:hiddIdBuzon, // ??
-        //                 comentario:comentario,
-        //                 accion:accion                
-        //             },
-        //             success: function(data)
-        //             {
-        //                 if(data.status == '200')
-        //                 {
-        //                     toastr.success("Documento " + txtArchivado[accion][2],"Aviso!");
-
-        //                     $('#card_crear_documento').hide();        
-        //                     clear_form();
-        //                     fn_grilla_recibidos();
-        //                     location.reload();
-        //                 }
-        //                 else
-        //                 {
-        //                     toastr.error(data.data.comentario,"Aviso!");
-        //                 }
-
-        //                 $('.btn-enviar-submit').html( 'Enviar' );
-        //             },
-        //             error: function (jqXHR, textStatus, errorThrown) {
-
-        //                 toastr.error("Falla en el documento","Aviso!");
-
-        //                 $('.btn-enviar-submit').html( 'Enviar' );
-        //             }
-        //         });
-        //     }
-        // })        
 
         $('#titulo_accion').html('Ver Documento');         
 
@@ -2660,12 +2557,6 @@
                             $('#cargar_archivo_principal_el').show();
                         }
 
-                        // if(data.archivo_existente==false){
-                        //     console.log("Existe archivo :"+archivo_existente);
-                        //     $('.row_cuerpo').show();
-                        // }
-                        //$('.row_cuerpo').show();
-
                         $('#form_otros_archivos_el').hide();
                         $('#cargar_otros_archivos').show();   
 
@@ -2763,10 +2654,6 @@
                             $('#form_acciones_solicitadas_el').empty();
                             for (let i in accionesFlujo) 
                             {
-                                //var aEncontrado = aAcciones.filter(function (a) { return a.id_accion == accionesFlujo[i][0] });                                
-                                //if (aEncontrado.length > 0)
-                                //    $('#form_acciones_solicitadas_el').append("<option selected value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
-                                //else
                                     $('#form_acciones_solicitadas_el').append("<option value='"+accionesFlujo[i][0]+"' >"+accionesFlujo[i][1]+"</option>");
                             }
 
@@ -2787,7 +2674,6 @@
                                     bFlujo = true;
 
                                     //agrega buzon q corresponde al flujo actual segun carpeta
-                                    //$('#form_destinatario_principal_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});                                    
                                     $("#form_destinatario_principal").val(item.id_buzon);
                                     $("#form_destinatario_principal").trigger('change');                                     
 
@@ -2988,24 +2874,19 @@
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
-                            //console.log("archivo",value);
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                        //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
                                         '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
                                         '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                    //'<a href="/files/'+value.nombre_archivo_codificado+'" class="btn-descargar" target="_blank"><i class="fas fa-download fa-icon1"></i></a>';
                                     '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
                             if (carpeta == 2 &&  accion == 1 && isDelete == true)               
-                                //htmlFile += '<a href="javascript:deleteFile('+value.id_documento_buzon_archivo+')"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                                 htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && accion == 1)               
-                                //htmlFile += '<a href="#"><i class="fas fa-trash-alt fa-icon2"></i></a>';
                                 htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
@@ -3098,9 +2979,6 @@
         $('.btn_cerrar_guardar').prop("disabled", false);
         $('#addButton').html('');
         $('.btn-vp').prop("disabled", false);
-        // $('.btn-vp').show();
-        // $('.btn-vp-sg').hide();
-
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -3200,9 +3078,7 @@
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=1',
                 type:'json',
-                //order: [[ 0, 'desc' ]],  
                 responsive: true,
-                //select: true,
                 language: lenguaje_datatable,
                 'columnDefs': [
                     {
@@ -3216,15 +3092,10 @@
                 'order': [[1, 'asc']],
                 columns: [
                     { data: 'id_documento', name: 'documento.id_documento',
-                        //  render:function(data){
-                        //      return '<input type="checkbox" id="doc_por_recibir" value="'+data+'">';
-                        // },
                     },                    
                     { data: 'id_documento', name: 'documento.id_documento',
                     
                         render:function(data,type,row){
-                            //return "<a href='javascript:void(0)'>"+data+"</a>";
-                            //visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
                             return "<a href='javascript:visualizar_documento_por_recibir("+row.id_documento+","+row.id_documento_buzon+","+row.id_documento_buzon_padre+","+row.id_tipo_destino+")'>"+data+"</a>";
                         }
                     
@@ -3271,9 +3142,6 @@
                     
                 ],
                 rowCallback: function (row, data, index ) {
-                    // $(row).on("click", function (e) {
-                    //     visualizar_documento_por_recibir(data['id_documento'],data['id_documento_buzon'],data['id_documento_buzon_padre'], data['id_tipo_destino']);
-                    // });                
                 }
             });
             $('#grilla_por_recibir').on('error.dt', function(e, settings, techNote, message) {
@@ -3292,17 +3160,28 @@
         $('#grilla_recibidos tbody').empty();
 
         grilla_recibidos = $('#grilla_recibidos').DataTable({
-                //dom: 'l<"addFrm">Btip',
                 processing: true,
                 serverSide: true,
                 ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 type:'json',
-                order: [[ 4, 'desc' ]],        
+                order: [[ 5, 'desc' ]],        
                 responsive: true  ,
                 language: lenguaje_datatable,  
                 'columnDefs': [
                     {
                         'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    },
+                    {
+                        'targets': 1,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    },
+                    {
+                        'targets': 2,
                         'checkboxes': {
                             'selectRow': true
                         }
@@ -3314,8 +3193,19 @@
                     { data: 'id_documento', name: 'documento.id_documento',
                         render: function(data, type, row)
                             {
-                                if(row.estado_documento == "P"){
+                                if(row.id_estado_documento == 4 ){
                                     return '<input type="checkbox" class="dt-checkboxes chkArchivar" name="chkArchivar" id="chkArchivar" value="'+row.id_documento +'" />';
+                                }
+                                else{
+                                    return '';
+                                }                                   
+                            }
+                    }, 
+                    { data: 'id_documento', name: 'documento.id_documento',
+                        render: function(data, type, row)
+                            {
+                                if(row.id_estado_documento == 4 || row.id_estado_documento == 9 || row.id_estado_documento == 11){
+                                    return '<input type="checkbox" class="dt-checkboxes chkDerivar" name="chkDerivar" id="chkDerivar" value="'+row.id_documento +'" />';
                                 }
                                 else{
                                     return '';
@@ -3324,7 +3214,7 @@
                     }, 
                     {
                         data: 'estado_documento', name: 'estado_documento.nombre_corto', 
-                        targets: 1,
+                        targets: 2,
                         searchable:false,
                         orderable:false,
                         className: 'dt-body-center',
@@ -3352,7 +3242,7 @@
                                                 for (let i in accionesSolicitadas) 
                                                 {                                                    
                                                     if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
-                                                        return '<input type="checkbox" name="checkFrm" value="'+row.id_documento+'-'+row.id_documento_buzon+'">';
+                                                        return '<input class="dt-checkboxes" type="checkbox" name="checkFrm" value="'+row.id_documento+'-'+row.id_documento_buzon+'">';
                                                 } 
                                             }                                                
                                             
@@ -3466,7 +3356,6 @@
                                                         if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                            //botonera +=' <a class="dropdown-item btn-menu-ver" href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
                                                         if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
                                                             botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-file text-blue"></i> '+accionesFlujo1[accionesSolicitadas[i]['id_accion']]+'</a>';
@@ -3535,12 +3424,10 @@
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
-                                grilla_recibidos.columns(3).search(""+estados+"",true,false).draw();
-                                grilla_recibidos.columns(4).search($('#gr_buscar_id_doc').val()).draw();
-                                grilla_recibidos.columns(6).search($('#gr_buscar_origen_materia').val()).draw();    
-                                grilla_recibidos.columns(7).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
-                                //self.search($('#gr_buscar_origen_materia').val()).draw();
-
+                                grilla_recibidos.columns(4).search(""+estados+"",true,false).draw();
+                                grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
+                                grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();    
+                                grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
                             })
                             
                     $('#botones_grilla_recibidos').html('');
@@ -3554,20 +3441,22 @@
                     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
                     $('#filtro-td').multiselect('select','Principal');
                     $('#filtro-td').on("change",function(){
-                        grilla_recibidos.columns(8).search($('#filtro-td').val().join("|"),true,false).draw();
+                        grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"),true,false).draw();
                     });
                     $('#filtro-td').trigger("change");
+                    grilla_recibidos.column(0).visible(false);
+                    grilla_recibidos.column(1).visible(false);
+                    grilla_recibidos.column(2).visible(false);
                 }
                 
         });
         
-        var column = grilla_recibidos.column(1); 
+        var column = grilla_recibidos.column(2); 
         column.visible( ! column.visible() ); 
         $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
             console.log( 'Error DataTables: ', message);
         });   
 
-       // $('div.toolbar');
         $('#grilla_recibidos .addFrm').append('<b>Custom tool bar! Text/images etc.</b>');                
     }
 
@@ -3855,10 +3744,10 @@
         });
         if(arr_chequeados.length > 0){    
             var rows_selected = grilla_recibidos.column(0).checkboxes.selected();
-            $('.btn-archivar-masiva').html(
+            $('.btn-aplicar').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Archivando'
             );
-            $('.btn-archivar-masiva').prop("disabled",true);
+            $('.btn-aplicar').prop("disabled",true);
 
             Swal.fire({
                 title: 'Archivar',
@@ -3912,8 +3801,8 @@
 
                                                     toastr.error("Falla en el documento","¡Aviso!");
 
-                                                    $('.btn-archivar-masiva').prop("disabled",false);
-                                                    $('.btn-archivar-masiva').html('Archivado Masivo')
+                                                    $('.btn-aplicar').prop("disabled",false);
+                                                    $('.btn-aplicar').html('Aplicar');
                                                 }
                                             });
                                         });
@@ -3938,8 +3827,8 @@
                         });
                     }
                     else{
-                        $('.btn-archivar-masiva').prop("disabled",false);
-                        $('.btn-archivar-masiva').html('Archivado Masivo');
+                        $('.btn-aplicar').prop("disabled",false);
+                        $('.btn-aplicar').html('Aplicar');
                     }
             })  
         }
@@ -3947,6 +3836,272 @@
             toastr.error("No hay documentos seleccionados para archivar.","¡Aviso!");
         }
     }
+
+    function derivar_masiva(){
+        let arr_chequeados_der = new Array();
+        $(".chkDerivar").each(function() {
+            if($(this).is(":checked")){
+                arr_chequeados_der.push($(this).val())
+            }
+        });
+        if(arr_chequeados_der.length > 0){    
+            var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
+            $('.btn-aplicar').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
+            );
+            $('.btn-aplicar').prop("disabled",true);
+            setTimeout(function() {
+                $('#fDerivarMasivaDestPpal').select2();
+                $("#fDerivarMasivaDestPpal").trigger('change');  
+                $('#fDerivarMasivaAcciones').multiselect('enable');
+                $('#fDerivarMasivaAcciones').multiselect({
+                    nonSelectedText: 'Seleccione Acciones',
+                    numberDisplayed: 6,
+                    buttonWidth: '100%'
+                });
+                $('#fDerivarMasivaDestOtros').tagsinput({
+                    tagClass: function(item) {
+                        return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
+                    },
+                    itemValue: 'value',
+                    itemText: 'text',
+                    typeaheadjs: {
+                        name: 'allBuzones',
+                        displayKey: 'text',
+                        source: allBuzones.ttAdapter()
+                    }
+                });
+
+            }, 300);
+            Swal.fire({
+                title: 'Derivar',
+                html: "<p>Se Derivará(n) <b>"+arr_chequeados_der.length+"</b> Documento(s) <br>¿Desea Continuar?</p>"+
+                "<br/>"+
+                "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>"+
+"                       <div class='form-row'>"+
+"                            <div class='col-md-8 mb-3'>"+
+"                                <label for='inputState'>Destinatario Principal:</label><br>"+
+"                                <select class='form-control' style='width: 100%' id='fDerivarMasivaDestPpal' name='fDerivarMasivaDestPpal'>"+
+"                                   <option value=''>Seleccione</option>"+
+"                                    @foreach($allBuzones2 as $b)"+
+"                                        <option value='{{$b['id']}}'>{{$b['text']}}</option>"+
+"                                    @endforeach    "+
+"                                </select>"+
+"                            </div>"+
+"                            <div class='col-md-4 mb-3'>"+
+"                                <label for='inputState'>Acciones Solicitadas:</label><br>"+
+"                                <select id='fDerivarMasivaAcciones' class='form-control' multiple='multiple' style='text-align:left !important'>                                    "+
+"                                    @foreach($listadoAcciones as $accion)"+
+"                                        @if($accion['id_tipo_accion'] == 1)"+
+"                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>"+
+"                                        @endif    "+
+"                                    @endforeach    "+
+"                                </select>"+
+"                                </div>"+
+"                        </div>"+
+"                        <div class='form-row'>"+
+"                            <div class='col-md-12 mb-3'>"+
+"                                <label for='floatingTextarea'>Comentario a Destinatario Principal:</label>"+
+"                                <textarea class='form-control'  id='fDerivarMasivaComPpal' ></textarea>"+
+"                            </div>"+
+"                        </div>"+
+"                        <div class='form-row'>"+
+"                            <div class='col-md-12 mb-3'>"+
+"                                <label for='inputState'>Otro(s) Destinatario(s):</label>"+
+"                                <input type='text' class='form-control' id='fDerivarMasivaDestOtros' data-role='tagsinput' >"+
+"                            </div>"+
+"                        </div>"+
+"                        <div class='form-row'>"+
+"                            <div class='col-md-12 mb-3'>"+
+"                                <label for='floatingTextarea'>Comentario(s) Otro(s) Destinatario(s): </label>"+
+"                                <textarea class='form-control' id='fDerivarMasivaComOtro'></textarea>"+
+"                            </div>"+
+"                        </div>"+
+"                    </form>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar',
+                width:'950px'
+                }).then((result) => {
+                    console.log(result);
+                    var destinatarioPrincipal = $('#fDerivarMasivaDestPpal').val();
+                    var acciones_solicitadas = $('#fDerivarMasivaAcciones').val();
+                    var otrosDestinatarios = $('#fDerivarMasivaDestOtros').val();
+                    var comentarioPrincipal = $('#fDerivarMasivaComPpal').val();
+                    var comentarioOtros  = $('#fDerivarMasivaComOtro').val();
+                    let msgValidacion = "";
+                    if(destinatarioPrincipal == ''){
+                        msgValidacion = msgValidacion + 'Debe seleccionar un destinatario principal.<br>';
+                    }
+                    if(acciones_solicitadas == ''){
+                        msgValidacion = msgValidacion + 'Debe seleccionar al menos una acción.<br>';
+                    }
+                    
+                    if (result.value){//==true || result.value.length > 0) {
+                        if(msgValidacion == ''){
+                            var promiseArray = [];
+                            $.each(rows_selected, function(index,obj){
+                                $.each(grilla_recibidos.rows().data(),function(idx,data){
+                                    if(data.id_documento==obj){
+                                        if(arr_chequeados_der.includes(''+data.id_documento+'')){
+                                            var hiddIdBuzon = data.id_buzon;
+                                            var hiddIdDocumento = data.id_documento;
+                                            var hiddIdDocumentoBuzon = data.id_documento_buzon;
+                                                var p = new Promise(function(resolve, reject){
+                                                    $.ajax({
+                                                        url: "{{route('buzones.update_documento')}}",
+                                                        type: 'PUT',
+                                                        dataType: 'json',
+                                                        data: {
+                                                            _token:"{{csrf_token()}}",               
+                                                            buzon:data.id_buzon,
+                                                            destinatarioPrincipal:destinatarioPrincipal,
+                                                            destinatarioOtros:otrosDestinatarios,
+                                                            comentarioPrincipal:comentarioPrincipal,
+                                                            comentarioOtros:comentarioOtros,
+                                                            acciones_solicitadas:acciones_solicitadas,
+                                                            hiddIdDocumento:data.id_documento,
+                                                            hiddIdDocumentoBuzon:data.id_documento_buzon,
+                                                            carpeta:2,
+                                                            opcionGuardar:1
+                                                        },
+                                                        success: function(data)
+                                                        {
+                                                            if(data.status == '200')
+                                                            {
+                                                                $.ajax({
+                                                                    url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                                                    type: 'PUT',
+                                                                    dataType: 'json',
+                                                                    data: {
+                                                                        _token:"{{csrf_token()}}",
+                                                                        hiddIdDocumento:hiddIdDocumento,
+                                                                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                                                        buzon:hiddIdBuzon,
+                                                                        destinatarioPrincipal:destinatarioPrincipal,                            
+                                                                        destinatarioOtros:otrosDestinatarios,
+                                                                        acciones_solicitadas:acciones_solicitadas,
+                                                                        carpeta:2                                         
+                                                                    },
+                                                                    success: function(data)
+                                                                    {
+                                                                        if(data.status == '200')
+                                                                        {
+                                                                            //toastr.success("Documento Derivado","Aviso!");
+                                                                            //Swal.close();
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            toastr.error("Fallaen la derivación del documento (2)","Aviso!");
+                                                                        }
+
+
+                                                                    },
+                                                                    error: function (jqXHR, textStatus, errorThrown) {
+                                                                        toastr.error("Falla en la derivación del documento","Aviso!");
+                                                                        Swal.close();
+                                                                        $('.btn-aplicar').prop("disabled",false);
+                                                                        $('.btn-aplicar').html('Aplicar');
+                                                                    }
+                                                                });
+                                                                Swal.close();
+                                                                toastr.success("Documento(s) Derivado(s)","Aviso!");
+                                                                location.reload();
+
+                                                            }
+                                                            else
+                                                            {
+                                                                toastr.error("Falla al guardar destinatarios","Aviso!");
+                                                            }
+                                                        },
+                                                        error: function (jqXHR, textStatus, errorThrown) {
+                                                            toastr.error("Falla en la actualización del documento","Aviso!");
+                                                        }
+
+                                                    });
+                                                    ////
+                                                    
+                                                });
+                                        }
+                                        promiseArray.push(p);
+                                    }
+                                })
+                            });
+                            Swal.fire({
+                                title: 'Derivando documentos',
+                                allowEscapeKey: false,
+                                allowOutsideClick: false,
+                                onOpen: () => {
+                                    swal.showLoading();
+                                }
+                            })
+                            Promise.all(promiseArray).then(function(obj) {
+                                Swal.close();
+                                toastr.success("Documentos Derivados...","¡Aviso!");
+                                fn_grilla_por_recibir();
+                                window.location.reload();
+                            });
+                        }
+                        else{
+                            toastr.error(msgValidacion,"Aviso!");
+                            $('.btn-aplicar').prop("disabled",false);
+                            $('.btn-aplicar').html('Aplicar');
+                        }
+                    }
+                    else{
+                        $('.btn-aplicar').prop("disabled",false);
+                        $('.btn-aplicar').html('Aplicar');
+                    }
+            })  
+        }
+        else{
+            toastr.error("No hay documentos seleccionados para derivar.","¡Aviso!");
+        }
+    }
+
+
+    function seleccionarAccionMasiva(nOpcion){
+        let opTotal = 3;
+        let esVisible = "";
+        if(nOpcion != ""){
+            $('.btn-aplicar').show();
+            for(let n=0;n<opTotal;n++){
+                let  column = grilla_recibidos.column(n); 
+                if(n==nOpcion){
+                    esVisible = true;
+                }
+                else{
+                    esVisible = false;
+                }
+                column.visible(esVisible);
+            }
+        }        
+        else{
+            $('.btn-aplicar').hide();
+            for(let n=0;n<opTotal;n++){
+                let  column = grilla_recibidos.column(n); 
+                column.visible(false);
+            }
+        }
+        
+    }
+    
+    $('.btn-aplicar').click(function(){
+        let accion = $('#selAccion').val();
+        switch (accion){
+            case "0":
+                archivar_masiva();
+                break;
+            case "1":
+                derivar_masiva();
+                break;                
+            case "2":
+                envioFrm();
+                break;        
+        }
+    });
 
     function vernotas(tipo){
         objDoc.rel_documento_buzon.sort(function(a, b){
@@ -3981,14 +4136,11 @@
 
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
+        $('#fDerivarMasivaDestPpal').select2();
 
         $(function() {
 
             fn_grilla_por_recibir();
-            // $('#grilla_por_recibir tbody').on( 'click', 'tr', function () {
-            //     td_seleccionado=grilla_por_recibir.row( this ).data();
-            //     mostrar_documento(td_seleccionado['materia']);
-            // });
             fn_grilla_recibidos();
             fn_grilla_despachados();
             $('#gr_buscar_tipo_doc').multiselect({includeSelectAllOption: true,maxHeight: 400});
@@ -4004,7 +4156,6 @@
             $('#gd_buscar_estado').multiselect({includeSelectAllOption: true,maxHeight: 300});
             $('#gd_buscar_estado').multiselect('selectAll', true);
 
-            //gd_buscar_tipo_doc
         });
     });
 

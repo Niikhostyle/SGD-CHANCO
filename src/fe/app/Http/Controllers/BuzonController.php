@@ -474,7 +474,6 @@ class BuzonController extends Controller
     public function enviar_documento($id, Request $request)
     {
         $sesion_key = AppServiceProvider::session_key_general();
-
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(100)
         ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/enviar', [
