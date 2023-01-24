@@ -11,6 +11,13 @@
 
     {{-- Custom Meta Tags --}}
     @yield('meta_tags')
+    <style>
+    .navbar-nav>.user-menu>.dropdown-menu>.user-footer .btn-default:hover {
+        background-color: #fff;
+        color: #09579c !important;
+        border: 2px solid #09579c;
+    }
+    </style>
 
     {{-- Title --}}
     <title>
