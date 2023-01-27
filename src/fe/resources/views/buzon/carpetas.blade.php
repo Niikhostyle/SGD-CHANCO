@@ -4159,7 +4159,7 @@
                                                                 Swal.close();
                                                                 toastr.success("Documentos Derivados","¡Aviso!");
                                                                 fn_grilla_por_recibir();
-                                                                //location.reload();
+                                                                location.reload();
                                                             });
                                                         });
                                                 }
