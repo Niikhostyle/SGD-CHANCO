@@ -3951,7 +3951,7 @@
             if(nSecundarios > 0 && nPrincipal > 0){//verificar que se haya seleccionado solo un tipo de destino
                 continuar = 0;
                 Swal.fire({
-                    title: '<strong>Aviso</strong>',
+                    title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br><strong>Aviso</strong></span>',
                     html:
                         '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
                     showCloseButton: true,
