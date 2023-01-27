@@ -46,7 +46,7 @@
                     <div class="form-group">
                         <label for="select_tipo_documento" >Tipo Documento</label>
                         <br>
-                        <select class="form-control" id="buscar_tipo_documento" name="buscar_tipo_documento" >
+                        <select style="width:100%" class="form-control" id="buscar_tipo_documento" name="buscar_tipo_documento" >
                             <option value="">Seleccionar</option>
                                 @foreach($listado_tiposdoc as $list)
                                 <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
@@ -87,7 +87,8 @@
                 <div class="col-md-3 md-3">
                     <div class="form-group">
                         <label for="select_buzon_origen">Buzón Orígen</label>
-                        <select  class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
+                        <br/>
+                        <select  style="width:100%" class="form-control" id="buscar_buzon_origen" name="buscar_buzon_origen" >
                             <option value="">Seleccionar</option>
                             @foreach($listBuzones as $list)
                             <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
@@ -534,7 +535,9 @@
     
    
     $(document).ready(function () {
-       $('#grilla_recibidos').DataTable({
+        $('#buscar_buzon_origen').select2({ width: 'resolve'});
+        $('#buscar_tipo_documento').select2({ width: 'resolve'});
+        $('#grilla_recibidos').DataTable({
             dom: 'Blrtip', 
                 buttons: {
                     dom:{

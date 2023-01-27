@@ -548,7 +548,6 @@ class DocumentoController extends Controller{
         //2: actualizar en documento_buzon registro principal y secundarios de estado 1 a 3
 
         //3: crear registro en documento_buzon_bitacora para destinatario principal y secundarios con accion = 2
-
         if ($request->isJson())
         {
             try 
@@ -556,7 +555,6 @@ class DocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-
                 $dFechaCreacion = date('Y-m-d H:i:s');                
 
                 if ($datosRequest['carpeta'] == 3) //despachados
@@ -654,9 +652,7 @@ class DocumentoController extends Controller{
                     $datosUpdate->id_estado_documento = $estadoDocumentoFinal;
                     $datosUpdate->save();
                 }
-               
-                if ($datosRequest['destinatarioPrincipal'] != "" || $datosRequest['destinatarioPrincipal'] != null)
-                {
+                if (($datosRequest['destinatarioPrincipal'] != "" || $datosRequest['destinatarioPrincipal'] != null) ){
                     //valida acciones
                     if (!isset($datosRequest['acciones_solicitadas']))
                         return $this->respondFail('Falla al enviar documento: Acciones solicitadas no válidas.');
@@ -679,7 +675,9 @@ class DocumentoController extends Controller{
                 }
                 else
                 {
-                    return $this->respondFail('Falla al enviar documento: Destinatario principal no válido.');
+                    if($datosRequest['id_tipo_destino'] == 1 || $datosRequest['id_tipo_destino'] == "1"){
+                        return $this->respondFail('Falla al enviar documento: Destinatario principal no válido.');
+                    }
                 }
 
                 if ($datosRequest['destinatarioOtros'] != "" || $datosRequest['destinatarioOtros'] != null)

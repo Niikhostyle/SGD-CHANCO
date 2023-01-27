@@ -438,7 +438,7 @@
                                     <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
                                     <button type="button" id="submit-edit" class="btn btn-light btn-guardar-submit-edit w-10">Guardar</button>
                                     <button type="button" id="submit-all" class="btn btn-success btn-guardar-submit">Guardar y Cerrar</button>
-                                    <button type="button" class="btn btn-primary btn-enviar-submit w-10" style="display:none">Enviar</button>
+                                    <button type="button" id="submit-enviar" class="btn btn-primary btn-enviar-submit w-10" style="display:none">Enviar</button>
                                     <span class="w-10" id="addButton"></span>
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
@@ -1166,6 +1166,8 @@
         $('.btn-guardar-submit-edit').prop("disabled", true);
         $('.btn-guardar-submit').prop("disabled", true);
         $('.btn-enviar-submit').prop("disabled",true);
+        $('.btn-visar').prop("disabled", true);
+        $('.btn-firmar').prop("disabled",true);
         $('.btn_cerrar_guardar').prop("disabled", true);
         accion_editar_guardar(3);
     });
@@ -1183,6 +1185,8 @@
         $('.btn-guardar-submit-edit').prop("disabled", true);
         $('.btn-enviar-submit').prop("disabled",true);
         $('.btn_cerrar_guardar').prop("disabled", true);
+        $('.btn-visar').prop("disabled", true);
+        $('.btn-firmar').prop("disabled",true);
         guarda_documento(1);
     });
 
@@ -1199,6 +1203,9 @@
         $('.btn-guardar-submit').prop("disabled", true);
         $('.btn-guardar-submit-edit').prop("disabled", true);
         $('.btn_cerrar_guardar').prop("disabled", true);
+        $('.btn-visar').prop("disabled", true);
+        $('.btn-firmar').prop("disabled", true);
+        $('.btn-recibir-submit').prop("disabled", true);
         //guarda_documento();
         enviar_documento();
 
@@ -1308,6 +1315,8 @@
                             $('.btn-enviar-submit').prop("disabled",false);  
                             $('.btn_cerrar_guardar').prop("disabled", false);
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                            $('.btn-visar').prop("disabled", false);
+                            $('.btn-firmar').prop("disabled",false);
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
 
@@ -1331,7 +1340,9 @@
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn-enviar-submit').prop("disabled",false);  
                             $('.btn_cerrar_guardar').prop("disabled", false);    
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                            $('.btn-visar').prop("disabled", false);
+                            $('.btn-firmar').prop("disabled",false);               
                         }, 5000);
                         
 
@@ -1359,7 +1370,9 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                     $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                    $('.btn-vp').prop("disabled", false);  
+                    $('.btn-vp').prop("disabled", false);
+                    $('.btn-visar').prop("disabled", false);
+                    $('.btn-firmar').prop("disabled",false);  
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
@@ -1368,6 +1381,8 @@
                         $('.btn-guardar-submit-edit').prop("disabled", false);
                         $('.btn_cerrar_guardar').prop("disabled", false);
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                        $('.btn-visar').prop("disabled", false);
+                        $('.btn-firmar').prop("disabled",false);
      
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
@@ -1380,6 +1395,8 @@
                     $('.btn-guardar-submit-edit').prop("disabled", false);
                     $('.btn-enviar-submit').prop("disabled",false);  
                     $('.btn_cerrar_guardar').prop("disabled", false);
+                    $('.btn-visar').prop("disabled", false);
+                    $('.btn-firmar').prop("disabled",false);
                     if($("#idAsignado").html() != "No Asignado"){
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     }
@@ -1402,6 +1419,8 @@
                 $('.btn-guardar-submit-edit').prop("disabled", false);
                 $('.btn-enviar-submit').prop("disabled",false);    
                 $('.btn_cerrar_guardar').prop("disabled", false);
+                $('.btn-visar').prop("disabled", false);
+                $('.btn-firmar').prop("disabled",false);
             }
         
         });
@@ -1542,6 +1561,8 @@
                         $('.btn-guardar-submit-edit').prop("disabled", false);
                         $('.btn-guardar-submit').prop("disabled", false);
                         $('.btn-enviar-submit').prop("disabled",false);
+                        $('.btn-visar').prop("disabled", false);
+                        $('.btn-firmar').prop("disabled",false);
                     }, 5000);
                 }
                 else
@@ -1552,6 +1573,8 @@
                     $('.btn-guardar-submit-edit').prop("disabled", false);
                     $('.btn-guardar-submit').prop("disabled", false);
                     $('.btn-enviar-submit').prop("disabled",false);
+                    $('.btn-visar').prop("disabled", false);
+                    $('.btn-firmar').prop("disabled",false);
                 }
 
                 
@@ -1565,6 +1588,8 @@
                 $('.btn-enviar-submit').prop("disabled",false);
                 $('.btn_cerrar_guardar').prop("disabled", false);
                 $('.btn-recibir-submit').prop("disabled", false);
+                $('.btn-visar').prop("disabled", false);
+                $('.btn-firmar').prop("disabled",false);
             }
 
         });
@@ -1631,6 +1656,9 @@
                                 $('.btn-guardar-submit').prop("disabled", false);
                                 $('.btn-guardar-submit-edit').prop("disabled", false);      
                                 $('.btn_cerrar_guardar').prop("disabled", false);
+                                $('.btn-visar').prop("disabled", false);
+                                $('.btn-firmar').prop("disabled", false);
+                                $('.btn-recibir-submit').prop("disabled", false);
                             }
                             else
                             {
@@ -1639,6 +1667,9 @@
                                 $('.btn-guardar-submit').prop("disabled", false);
                                 $('.btn-guardar-submit-edit').prop("disabled", false);
                                 $('.btn_cerrar_guardar').prop("disabled", false);
+                                $('.btn-visar').prop("disabled", false);
+                                $('.btn-firmar').prop("disabled", false);
+                                $('.btn-recibir-submit').prop("disabled", false);
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1654,6 +1685,9 @@
                             $('.btn-guardar-submit').prop("disabled", false);
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn_cerrar_guardar').prop("disabled", false);
+                            $('.btn-visar').prop("disabled", false);
+                            $('.btn-firmar').prop("disabled", false);
+                            $('.btn-recibir-submit').prop("disabled", false);
  
                         }
                     });
@@ -1669,6 +1703,9 @@
                 $('.btn-guardar-submit').prop("disabled", false);
                 $('.btn-guardar-submit-edit').prop("disabled", false);
                 $('.btn_cerrar_guardar').prop("disabled", false);
+                $('.btn-visar').prop("disabled", false);
+                $('.btn-firmar').prop("disabled", false);
+                $('.btn-recibir-submit').prop("disabled", false);
  
             }
         })               
@@ -2481,7 +2518,7 @@
             var docBuzon = id_documento_buzon_padre;
         else
             var docBuzon = id_documento_buzon; 
-        console.log("cargar_datos_grilla");
+        //console.log("cargar_datos_grilla");
         $.ajax({
             url: "/documentos/"+id_documento,
             type:'GET',
@@ -2633,11 +2670,10 @@
                                     {
                                         var aAcciones = jsonAcciones[i].acciones;
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
-
+                                       
                                         aBuzonesDerivaciones.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                     }
                                 }
-                                
                                 //guarda buzon y acciones flujo anterior
                                 if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0 && ((jsonTipoAvance == 2 || jsonTipoAvance == 4) && jsonAcciones[i].orden != 1)) //validar que no se repita 
                                 {
@@ -2841,6 +2877,7 @@
                                 
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
+                                    //console.log(item);
                                     $("#form_destinatario_principal").val(item.id_buzon);
                                     $("#form_destinatario_principal").trigger('change');    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
@@ -2851,13 +2888,61 @@
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in accionesSolicitadas) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
+
                                 }
+                                // if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre){
+                                //     var accionesSolicitadas = $.parseJSON(item.json_acciones);
+
+                                //     if(item.id_estado_documento == 4){
+                                //         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                                        
+                                        
+                                //         for (let i in accionesSolicitadas) {
+                                //             $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
+                                //             if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
+                                //                 $('#form_tipo_documento').prop("disabled", false);
+                                //                 $("#form_crear_editar :input").prop("disabled", false);
+                                //                 editor_cuerpo.setReadOnly(false);
+                                //                 $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                //                 $(".bootstrap-tagsinput").removeClass("disabled"); 
+
+                                //                 $('#dropzone-principal').prop("disabled", false);
+                                //                 $('#dropzone-anexo').prop("disabled", false);
+                                //                 $('#dropzone-otros').prop("disabled", false);
+                                //                 $(".dz-hidden-input").prop("disabled", false); 
+                                //                 $('.btn-guardar-submit-edit').show();
+                                //                 $('.btn-guardar-submit').show();
+                                //             if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                   
+                                //                 var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> ';
+                                //                 $('#addButton').append(buttonVisar);
+                                //             }
+                                //             if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                   
+                                //                 var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> ';
+                                //                 $('#addButton').append(buttonFirmar);
+                                //             }
+                                //             if(accionesSolicitadas[i]['id_accion'] == 11){
+                                //                 $('#form_destinatario_principal').prop("disabled", false);
+                                //                 $('#form_acciones_solicitadas_el').multiselect('enable');
+                                //                 $('#form_comentario_el').prop("disabled", false);        
+                                //                 $('#form_otros_destinatarios_el').prop("disabled", false);
+                                //                 $('#form_comentario_otro_el').prop("disabled", false);
+                                //                 $('.btn-enviar-submit').show();
+                                //                 $('#submit-enviar').removeClass('btn-primary');
+                                //                 $('#submit-enviar').addClass('btn-success');
+                                //             }
+                                //             if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                   
+                                //                 var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
+                                //                 $('#addButton').append(buttonFinaliza);
+                                //             }
+                                //         } 
+                                //     }
+                                // }
 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
                                     $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
                                     $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
-                                }  
+                                } 
                             });
                         }
  
@@ -3839,222 +3924,281 @@
 
     function derivar_masiva(){
         let arr_chequeados_der = new Array();
+        let continuar = 1;
         $(".chkDerivar").each(function() {
             if($(this).is(":checked")){
                 arr_chequeados_der.push($(this).val())
             }
         });
-        if(arr_chequeados_der.length > 0){    
+        if(arr_chequeados_der.length > 0){
+            let nSecundarios = 0;
+            let nPrincipal = 0;
             var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
-            $('.btn-aplicar').html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
-            );
-            $('.btn-aplicar').prop("disabled",true);
-            setTimeout(function() {
-                $('#fDerivarMasivaDestPpal').select2();
-                $("#fDerivarMasivaDestPpal").trigger('change');  
-                $('#fDerivarMasivaAcciones').multiselect('enable');
-                $('#fDerivarMasivaAcciones').multiselect({
-                    nonSelectedText: 'Seleccione Acciones',
-                    numberDisplayed: 6,
-                    buttonWidth: '100%'
-                });
-                $('#fDerivarMasivaDestOtros').tagsinput({
-                    tagClass: function(item) {
-                        return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
-                    },
-                    itemValue: 'value',
-                    itemText: 'text',
-                    typeaheadjs: {
-                        name: 'allBuzones',
-                        displayKey: 'text',
-                        source: allBuzones.ttAdapter()
+            $.each(rows_selected, function(index,obj){
+                $.each(grilla_recibidos.rows().data(),function(idx,data){
+                    if(data.id_documento==obj){
+                        if(arr_chequeados_der.includes(''+data.id_documento+'')){
+                            if(data.id_tipo_destino == 1){
+                                nPrincipal++;
+                            }
+                            if(data.id_tipo_destino == 2){
+                                nSecundarios++;
+                            }
+                        }
                     }
                 });
+            });
+            if(nSecundarios > 0 && nPrincipal > 0){//verificar que se haya seleccionado solo un tipo de destino
+                continuar = 0;
+                Swal.fire({
+                    title: '<strong>Aviso</strong>',
+                    html:
+                        '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText:
+                        'Aceptar'
+                });
+            }
+            else{
+                ///////
+                if(arr_chequeados_der.length > 0 && continuar > 0){    
+                    //var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
+                    $('.btn-aplicar').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
+                    );
+                    $('.btn-aplicar').prop("disabled",true);
+                    setTimeout(function() {
+                        $('#fDerivarMasivaDestPpal').select2();
+                        $("#fDerivarMasivaDestPpal").trigger('change');  
+                        $('#fDerivarMasivaAcciones').multiselect('enable');
+                        $('#fDerivarMasivaAcciones').multiselect({
+                            nonSelectedText: 'Seleccione Acciones',
+                            numberDisplayed: 6,
+                            buttonWidth: '100%'
+                        });
+                        $("#fDerivarMasivaAcciones option[value='9']").remove();
+                        $('#fDerivarMasivaAcciones').multiselect('rebuild');
+                        if(nSecundarios > 0){
+                            $('#fDerivarMasivaDestPpal').prop("disabled", true);
+                            $('#fDerivarMasivaComPpal').prop("disabled", true);
+                            $('#fDerivarMasivaAcciones').multiselect('disable');
+                        }
+                        $('#fDerivarMasivaDestOtros').tagsinput({
+                            tagClass: function(item) {
+                                return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
+                            },
+                            itemValue: 'value',
+                            itemText: 'text',
+                            typeaheadjs: {
+                                name: 'allBuzones',
+                                displayKey: 'text',
+                                source: allBuzones.ttAdapter()
+                            }
+                        });
 
-            }, 300);
-            Swal.fire({
-                title: 'Derivar',
-                html: "<p>Se Derivará(n) <b>"+arr_chequeados_der.length+"</b> Documento(s) <br>¿Desea Continuar?</p>"+
-                "<br/>"+
-                "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>"+
-"                       <div class='form-row'>"+
-"                            <div class='col-md-8 mb-3'>"+
-"                                <label for='inputState'>Destinatario Principal:</label><br>"+
-"                                <select class='form-control' style='width: 100%' id='fDerivarMasivaDestPpal' name='fDerivarMasivaDestPpal'>"+
-"                                   <option value=''>Seleccione</option>"+
-"                                    @foreach($allBuzones2 as $b)"+
-"                                        <option value='{{$b['id']}}'>{{$b['text']}}</option>"+
-"                                    @endforeach    "+
-"                                </select>"+
-"                            </div>"+
-"                            <div class='col-md-4 mb-3'>"+
-"                                <label for='inputState'>Acciones Solicitadas:</label><br>"+
-"                                <select id='fDerivarMasivaAcciones' class='form-control' multiple='multiple' style='text-align:left !important'>                                    "+
-"                                    @foreach($listadoAcciones as $accion)"+
-"                                        @if($accion['id_tipo_accion'] == 1)"+
-"                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>"+
-"                                        @endif    "+
-"                                    @endforeach    "+
-"                                </select>"+
-"                                </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='floatingTextarea'>Comentario a Destinatario Principal:</label>"+
-"                                <textarea class='form-control'  id='fDerivarMasivaComPpal' ></textarea>"+
-"                            </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='inputState'>Otro(s) Destinatario(s):</label>"+
-"                                <input type='text' class='form-control' id='fDerivarMasivaDestOtros' data-role='tagsinput' >"+
-"                            </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='floatingTextarea'>Comentario(s) Otro(s) Destinatario(s): </label>"+
-"                                <textarea class='form-control' id='fDerivarMasivaComOtro'></textarea>"+
-"                            </div>"+
-"                        </div>"+
-"                    </form>",
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Aceptar',
-                width:'950px'
-                }).then((result) => {
-                    console.log(result);
-                    var destinatarioPrincipal = $('#fDerivarMasivaDestPpal').val();
-                    var acciones_solicitadas = $('#fDerivarMasivaAcciones').val();
-                    var otrosDestinatarios = $('#fDerivarMasivaDestOtros').val();
-                    var comentarioPrincipal = $('#fDerivarMasivaComPpal').val();
-                    var comentarioOtros  = $('#fDerivarMasivaComOtro').val();
-                    let msgValidacion = "";
-                    if(destinatarioPrincipal == ''){
-                        msgValidacion = msgValidacion + 'Debe seleccionar un destinatario principal.<br>';
-                    }
-                    if(acciones_solicitadas == ''){
-                        msgValidacion = msgValidacion + 'Debe seleccionar al menos una acción.<br>';
-                    }
-                    
-                    if (result.value){//==true || result.value.length > 0) {
-                        if(msgValidacion == ''){
-                            var promiseArray = [];
-                            $.each(rows_selected, function(index,obj){
-                                $.each(grilla_recibidos.rows().data(),function(idx,data){
-                                    if(data.id_documento==obj){
-                                        if(arr_chequeados_der.includes(''+data.id_documento+'')){
-                                            var hiddIdBuzon = data.id_buzon;
-                                            var hiddIdDocumento = data.id_documento;
-                                            var hiddIdDocumentoBuzon = data.id_documento_buzon;
-                                                var p = new Promise(function(resolve, reject){
-                                                    $.ajax({
-                                                        url: "{{route('buzones.update_documento')}}",
-                                                        type: 'PUT',
-                                                        dataType: 'json',
-                                                        data: {
-                                                            _token:"{{csrf_token()}}",               
-                                                            buzon:data.id_buzon,
-                                                            destinatarioPrincipal:destinatarioPrincipal,
-                                                            destinatarioOtros:otrosDestinatarios,
-                                                            comentarioPrincipal:comentarioPrincipal,
-                                                            comentarioOtros:comentarioOtros,
-                                                            acciones_solicitadas:acciones_solicitadas,
-                                                            hiddIdDocumento:data.id_documento,
-                                                            hiddIdDocumentoBuzon:data.id_documento_buzon,
-                                                            carpeta:2,
-                                                            opcionGuardar:1
-                                                        },
-                                                        success: function(data)
-                                                        {
-                                                            if(data.status == '200')
-                                                            {
-                                                                var p2 = new Promise(function(resolve, reject){
-                                                                $.ajax({
-                                                                    url: "../buzonesCarpetas/"+hiddIdDocumento,
-                                                                    type: 'PUT',
-                                                                    dataType: 'json',
-                                                                    data: {
-                                                                        _token:"{{csrf_token()}}",
-                                                                        hiddIdDocumento:hiddIdDocumento,
-                                                                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
-                                                                        buzon:hiddIdBuzon,
-                                                                        destinatarioPrincipal:destinatarioPrincipal,                            
-                                                                        destinatarioOtros:otrosDestinatarios,
-                                                                        acciones_solicitadas:acciones_solicitadas,
-                                                                        carpeta:2                                         
-                                                                    },
-                                                                    success: function(data)
-                                                                    {
-                                                                        if(data.status == '200')
-                                                                        {
-                                                                            toastr.success("Documento Derivado","¡Aviso!");
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            toastr.error("Fallaen la derivación del documento (2)","¡Aviso!");
-                                                                        }
-                                                                    },
-                                                                    error: function (jqXHR, textStatus, errorThrown) {
-                                                                        toastr.error("Falla en la derivación del documento","¡Aviso!");
-                                                                        Swal.close();
-                                                                        $('.btn-aplicar').prop("disabled",false);
-                                                                        $('.btn-aplicar').html('Aplicar');
-                                                                    }
-                                                                });
-                                                                });
-                                                                promiseArray.push(p2);
-                                                            }
-                                                            else
-                                                            {
-                                                                toastr.error("Falla al guardar destinatarios","¡Aviso!");
-                                                            }
-                                                        },
-                                                        error: function (jqXHR, textStatus, errorThrown) {
-                                                            toastr.error("Falla en la actualización del documento","¡Aviso!");
-                                                        }
-
-                                                    });
-                                                    Promise.all(promiseArray).then(function(obj) {
-                                                        Swal.close();
-                                                        toastr.success("Documentos Derivados","¡Aviso!");
-                                                        fn_grilla_por_recibir();
-                                                        location.reload();
-                                                    });
-                                                });
-                                        }
-                                        promiseArray.push(p);
-                                    }
-                                })
-                            });
-                            Swal.fire({
-                                title: 'Derivando documentos',
-                                allowEscapeKey: false,
-                                allowOutsideClick: false,
-                                onOpen: () => {
-                                    swal.showLoading();
+                    }, 300);
+                    Swal.fire({
+                        title: 'Derivar',
+                        html: "<p>Se Derivará(n) <b>"+arr_chequeados_der.length+"</b> Documento(s) <br>¿Desea Continuar?</p>"+
+                        "<br/>"+
+                        "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>"+
+        "                       <div class='form-row'>"+
+        "                            <div class='col-md-8 mb-3'>"+
+        "                                <label for='inputState'>Destinatario Principal:</label><br>"+
+        "                                <select class='form-control' style='width: 100%' id='fDerivarMasivaDestPpal' name='fDerivarMasivaDestPpal'>"+
+        "                                   <option value=''>Seleccione</option>"+
+        "                                    @foreach($allBuzones2 as $b)"+
+        "                                        <option value='{{$b['id']}}'>{{$b['text']}}</option>"+
+        "                                    @endforeach    "+
+        "                                </select>"+
+        "                            </div>"+
+        "                            <div class='col-md-4 mb-3'>"+
+        "                                <label for='inputState'>Acciones Solicitadas:</label><br>"+
+        "                                <select id='fDerivarMasivaAcciones' class='form-control' multiple='multiple' style='text-align:left !important'>                                    "+
+        "                                    @foreach($listadoAcciones as $accion)"+
+        "                                        @if($accion['id_tipo_accion'] == 1)"+
+        "                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>"+
+        "                                        @endif    "+
+        "                                    @endforeach    "+
+        "                                </select>"+
+        "                                </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='floatingTextarea'>Comentario a Destinatario Principal:</label>"+
+        "                                <textarea class='form-control'  id='fDerivarMasivaComPpal' ></textarea>"+
+        "                            </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='inputState'>Otro(s) Destinatario(s):</label>"+
+        "                                <input type='text' class='form-control' id='fDerivarMasivaDestOtros' data-role='tagsinput' >"+
+        "                            </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='floatingTextarea'>Comentario(s) Otro(s) Destinatario(s): </label>"+
+        "                                <textarea class='form-control' id='fDerivarMasivaComOtro'></textarea>"+
+        "                            </div>"+
+        "                        </div>"+
+        "                    </form>",
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar',
+                        width:'950px'
+                        }).then((result) => {
+                            //console.log(result);
+                            var destinatarioPrincipal = $('#fDerivarMasivaDestPpal').val();
+                            var acciones_solicitadas = $('#fDerivarMasivaAcciones').val();
+                            var otrosDestinatarios = $('#fDerivarMasivaDestOtros').val();
+                            var comentarioPrincipal = $('#fDerivarMasivaComPpal').val();
+                            var comentarioOtros  = $('#fDerivarMasivaComOtro').val();
+                            let msgValidacion = "";
+                            if(nPrincipal >0){
+                                if(destinatarioPrincipal == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar un destinatario principal.<br>';
                                 }
-                            })
-                            Promise.all(promiseArray).then(function(obj) {
-                                Swal.close();
-                                toastr.success("Documentos Derivados...","¡Aviso!");
-                                fn_grilla_por_recibir();
-                                window.location.reload();
-                            });
-                        }
-                        else{
-                            toastr.error(msgValidacion,"¡Aviso!");
-                            $('.btn-aplicar').prop("disabled",false);
-                            $('.btn-aplicar').html('Aplicar');
-                        }
-                    }
-                    else{
-                        $('.btn-aplicar').prop("disabled",false);
-                        $('.btn-aplicar').html('Aplicar');
-                    }
-            })  
+                                if(acciones_solicitadas == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar al menos una acción.<br>';
+                                }
+                            }
+                            if(nSecundarios >0){
+                                if(otrosDestinatarios == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar un destinatario.<br>';
+                                }
+                            }
+                            if (result.value){//==true || result.value.length > 0) {
+                                if(msgValidacion == ''){
+                                    var promiseArray = [];
+                                    $.each(rows_selected, function(index,obj){
+                                        $.each(grilla_recibidos.rows().data(),function(idx,data){
+                                            if(data.id_documento==obj){
+                                                if(arr_chequeados_der.includes(''+data.id_documento+'')){
+                                                    console.log(data);
+                                                    var hiddIdBuzon = data.id_buzon;
+                                                    var hiddIdDocumento = data.id_documento;
+                                                    var hiddIdDocumentoBuzon = data.id_documento_buzon;
+                                                    var tipo_destino = data.id_tipo_destino;
+                                                    console.log(tipo_destino);
+                                                        var p = new Promise(function(resolve, reject){
+                                                            $.ajax({
+                                                                url: "{{route('buzones.update_documento')}}",
+                                                                type: 'PUT',
+                                                                dataType: 'json',
+                                                                data: {
+                                                                    _token:"{{csrf_token()}}",               
+                                                                    buzon:data.id_buzon,
+                                                                    destinatarioPrincipal:destinatarioPrincipal,
+                                                                    destinatarioOtros:otrosDestinatarios,
+                                                                    comentarioPrincipal:comentarioPrincipal,
+                                                                    comentarioOtros:comentarioOtros,
+                                                                    acciones_solicitadas:acciones_solicitadas,
+                                                                    hiddIdDocumento:data.id_documento,
+                                                                    hiddIdDocumentoBuzon:data.id_documento_buzon,
+                                                                    carpeta:2,
+                                                                    opcionGuardar:1,
+                                                                    id_tipo_destino:tipo_destino 
+                                                                },
+                                                                success: function(data)
+                                                                {
+                                                                    if(data.status == '200')
+                                                                    {
+                                                                        console.log('tipo buzon: '+tipo_destino);
+                                                                        var p2 = new Promise(function(resolve, reject){
+                                                                        $.ajax({
+                                                                            url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                                                            type: 'PUT',
+                                                                            dataType: 'json',
+                                                                            data: {
+                                                                                _token:"{{csrf_token()}}",
+                                                                                hiddIdDocumento:hiddIdDocumento,
+                                                                                id_tipo_destino:tipo_destino,
+                                                                                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                                                                buzon:hiddIdBuzon,
+                                                                                destinatarioPrincipal:destinatarioPrincipal,                            
+                                                                                destinatarioOtros:otrosDestinatarios,
+                                                                                acciones_solicitadas:acciones_solicitadas,
+                                                                                carpeta:2                                    
+                                                                            },
+                                                                            success: function(data)
+                                                                            {
+                                                                                if(data.status == '200')
+                                                                                {
+                                                                                    toastr.success("Documento Derivado","¡Aviso!");
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    toastr.error("Falla en la derivación del documento (2)","¡Aviso!");
+                                                                                }
+                                                                            },
+                                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                                toastr.error("Falla en la derivación del documento","¡Aviso!");
+                                                                                Swal.close();
+                                                                                $('.btn-aplicar').prop("disabled",false);
+                                                                                $('.btn-aplicar').html('Aplicar');
+                                                                            }
+                                                                        });
+                                                                        });
+                                                                        promiseArray.push(p2);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        toastr.error("Falla al guardar destinatarios","¡Aviso!");
+                                                                    }
+                                                                },
+                                                                error: function (jqXHR, textStatus, errorThrown) {
+                                                                    toastr.error("Falla en la actualización del documento","¡Aviso!");
+                                                                }
+
+                                                            });
+                                                            Promise.all(promiseArray).then(function(obj) {
+                                                                Swal.close();
+                                                                toastr.success("Documentos Derivados","¡Aviso!");
+                                                                fn_grilla_por_recibir();
+                                                                //location.reload();
+                                                            });
+                                                        });
+                                                }
+                                                promiseArray.push(p);
+                                            }
+                                        })
+                                    });
+                                    Swal.fire({
+                                        title: 'Derivando documentos',
+                                        allowEscapeKey: false,
+                                        allowOutsideClick: false,
+                                        onOpen: () => {
+                                            swal.showLoading();
+                                        }
+                                    })
+                                    Promise.all(promiseArray).then(function(obj) {
+                                        Swal.close();
+                                        toastr.success("Documentos Derivados...","¡Aviso!");
+                                        fn_grilla_por_recibir();
+                                        window.location.reload();
+                                    });
+                                }
+                                else{
+                                    toastr.error(msgValidacion,"¡Aviso!");
+                                    $('.btn-aplicar').prop("disabled",false);
+                                    $('.btn-aplicar').html('Aplicar');
+                                }
+                            }
+                            else{
+                                $('.btn-aplicar').prop("disabled",false);
+                                $('.btn-aplicar').html('Aplicar');
+                            }
+                    })  
+                }
+                else{
+                    toastr.error("No hay documentos seleccionados para derivar.","¡Aviso!");
+                }
+                ///////
+            }
         }
         else{
             toastr.error("No hay documentos seleccionados para derivar.","¡Aviso!");
