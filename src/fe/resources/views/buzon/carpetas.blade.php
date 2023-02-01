@@ -438,7 +438,7 @@
                                     <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
                                     <button type="button" id="submit-edit" class="btn btn-light btn-guardar-submit-edit w-10">Guardar</button>
                                     <button type="button" id="submit-all" class="btn btn-success btn-guardar-submit">Guardar y Cerrar</button>
-                                    <button type="button" class="btn btn-primary btn-enviar-submit w-10" style="display:none">Enviar</button>
+                                    <button type="button" id="submit-enviar" class="btn btn-primary btn-enviar-submit w-10" style="display:none">Enviar</button>
                                     <span class="w-10" id="addButton"></span>
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
@@ -936,14 +936,14 @@
         editor_cuerpo.setReadOnly(false);
 
         $('.btn-guardar-submit').show();   
-        $('.btn-guardar-submit').prop("disabled",false);
+        habilita_boton('btn-guardar-submit');
         if($("#idAsignado").html() != "No Asignado"){
             $('.btn-guardar-submit-edit').show();   
         }
         else{
             $('.btn-guardar-submit').html("Guardar");
         }
-        $('.btn-guardar-submit-edit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit-edit');
 
         /* responder a */
 
@@ -1144,13 +1144,13 @@
                             }
                         }
                     }
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     toastr.error("Falla al obtener datos","¡Aviso!");
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
 
                 }
             });
@@ -1163,10 +1163,16 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+        
         accion_editar_guardar(3);
     });
 
@@ -1179,31 +1185,44 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+
         guarda_documento(1);
     });
 
     $(".btn-enviar-submit").click(function(e)
     {
         e.preventDefault();
-
-        $('.btn-enviar-submit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
-        );
-
         $(".print-error-msg").hide();
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-editar');
+        deshabilita_boton('btn-recibir-submit');
         //guarda_documento();
         enviar_documento();
 
     });
 
+    function deshabilita_boton(tClase){
+        $('.'+tClase+'').prop("disabled", true);
+    }
+    function habilita_boton(tClase){
+        $('.'+tClase+'').prop("disabled", false);
+    }
 
     function testAsync(){
         return new Promise((resolve,reject)=>{
@@ -1302,11 +1321,16 @@
                             
                             $('#card_crear_documento').hide();
                             $("#collapseOne").collapse('show');     
+                            fn_grilla_recibidos();
                             fn_grilla_despachados();
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn-enviar-submit').prop("disabled",false);  
-                            $('.btn_cerrar_guardar').prop("disabled", false);
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-enviar-submit');  
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-recibir-submit');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
@@ -1327,10 +1351,14 @@
                             respuesta_guarda = data;  
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn-enviar-submit').prop("disabled",false);  
-                            $('.btn_cerrar_guardar').prop("disabled", false);    
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-enviar-submit');  
+                            habilita_boton('btn_cerrar_guardar');   
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar'); 
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-recibir-submit');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
                         }, 5000);
                         
@@ -1353,20 +1381,27 @@
 
                     //habilita botón enviar y guardar
                     $('.btn-guardar-submit').show();
-                    $('.btn-guardar-submit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
                     $('.btn-guardar-submit-edit').show();   
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);
-                    $('.btn_cerrar_guardar').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-recibir-submit');
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                    $('.btn-vp').prop("disabled", false);  
+                    habilita_boton('btn-vp');  
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
-                        $('.btn-enviar-submit').prop("disabled",false);
-                        $('.btn-guardar-submit').prop("disabled", false);
-                        $('.btn-guardar-submit-edit').prop("disabled", false);
-                        $('.btn_cerrar_guardar').prop("disabled", false);
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-recibir-submit');
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
      
                     //actualiza grilla despachados
@@ -1376,16 +1411,21 @@
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);  
-                    $('.btn_cerrar_guardar').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-enviar-submit');  
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-recibir-submit');
                     if($("#idAsignado").html() != "No Asignado"){
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     }
                     else{
                         $('.btn-guardar-submit').html( 'Guardar' );
                     }
+                    
                 }
                 
             },
@@ -1398,10 +1438,14 @@
                 else{
                     $('.btn-guardar-submit').html( 'Guardar' );
                 }
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);    
-                $('.btn_cerrar_guardar').prop("disabled", false);
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-enviar-submit');    
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-recibir-submit');
             }
         
         });
@@ -1451,7 +1495,10 @@
                         derivar_documento();
                     
                     if (accion == 6) //visar
-                        visar_documento();   
+                        visar_documento();
+                    
+                    if(accion == 8)//visar y derivar
+                        visar_derivar_documento();
                 }
                 else
                 {
@@ -1467,9 +1514,12 @@
 
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
-        $('.btn-recibir-submit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-        );
+        console.log(idCarpeta)
+        if(idCarpeta != 2){
+            $('.btn-recibir-submit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+        }
         $('.btn-guardar-submit-edit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
@@ -1494,8 +1544,15 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
-        $('.btn-recibir-submit').prop("disabled", true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
         
 
         $.ajax({
@@ -1536,22 +1593,35 @@
                     setTimeout(function() {
                         toastr.success("Documento actualizado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-                        $('.btn-recibir-submit').html('Guardar');
-                        $('.btn-recibir-submit').prop("disabled", false);
-                        $('.btn_cerrar_guardar').prop("disabled", false);
-                        $('.btn-guardar-submit-edit').prop("disabled", false);
-                        $('.btn-guardar-submit').prop("disabled", false);
-                        $('.btn-enviar-submit').prop("disabled",false);
+                        if(idCarpeta != 2){
+                            $('.btn-recibir-submit').html('Guardar');
+                        }
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+
                     }, 5000);
                 }
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
-                    $('.btn-recibir-submit').prop("disabled", false);
-                    $('.btn_cerrar_guardar').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
                 }
 
                 
@@ -1560,11 +1630,16 @@
                 toastr.error("Falla en el documento","¡Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);
-                $('.btn_cerrar_guardar').prop("disabled", false);
-                $('.btn-recibir-submit').prop("disabled", false);
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-firmar-derivar');
             }
 
         });
@@ -1594,12 +1669,15 @@
                 console.log(result);
             if (result.value==true) 
             {                
+                $('.btn-enviar-submit').html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
+                );
                 guarda_documento(2, function(data){                    
                     //continue your function here, inside of the callback
                     if (data.status == 200)
                     {
-                        $('.btn-guardar-submit').prop("disabled", true);
-                        $('.btn-guardar-submit-edit').prop("disabled", true); 
+                        deshabilita_boton('btn-guardar-submit');
+                        deshabilita_boton('btn-guardar-submit-edit'); 
                         $.ajax({
                         url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
@@ -1617,8 +1695,8 @@
                         },
                         success: function(data)
                         {
-                            $('.btn-guardar-submit').prop("disabled", true);
-                            $('.btn-guardar-submit-edit').prop("disabled", true); 
+                            deshabilita_boton('btn-guardar-submit');
+                            deshabilita_boton('btn-guardar-submit-edit'); 
                             if(data.status == '200')
                             {
                                 toastr.success("Documento enviado","¡Aviso!");
@@ -1627,18 +1705,29 @@
                                 $("#collapseOne").collapse('show');
                                 clear_form();
                                 fn_grilla_despachados();  
-                                $('.btn-enviar-submit').prop("disabled",false);
-                                $('.btn-guardar-submit').prop("disabled", false);
-                                $('.btn-guardar-submit-edit').prop("disabled", false);      
-                                $('.btn_cerrar_guardar').prop("disabled", false);
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');      
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-recibir-submit');
+                                fn_grilla_recibidos();
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('.btn-enviar-submit').prop("disabled",false);
-                                $('.btn-guardar-submit').prop("disabled", false);
-                                $('.btn-guardar-submit-edit').prop("disabled", false);
-                                $('.btn_cerrar_guardar').prop("disabled", false);
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-recibir-submit');
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1650,10 +1739,15 @@
                             toastr.error("Falla en el envío del documento","¡Aviso!");
 
                             $('.btn-enviar-submit').html( 'Enviar' );
-                            $('.btn-enviar-submit').prop("disabled",false);
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn_cerrar_guardar').prop("disabled", false);
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-recibir-submit');
  
                         }
                     });
@@ -1664,12 +1758,15 @@
                 
             }
             else{
-                $('.btn-enviar-submit').html( 'Enviar' );
-                $('.btn-enviar-submit').prop("disabled",false);
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn_cerrar_guardar').prop("disabled", false);
- 
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-editar');
+                habilita_boton('btn-recibir-submit');
             }
         })               
     }
@@ -1699,6 +1796,19 @@
                     console.log(result);
                 if (result.value==true) 
                 {
+                    $('.btn-derivar').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
+                    );
+                    deshabilita_boton('btn-derivar');
+                    deshabilita_boton('btn_cerrar_guardar');
+                    deshabilita_boton('btn-guardar-submit');
+                    deshabilita_boton('btn-enviar-submit');
+                    deshabilita_boton('btn-visar');
+                    deshabilita_boton('btn-editar');
+                    deshabilita_boton('btn-firmar');
+                    deshabilita_boton('btn-archivar');
+                    deshabilita_boton('btn-visar-derivar');
+                    deshabilita_boton('btn-firmar-derivar');
                     $.ajax({
                         url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
@@ -1722,11 +1832,34 @@
                                 $('#card_crear_documento').hide();        
                                 clear_form();
                                 fn_grilla_despachados();
+                                fn_grilla_recibidoss();
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                $('.btn-derivar').html('Enviar');
                                 location.reload();
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                $('.btn-derivar').html('Enviar');
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1734,8 +1867,19 @@
                         error: function (jqXHR, textStatus, errorThrown) {
 
                             toastr.error("Falla en la derivación del documento","¡Aviso!");
+                            habilita_boton('btn-derivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
 
                             $('.btn-enviar-submit').html( 'Enviar' );
+                            $('.btn-derivar').html('Enviar');
                         }
                     });
                 }
@@ -1796,6 +1940,104 @@
             })                 
     }
 
+    function visar_derivar_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        if(destinatarioPrincipal !== undefined && acciones_solicitadas != ""){
+            Swal.fire({
+                title: 'Visar y Enviar',
+                html: "Se realizará la visación y envío del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) {
+                    $('.btn-visar-derivar').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Visando y derivando')
+                    $.ajax({
+                        url:"/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type:'PUT',
+                        dataType:'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            buzon:hiddIdBuzon,
+                            accion:6                
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')//documento visado
+                            {//derivar                                
+                                $.ajax({
+                                    url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                    type: 'PUT',
+                                    dataType: 'json',
+                                    data: {
+                                        _token:_token,
+                                        hiddIdDocumento:hiddIdDocumento,
+                                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                        buzon:hiddIdBuzon,
+                                        destinatarioPrincipal:destinatarioPrincipal,                            
+                                        destinatarioOtros:otrosDestinatarios,
+                                        acciones_solicitadas:acciones_solicitadas,
+                                        carpeta:2                                         
+                                    },
+                                    success: function(data)
+                                    {
+                                        if(data.status == '200')
+                                        {
+                                            toastr.success("Documento Derivado y Visado","¡Aviso!");
+
+                                            $('#card_crear_documento').hide();        
+                                            clear_form();
+                                            fn_grilla_despachados();
+                                            fn_grilla_recibidos();
+                                            location.reload();
+                                        }
+                                        else
+                                        {
+                                            toastr.error(data.data.comentario,"¡Aviso!");
+                                        }
+
+                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+
+                                        toastr.error("Falla en la derivación del documento","¡Aviso!");
+
+                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                    }
+                                });
+
+                            }//fin derivar
+                            else
+                            {
+                                toastr.error(data.data.comentario,"¡Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en el documento","¡Aviso!");
+                        }
+                    }); 
+                }
+            }) 
+        }
+        else{
+            toastr.error("Falla en el documento: Debe seleccionar un destinatario principal y acciones","¡Aviso!");
+        }   
+    }
+
     function envioFrm()
     {
         var _token = $("input[name='_token']").val();
@@ -1813,7 +2055,7 @@
             $('.btn-aplicar').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
             );
-            $('.btn-aplicar').prop("disabled",true);
+            deshabilita_boton('btn-aplicar');
             Swal.fire({
                     title: 'Firma electrónica masiva',
                     html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
@@ -1851,7 +2093,7 @@
                                     toastr.error(data.data.comentario,"¡Aviso!");
                                 }
                                 $('.btn-aplicar').html('Aplicar');
-                                $('.btn-aplicar').prop("disabled",false);
+                                habilita_boton('btn-aplicar');
                                 location.reload();
 
                             },
@@ -1864,7 +2106,7 @@
                                     toastr.error("Falla en el documento","¡Aviso!");
 
                                 $('.btn-aplicar').html('Aplicar');
-                                $('.btn-aplicar').prop("disabled",false);
+                                habilita_boton('btn-aplicar');
                             
                             }
                         });
@@ -1873,7 +2115,7 @@
                     }
                     else{
                         $('.btn-aplicar').html('Aplicar');
-                        $('.btn-aplicar').prop("disabled",false);
+                        habilita_boton('btn-aplicar');
                     }
             }) 
         }
@@ -1892,7 +2134,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        $('.btn-recibir-submit').prop("disabled",true);
+        deshabilita_boton('btn-recibir-submit');
         Swal.fire({
                 title: 'Firmar',
                 html: "Se realizará la firma del documento: <br>" +
@@ -1929,12 +2171,12 @@
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
@@ -1946,11 +2188,11 @@
                             console.log(data);
                             if (data.data.comentario != "" && data.data.comentario != null){
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             else{
                                 toastr.error("Falla en el documento","¡Aviso!");
-                                $ ('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             $('.btn-recibir-submit').html( 'Firmar' );
                             bloqueo_accion=false;
@@ -1960,9 +2202,221 @@
                     
                 }
                 else{
-                    $('.btn-recibir-submit').prop("disabled",false);
+                    habilita_boton('btn-recibir-submit');
                 }
             }) 
+    }
+
+    function firmar_derivar_documento()
+    {
+        if(bloqueo_accion){
+            return false;
+        }
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        if(destinatarioPrincipal !== undefined && acciones_solicitadas!= ""){    
+            deshabilita_boton('btn-recibir-submit');
+            deshabilita_boton('btn_cerrar_guardar');
+            deshabilita_boton('btn-guardar-submit');
+            deshabilita_boton('btn-enviar-submit');
+            deshabilita_boton('btn-visar');
+            deshabilita_boton('btn-editar');
+            deshabilita_boton('btn-firmar');
+            deshabilita_boton('btn-archivar');
+            deshabilita_boton('btn-visar-derivar');
+            deshabilita_boton('btn-firmar-derivar');
+            deshabilita_boton('btn-derivar');
+            Swal.fire({
+                    title: 'Firmar y Enviar',
+                    html: "Se realizará la firma y envío del documento: <br>" +
+                        "<b>" + $("input[name='materia']").val() + "</b><br>",
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        console.log(result);
+                    if (result.value==true) 
+                    {  
+                        $('.btn-firmar-derivar').html(
+                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
+                        );
+                        bloqueo_accion =true;
+                        $.ajax({
+                            url: "/firmar_documento/"+hiddIdDocumentoBuzon,
+                            type: 'PUT',
+                            dataType: 'json',
+                            data: {
+                                _token:_token,
+                                hiddIdDocumento:hiddIdDocumento,
+                                buzon:hiddIdBuzon,
+                                accion:7                
+                            },
+                            success: function(data)
+                            {
+                                if(data.status == '200'){//// derivar
+                                    $.ajax({
+                                        url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                        type: 'PUT',
+                                        dataType: 'json',
+                                        data: {
+                                            _token:_token,
+                                            hiddIdDocumento:hiddIdDocumento,
+                                            hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                            buzon:hiddIdBuzon,
+                                            destinatarioPrincipal:destinatarioPrincipal,                            
+                                            destinatarioOtros:otrosDestinatarios,
+                                            acciones_solicitadas:acciones_solicitadas,
+                                            carpeta:2                                         
+                                        },
+                                        success: function(data)
+                                        {
+                                            if(data.status == '200')
+                                            {
+                                                toastr.success("Documento Derivado y Visado","¡Aviso!");
+
+                                                $('#card_crear_documento').hide();        
+                                                clear_form();
+                                                fn_grilla_despachados();
+                                                fn_grilla_recibidos();
+                                                habilita_boton('btn-recibir-submit');
+                                                habilita_boton('btn_cerrar_guardar');
+                                                habilita_boton('btn-guardar-submit');
+                                                habilita_boton('btn-enviar-submit');
+                                                habilita_boton('btn-visar');
+                                                habilita_boton('btn-editar');
+                                                habilita_boton('btn-firmar');
+                                                habilita_boton('btn-archivar');
+                                                habilita_boton('btn-visar-derivar');
+                                                habilita_boton('btn-firmar-derivar');
+                                                habilita_boton('btn-derivar');
+                                                location.reload();
+                                            }
+                                            else
+                                            {
+                                                toastr.error(data.data.comentario,"¡Aviso!");
+                                                habilita_boton('btn-recibir-submit');
+                                                habilita_boton('btn_cerrar_guardar');
+                                                habilita_boton('btn-guardar-submit');
+                                                habilita_boton('btn-enviar-submit');
+                                                habilita_boton('btn-visar');
+                                                habilita_boton('btn-editar');
+                                                habilita_boton('btn-firmar');
+                                                habilita_boton('btn-archivar');
+                                                habilita_boton('btn-visar-derivar');
+                                                habilita_boton('btn-firmar-derivar');
+                                                habilita_boton('btn-derivar');
+                                            }
+
+                                            $('.btn-enviar-submit').html( 'Enviar' );
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+
+                                            toastr.error("Falla en la derivación del documento","¡Aviso!");
+                                            habilita_boton('btn-recibir-submit');
+                                            habilita_boton('btn_cerrar_guardar');
+                                            habilita_boton('btn-guardar-submit');
+                                            habilita_boton('btn-enviar-submit');
+                                            habilita_boton('btn-visar');
+                                            habilita_boton('btn-editar');
+                                            habilita_boton('btn-firmar');
+                                            habilita_boton('btn-archivar');
+                                            habilita_boton('btn-visar-derivar');
+                                            habilita_boton('btn-firmar-derivar');
+                                            habilita_boton('btn-derivar');
+                                            $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                        }
+                                    });                            
+                                }//// fin derivar
+                                else
+                                {
+                                    toastr.error(data.data.comentario,"¡Aviso!");
+                                    $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                }
+                            
+                                $('.btn-recibir-submit').html( 'Firmar' );
+                                $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                bloqueo_accion=false;
+
+                            },
+                            error: function (e) {
+                                data = e.responseJSON;
+                                console.log(data);
+                                if (data.data.comentario != "" && data.data.comentario != null){
+                                    toastr.error(data.data.comentario,"¡Aviso!");
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                    $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                }
+                                else{
+                                    toastr.error("Falla en el documento","¡Aviso!");
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                }
+                                $('.btn-recibir-submit').html( 'Firmar' );
+                                $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                bloqueo_accion=false;
+                            }
+                        });
+
+                        
+                    }
+                    else{
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-editar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar');
+                        $('.btn-firmar-derivar').html('Firmar y Enviar');
+                    }
+                }) 
+        }
+        else{
+            toastr.error("Falla en el documento: Debe seleccionr un destinatario y acciones","¡Aviso!");
+        }
     }
 
     function finalizar_documento()
@@ -1972,7 +2426,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        $('btn-recibir-submit').prop("disabled",true);
+        deshabilita_boton('btn-recibir-submit');
 
         Swal.fire({
                 title: 'Finalizar',
@@ -2003,7 +2457,7 @@
                             if(data.status == '200')
                             {
                                 toastr.success("Documento Finalizado","¡Aviso!");
-                                $('btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
@@ -2011,17 +2465,17 @@
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","¡Aviso!");
-                            $('btn-recibir-submit').prop("disabled",false);
+                            habilita_boton('btn-recibir-submit');
                         }
                     });
                 }
                 else{
-                    $('btn-recibir-submit').prop("disabled",false);
+                    habilita_boton('btn-recibir-submit');
                 }
             })
     }
@@ -2100,7 +2554,17 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
         var comentario = $("textarea[id='form_comentario_archivar']").val();        
-        
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-editar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn-firmar-derivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-derivar');
         Swal.fire({
             title: txtArchivado[accion][0],
             html: "Se " + txtArchivado[accion][1] + " el documento: <br><br>" +
@@ -2134,11 +2598,33 @@
                             $('#card_crear_documento').hide();        
                             clear_form();
                             fn_grilla_recibidos();
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-derivar');
                             location.reload();
                         }
                         else
                         {
                             toastr.error(data.data.comentario,"¡Aviso!");
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-derivar');
                         }
 
                         $('.btn-enviar-submit').html( 'Enviar' );
@@ -2146,10 +2632,33 @@
                     error: function (jqXHR, textStatus, errorThrown) {
 
                         toastr.error("Falla en el documento","¡Aviso!");
-
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-editar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-derivar');
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+            }
+            else{
+                habilita_boton('btn-archivar');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-editar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-firmar-derivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-derivar');
             }
         })        
        
@@ -2188,7 +2697,7 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,11);//se incorpora accion 11 para identificar la acción de ver el documento 
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -2213,7 +2722,7 @@
         $('#titulo_accion').html('Editar Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,22);//se incorpora accion 22   
         
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
@@ -2358,10 +2867,10 @@
                 else{
                     $('.btn-guardar-submit').html( 'Guardar' );
                 }
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);    
-                $('.btn_cerrar_guardar').prop("disabled", false);
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-enviar-submit');    
+                habilita_boton('btn_cerrar_guardar');
             }
         
         });
@@ -2379,13 +2888,13 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,33);         
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
 
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
@@ -2481,7 +2990,6 @@
             var docBuzon = id_documento_buzon_padre;
         else
             var docBuzon = id_documento_buzon; 
-        console.log("cargar_datos_grilla");
         $.ajax({
             url: "/documentos/"+id_documento,
             type:'GET',
@@ -2852,6 +3360,348 @@
                                     for (let i in accionesSolicitadas) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
                                 }
+                                if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre && carpeta == 2){ 
+                                    var accionesSolicitadas = $.parseJSON(item.json_acciones); 
+                                    if(accion == 11){ //seleccion boton ver
+                                        if(item.id_estado_documento == 4){ //documento pendiente
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if (accionesSolicitadas[i]['id_accion'] == 4){ //editar   
+                                                    var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                                    $('#addButton').append(buttonEditar);  
+                                                }
+                                                if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    $('#addButton').append(buttonVisar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                                $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estado archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estaddo visado
+                                    }//fin boton accion ver
+                                    ///////////////////////////////
+                                    if(accion == 1){ //seleccion boton editar
+                                        if(item.id_estado_documento == 4){ //documento pendiente
+                                            $('.btn-guardar-submit').show();
+                                            //$('.btn-enviar-submit').html('Guardar y Enviar');
+                                            $('#submit-enviar').removeClass('w-10');
+                                            $('#submit-enviar').addClass('w-15');
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    $('#addButton').append(buttonVisar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-enviar-submit').html('Guardar y Enviar');
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                                $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('.btn-guardar-submit').show();
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion editar
+                                    ///////////////////////
+                                    if(accion ==22){ //seleccion boton visar
+                                        $('.btn-recibir-submit').hide();
+                                        $('.btn-enviar-submit').hide();
+                                        
+                                        if(item.id_estado_documento == 4){ //documento pendiente  
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            $('#addButton').append(buttonEditar);
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                    var buttonVisarDerivar = '<button onClick="guarda_destinatarios_documento(8)" type="button" class="btn btn-success btn-visar-derivar w-15">Visar y Enviar</button> '; 
+                                                    $('#addButton').append(buttonVisarDerivar);
+                                                } 
+                                                
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            $('#addButton').append(buttonVisar); 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion visar
+                                    ///////////////////////
+                                    if(accion ==33){ //seleccion boton firmar
+                                        $('.btn-recibir-submit').hide();
+                                        $('.btn-enviar-submit').hide();
+                                        
+                                        if(item.id_estado_documento == 4){ //documento pendiente  
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            $('#addButton').append(buttonEditar);
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success');
+                                                    var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+                                                    $('#addButton').append(buttonFirmarDerivar); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn btn-success btn-derivar w-10">Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
+                                                } 
+                                                
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            $('#addButton').append(buttonVisar); 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion firmar
+                                }
 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
@@ -2971,14 +3821,14 @@
         $('#form_tipo_documento').prop("disabled", true); 
        
         $('.btn-guardar-submit').show();
-        $('.btn-guardar-submit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit');
         $('.btn-guardar-submit-edit').show();
-        $('.btn-guardar-submit-edit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit-edit');
         $('.btn-enviar-submit').show();
-        $('.btn-enviar-submit').prop("disabled",false);
-        $('.btn_cerrar_guardar').prop("disabled", false);
+        habilita_boton('btn-enviar-submit');
+        habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -2995,7 +3845,7 @@
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
         $('.btn-enviar-submit').hide();
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
 
         var buttonGuardar = '<button onClick="accion_editar_guardar(2)" type="button" class="btn btn-success btn-recibir-submit w-10">Guardar</button> ';
         $('#addButton').html('');
@@ -3656,7 +4506,7 @@
             $('.btn-recepcion-masiva').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recibiendo'
             );
-            $('.btn-recepcion-masiva').prop("disabled",true);
+            deshabilita_boton('btn-recepcion-masiva');
             Swal.fire({
                 title: 'Recibir',
                 html: "Se recepcionará(n) <b>"+rows_selected.length+"</b> Documento(s) <br>¿Desea Continuar?",
@@ -3700,7 +4550,7 @@
                                                 console.log(textStatus);
                                                 reject(new Error('Error : ' + textStatus));
                                                 $('.btn-recepcion-masiva').html('Recibir Masivo');
-                                                $('.btn-recepcion-masiva').prop("disabled",false);
+                                                habilita_boton('btn-recepcion-masiva');
                                             }
                                         });
                                 });
@@ -3725,7 +4575,7 @@
                     });
                 }
                 else{
-                    $('.btn-recepcion-masiva').prop("disabled",false);
+                    habilita_boton('btn-recepcion-masiva');
                     $('.btn-recepcion-masiva').html('Recibir Masivo');
                 }
             }) 
@@ -3747,7 +4597,7 @@
             $('.btn-aplicar').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Archivando'
             );
-            $('.btn-aplicar').prop("disabled",true);
+            deshabilita_boton('btn-aplicar');
 
             Swal.fire({
                 title: 'Archivar',
@@ -3801,7 +4651,7 @@
 
                                                     toastr.error("Falla en el documento","¡Aviso!");
 
-                                                    $('.btn-aplicar').prop("disabled",false);
+                                                    habilita_boton('btn-aplicar');
                                                     $('.btn-aplicar').html('Aplicar');
                                                 }
                                             });
@@ -3827,7 +4677,7 @@
                         });
                     }
                     else{
-                        $('.btn-aplicar').prop("disabled",false);
+                        habilita_boton('btn-aplicar');
                         $('.btn-aplicar').html('Aplicar');
                     }
             })  
@@ -3839,222 +4689,282 @@
 
     function derivar_masiva(){
         let arr_chequeados_der = new Array();
+        let continuar = 1;
         $(".chkDerivar").each(function() {
             if($(this).is(":checked")){
                 arr_chequeados_der.push($(this).val())
             }
         });
-        if(arr_chequeados_der.length > 0){    
+        if(arr_chequeados_der.length > 0){
+            let nSecundarios = 0;
+            let nPrincipal = 0;
             var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
-            $('.btn-aplicar').html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
-            );
-            $('.btn-aplicar').prop("disabled",true);
-            setTimeout(function() {
-                $('#fDerivarMasivaDestPpal').select2();
-                $("#fDerivarMasivaDestPpal").trigger('change');  
-                $('#fDerivarMasivaAcciones').multiselect('enable');
-                $('#fDerivarMasivaAcciones').multiselect({
-                    nonSelectedText: 'Seleccione Acciones',
-                    numberDisplayed: 6,
-                    buttonWidth: '100%'
-                });
-                $('#fDerivarMasivaDestOtros').tagsinput({
-                    tagClass: function(item) {
-                        return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
-                    },
-                    itemValue: 'value',
-                    itemText: 'text',
-                    typeaheadjs: {
-                        name: 'allBuzones',
-                        displayKey: 'text',
-                        source: allBuzones.ttAdapter()
+            $.each(rows_selected, function(index,obj){
+                $.each(grilla_recibidos.rows().data(),function(idx,data){
+                    if(data.id_documento==obj){
+                        if(arr_chequeados_der.includes(''+data.id_documento+'')){
+                            if(data.id_tipo_destino == 1){
+                                nPrincipal++;
+                            }
+                            if(data.id_tipo_destino == 2){
+                                nSecundarios++;
+                            }
+                        }
                     }
                 });
+            });
+            if(nSecundarios > 0 && nPrincipal > 0){//verificar que se haya seleccionado solo un tipo de destino
+                continuar = 0;
+                Swal.fire({
+                    title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br/><strong>Aviso</strong></span>',
+                    html:
+                        '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
+                    icon: 'warning',
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText:
+                        'Aceptar'
+                });
+            }
+            else{
+                ///////
+                if(arr_chequeados_der.length > 0 && continuar > 0){    
+                    //var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
+                    $('.btn-aplicar').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
+                    );
+                    deshabilita_boton('btn-aplicar');
+                    setTimeout(function() {
+                        $('#fDerivarMasivaDestPpal').select2();
+                        $("#fDerivarMasivaDestPpal").trigger('change');  
+                        $('#fDerivarMasivaAcciones').multiselect('enable');
+                        $('#fDerivarMasivaAcciones').multiselect({
+                            nonSelectedText: 'Seleccione Acciones',
+                            numberDisplayed: 6,
+                            buttonWidth: '100%'
+                        });
+                        $("#fDerivarMasivaAcciones option[value='9']").remove();
+                        $('#fDerivarMasivaAcciones').multiselect('rebuild');
+                        if(nSecundarios > 0){
+                            $('#fDerivarMasivaDestPpal').prop("disabled", true);
+                            $('#fDerivarMasivaComPpal').prop("disabled", true);
+                            $('#fDerivarMasivaAcciones').multiselect('disable');
+                        }
+                        $('#fDerivarMasivaDestOtros').tagsinput({
+                            tagClass: function(item) {
+                                return (item.tipo == 2 ? 'label label-info' : 'label label-warning');            
+                            },
+                            itemValue: 'value',
+                            itemText: 'text',
+                            typeaheadjs: {
+                                name: 'allBuzones',
+                                displayKey: 'text',
+                                source: allBuzones.ttAdapter()
+                            }
+                        });
 
-            }, 300);
-            Swal.fire({
-                title: 'Derivar',
-                html: "<p>Se Derivará(n) <b>"+arr_chequeados_der.length+"</b> Documento(s) <br>¿Desea Continuar?</p>"+
-                "<br/>"+
-                "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>"+
-"                       <div class='form-row'>"+
-"                            <div class='col-md-8 mb-3'>"+
-"                                <label for='inputState'>Destinatario Principal:</label><br>"+
-"                                <select class='form-control' style='width: 100%' id='fDerivarMasivaDestPpal' name='fDerivarMasivaDestPpal'>"+
-"                                   <option value=''>Seleccione</option>"+
-"                                    @foreach($allBuzones2 as $b)"+
-"                                        <option value='{{$b['id']}}'>{{$b['text']}}</option>"+
-"                                    @endforeach    "+
-"                                </select>"+
-"                            </div>"+
-"                            <div class='col-md-4 mb-3'>"+
-"                                <label for='inputState'>Acciones Solicitadas:</label><br>"+
-"                                <select id='fDerivarMasivaAcciones' class='form-control' multiple='multiple' style='text-align:left !important'>                                    "+
-"                                    @foreach($listadoAcciones as $accion)"+
-"                                        @if($accion['id_tipo_accion'] == 1)"+
-"                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>"+
-"                                        @endif    "+
-"                                    @endforeach    "+
-"                                </select>"+
-"                                </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='floatingTextarea'>Comentario a Destinatario Principal:</label>"+
-"                                <textarea class='form-control'  id='fDerivarMasivaComPpal' ></textarea>"+
-"                            </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='inputState'>Otro(s) Destinatario(s):</label>"+
-"                                <input type='text' class='form-control' id='fDerivarMasivaDestOtros' data-role='tagsinput' >"+
-"                            </div>"+
-"                        </div>"+
-"                        <div class='form-row'>"+
-"                            <div class='col-md-12 mb-3'>"+
-"                                <label for='floatingTextarea'>Comentario(s) Otro(s) Destinatario(s): </label>"+
-"                                <textarea class='form-control' id='fDerivarMasivaComOtro'></textarea>"+
-"                            </div>"+
-"                        </div>"+
-"                    </form>",
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Aceptar',
-                width:'950px'
-                }).then((result) => {
-                    console.log(result);
-                    var destinatarioPrincipal = $('#fDerivarMasivaDestPpal').val();
-                    var acciones_solicitadas = $('#fDerivarMasivaAcciones').val();
-                    var otrosDestinatarios = $('#fDerivarMasivaDestOtros').val();
-                    var comentarioPrincipal = $('#fDerivarMasivaComPpal').val();
-                    var comentarioOtros  = $('#fDerivarMasivaComOtro').val();
-                    let msgValidacion = "";
-                    if(destinatarioPrincipal == ''){
-                        msgValidacion = msgValidacion + 'Debe seleccionar un destinatario principal.<br>';
-                    }
-                    if(acciones_solicitadas == ''){
-                        msgValidacion = msgValidacion + 'Debe seleccionar al menos una acción.<br>';
-                    }
-                    
-                    if (result.value){//==true || result.value.length > 0) {
-                        if(msgValidacion == ''){
-                            var promiseArray = [];
-                            $.each(rows_selected, function(index,obj){
-                                $.each(grilla_recibidos.rows().data(),function(idx,data){
-                                    if(data.id_documento==obj){
-                                        if(arr_chequeados_der.includes(''+data.id_documento+'')){
-                                            var hiddIdBuzon = data.id_buzon;
-                                            var hiddIdDocumento = data.id_documento;
-                                            var hiddIdDocumentoBuzon = data.id_documento_buzon;
-                                                var p = new Promise(function(resolve, reject){
-                                                    $.ajax({
-                                                        url: "{{route('buzones.update_documento')}}",
-                                                        type: 'PUT',
-                                                        dataType: 'json',
-                                                        data: {
-                                                            _token:"{{csrf_token()}}",               
-                                                            buzon:data.id_buzon,
-                                                            destinatarioPrincipal:destinatarioPrincipal,
-                                                            destinatarioOtros:otrosDestinatarios,
-                                                            comentarioPrincipal:comentarioPrincipal,
-                                                            comentarioOtros:comentarioOtros,
-                                                            acciones_solicitadas:acciones_solicitadas,
-                                                            hiddIdDocumento:data.id_documento,
-                                                            hiddIdDocumentoBuzon:data.id_documento_buzon,
-                                                            carpeta:2,
-                                                            opcionGuardar:1
-                                                        },
-                                                        success: function(data)
-                                                        {
-                                                            if(data.status == '200')
-                                                            {
-                                                                var p2 = new Promise(function(resolve, reject){
-                                                                $.ajax({
-                                                                    url: "../buzonesCarpetas/"+hiddIdDocumento,
-                                                                    type: 'PUT',
-                                                                    dataType: 'json',
-                                                                    data: {
-                                                                        _token:"{{csrf_token()}}",
-                                                                        hiddIdDocumento:hiddIdDocumento,
-                                                                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
-                                                                        buzon:hiddIdBuzon,
-                                                                        destinatarioPrincipal:destinatarioPrincipal,                            
-                                                                        destinatarioOtros:otrosDestinatarios,
-                                                                        acciones_solicitadas:acciones_solicitadas,
-                                                                        carpeta:2                                         
-                                                                    },
-                                                                    success: function(data)
-                                                                    {
-                                                                        if(data.status == '200')
-                                                                        {
-                                                                            toastr.success("Documento Derivado","¡Aviso!");
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            toastr.error("Fallaen la derivación del documento (2)","¡Aviso!");
-                                                                        }
-                                                                    },
-                                                                    error: function (jqXHR, textStatus, errorThrown) {
-                                                                        toastr.error("Falla en la derivación del documento","¡Aviso!");
-                                                                        Swal.close();
-                                                                        $('.btn-aplicar').prop("disabled",false);
-                                                                        $('.btn-aplicar').html('Aplicar');
-                                                                    }
-                                                                });
-                                                                });
-                                                                promiseArray.push(p2);
-                                                            }
-                                                            else
-                                                            {
-                                                                toastr.error("Falla al guardar destinatarios","¡Aviso!");
-                                                            }
-                                                        },
-                                                        error: function (jqXHR, textStatus, errorThrown) {
-                                                            toastr.error("Falla en la actualización del documento","¡Aviso!");
-                                                        }
-
-                                                    });
-                                                    Promise.all(promiseArray).then(function(obj) {
-                                                        Swal.close();
-                                                        toastr.success("Documentos Derivados","¡Aviso!");
-                                                        fn_grilla_por_recibir();
-                                                        location.reload();
-                                                    });
-                                                });
-                                        }
-                                        promiseArray.push(p);
-                                    }
-                                })
-                            });
-                            Swal.fire({
-                                title: 'Derivando documentos',
-                                allowEscapeKey: false,
-                                allowOutsideClick: false,
-                                onOpen: () => {
-                                    swal.showLoading();
+                    }, 300);
+                    Swal.fire({
+                        title: 'Derivar',
+                        html: "<p>Se Derivará(n) <b>"+arr_chequeados_der.length+"</b> Documento(s) <br>¿Desea Continuar?</p>"+
+                        "<br/>"+
+                        "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>"+
+        "                       <div class='form-row'>"+
+        "                            <div class='col-md-8 mb-3'>"+
+        "                                <label for='inputState'>Destinatario Principal:</label><br>"+
+        "                                <select class='form-control' style='width: 100%' id='fDerivarMasivaDestPpal' name='fDerivarMasivaDestPpal'>"+
+        "                                   <option value=''>Seleccione</option>"+
+        "                                    @foreach($allBuzones2 as $b)"+
+        "                                        <option value='{{$b['id']}}'>{{$b['text']}}</option>"+
+        "                                    @endforeach    "+
+        "                                </select>"+
+        "                            </div>"+
+        "                            <div class='col-md-4 mb-3'>"+
+        "                                <label for='inputState'>Acciones Solicitadas:</label><br>"+
+        "                                <select id='fDerivarMasivaAcciones' class='form-control' multiple='multiple' style='text-align:left !important'>                                    "+
+        "                                    @foreach($listadoAcciones as $accion)"+
+        "                                        @if($accion['id_tipo_accion'] == 1)"+
+        "                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>"+
+        "                                        @endif    "+
+        "                                    @endforeach    "+
+        "                                </select>"+
+        "                                </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='floatingTextarea'>Comentario a Destinatario Principal:</label>"+
+        "                                <textarea class='form-control'  id='fDerivarMasivaComPpal' ></textarea>"+
+        "                            </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='inputState'>Otro(s) Destinatario(s):</label>"+
+        "                                <input type='text' class='form-control' id='fDerivarMasivaDestOtros' data-role='tagsinput' >"+
+        "                            </div>"+
+        "                        </div>"+
+        "                        <div class='form-row'>"+
+        "                            <div class='col-md-12 mb-3'>"+
+        "                                <label for='floatingTextarea'>Comentario(s) Otro(s) Destinatario(s): </label>"+
+        "                                <textarea class='form-control' id='fDerivarMasivaComOtro'></textarea>"+
+        "                            </div>"+
+        "                        </div>"+
+        "                    </form>",
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Aceptar',
+                        width:'950px'
+                        }).then((result) => {
+                            //console.log(result);
+                            var destinatarioPrincipal = $('#fDerivarMasivaDestPpal').val();
+                            var acciones_solicitadas = $('#fDerivarMasivaAcciones').val();
+                            var otrosDestinatarios = $('#fDerivarMasivaDestOtros').val();
+                            var comentarioPrincipal = $('#fDerivarMasivaComPpal').val();
+                            var comentarioOtros  = $('#fDerivarMasivaComOtro').val();
+                            let msgValidacion = "";
+                            if(nPrincipal >0){
+                                if(destinatarioPrincipal == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar un destinatario principal.<br>';
                                 }
-                            })
-                            Promise.all(promiseArray).then(function(obj) {
-                                Swal.close();
-                                toastr.success("Documentos Derivados...","¡Aviso!");
-                                fn_grilla_por_recibir();
-                                window.location.reload();
-                            });
-                        }
-                        else{
-                            toastr.error(msgValidacion,"¡Aviso!");
-                            $('.btn-aplicar').prop("disabled",false);
-                            $('.btn-aplicar').html('Aplicar');
-                        }
-                    }
-                    else{
-                        $('.btn-aplicar').prop("disabled",false);
-                        $('.btn-aplicar').html('Aplicar');
-                    }
-            })  
+                                if(acciones_solicitadas == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar al menos una acción.<br>';
+                                }
+                            }
+                            if(nSecundarios >0){
+                                if(otrosDestinatarios == ''){
+                                    msgValidacion = msgValidacion + 'Debe seleccionar un destinatario.<br>';
+                                }
+                            }
+                            if (result.value){//==true || result.value.length > 0) {
+                                if(msgValidacion == ''){
+                                    var promiseArray = [];
+                                    $.each(rows_selected, function(index,obj){
+                                        $.each(grilla_recibidos.rows().data(),function(idx,data){
+                                            if(data.id_documento==obj){
+                                                if(arr_chequeados_der.includes(''+data.id_documento+'')){
+                                                    console.log(data);
+                                                    var hiddIdBuzon = data.id_buzon;
+                                                    var hiddIdDocumento = data.id_documento;
+                                                    var hiddIdDocumentoBuzon = data.id_documento_buzon;
+                                                    var tipo_destino = data.id_tipo_destino;
+                                                    console.log(tipo_destino);
+                                                        var p = new Promise(function(resolve, reject){
+                                                            $.ajax({
+                                                                url: "{{route('buzones.update_documento')}}",
+                                                                type: 'PUT',
+                                                                dataType: 'json',
+                                                                data: {
+                                                                    _token:"{{csrf_token()}}",               
+                                                                    buzon:data.id_buzon,
+                                                                    destinatarioPrincipal:destinatarioPrincipal,
+                                                                    destinatarioOtros:otrosDestinatarios,
+                                                                    comentarioPrincipal:comentarioPrincipal,
+                                                                    comentarioOtros:comentarioOtros,
+                                                                    acciones_solicitadas:acciones_solicitadas,
+                                                                    hiddIdDocumento:data.id_documento,
+                                                                    hiddIdDocumentoBuzon:data.id_documento_buzon,
+                                                                    carpeta:2,
+                                                                    opcionGuardar:1,
+                                                                    id_tipo_destino:tipo_destino 
+                                                                },
+                                                                success: function(data)
+                                                                {
+                                                                    if(data.status == '200')
+                                                                    {
+                                                                        console.log('tipo buzon: '+tipo_destino);
+                                                                        var p2 = new Promise(function(resolve, reject){
+                                                                        $.ajax({
+                                                                            url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                                                            type: 'PUT',
+                                                                            dataType: 'json',
+                                                                            data: {
+                                                                                _token:"{{csrf_token()}}",
+                                                                                hiddIdDocumento:hiddIdDocumento,
+                                                                                id_tipo_destino:tipo_destino,
+                                                                                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                                                                buzon:hiddIdBuzon,
+                                                                                destinatarioPrincipal:destinatarioPrincipal,                            
+                                                                                destinatarioOtros:otrosDestinatarios,
+                                                                                acciones_solicitadas:acciones_solicitadas,
+                                                                                carpeta:2                                    
+                                                                            },
+                                                                            success: function(data)
+                                                                            {
+                                                                                if(data.status == '200')
+                                                                                {
+                                                                                    toastr.success("Documento Derivado","¡Aviso!");
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    toastr.error("Falla en la derivación del documento (2)","¡Aviso!");
+                                                                                }
+                                                                            },
+                                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                                toastr.error("Falla en la derivación del documento","¡Aviso!");
+                                                                                Swal.close();
+                                                                                habilita_boton('btn-aplicar');
+                                                                                $('.btn-aplicar').html('Aplicar');
+                                                                            }
+                                                                        });
+                                                                        });
+                                                                        promiseArray.push(p2);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        toastr.error("Falla al guardar destinatarios","¡Aviso!");
+                                                                    }
+                                                                },
+                                                                error: function (jqXHR, textStatus, errorThrown) {
+                                                                    toastr.error("Falla en la actualización del documento","¡Aviso!");
+                                                                }
+
+                                                            });
+                                                            Promise.all(promiseArray).then(function(obj) {
+                                                                Swal.close();
+                                                                toastr.success("Documentos Derivados","¡Aviso!");
+                                                                fn_grilla_por_recibir();
+                                                                //location.reload();
+                                                            });
+                                                        });
+                                                }
+                                                promiseArray.push(p);
+                                            }
+                                        })
+                                    });
+                                    Swal.fire({
+                                        title: 'Derivando documentos',
+                                        allowEscapeKey: false,
+                                        allowOutsideClick: false,
+                                        onOpen: () => {
+                                            swal.showLoading();
+                                        }
+                                    })
+                                    Promise.all(promiseArray).then(function(obj) {
+                                        Swal.close();
+                                        toastr.success("Documentos Derivados...","¡Aviso!");
+                                        fn_grilla_por_recibir();
+                                        window.location.reload();
+                                    });
+                                }
+                                else{
+                                    toastr.error(msgValidacion,"¡Aviso!");
+                                    habilita_boton('btn-aplicar');
+                                    $('.btn-aplicar').html('Aplicar');
+                                }
+                            }
+                            else{
+                                habilita_boton('btn-aplicar');
+                                $('.btn-aplicar').html('Aplicar');
+                            }
+                    })  
+                }
+                else{
+                    toastr.error("No hay documentos seleccionados para derivar.","¡Aviso!");
+                }
+                ///////
+            }
         }
         else{
             toastr.error("No hay documentos seleccionados para derivar.","¡Aviso!");
@@ -4102,6 +5012,30 @@
                 break;        
         }
     });
+
+    function activar_editar(nBotones){
+        $('#form_tipo_documento').prop("disabled", true);
+        $("#form_crear_editar :input").prop("disabled", false); 
+        editor_cuerpo.setReadOnly(false); 
+        $('#dropzone-principal').prop("disabled", false); 
+        $('#dropzone-anexo').prop("disabled", false); 
+        $('#dropzone-otros').prop("disabled", false); 
+        $(".dz-hidden-input").prop("disabled", false);  
+        
+        if(nBotones == 1){
+            $('.btn-guardar-submit').show();
+        }
+        if(nBotones == 2){
+            $('.btn-guardar-submit-edit').show(); 
+        }
+        if(nBotones == 3){
+            $('.btn-guardar-submit').show();
+            $('.btn-guardar-submit-edit').show(); 
+        }
+        
+        $('.btn-editar').hide();
+        $('#form_tipo_documento').prop("disabled", true);
+    }
 
     function vernotas(tipo){
         objDoc.rel_documento_buzon.sort(function(a, b){

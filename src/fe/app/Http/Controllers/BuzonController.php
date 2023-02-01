@@ -299,7 +299,7 @@ class BuzonController extends Controller
             //elimina generar pdf de acciones
             $mykey = current($dato)-1;
             
-            if ($dato['id_accion'] == 8)                
+            if ($dato['id_accion'] == 8 || $dato['id_accion'] == 10)                
                 unset($datosAccion[$mykey]);
         }
         
