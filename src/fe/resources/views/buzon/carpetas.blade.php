@@ -1163,14 +1163,6 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
-<<<<<<< HEAD
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn-visar').prop("disabled", true);
-        $('.btn-firmar').prop("disabled",true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
-=======
         deshabilita_boton('btn-guardar-submit-edit');
         deshabilita_boton('btn-guardar-submit');
         deshabilita_boton('btn-enviar-submit');
@@ -1181,7 +1173,6 @@
         deshabilita_boton('btn-visar-derivar');
         deshabilita_boton('btn-firmar-derivar');
         
->>>>>>> ticket-11
         accion_editar_guardar(3);
     });
 
@@ -1194,14 +1185,6 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
-<<<<<<< HEAD
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
-        $('.btn-visar').prop("disabled", true);
-        $('.btn-firmar').prop("disabled",true);
-=======
         deshabilita_boton('btn-guardar-submit');
         deshabilita_boton('btn-guardar-submit-edit');
         deshabilita_boton('btn-enviar-submit');
@@ -1213,7 +1196,6 @@
         deshabilita_boton('btn-visar-derivar');
         deshabilita_boton('btn-firmar-derivar');
 
->>>>>>> ticket-11
         guarda_documento(1);
     });
 
@@ -1221,15 +1203,6 @@
     {
         e.preventDefault();
         $(".print-error-msg").hide();
-<<<<<<< HEAD
-        $('.btn-enviar-submit').prop("disabled",true);
-        $('.btn-guardar-submit').prop("disabled", true);
-        $('.btn-guardar-submit-edit').prop("disabled", true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
-        $('.btn-visar').prop("disabled", true);
-        $('.btn-firmar').prop("disabled", true);
-        $('.btn-recibir-submit').prop("disabled", true);
-=======
         deshabilita_boton('btn-enviar-submit');
         deshabilita_boton('btn-guardar-submit');
         deshabilita_boton('btn-guardar-submit-edit');
@@ -1239,7 +1212,6 @@
         deshabilita_boton('btn-archivar');
         deshabilita_boton('btn-editar');
         deshabilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
         //guarda_documento();
         enviar_documento();
 
@@ -1360,8 +1332,6 @@
                             habilita_boton('btn-archivar');
                             habilita_boton('btn-recibir-submit');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                            $('.btn-visar').prop("disabled", false);
-                            $('.btn-firmar').prop("disabled",false);
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
 
@@ -1381,15 +1351,6 @@
                             respuesta_guarda = data;  
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
-<<<<<<< HEAD
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn-enviar-submit').prop("disabled",false);  
-                            $('.btn_cerrar_guardar').prop("disabled", false);    
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                            $('.btn-visar').prop("disabled", false);
-                            $('.btn-firmar').prop("disabled",false);               
-=======
                             habilita_boton('btn-guardar-submit');
                             habilita_boton('btn-guardar-submit-edit');
                             habilita_boton('btn-enviar-submit');  
@@ -1399,7 +1360,6 @@
                             habilita_boton('btn-archivar');
                             habilita_boton('btn-recibir-submit');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
->>>>>>> ticket-11
                         }, 5000);
                         
 
@@ -1431,13 +1391,7 @@
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-recibir-submit');
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-<<<<<<< HEAD
-                    $('.btn-vp').prop("disabled", false);
-                    $('.btn-visar').prop("disabled", false);
-                    $('.btn-firmar').prop("disabled",false);  
-=======
                     habilita_boton('btn-vp');  
->>>>>>> ticket-11
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
@@ -1449,8 +1403,6 @@
                         habilita_boton('btn-archivar');
                         habilita_boton('btn-recibir-submit');
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                        $('.btn-visar').prop("disabled", false);
-                        $('.btn-firmar').prop("disabled",false);
      
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
@@ -1459,14 +1411,6 @@
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
-<<<<<<< HEAD
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);  
-                    $('.btn_cerrar_guardar').prop("disabled", false);
-                    $('.btn-visar').prop("disabled", false);
-                    $('.btn-firmar').prop("disabled",false);
-=======
                     habilita_boton('btn-guardar-submit');
                     habilita_boton('btn-guardar-submit-edit');
                     habilita_boton('btn-enviar-submit');  
@@ -1475,7 +1419,6 @@
                     habilita_boton('btn-firmar');
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
                     if($("#idAsignado").html() != "No Asignado"){
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     }
@@ -1495,14 +1438,6 @@
                 else{
                     $('.btn-guardar-submit').html( 'Guardar' );
                 }
-<<<<<<< HEAD
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);    
-                $('.btn_cerrar_guardar').prop("disabled", false);
-                $('.btn-visar').prop("disabled", false);
-                $('.btn-firmar').prop("disabled",false);
-=======
                 habilita_boton('btn-guardar-submit');
                 habilita_boton('btn-guardar-submit-edit');
                 habilita_boton('btn-enviar-submit');    
@@ -1511,7 +1446,6 @@
                 habilita_boton('btn-firmar');
                 habilita_boton('btn-archivar');
                 habilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
             }
         
         });
@@ -1659,16 +1593,6 @@
                     setTimeout(function() {
                         toastr.success("Documento actualizado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-<<<<<<< HEAD
-                        $('.btn-recibir-submit').html('Guardar');
-                        $('.btn-recibir-submit').prop("disabled", false);
-                        $('.btn_cerrar_guardar').prop("disabled", false);
-                        $('.btn-guardar-submit-edit').prop("disabled", false);
-                        $('.btn-guardar-submit').prop("disabled", false);
-                        $('.btn-enviar-submit').prop("disabled",false);
-                        $('.btn-visar').prop("disabled", false);
-                        $('.btn-firmar').prop("disabled",false);
-=======
                         if(idCarpeta != 2){
                             $('.btn-recibir-submit').html('Guardar');
                         }
@@ -1683,21 +1607,11 @@
                         habilita_boton('btn-visar-derivar');
                         habilita_boton('btn-firmar-derivar');
 
->>>>>>> ticket-11
                     }, 5000);
                 }
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
-<<<<<<< HEAD
-                    $('.btn-recibir-submit').prop("disabled", false);
-                    $('.btn_cerrar_guardar').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);
-                    $('.btn-visar').prop("disabled", false);
-                    $('.btn-firmar').prop("disabled",false);
-=======
                     habilita_boton('btn-recibir-submit');
                     habilita_boton('btn_cerrar_guardar');
                     habilita_boton('btn-guardar-submit-edit');
@@ -1708,7 +1622,6 @@
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-visar-derivar');
                     habilita_boton('btn-firmar-derivar');
->>>>>>> ticket-11
                 }
 
                 
@@ -1717,15 +1630,6 @@
                 toastr.error("Falla en el documento","¡Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
-<<<<<<< HEAD
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);
-                $('.btn_cerrar_guardar').prop("disabled", false);
-                $('.btn-recibir-submit').prop("disabled", false);
-                $('.btn-visar').prop("disabled", false);
-                $('.btn-firmar').prop("disabled",false);
-=======
                 habilita_boton('btn-guardar-submit-edit');
                 habilita_boton('btn-guardar-submit');
                 habilita_boton('btn-enviar-submit');
@@ -1736,7 +1640,6 @@
                 habilita_boton('btn-archivar');
                 habilita_boton('btn-visar-derivar');
                 habilita_boton('btn-firmar-derivar');
->>>>>>> ticket-11
             }
 
         });
@@ -1802,15 +1705,6 @@
                                 $("#collapseOne").collapse('show');
                                 clear_form();
                                 fn_grilla_despachados();  
-<<<<<<< HEAD
-                                $('.btn-enviar-submit').prop("disabled",false);
-                                $('.btn-guardar-submit').prop("disabled", false);
-                                $('.btn-guardar-submit-edit').prop("disabled", false);      
-                                $('.btn_cerrar_guardar').prop("disabled", false);
-                                $('.btn-visar').prop("disabled", false);
-                                $('.btn-firmar').prop("disabled", false);
-                                $('.btn-recibir-submit').prop("disabled", false);
-=======
                                 habilita_boton('btn-enviar-submit');
                                 habilita_boton('btn-guardar-submit');
                                 habilita_boton('btn-guardar-submit-edit');      
@@ -1821,20 +1715,10 @@
                                 habilita_boton('btn-editar');
                                 habilita_boton('btn-recibir-submit');
                                 fn_grilla_recibidos();
->>>>>>> ticket-11
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-<<<<<<< HEAD
-                                $('.btn-enviar-submit').prop("disabled",false);
-                                $('.btn-guardar-submit').prop("disabled", false);
-                                $('.btn-guardar-submit-edit').prop("disabled", false);
-                                $('.btn_cerrar_guardar').prop("disabled", false);
-                                $('.btn-visar').prop("disabled", false);
-                                $('.btn-firmar').prop("disabled", false);
-                                $('.btn-recibir-submit').prop("disabled", false);
-=======
                                 habilita_boton('btn-enviar-submit');
                                 habilita_boton('btn-guardar-submit');
                                 habilita_boton('btn-guardar-submit-edit');
@@ -1844,7 +1728,6 @@
                                 habilita_boton('btn-archivar');
                                 habilita_boton('btn-editar');
                                 habilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1856,15 +1739,6 @@
                             toastr.error("Falla en el envío del documento","¡Aviso!");
 
                             $('.btn-enviar-submit').html( 'Enviar' );
-<<<<<<< HEAD
-                            $('.btn-enviar-submit').prop("disabled",false);
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn_cerrar_guardar').prop("disabled", false);
-                            $('.btn-visar').prop("disabled", false);
-                            $('.btn-firmar').prop("disabled", false);
-                            $('.btn-recibir-submit').prop("disabled", false);
-=======
                             habilita_boton('btn-enviar-submit');
                             habilita_boton('btn-guardar-submit');
                             habilita_boton('btn-guardar-submit-edit');
@@ -1874,7 +1748,6 @@
                             habilita_boton('btn-archivar');
                             habilita_boton('btn-editar');
                             habilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
  
                         }
                     });
@@ -1885,17 +1758,6 @@
                 
             }
             else{
-<<<<<<< HEAD
-                $('.btn-enviar-submit').html( 'Enviar' );
-                $('.btn-enviar-submit').prop("disabled",false);
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn_cerrar_guardar').prop("disabled", false);
-                $('.btn-visar').prop("disabled", false);
-                $('.btn-firmar').prop("disabled", false);
-                $('.btn-recibir-submit').prop("disabled", false);
- 
-=======
                 habilita_boton('btn-enviar-submit');
                 habilita_boton('btn-guardar-submit');
                 habilita_boton('btn-guardar-submit-edit');
@@ -1905,7 +1767,6 @@
                 habilita_boton('btn-archivar');
                 habilita_boton('btn-editar');
                 habilita_boton('btn-recibir-submit');
->>>>>>> ticket-11
             }
         })               
     }
@@ -1971,7 +1832,7 @@
                                 $('#card_crear_documento').hide();        
                                 clear_form();
                                 fn_grilla_despachados();
-                                fn_grilla_recibidoss();
+                                v
                                 habilita_boton('btn-derivar');
                                 habilita_boton('btn_cerrar_guardar');
                                 habilita_boton('btn-guardar-submit');
@@ -3129,10 +2990,6 @@
             var docBuzon = id_documento_buzon_padre;
         else
             var docBuzon = id_documento_buzon; 
-<<<<<<< HEAD
-        //console.log("cargar_datos_grilla");
-=======
->>>>>>> ticket-11
         $.ajax({
             url: "/documentos/"+id_documento,
             type:'GET',
@@ -3284,10 +3141,11 @@
                                     {
                                         var aAcciones = jsonAcciones[i].acciones;
                                         var idBuzonAccion = jsonAcciones[i].id_buzon;
-                                       
+
                                         aBuzonesDerivaciones.push({"id":idBuzonAccion, "text":listadoBuzones[idBuzonAccion], "accion":aAcciones});
                                     }
                                 }
+                                
                                 //guarda buzon y acciones flujo anterior
                                 if ((jsonAcciones[i].orden == json_tipo_doc['flujo_actual'] - 1) && jsonAcciones[i].orden != 0 && ((jsonTipoAvance == 2 || jsonTipoAvance == 4) && jsonAcciones[i].orden != 1)) //validar que no se repita 
                                 {
@@ -3491,7 +3349,6 @@
                                 
                                 if (item.id_tipo_destino == 1 && item.id_documento_buzon_padre == buzon_padre) //PENDIENTE: agregar carpeta 
                                 {
-                                    //console.log(item);
                                     $("#form_destinatario_principal").val(item.id_buzon);
                                     $("#form_destinatario_principal").trigger('change');    
                                     $("textarea[id='form_comentario_el']").val(item.comentario_principal);
@@ -3502,57 +3359,7 @@
                                     $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     for (let i in accionesSolicitadas) 
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
-
                                 }
-<<<<<<< HEAD
-                                // if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre){
-                                //     var accionesSolicitadas = $.parseJSON(item.json_acciones);
-
-                                //     if(item.id_estado_documento == 4){
-                                //         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-                                        
-                                        
-                                //         for (let i in accionesSolicitadas) {
-                                //             $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
-                                //             if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
-                                //                 $('#form_tipo_documento').prop("disabled", false);
-                                //                 $("#form_crear_editar :input").prop("disabled", false);
-                                //                 editor_cuerpo.setReadOnly(false);
-                                //                 $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                //                 $(".bootstrap-tagsinput").removeClass("disabled"); 
-
-                                //                 $('#dropzone-principal').prop("disabled", false);
-                                //                 $('#dropzone-anexo').prop("disabled", false);
-                                //                 $('#dropzone-otros').prop("disabled", false);
-                                //                 $(".dz-hidden-input").prop("disabled", false); 
-                                //                 $('.btn-guardar-submit-edit').show();
-                                //                 $('.btn-guardar-submit').show();
-                                //             if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                   
-                                //                 var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> ';
-                                //                 $('#addButton').append(buttonVisar);
-                                //             }
-                                //             if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                   
-                                //                 var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> ';
-                                //                 $('#addButton').append(buttonFirmar);
-                                //             }
-                                //             if(accionesSolicitadas[i]['id_accion'] == 11){
-                                //                 $('#form_destinatario_principal').prop("disabled", false);
-                                //                 $('#form_acciones_solicitadas_el').multiselect('enable');
-                                //                 $('#form_comentario_el').prop("disabled", false);        
-                                //                 $('#form_otros_destinatarios_el').prop("disabled", false);
-                                //                 $('#form_comentario_otro_el').prop("disabled", false);
-                                //                 $('.btn-enviar-submit').show();
-                                //                 $('#submit-enviar').removeClass('btn-primary');
-                                //                 $('#submit-enviar').addClass('btn-success');
-                                //             }
-                                //             if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                   
-                                //                 var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
-                                //                 $('#addButton').append(buttonFinaliza);
-                                //             }
-                                //         } 
-                                //     }
-                                // }
-=======
                                 if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre && carpeta == 2){ 
                                     var accionesSolicitadas = $.parseJSON(item.json_acciones); 
                                     if(accion == 11){ //seleccion boton ver
@@ -3895,13 +3702,12 @@
                                         }//fin estado visado
                                     }//fin boton accion firmar
                                 }
->>>>>>> ticket-11
 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
                                     $('#form_otros_destinatarios_el').tagsinput('add', {"value": item.id_buzon, "text": listadoBuzones[item.id_buzon]});
                                     $("textarea[id='form_comentario_otro_el']").val(item.comentario_secundario);
-                                } 
+                                }  
                             });
                         }
  
@@ -4910,16 +4716,10 @@
             if(nSecundarios > 0 && nPrincipal > 0){//verificar que se haya seleccionado solo un tipo de destino
                 continuar = 0;
                 Swal.fire({
-<<<<<<< HEAD
-                    title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br><strong>Aviso</strong></span>',
-                    html:
-                        '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
-=======
                     title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br/><strong>Aviso</strong></span>',
                     html:
                         '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
                     icon: 'warning',
->>>>>>> ticket-11
                     showCloseButton: true,
                     focusConfirm: false,
                     confirmButtonColor: '#3085d6',
@@ -4934,11 +4734,7 @@
                     $('.btn-aplicar').html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
                     );
-<<<<<<< HEAD
-                    $('.btn-aplicar').prop("disabled",true);
-=======
                     deshabilita_boton('btn-aplicar');
->>>>>>> ticket-11
                     setTimeout(function() {
                         $('#fDerivarMasivaDestPpal').select2();
                         $("#fDerivarMasivaDestPpal").trigger('change');  
@@ -5076,51 +4872,6 @@
                                                                 success: function(data)
                                                                 {
                                                                     if(data.status == '200')
-<<<<<<< HEAD
-                                                                    {
-                                                                        console.log('tipo buzon: '+tipo_destino);
-                                                                        var p2 = new Promise(function(resolve, reject){
-                                                                        $.ajax({
-                                                                            url: "../buzonesCarpetas/"+hiddIdDocumento,
-                                                                            type: 'PUT',
-                                                                            dataType: 'json',
-                                                                            data: {
-                                                                                _token:"{{csrf_token()}}",
-                                                                                hiddIdDocumento:hiddIdDocumento,
-                                                                                id_tipo_destino:tipo_destino,
-                                                                                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
-                                                                                buzon:hiddIdBuzon,
-                                                                                destinatarioPrincipal:destinatarioPrincipal,                            
-                                                                                destinatarioOtros:otrosDestinatarios,
-                                                                                acciones_solicitadas:acciones_solicitadas,
-                                                                                carpeta:2                                    
-                                                                            },
-                                                                            success: function(data)
-                                                                            {
-                                                                                if(data.status == '200')
-                                                                                {
-                                                                                    toastr.success("Documento Derivado","¡Aviso!");
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    toastr.error("Falla en la derivación del documento (2)","¡Aviso!");
-                                                                                }
-                                                                            },
-                                                                            error: function (jqXHR, textStatus, errorThrown) {
-                                                                                toastr.error("Falla en la derivación del documento","¡Aviso!");
-                                                                                Swal.close();
-                                                                                $('.btn-aplicar').prop("disabled",false);
-                                                                                $('.btn-aplicar').html('Aplicar');
-                                                                            }
-                                                                        });
-                                                                        });
-                                                                        promiseArray.push(p2);
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        toastr.error("Falla al guardar destinatarios","¡Aviso!");
-                                                                    }
-=======
                                                                     {
                                                                         console.log('tipo buzon: '+tipo_destino);
                                                                         var p2 = new Promise(function(resolve, reject){
@@ -5164,7 +4915,6 @@
                                                                     {
                                                                         toastr.error("Falla al guardar destinatarios","¡Aviso!");
                                                                     }
->>>>>>> ticket-11
                                                                 },
                                                                 error: function (jqXHR, textStatus, errorThrown) {
                                                                     toastr.error("Falla en la actualización del documento","¡Aviso!");
@@ -5175,11 +4925,7 @@
                                                                 Swal.close();
                                                                 toastr.success("Documentos Derivados","¡Aviso!");
                                                                 fn_grilla_por_recibir();
-<<<<<<< HEAD
-                                                                location.reload();
-=======
                                                                 //location.reload();
->>>>>>> ticket-11
                                                             });
                                                         });
                                                 }
@@ -5204,20 +4950,12 @@
                                 }
                                 else{
                                     toastr.error(msgValidacion,"¡Aviso!");
-<<<<<<< HEAD
-                                    $('.btn-aplicar').prop("disabled",false);
-=======
                                     habilita_boton('btn-aplicar');
->>>>>>> ticket-11
                                     $('.btn-aplicar').html('Aplicar');
                                 }
                             }
                             else{
-<<<<<<< HEAD
-                                $('.btn-aplicar').prop("disabled",false);
-=======
                                 habilita_boton('btn-aplicar');
->>>>>>> ticket-11
                                 $('.btn-aplicar').html('Aplicar');
                             }
                     })  
