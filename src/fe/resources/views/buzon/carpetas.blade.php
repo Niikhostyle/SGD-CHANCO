@@ -1832,7 +1832,7 @@
                                 $('#card_crear_documento').hide();        
                                 clear_form();
                                 fn_grilla_despachados();
-                                v
+                                fn_grilla_recibidos();
                                 habilita_boton('btn-derivar');
                                 habilita_boton('btn_cerrar_guardar');
                                 habilita_boton('btn-guardar-submit');
