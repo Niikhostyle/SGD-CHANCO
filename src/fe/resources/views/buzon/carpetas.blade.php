@@ -936,14 +936,14 @@
         editor_cuerpo.setReadOnly(false);
 
         $('.btn-guardar-submit').show();   
-        $('.btn-guardar-submit').prop("disabled",false);
+        habilita_boton('btn-guardar-submit');
         if($("#idAsignado").html() != "No Asignado"){
             $('.btn-guardar-submit-edit').show();   
         }
         else{
             $('.btn-guardar-submit').html("Guardar");
         }
-        $('.btn-guardar-submit-edit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit-edit');
 
         /* responder a */
 
@@ -1144,13 +1144,13 @@
                             }
                         }
                     }
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     toastr.error("Falla al obtener datos","¡Aviso!");
-                    $('.btn-guardar-submit').prop("disabled", false);
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
 
                 }
             });
@@ -1163,12 +1163,25 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
+<<<<<<< HEAD
         $('.btn-guardar-submit-edit').prop("disabled", true);
         $('.btn-guardar-submit').prop("disabled", true);
         $('.btn-enviar-submit').prop("disabled",true);
         $('.btn-visar').prop("disabled", true);
         $('.btn-firmar').prop("disabled",true);
         $('.btn_cerrar_guardar').prop("disabled", true);
+=======
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+        
+>>>>>>> ticket-11
         accion_editar_guardar(3);
     });
 
@@ -1181,24 +1194,34 @@
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
         $(".print-error-msg").hide();
+<<<<<<< HEAD
         $('.btn-guardar-submit').prop("disabled", true);
         $('.btn-guardar-submit-edit').prop("disabled", true);
         $('.btn-enviar-submit').prop("disabled",true);
         $('.btn_cerrar_guardar').prop("disabled", true);
         $('.btn-visar').prop("disabled", true);
         $('.btn-firmar').prop("disabled",true);
+=======
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+
+>>>>>>> ticket-11
         guarda_documento(1);
     });
 
     $(".btn-enviar-submit").click(function(e)
     {
         e.preventDefault();
-
-        $('.btn-enviar-submit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
-        );
-
         $(".print-error-msg").hide();
+<<<<<<< HEAD
         $('.btn-enviar-submit').prop("disabled",true);
         $('.btn-guardar-submit').prop("disabled", true);
         $('.btn-guardar-submit-edit').prop("disabled", true);
@@ -1206,11 +1229,28 @@
         $('.btn-visar').prop("disabled", true);
         $('.btn-firmar').prop("disabled", true);
         $('.btn-recibir-submit').prop("disabled", true);
+=======
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-editar');
+        deshabilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
         //guarda_documento();
         enviar_documento();
 
     });
 
+    function deshabilita_boton(tClase){
+        $('.'+tClase+'').prop("disabled", true);
+    }
+    function habilita_boton(tClase){
+        $('.'+tClase+'').prop("disabled", false);
+    }
 
     function testAsync(){
         return new Promise((resolve,reject)=>{
@@ -1309,11 +1349,16 @@
                             
                             $('#card_crear_documento').hide();
                             $("#collapseOne").collapse('show');     
+                            fn_grilla_recibidos();
                             fn_grilla_despachados();
-                            $('.btn-guardar-submit').prop("disabled", false);
-                            $('.btn-guardar-submit-edit').prop("disabled", false);
-                            $('.btn-enviar-submit').prop("disabled",false);  
-                            $('.btn_cerrar_guardar').prop("disabled", false);
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-enviar-submit');  
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-recibir-submit');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                             $('.btn-visar').prop("disabled", false);
                             $('.btn-firmar').prop("disabled",false);
@@ -1336,6 +1381,7 @@
                             respuesta_guarda = data;  
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
+<<<<<<< HEAD
                             $('.btn-guardar-submit').prop("disabled", false);
                             $('.btn-guardar-submit-edit').prop("disabled", false);
                             $('.btn-enviar-submit').prop("disabled",false);  
@@ -1343,6 +1389,17 @@
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                             $('.btn-visar').prop("disabled", false);
                             $('.btn-firmar').prop("disabled",false);               
+=======
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-enviar-submit');  
+                            habilita_boton('btn_cerrar_guardar');   
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar'); 
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-recibir-submit');
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
+>>>>>>> ticket-11
                         }, 5000);
                         
 
@@ -1364,22 +1421,33 @@
 
                     //habilita botón enviar y guardar
                     $('.btn-guardar-submit').show();
-                    $('.btn-guardar-submit').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit');
                     $('.btn-guardar-submit-edit').show();   
-                    $('.btn-guardar-submit-edit').prop("disabled", false);
-                    $('.btn-enviar-submit').prop("disabled",false);
-                    $('.btn_cerrar_guardar').prop("disabled", false);
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-recibir-submit');
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+<<<<<<< HEAD
                     $('.btn-vp').prop("disabled", false);
                     $('.btn-visar').prop("disabled", false);
                     $('.btn-firmar').prop("disabled",false);  
+=======
+                    habilita_boton('btn-vp');  
+>>>>>>> ticket-11
 
                     if(data.data.id_documento != '')
                         $('.btn-enviar-submit').show();
-                        $('.btn-enviar-submit').prop("disabled",false);
-                        $('.btn-guardar-submit').prop("disabled", false);
-                        $('.btn-guardar-submit-edit').prop("disabled", false);
-                        $('.btn_cerrar_guardar').prop("disabled", false);
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-recibir-submit');
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                         $('.btn-visar').prop("disabled", false);
                         $('.btn-firmar').prop("disabled",false);
@@ -1391,18 +1459,30 @@
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
+<<<<<<< HEAD
                     $('.btn-guardar-submit').prop("disabled", false);
                     $('.btn-guardar-submit-edit').prop("disabled", false);
                     $('.btn-enviar-submit').prop("disabled",false);  
                     $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-visar').prop("disabled", false);
                     $('.btn-firmar').prop("disabled",false);
+=======
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-enviar-submit');  
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
                     if($("#idAsignado").html() != "No Asignado"){
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     }
                     else{
                         $('.btn-guardar-submit').html( 'Guardar' );
                     }
+                    
                 }
                 
             },
@@ -1415,12 +1495,23 @@
                 else{
                     $('.btn-guardar-submit').html( 'Guardar' );
                 }
+<<<<<<< HEAD
                 $('.btn-guardar-submit').prop("disabled", false);
                 $('.btn-guardar-submit-edit').prop("disabled", false);
                 $('.btn-enviar-submit').prop("disabled",false);    
                 $('.btn_cerrar_guardar').prop("disabled", false);
                 $('.btn-visar').prop("disabled", false);
                 $('.btn-firmar').prop("disabled",false);
+=======
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-enviar-submit');    
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
             }
         
         });
@@ -1470,7 +1561,10 @@
                         derivar_documento();
                     
                     if (accion == 6) //visar
-                        visar_documento();   
+                        visar_documento();
+                    
+                    if(accion == 8)//visar y derivar
+                        visar_derivar_documento();
                 }
                 else
                 {
@@ -1486,9 +1580,12 @@
 
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
-        $('.btn-recibir-submit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-        );
+        console.log(idCarpeta)
+        if(idCarpeta != 2){
+            $('.btn-recibir-submit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+        }
         $('.btn-guardar-submit-edit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
@@ -1513,8 +1610,15 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
-        $('.btn-recibir-submit').prop("disabled", true);
-        $('.btn_cerrar_guardar').prop("disabled", true);
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-firmar-derivar');
         
 
         $.ajax({
@@ -1555,6 +1659,7 @@
                     setTimeout(function() {
                         toastr.success("Documento actualizado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
+<<<<<<< HEAD
                         $('.btn-recibir-submit').html('Guardar');
                         $('.btn-recibir-submit').prop("disabled", false);
                         $('.btn_cerrar_guardar').prop("disabled", false);
@@ -1563,11 +1668,28 @@
                         $('.btn-enviar-submit').prop("disabled",false);
                         $('.btn-visar').prop("disabled", false);
                         $('.btn-firmar').prop("disabled",false);
+=======
+                        if(idCarpeta != 2){
+                            $('.btn-recibir-submit').html('Guardar');
+                        }
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+
+>>>>>>> ticket-11
                     }, 5000);
                 }
                 else
                 {
                     toastr.error(data.data.comentario,"¡Aviso!");
+<<<<<<< HEAD
                     $('.btn-recibir-submit').prop("disabled", false);
                     $('.btn_cerrar_guardar').prop("disabled", false);
                     $('.btn-guardar-submit-edit').prop("disabled", false);
@@ -1575,6 +1697,18 @@
                     $('.btn-enviar-submit').prop("disabled",false);
                     $('.btn-visar').prop("disabled", false);
                     $('.btn-firmar').prop("disabled",false);
+=======
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
+>>>>>>> ticket-11
                 }
 
                 
@@ -1583,6 +1717,7 @@
                 toastr.error("Falla en el documento","¡Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
+<<<<<<< HEAD
                 $('.btn-guardar-submit-edit').prop("disabled", false);
                 $('.btn-guardar-submit').prop("disabled", false);
                 $('.btn-enviar-submit').prop("disabled",false);
@@ -1590,6 +1725,18 @@
                 $('.btn-recibir-submit').prop("disabled", false);
                 $('.btn-visar').prop("disabled", false);
                 $('.btn-firmar').prop("disabled",false);
+=======
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-firmar-derivar');
+>>>>>>> ticket-11
             }
 
         });
@@ -1619,12 +1766,15 @@
                 console.log(result);
             if (result.value==true) 
             {                
+                $('.btn-enviar-submit').html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
+                );
                 guarda_documento(2, function(data){                    
                     //continue your function here, inside of the callback
                     if (data.status == 200)
                     {
-                        $('.btn-guardar-submit').prop("disabled", true);
-                        $('.btn-guardar-submit-edit').prop("disabled", true); 
+                        deshabilita_boton('btn-guardar-submit');
+                        deshabilita_boton('btn-guardar-submit-edit'); 
                         $.ajax({
                         url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
@@ -1642,8 +1792,8 @@
                         },
                         success: function(data)
                         {
-                            $('.btn-guardar-submit').prop("disabled", true);
-                            $('.btn-guardar-submit-edit').prop("disabled", true); 
+                            deshabilita_boton('btn-guardar-submit');
+                            deshabilita_boton('btn-guardar-submit-edit'); 
                             if(data.status == '200')
                             {
                                 toastr.success("Documento enviado","¡Aviso!");
@@ -1652,6 +1802,7 @@
                                 $("#collapseOne").collapse('show');
                                 clear_form();
                                 fn_grilla_despachados();  
+<<<<<<< HEAD
                                 $('.btn-enviar-submit').prop("disabled",false);
                                 $('.btn-guardar-submit').prop("disabled", false);
                                 $('.btn-guardar-submit-edit').prop("disabled", false);      
@@ -1659,10 +1810,23 @@
                                 $('.btn-visar').prop("disabled", false);
                                 $('.btn-firmar').prop("disabled", false);
                                 $('.btn-recibir-submit').prop("disabled", false);
+=======
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');      
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-recibir-submit');
+                                fn_grilla_recibidos();
+>>>>>>> ticket-11
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
+<<<<<<< HEAD
                                 $('.btn-enviar-submit').prop("disabled",false);
                                 $('.btn-guardar-submit').prop("disabled", false);
                                 $('.btn-guardar-submit-edit').prop("disabled", false);
@@ -1670,6 +1834,17 @@
                                 $('.btn-visar').prop("disabled", false);
                                 $('.btn-firmar').prop("disabled", false);
                                 $('.btn-recibir-submit').prop("disabled", false);
+=======
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1681,6 +1856,7 @@
                             toastr.error("Falla en el envío del documento","¡Aviso!");
 
                             $('.btn-enviar-submit').html( 'Enviar' );
+<<<<<<< HEAD
                             $('.btn-enviar-submit').prop("disabled",false);
                             $('.btn-guardar-submit').prop("disabled", false);
                             $('.btn-guardar-submit-edit').prop("disabled", false);
@@ -1688,6 +1864,17 @@
                             $('.btn-visar').prop("disabled", false);
                             $('.btn-firmar').prop("disabled", false);
                             $('.btn-recibir-submit').prop("disabled", false);
+=======
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
  
                         }
                     });
@@ -1698,6 +1885,7 @@
                 
             }
             else{
+<<<<<<< HEAD
                 $('.btn-enviar-submit').html( 'Enviar' );
                 $('.btn-enviar-submit').prop("disabled",false);
                 $('.btn-guardar-submit').prop("disabled", false);
@@ -1707,6 +1895,17 @@
                 $('.btn-firmar').prop("disabled", false);
                 $('.btn-recibir-submit').prop("disabled", false);
  
+=======
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-editar');
+                habilita_boton('btn-recibir-submit');
+>>>>>>> ticket-11
             }
         })               
     }
@@ -1736,6 +1935,19 @@
                     console.log(result);
                 if (result.value==true) 
                 {
+                    $('.btn-derivar').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
+                    );
+                    deshabilita_boton('btn-derivar');
+                    deshabilita_boton('btn_cerrar_guardar');
+                    deshabilita_boton('btn-guardar-submit');
+                    deshabilita_boton('btn-enviar-submit');
+                    deshabilita_boton('btn-visar');
+                    deshabilita_boton('btn-editar');
+                    deshabilita_boton('btn-firmar');
+                    deshabilita_boton('btn-archivar');
+                    deshabilita_boton('btn-visar-derivar');
+                    deshabilita_boton('btn-firmar-derivar');
                     $.ajax({
                         url: "../buzonesCarpetas/"+hiddIdDocumento,
                         type: 'PUT',
@@ -1759,11 +1971,34 @@
                                 $('#card_crear_documento').hide();        
                                 clear_form();
                                 fn_grilla_despachados();
+                                fn_grilla_recibidoss();
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                $('.btn-derivar').html('Enviar');
                                 location.reload();
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                $('.btn-derivar').html('Enviar');
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1771,8 +2006,19 @@
                         error: function (jqXHR, textStatus, errorThrown) {
 
                             toastr.error("Falla en la derivación del documento","¡Aviso!");
+                            habilita_boton('btn-derivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
 
                             $('.btn-enviar-submit').html( 'Enviar' );
+                            $('.btn-derivar').html('Enviar');
                         }
                     });
                 }
@@ -1833,6 +2079,104 @@
             })                 
     }
 
+    function visar_derivar_documento()
+    {
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        if(destinatarioPrincipal !== undefined && acciones_solicitadas != ""){
+            Swal.fire({
+                title: 'Visar y Enviar',
+                html: "Se realizará la visación y envío del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    console.log(result);
+                if (result.value==true) {
+                    $('.btn-visar-derivar').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Visando y derivando')
+                    $.ajax({
+                        url:"/actualizar_estado_documento/"+hiddIdDocumentoBuzon,
+                        type:'PUT',
+                        dataType:'json',
+                        data: {
+                            _token:_token,
+                            hiddIdDocumento:hiddIdDocumento,
+                            buzon:hiddIdBuzon,
+                            accion:6                
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')//documento visado
+                            {//derivar                                
+                                $.ajax({
+                                    url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                    type: 'PUT',
+                                    dataType: 'json',
+                                    data: {
+                                        _token:_token,
+                                        hiddIdDocumento:hiddIdDocumento,
+                                        hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                        buzon:hiddIdBuzon,
+                                        destinatarioPrincipal:destinatarioPrincipal,                            
+                                        destinatarioOtros:otrosDestinatarios,
+                                        acciones_solicitadas:acciones_solicitadas,
+                                        carpeta:2                                         
+                                    },
+                                    success: function(data)
+                                    {
+                                        if(data.status == '200')
+                                        {
+                                            toastr.success("Documento Derivado y Visado","¡Aviso!");
+
+                                            $('#card_crear_documento').hide();        
+                                            clear_form();
+                                            fn_grilla_despachados();
+                                            fn_grilla_recibidos();
+                                            location.reload();
+                                        }
+                                        else
+                                        {
+                                            toastr.error(data.data.comentario,"¡Aviso!");
+                                        }
+
+                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+
+                                        toastr.error("Falla en la derivación del documento","¡Aviso!");
+
+                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                    }
+                                });
+
+                            }//fin derivar
+                            else
+                            {
+                                toastr.error(data.data.comentario,"¡Aviso!");
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en el documento","¡Aviso!");
+                        }
+                    }); 
+                }
+            }) 
+        }
+        else{
+            toastr.error("Falla en el documento: Debe seleccionar un destinatario principal y acciones","¡Aviso!");
+        }   
+    }
+
     function envioFrm()
     {
         var _token = $("input[name='_token']").val();
@@ -1850,7 +2194,7 @@
             $('.btn-aplicar').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
             );
-            $('.btn-aplicar').prop("disabled",true);
+            deshabilita_boton('btn-aplicar');
             Swal.fire({
                     title: 'Firma electrónica masiva',
                     html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
@@ -1888,7 +2232,7 @@
                                     toastr.error(data.data.comentario,"¡Aviso!");
                                 }
                                 $('.btn-aplicar').html('Aplicar');
-                                $('.btn-aplicar').prop("disabled",false);
+                                habilita_boton('btn-aplicar');
                                 location.reload();
 
                             },
@@ -1901,7 +2245,7 @@
                                     toastr.error("Falla en el documento","¡Aviso!");
 
                                 $('.btn-aplicar').html('Aplicar');
-                                $('.btn-aplicar').prop("disabled",false);
+                                habilita_boton('btn-aplicar');
                             
                             }
                         });
@@ -1910,7 +2254,7 @@
                     }
                     else{
                         $('.btn-aplicar').html('Aplicar');
-                        $('.btn-aplicar').prop("disabled",false);
+                        habilita_boton('btn-aplicar');
                     }
             }) 
         }
@@ -1929,7 +2273,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        $('.btn-recibir-submit').prop("disabled",true);
+        deshabilita_boton('btn-recibir-submit');
         Swal.fire({
                 title: 'Firmar',
                 html: "Se realizará la firma del documento: <br>" +
@@ -1966,12 +2310,12 @@
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
@@ -1983,11 +2327,11 @@
                             console.log(data);
                             if (data.data.comentario != "" && data.data.comentario != null){
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             else{
                                 toastr.error("Falla en el documento","¡Aviso!");
-                                $ ('.btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                             $('.btn-recibir-submit').html( 'Firmar' );
                             bloqueo_accion=false;
@@ -1997,9 +2341,221 @@
                     
                 }
                 else{
-                    $('.btn-recibir-submit').prop("disabled",false);
+                    habilita_boton('btn-recibir-submit');
                 }
             }) 
+    }
+
+    function firmar_derivar_documento()
+    {
+        if(bloqueo_accion){
+            return false;
+        }
+        var _token = $("input[name='_token']").val();
+        
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        if(destinatarioPrincipal !== undefined && acciones_solicitadas!= ""){    
+            deshabilita_boton('btn-recibir-submit');
+            deshabilita_boton('btn_cerrar_guardar');
+            deshabilita_boton('btn-guardar-submit');
+            deshabilita_boton('btn-enviar-submit');
+            deshabilita_boton('btn-visar');
+            deshabilita_boton('btn-editar');
+            deshabilita_boton('btn-firmar');
+            deshabilita_boton('btn-archivar');
+            deshabilita_boton('btn-visar-derivar');
+            deshabilita_boton('btn-firmar-derivar');
+            deshabilita_boton('btn-derivar');
+            Swal.fire({
+                    title: 'Firmar y Enviar',
+                    html: "Se realizará la firma y envío del documento: <br>" +
+                        "<b>" + $("input[name='materia']").val() + "</b><br>",
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar'
+                    }).then((result) => {
+                        console.log(result);
+                    if (result.value==true) 
+                    {  
+                        $('.btn-firmar-derivar').html(
+                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
+                        );
+                        bloqueo_accion =true;
+                        $.ajax({
+                            url: "/firmar_documento/"+hiddIdDocumentoBuzon,
+                            type: 'PUT',
+                            dataType: 'json',
+                            data: {
+                                _token:_token,
+                                hiddIdDocumento:hiddIdDocumento,
+                                buzon:hiddIdBuzon,
+                                accion:7                
+                            },
+                            success: function(data)
+                            {
+                                if(data.status == '200'){//// derivar
+                                    $.ajax({
+                                        url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                        type: 'PUT',
+                                        dataType: 'json',
+                                        data: {
+                                            _token:_token,
+                                            hiddIdDocumento:hiddIdDocumento,
+                                            hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                            buzon:hiddIdBuzon,
+                                            destinatarioPrincipal:destinatarioPrincipal,                            
+                                            destinatarioOtros:otrosDestinatarios,
+                                            acciones_solicitadas:acciones_solicitadas,
+                                            carpeta:2                                         
+                                        },
+                                        success: function(data)
+                                        {
+                                            if(data.status == '200')
+                                            {
+                                                toastr.success("Documento Derivado y Visado","¡Aviso!");
+
+                                                $('#card_crear_documento').hide();        
+                                                clear_form();
+                                                fn_grilla_despachados();
+                                                fn_grilla_recibidos();
+                                                habilita_boton('btn-recibir-submit');
+                                                habilita_boton('btn_cerrar_guardar');
+                                                habilita_boton('btn-guardar-submit');
+                                                habilita_boton('btn-enviar-submit');
+                                                habilita_boton('btn-visar');
+                                                habilita_boton('btn-editar');
+                                                habilita_boton('btn-firmar');
+                                                habilita_boton('btn-archivar');
+                                                habilita_boton('btn-visar-derivar');
+                                                habilita_boton('btn-firmar-derivar');
+                                                habilita_boton('btn-derivar');
+                                                location.reload();
+                                            }
+                                            else
+                                            {
+                                                toastr.error(data.data.comentario,"¡Aviso!");
+                                                habilita_boton('btn-recibir-submit');
+                                                habilita_boton('btn_cerrar_guardar');
+                                                habilita_boton('btn-guardar-submit');
+                                                habilita_boton('btn-enviar-submit');
+                                                habilita_boton('btn-visar');
+                                                habilita_boton('btn-editar');
+                                                habilita_boton('btn-firmar');
+                                                habilita_boton('btn-archivar');
+                                                habilita_boton('btn-visar-derivar');
+                                                habilita_boton('btn-firmar-derivar');
+                                                habilita_boton('btn-derivar');
+                                            }
+
+                                            $('.btn-enviar-submit').html( 'Enviar' );
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+
+                                            toastr.error("Falla en la derivación del documento","¡Aviso!");
+                                            habilita_boton('btn-recibir-submit');
+                                            habilita_boton('btn_cerrar_guardar');
+                                            habilita_boton('btn-guardar-submit');
+                                            habilita_boton('btn-enviar-submit');
+                                            habilita_boton('btn-visar');
+                                            habilita_boton('btn-editar');
+                                            habilita_boton('btn-firmar');
+                                            habilita_boton('btn-archivar');
+                                            habilita_boton('btn-visar-derivar');
+                                            habilita_boton('btn-firmar-derivar');
+                                            habilita_boton('btn-derivar');
+                                            $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                        }
+                                    });                            
+                                }//// fin derivar
+                                else
+                                {
+                                    toastr.error(data.data.comentario,"¡Aviso!");
+                                    $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                }
+                            
+                                $('.btn-recibir-submit').html( 'Firmar' );
+                                $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                bloqueo_accion=false;
+
+                            },
+                            error: function (e) {
+                                data = e.responseJSON;
+                                console.log(data);
+                                if (data.data.comentario != "" && data.data.comentario != null){
+                                    toastr.error(data.data.comentario,"¡Aviso!");
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                    $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                }
+                                else{
+                                    toastr.error("Falla en el documento","¡Aviso!");
+                                    habilita_boton('btn-recibir-submit');
+                                    habilita_boton('btn_cerrar_guardar');
+                                    habilita_boton('btn-guardar-submit');
+                                    habilita_boton('btn-enviar-submit');
+                                    habilita_boton('btn-visar');
+                                    habilita_boton('btn-editar');
+                                    habilita_boton('btn-firmar');
+                                    habilita_boton('btn-archivar');
+                                    habilita_boton('btn-visar-derivar');
+                                    habilita_boton('btn-firmar-derivar');
+                                    habilita_boton('btn-derivar');
+                                }
+                                $('.btn-recibir-submit').html( 'Firmar' );
+                                $('.btn-firmar-derivar').html('Firmar y Enviar');
+                                bloqueo_accion=false;
+                            }
+                        });
+
+                        
+                    }
+                    else{
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-editar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar');
+                        $('.btn-firmar-derivar').html('Firmar y Enviar');
+                    }
+                }) 
+        }
+        else{
+            toastr.error("Falla en el documento: Debe seleccionr un destinatario y acciones","¡Aviso!");
+        }
     }
 
     function finalizar_documento()
@@ -2009,7 +2565,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        $('btn-recibir-submit').prop("disabled",true);
+        deshabilita_boton('btn-recibir-submit');
 
         Swal.fire({
                 title: 'Finalizar',
@@ -2040,7 +2596,7 @@
                             if(data.status == '200')
                             {
                                 toastr.success("Documento Finalizado","¡Aviso!");
-                                $('btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
@@ -2048,17 +2604,17 @@
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
-                                $('btn-recibir-submit').prop("disabled",false);
+                                habilita_boton('btn-recibir-submit');
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","¡Aviso!");
-                            $('btn-recibir-submit').prop("disabled",false);
+                            habilita_boton('btn-recibir-submit');
                         }
                     });
                 }
                 else{
-                    $('btn-recibir-submit').prop("disabled",false);
+                    habilita_boton('btn-recibir-submit');
                 }
             })
     }
@@ -2137,7 +2693,17 @@
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
         var comentario = $("textarea[id='form_comentario_archivar']").val();        
-        
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-editar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-guardar-submit-edit');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn-firmar-derivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-derivar');
         Swal.fire({
             title: txtArchivado[accion][0],
             html: "Se " + txtArchivado[accion][1] + " el documento: <br><br>" +
@@ -2171,11 +2737,33 @@
                             $('#card_crear_documento').hide();        
                             clear_form();
                             fn_grilla_recibidos();
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-derivar');
                             location.reload();
                         }
                         else
                         {
                             toastr.error(data.data.comentario,"¡Aviso!");
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-editar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-derivar');
                         }
 
                         $('.btn-enviar-submit').html( 'Enviar' );
@@ -2183,10 +2771,33 @@
                     error: function (jqXHR, textStatus, errorThrown) {
 
                         toastr.error("Falla en el documento","¡Aviso!");
-
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-editar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-derivar');
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
+            }
+            else{
+                habilita_boton('btn-archivar');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-editar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-firmar-derivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-derivar');
             }
         })        
        
@@ -2225,7 +2836,7 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,11);//se incorpora accion 11 para identificar la acción de ver el documento 
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -2250,7 +2861,7 @@
         $('#titulo_accion').html('Editar Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,22);//se incorpora accion 22   
         
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
@@ -2395,10 +3006,10 @@
                 else{
                     $('.btn-guardar-submit').html( 'Guardar' );
                 }
-                $('.btn-guardar-submit').prop("disabled", false);
-                $('.btn-guardar-submit-edit').prop("disabled", false);
-                $('.btn-enviar-submit').prop("disabled",false);    
-                $('.btn_cerrar_guardar').prop("disabled", false);
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-enviar-submit');    
+                habilita_boton('btn_cerrar_guardar');
             }
         
         });
@@ -2416,13 +3027,13 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2);         
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,33);         
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
 
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
@@ -2518,7 +3129,10 @@
             var docBuzon = id_documento_buzon_padre;
         else
             var docBuzon = id_documento_buzon; 
+<<<<<<< HEAD
         //console.log("cargar_datos_grilla");
+=======
+>>>>>>> ticket-11
         $.ajax({
             url: "/documentos/"+id_documento,
             type:'GET',
@@ -2890,6 +3504,7 @@
                                         $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);
 
                                 }
+<<<<<<< HEAD
                                 // if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre){
                                 //     var accionesSolicitadas = $.parseJSON(item.json_acciones);
 
@@ -2937,6 +3552,350 @@
                                 //         } 
                                 //     }
                                 // }
+=======
+                                if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre && carpeta == 2){ 
+                                    var accionesSolicitadas = $.parseJSON(item.json_acciones); 
+                                    if(accion == 11){ //seleccion boton ver
+                                        if(item.id_estado_documento == 4){ //documento pendiente
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if (accionesSolicitadas[i]['id_accion'] == 4){ //editar   
+                                                    var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                                    $('#addButton').append(buttonEditar);  
+                                                }
+                                                if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    $('#addButton').append(buttonVisar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                                $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estado archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estaddo visado
+                                    }//fin boton accion ver
+                                    ///////////////////////////////
+                                    if(accion == 1){ //seleccion boton editar
+                                        if(item.id_estado_documento == 4){ //documento pendiente
+                                            $('.btn-guardar-submit').show();
+                                            //$('.btn-enviar-submit').html('Guardar y Enviar');
+                                            $('#submit-enviar').removeClass('w-10');
+                                            $('#submit-enviar').addClass('w-15');
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    $('#addButton').append(buttonVisar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-enviar-submit').html('Guardar y Enviar');
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                                $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('.btn-guardar-submit').show();
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion editar
+                                    ///////////////////////
+                                    if(accion ==22){ //seleccion boton visar
+                                        $('.btn-recibir-submit').hide();
+                                        $('.btn-enviar-submit').hide();
+                                        
+                                        if(item.id_estado_documento == 4){ //documento pendiente  
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            $('#addButton').append(buttonEditar);
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                    var buttonVisarDerivar = '<button onClick="guarda_destinatarios_documento(8)" type="button" class="btn btn-success btn-visar-derivar w-15">Visar y Enviar</button> '; 
+                                                    $('#addButton').append(buttonVisarDerivar);
+                                                } 
+                                                
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            $('#addButton').append(buttonVisar); 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion visar
+                                    ///////////////////////
+                                    if(accion ==33){ //seleccion boton firmar
+                                        $('.btn-recibir-submit').hide();
+                                        $('.btn-enviar-submit').hide();
+                                        
+                                        if(item.id_estado_documento == 4){ //documento pendiente  
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            $('#addButton').append(buttonEditar);
+                                            
+                                            for (let i in accionesSolicitadas) { 
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success');
+                                                    var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+                                                    $('#addButton').append(buttonFirmarDerivar); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn btn-success btn-derivar w-10">Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
+                                                } 
+                                                
+                                                if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    $('#addButton').append(buttonFirmar); 
+                                                } 
+                                                if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    $('#addButton').append(buttonFinaliza); 
+                                                } 
+                                            } 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            $('#addButton').append(buttonVisar); 
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            $('#addButton').append(buttonArchivar); 
+                                        }//fin estado documento pendiente
+                                        if(item.id_estado_documento == 6){ //documento archivado
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                                $('#addButton').append(buttonDesarchivar); 
+                                        }//fin estadi archivado
+                                        if(item.id_estado_documento == 9){ //documento firmado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            $('.btn-guardar-submit').show();
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('.btn-guardar-submit').hide();
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado firmado
+                                        if(item.id_estado_documento == 11){ //visado
+                                            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            
+                                            for (let i in accionesSolicitadas) {
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
+                                                if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
+                                                    $('#form_destinatario_principal').prop("disabled", false); 
+                                                    $('#form_acciones_solicitadas_el').multiselect('enable'); 
+                                                    $('#form_comentario_el').prop("disabled", false);         
+                                                    $('#form_otros_destinatarios_el').prop("disabled", false); 
+                                                    $('#form_comentario_otro_el').prop("disabled", false); 
+                                                    $(".bootstrap-tagsinput-max").removeClass("disabled");
+                                                    $(".bootstrap-tagsinput").removeClass("disabled"); 
+                                                    $('.btn-enviar-submit').show(); 
+                                                    $('#submit-enviar').removeClass('btn-primary'); 
+                                                    $('#submit-enviar').addClass('btn-success'); 
+                                                }
+                                            }
+                                        }//fin estado visado
+                                    }//fin boton accion firmar
+                                }
+>>>>>>> ticket-11
 
                                 if (item.id_tipo_destino == 2 && item.id_documento_buzon_padre == buzon_padre)
                                 {
@@ -3056,14 +4015,14 @@
         $('#form_tipo_documento').prop("disabled", true); 
        
         $('.btn-guardar-submit').show();
-        $('.btn-guardar-submit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit');
         $('.btn-guardar-submit-edit').show();
-        $('.btn-guardar-submit-edit').prop("disabled", false);
+        habilita_boton('btn-guardar-submit-edit');
         $('.btn-enviar-submit').show();
-        $('.btn-enviar-submit').prop("disabled",false);
-        $('.btn_cerrar_guardar').prop("disabled", false);
+        habilita_boton('btn-enviar-submit');
+        habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -3080,7 +4039,7 @@
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
         $('.btn-enviar-submit').hide();
-        $('.btn-vp').prop("disabled", false);
+        habilita_boton('btn-vp');
 
         var buttonGuardar = '<button onClick="accion_editar_guardar(2)" type="button" class="btn btn-success btn-recibir-submit w-10">Guardar</button> ';
         $('#addButton').html('');
@@ -3741,7 +4700,7 @@
             $('.btn-recepcion-masiva').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recibiendo'
             );
-            $('.btn-recepcion-masiva').prop("disabled",true);
+            deshabilita_boton('btn-recepcion-masiva');
             Swal.fire({
                 title: 'Recibir',
                 html: "Se recepcionará(n) <b>"+rows_selected.length+"</b> Documento(s) <br>¿Desea Continuar?",
@@ -3785,7 +4744,7 @@
                                                 console.log(textStatus);
                                                 reject(new Error('Error : ' + textStatus));
                                                 $('.btn-recepcion-masiva').html('Recibir Masivo');
-                                                $('.btn-recepcion-masiva').prop("disabled",false);
+                                                habilita_boton('btn-recepcion-masiva');
                                             }
                                         });
                                 });
@@ -3810,7 +4769,7 @@
                     });
                 }
                 else{
-                    $('.btn-recepcion-masiva').prop("disabled",false);
+                    habilita_boton('btn-recepcion-masiva');
                     $('.btn-recepcion-masiva').html('Recibir Masivo');
                 }
             }) 
@@ -3832,7 +4791,7 @@
             $('.btn-aplicar').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Archivando'
             );
-            $('.btn-aplicar').prop("disabled",true);
+            deshabilita_boton('btn-aplicar');
 
             Swal.fire({
                 title: 'Archivar',
@@ -3886,7 +4845,7 @@
 
                                                     toastr.error("Falla en el documento","¡Aviso!");
 
-                                                    $('.btn-aplicar').prop("disabled",false);
+                                                    habilita_boton('btn-aplicar');
                                                     $('.btn-aplicar').html('Aplicar');
                                                 }
                                             });
@@ -3912,7 +4871,7 @@
                         });
                     }
                     else{
-                        $('.btn-aplicar').prop("disabled",false);
+                        habilita_boton('btn-aplicar');
                         $('.btn-aplicar').html('Aplicar');
                     }
             })  
@@ -3951,9 +4910,16 @@
             if(nSecundarios > 0 && nPrincipal > 0){//verificar que se haya seleccionado solo un tipo de destino
                 continuar = 0;
                 Swal.fire({
+<<<<<<< HEAD
                     title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br><strong>Aviso</strong></span>',
                     html:
                         '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
+=======
+                    title: '<span style="font-size:30px"><i class="fa fa-exclamation-triangle fa-2x" aria-hidden="true" style="color:orange"></i><br/><strong>Aviso</strong></span>',
+                    html:
+                        '<p>Ud. ha seleccionado documentos principales y secundarios.</p><p>La funcionalidad permite derivar masivamente solo documentos principales o solo documentos secundarios.</p><p> Favor seleccione nuevamente.</p>',
+                    icon: 'warning',
+>>>>>>> ticket-11
                     showCloseButton: true,
                     focusConfirm: false,
                     confirmButtonColor: '#3085d6',
@@ -3968,7 +4934,11 @@
                     $('.btn-aplicar').html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Derivando'
                     );
+<<<<<<< HEAD
                     $('.btn-aplicar').prop("disabled",true);
+=======
+                    deshabilita_boton('btn-aplicar');
+>>>>>>> ticket-11
                     setTimeout(function() {
                         $('#fDerivarMasivaDestPpal').select2();
                         $("#fDerivarMasivaDestPpal").trigger('change');  
@@ -4106,6 +5076,7 @@
                                                                 success: function(data)
                                                                 {
                                                                     if(data.status == '200')
+<<<<<<< HEAD
                                                                     {
                                                                         console.log('tipo buzon: '+tipo_destino);
                                                                         var p2 = new Promise(function(resolve, reject){
@@ -4149,6 +5120,51 @@
                                                                     {
                                                                         toastr.error("Falla al guardar destinatarios","¡Aviso!");
                                                                     }
+=======
+                                                                    {
+                                                                        console.log('tipo buzon: '+tipo_destino);
+                                                                        var p2 = new Promise(function(resolve, reject){
+                                                                        $.ajax({
+                                                                            url: "../buzonesCarpetas/"+hiddIdDocumento,
+                                                                            type: 'PUT',
+                                                                            dataType: 'json',
+                                                                            data: {
+                                                                                _token:"{{csrf_token()}}",
+                                                                                hiddIdDocumento:hiddIdDocumento,
+                                                                                id_tipo_destino:tipo_destino,
+                                                                                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                                                                                buzon:hiddIdBuzon,
+                                                                                destinatarioPrincipal:destinatarioPrincipal,                            
+                                                                                destinatarioOtros:otrosDestinatarios,
+                                                                                acciones_solicitadas:acciones_solicitadas,
+                                                                                carpeta:2                                    
+                                                                            },
+                                                                            success: function(data)
+                                                                            {
+                                                                                if(data.status == '200')
+                                                                                {
+                                                                                    toastr.success("Documento Derivado","¡Aviso!");
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    toastr.error("Falla en la derivación del documento (2)","¡Aviso!");
+                                                                                }
+                                                                            },
+                                                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                                                toastr.error("Falla en la derivación del documento","¡Aviso!");
+                                                                                Swal.close();
+                                                                                habilita_boton('btn-aplicar');
+                                                                                $('.btn-aplicar').html('Aplicar');
+                                                                            }
+                                                                        });
+                                                                        });
+                                                                        promiseArray.push(p2);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        toastr.error("Falla al guardar destinatarios","¡Aviso!");
+                                                                    }
+>>>>>>> ticket-11
                                                                 },
                                                                 error: function (jqXHR, textStatus, errorThrown) {
                                                                     toastr.error("Falla en la actualización del documento","¡Aviso!");
@@ -4159,7 +5175,11 @@
                                                                 Swal.close();
                                                                 toastr.success("Documentos Derivados","¡Aviso!");
                                                                 fn_grilla_por_recibir();
+<<<<<<< HEAD
                                                                 location.reload();
+=======
+                                                                //location.reload();
+>>>>>>> ticket-11
                                                             });
                                                         });
                                                 }
@@ -4184,12 +5204,20 @@
                                 }
                                 else{
                                     toastr.error(msgValidacion,"¡Aviso!");
+<<<<<<< HEAD
                                     $('.btn-aplicar').prop("disabled",false);
+=======
+                                    habilita_boton('btn-aplicar');
+>>>>>>> ticket-11
                                     $('.btn-aplicar').html('Aplicar');
                                 }
                             }
                             else{
+<<<<<<< HEAD
                                 $('.btn-aplicar').prop("disabled",false);
+=======
+                                habilita_boton('btn-aplicar');
+>>>>>>> ticket-11
                                 $('.btn-aplicar').html('Aplicar');
                             }
                     })  
@@ -4246,6 +5274,30 @@
                 break;        
         }
     });
+
+    function activar_editar(nBotones){
+        $('#form_tipo_documento').prop("disabled", true);
+        $("#form_crear_editar :input").prop("disabled", false); 
+        editor_cuerpo.setReadOnly(false); 
+        $('#dropzone-principal').prop("disabled", false); 
+        $('#dropzone-anexo').prop("disabled", false); 
+        $('#dropzone-otros').prop("disabled", false); 
+        $(".dz-hidden-input").prop("disabled", false);  
+        
+        if(nBotones == 1){
+            $('.btn-guardar-submit').show();
+        }
+        if(nBotones == 2){
+            $('.btn-guardar-submit-edit').show(); 
+        }
+        if(nBotones == 3){
+            $('.btn-guardar-submit').show();
+            $('.btn-guardar-submit-edit').show(); 
+        }
+        
+        $('.btn-editar').hide();
+        $('#form_tipo_documento').prop("disabled", true);
+    }
 
     function vernotas(tipo){
         objDoc.rel_documento_buzon.sort(function(a, b){
