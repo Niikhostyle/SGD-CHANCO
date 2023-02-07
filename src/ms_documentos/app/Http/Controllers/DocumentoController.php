@@ -556,7 +556,6 @@ class DocumentoController extends Controller{
 
                 $datosRequest = $request->json()->all();
                 $dFechaCreacion = date('Y-m-d H:i:s');                
-
                 if ($datosRequest['carpeta'] == 3) //despachados
                 {
                     $estadoDocumentoFinal = 2; 
@@ -705,6 +704,13 @@ class DocumentoController extends Controller{
                         ]);                        
                     }
                 }
+                else
+                {
+                    if($datosRequest['id_tipo_destino'] == 2 || $datosRequest['id_tipo_destino'] == "2"){
+                        return $this->respondFail('Falla al enviar documento: Destinatario no válido.');
+                    }
+                }
+                
 
                 DB::commit();
 
