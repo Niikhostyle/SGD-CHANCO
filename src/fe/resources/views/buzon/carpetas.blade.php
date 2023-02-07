@@ -446,6 +446,7 @@
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
                                     <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
+                                    <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
                                     
                                 </div>                          
                         </div>
@@ -1782,6 +1783,7 @@
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
 
             Swal.fire({
                 title: 'Derivar',
@@ -1821,6 +1823,7 @@
                             destinatarioPrincipal:destinatarioPrincipal,                            
                             destinatarioOtros:otrosDestinatarios,
                             acciones_solicitadas:acciones_solicitadas,
+                            id_tipo_destino:tipoDestino,
                             carpeta:2                                         
                         },
                         success: function(data)
@@ -3037,7 +3040,7 @@
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
-
+                        $("input[name='hiddIdTipoDestino']").val(data.data.rel_documento_buzon_actual[0].id_tipo_destino);
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
                         if (data.data.folio != null)
