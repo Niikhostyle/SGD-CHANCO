@@ -1658,6 +1658,7 @@
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
         Swal.fire({
             title: 'Enviar Documento',
             text: "¿Está seguro(a) que desea enviar este documento?",
@@ -1691,6 +1692,7 @@
                             destinatarioPrincipal:destinatarioPrincipal,
                             acciones_solicitadas:acciones_solicitadas,
                             destinatarioOtros:otrosDestinatarios,
+                            id_tipo_destino:tipoDestino,
                             responder:responder,
                             carpeta:3                
                         },
