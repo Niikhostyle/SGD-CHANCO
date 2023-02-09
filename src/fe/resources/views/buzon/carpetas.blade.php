@@ -3617,7 +3617,6 @@
                                     }//fin boton accion ver
                                     ///////////////////////////////
                                     if(accion == 1){ //seleccion boton editar
-                                        deshabilita_campos();
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('.btn-guardar-submit').show();
                                             //$('.btn-enviar-submit').html('Guardar y Enviar');
