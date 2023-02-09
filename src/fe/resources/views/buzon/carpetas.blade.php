@@ -3521,6 +3521,7 @@
                                 if(item.id_tipo_destino == 1 && item.id_documento_buzon == buzon_padre && carpeta == 2){ 
                                     var accionesSolicitadas = $.parseJSON(item.json_acciones); 
                                     if(accion == 11){ //seleccion boton ver
+                                        deshabilita_campos();
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
                                             //quita accion 9 del listado
@@ -3616,6 +3617,7 @@
                                     }//fin boton accion ver
                                     ///////////////////////////////
                                     if(accion == 1){ //seleccion boton editar
+                                        deshabilita_campos();
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('.btn-guardar-submit').show();
                                             //$('.btn-enviar-submit').html('Guardar y Enviar');
@@ -3715,7 +3717,7 @@
                                     if(accion ==22){ //seleccion boton visar
                                         $('.btn-recibir-submit').hide();
                                         $('.btn-enviar-submit').hide();
-                                        
+                                        deshabilita_campos();
                                         if(item.id_estado_documento == 4){ //documento pendiente  
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
                                             //quita accion 9 del listado
@@ -3813,7 +3815,7 @@
                                     if(accion ==33){ //seleccion boton firmar
                                         $('.btn-recibir-submit').hide();
                                         $('.btn-enviar-submit').hide();
-                                        
+                                        deshabilita_campos();
                                         if(item.id_estado_documento == 4){ //documento pendiente  
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
                                             //quita accion 9 del listado
