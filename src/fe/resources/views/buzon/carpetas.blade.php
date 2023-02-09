@@ -8,7 +8,7 @@
             <h1>Buzón: {{$nombre_buzon}}</h1>
         </div>
         <div class="col-2">
-            <button id="add_documento" type="button" class="btn btn-success nuevo_documento">Nuevo Documento</button>
+            <button id="add_documento" type="button" class="btn text-nowrap btn-min-w  btn-success nuevo_documento">Nuevo Documento</button>
         </div>
     </div>
     <div class="linea_content_header"></div>
@@ -25,7 +25,7 @@
                 <div class="card">
                   <div class="card-header" id="headingOne">
                     <h2 class="mb-0">
-                      <button class="btn btn-block text-left buzones_carpetas_btn_colapsable_text" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      <button class="btn text-nowrap btn-min-w  btn-block text-left buzones_carpetas_btn_colapsable_text" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                         <span id="boton_carpetas_texto"> Carpetas - <i><b>Por Recibir</b></i> </span>
                         <i class="fa fa-chevron-circle-up" style="float:right;margin-top: 8px;"></i>
                         <i class="fa fa-chevron-circle-down" style="float:right;margin-top: 8px;"></i>
@@ -61,7 +61,7 @@
                         <div class="tab-content" id="nav-tabContent">
                             <div class="tab-pane fade show active" id="nav-por-recibir" role="tabpanel" aria-labelledby="nav-por-recibir-tab">
                                 <div class="pb-4 pt-2">
-                                    <button onclick="recepcion_masiva()" class="btn btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
+                                    <button onclick="recepcion_masiva()" class="btn text-nowrap btn-min-w  btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
                                 </div>
                                 <table id="grilla_por_recibir"  class="table dt-responsive nowrap" style="width:100%">
                                     <thead>
@@ -81,7 +81,7 @@
                                 
                             </div>
                             <div class="tab-pane fade" id="nav-recibidos" role="tabpanel" aria-labelledby="nav-recibidos-tab">
-                                <table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
+                                <!-- table border="0" cellspacing="5" cellpadding="5" style="margin-bottom:30px;">
                                     <tbody>
                                         <tr>
                                             <td>ID Doc:</td>
@@ -113,7 +113,36 @@
                                             <td id="botones_grilla_recibidos">
                                             </td>
                                         </tr>
-                                </tbody></table>
+                                </tbody></table -->
+                                <div class="row">
+                                    <div class="col-lg-2 col-md-12 col-sm-12">
+                                        ID Doc:<br/><input class="form-control"  type="text" id="gr_buscar_id_doc" name="gr_buscar_id_doc">
+                                    </div>
+                                    <div class="col-lg-3 col-md-12 col-sm-12">
+                                       Tipo Documento:<br/><select id="gr_buscar_tipo_doc" style="display:grid;" name="gr_buscar_tipo_doc" class="form-control " multiple="multiple">
+                                                    @foreach($listado_tiposdoc as $list)
+                                                    <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
+                                                    @endforeach
+                                                </select>
+                                    </div>
+                                    <div class="col-lg-2 col-md-12 col-sm-12">
+                                       Estado:<br/><select class="form-control"  id="gr_buscar_estado" name="gr_buscar_estado"  multiple="multiple">
+                                                    
+                                                    @foreach($listado_parametros['estado_documento'] as $estado_documento)
+                                                        @if($estado_documento['id_estado_documento'] > 3)    
+                                                            <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
+                                                        @endif    
+                                                    @endforeach
+                                                </select>
+                                    </div>
+                                    <div class="col-lg-3 col-md-12 col-sm-12">
+                                        Materia:<br/><input type="search" aria-controls="grilla_recibidos" class="form-control"  id="gr_buscar_origen_materia" name="gr_buscar_origen_materia">
+                                    </div>
+                                    <div class="col-lg-2 col-md-4 col-sm-12 pt-4" id="botones_grilla_recibidos">
+                                        
+                                    </div>
+                                </div>
+                                <p>&nbsp;</p>
                                 <div class="row">
                                     <div class="text-left" style="width: 48%;">
                                         <label class="text-bold">Acciones Masivas</label>
@@ -123,7 +152,7 @@
                                             <option value="0">Archivar</option>
                                             <option value="2">Firmar</option>
                                         </select>
-                                        &nbsp;&nbsp;<button class="btn btn-primary btn-aplicar" id="btnAplicar" style="display:none" >Aplicar</button>
+                                        &nbsp;&nbsp;<button class="btn text-nowrap btn-min-w  btn-primary btn-aplicar" id="btnAplicar" style="display:none" >Aplicar</button>
                                     </div>
                                     <div class="text-right" style="width: 50%;">
                                         <select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>
@@ -319,7 +348,7 @@
                             <div class="col-md-12 mb-3">
                                 <label class="view-txt-row" for="exampleFormControlTextarea1">Cuerpo:</label>
                                 <label class="view-pdf">
-                                    <button onClick="vista_previa_sg()" type="button" class="btn btn-default btn-vp">
+                                    <button onClick="vista_previa_sg()" type="button" class="btn text-nowrap btn-min-w  btn-default btn-vp">
                                         <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa
                                     </button>      
                                 </label>                                
@@ -343,14 +372,14 @@
                                 
                                 <div id="card_desplegar_versiones" class="bl1 header1" > 
                                     <label class="">Versiones</label>                       
-                                    <button type="button" class="btn boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
+                                    <button type="button" class="btn text-nowrap btn-min-w  boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
                                         <i class="fas fa-angle-double-right fa-3x"></i>
                                     </button>
                                 </div> 
                                 <div class="bl2"  id="card_ocultar_versiones" style="display:none" >
                                     <div class="header1">
                                         <label class="">Versiones</label>
-                                        <button type="button" class="btn boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
+                                        <button type="button" class="btn text-nowrap btn-min-w  boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
                                             <i class="fas fa-angle-double-left fa-3x"></i>
                                         </button>
                                     </div>
@@ -435,11 +464,11 @@
                         
                         <div class="form-row">                                
                                 <div class="col-md-12 group-button-align">                                    
-                                    <button type="button"  class="btn btn-secondary w-10 btn_cerrar_guardar">Cerrar</button>
-                                    <button type="button" id="submit-edit" class="btn btn-light btn-guardar-submit-edit w-10">Guardar</button>
-                                    <button type="button" id="submit-all" class="btn btn-success btn-guardar-submit">Guardar y Cerrar</button>
-                                    <button type="button" id="submit-enviar" class="btn btn-primary btn-enviar-submit w-10" style="display:none">Enviar</button>
-                                    <span class="w-10" id="addButton"></span>
+                                    <button type="button"  class="btn text-nowrap btn-min-w  btn-secondary  btn_cerrar_guardar">Cerrar</button>
+                                    <button type="button" id="submit-edit" class="btn text-nowrap btn-min-w  btn-light btn-guardar-submit-edit ">Guardar</button>
+                                    <button type="button" id="submit-all" class="btn text-nowrap btn-min-w  btn-success btn-guardar-submit">Guardar y Cerrar</button>
+                                    <button type="button" id="submit-enviar" class="btn text-nowrap btn-min-w  btn-primary btn-enviar-submit " style="display:none">Enviar</button>
+                                    <span class="" id="addButton"></span>
                                     <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
                                     <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
@@ -509,7 +538,7 @@
             
             <div class="form-row">                                
                 <div class="col-md-12 group-button-align">                                    
-                    <button type="button" class="btn btn-secondary w-10 btn_cerrar_bitacora">Cerrar</button>                   
+                    <button type="button" class="btn text-nowrap btn-min-w  btn-secondary  btn_cerrar_bitacora">Cerrar</button>                   
                 </div>                          
         </div>
         </div>
@@ -620,6 +649,13 @@
             z-index: 1050 !important;
         }
         
+        .btn-min-w{
+            min-width: 10%!important;
+        }
+        
+        .multiselect-native-select{
+            display: grid;
+        }
         
      </style>
 
@@ -964,7 +1000,7 @@
     {
         if($('#chkFrm').prop("checked")){
             $('#btnFirma').show();
-            var buttonFrmMasiva = '<button onClick="envioFrm()" type="button" class="btn btn-success btn-recibir-submit">Firma Masiva</button> ';
+            var buttonFrmMasiva = '<button onClick="envioFrm()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit">Firma Masiva</button> ';
             $('#btnFirma').html(buttonFrmMasiva);
         }
         else{
@@ -1196,6 +1232,8 @@
         deshabilita_boton('btn-recibir-submit');
         deshabilita_boton('btn-visar-derivar');
         deshabilita_boton('btn-firmar-derivar');
+        deshabilita_boton('btn-derivar');
+        deshabilita_boton('btn-derivar-2');
 
         guarda_documento(1);
     });
@@ -1332,6 +1370,8 @@
                             habilita_boton('btn-firmar');
                             habilita_boton('btn-archivar');
                             habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-derivar');
+                            habilita_boton('btn-derivar-2');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                             // $('.btn-vp-sg').hide();       
                             // $('.btn-vp').show();       
@@ -1360,6 +1400,8 @@
                             habilita_boton('btn-firmar'); 
                             habilita_boton('btn-archivar');
                             habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn-derivar');
+                            habilita_boton('btn-derivar-2');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );               
                         }, 5000);
                         
@@ -1391,6 +1433,8 @@
                     habilita_boton('btn-firmar');
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn-derivar');
+                    habilita_boton('btn-derivar-2');
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     habilita_boton('btn-vp');  
 
@@ -1403,6 +1447,8 @@
                         habilita_boton('btn-firmar');
                         habilita_boton('btn-archivar');
                         habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn-derivar');
+                        habilita_boton('btn-derivar-2');
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
      
                     //actualiza grilla despachados
@@ -1420,6 +1466,8 @@
                     habilita_boton('btn-firmar');
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn-derivar');
+                    habilita_boton('btn-derivar-2');
                     if($("#idAsignado").html() != "No Asignado"){
                         $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                     }
@@ -1447,6 +1495,8 @@
                 habilita_boton('btn-firmar');
                 habilita_boton('btn-archivar');
                 habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-derivar');
+                habilita_boton('btn-derivar-2');
             }
         
         });
@@ -1516,11 +1566,11 @@
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
         console.log(idCarpeta)
-        if(idCarpeta != 2){
+        //if(idCarpeta != 2){
             $('.btn-recibir-submit').html(
                 '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
             );
-        }
+        //}
         $('.btn-guardar-submit-edit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
@@ -1553,6 +1603,8 @@
         deshabilita_boton('btn-firmar');
         deshabilita_boton('btn-archivar');
         deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-derivar-2');
+        deshabilita_boton('btn-derivar');
         deshabilita_boton('btn-firmar-derivar');
         
 
@@ -1594,9 +1646,9 @@
                     setTimeout(function() {
                         toastr.success("Documento actualizado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-                        if(idCarpeta != 2){
+                        //if(idCarpeta != 2){
                             $('.btn-recibir-submit').html('Guardar');
-                        }
+                        //}
                         habilita_boton('btn-recibir-submit');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-guardar-submit-edit');
@@ -1607,6 +1659,8 @@
                         habilita_boton('btn-archivar');
                         habilita_boton('btn-visar-derivar');
                         habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar-2');
+                        habilita_boton('btn-derivar');
 
                     }, 5000);
                 }
@@ -1623,6 +1677,12 @@
                     habilita_boton('btn-archivar');
                     habilita_boton('btn-visar-derivar');
                     habilita_boton('btn-firmar-derivar');
+                    habilita_boton('btn-derivar-2');
+                    habilita_boton('btn-derivar');
+                    $('.btn-guardar-submit-edit').html("Guardar");
+                    //if(idCarpeta != 2){
+                        $('.btn-recibir-submit').html('Guardar');
+                    //}
                 }
 
                 
@@ -1641,6 +1701,8 @@
                 habilita_boton('btn-archivar');
                 habilita_boton('btn-visar-derivar');
                 habilita_boton('btn-firmar-derivar');
+                habilita_boton('btn-derivar-2');
+                habilita_boton('btn-derivar');
             }
 
         });
@@ -1803,7 +1865,14 @@
                     $('.btn-derivar').html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
                     );
+
+                    $('.btn-derivar-2').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
+                    );
+
+                    
                     deshabilita_boton('btn-derivar');
+                    deshabilita_boton('btn-derivar-2');
                     deshabilita_boton('btn_cerrar_guardar');
                     deshabilita_boton('btn-guardar-submit');
                     deshabilita_boton('btn-enviar-submit');
@@ -1839,6 +1908,7 @@
                                 fn_grilla_despachados();
                                 fn_grilla_recibidos();
                                 habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
                                 habilita_boton('btn_cerrar_guardar');
                                 habilita_boton('btn-guardar-submit');
                                 habilita_boton('btn-enviar-submit');
@@ -1849,12 +1919,14 @@
                                 habilita_boton('btn-visar-derivar');
                                 habilita_boton('btn-firmar-derivar');
                                 $('.btn-derivar').html('Enviar');
+                                $('.btn-derivar-2').html('Guardar y Enviar')
                                 location.reload();
                             }
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
                                 habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
                                 habilita_boton('btn_cerrar_guardar');
                                 habilita_boton('btn-guardar-submit');
                                 habilita_boton('btn-enviar-submit');
@@ -1865,6 +1937,7 @@
                                 habilita_boton('btn-visar-derivar');
                                 habilita_boton('btn-firmar-derivar');
                                 $('.btn-derivar').html('Enviar');
+                                $('.btn-derivar-2').html('Guardar y Enviar')
                             }
 
                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -1873,6 +1946,7 @@
 
                             toastr.error("Falla en la derivación del documento","¡Aviso!");
                             habilita_boton('btn-derivar');
+                            habilita_boton('btn-derivar-2');
                             habilita_boton('btn_cerrar_guardar');
                             habilita_boton('btn-guardar-submit');
                             habilita_boton('btn-enviar-submit');
@@ -1885,6 +1959,7 @@
 
                             $('.btn-enviar-submit').html( 'Enviar' );
                             $('.btn-derivar').html('Enviar');
+                            $('.btn-derivar-2').html('Guardar y Enviar');
                         }
                     });
                 }
@@ -2002,26 +2077,28 @@
                                     {
                                         if(data.status == '200')
                                         {
-                                            toastr.success("Documento Derivado y Visado","¡Aviso!");
+                                            toastr.success("Documento Visado y Derivado","¡Aviso!");
 
                                             $('#card_crear_documento').hide();        
                                             clear_form();
                                             fn_grilla_despachados();
                                             fn_grilla_recibidos();
+                                            $('.btn-visar-derivar').html('Visar y Enviar');
                                             location.reload();
                                         }
                                         else
                                         {
                                             toastr.error(data.data.comentario,"¡Aviso!");
+                                            $('.btn-visar-derivar').html('Visar y Enviar');
                                         }
 
-                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                        
                                     },
                                     error: function (jqXHR, textStatus, errorThrown) {
 
                                         toastr.error("Falla en la derivación del documento","¡Aviso!");
 
-                                        $('.btn-enviar-submit').html( 'Enviar' );
+                                        $('.btn-visar-derivar').html('Visar y Enviar');
                                     }
                                 });
 
@@ -2029,10 +2106,12 @@
                             else
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
+                                $('.btn-visar-derivar').html('Visar y Enviar');
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
                             toastr.error("Falla en el documento","¡Aviso!");
+                            $('.btn-visar-derivar').html('Visar y Enviar');
                         }
                     }); 
                 }
@@ -2156,6 +2235,18 @@
                     $('.btn-recibir-submit').html(
                         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmar'
                     );
+                    deshabilita_boton('btn-recibir-submit');
+                    deshabilita_boton('btn_cerrar_guardar');
+                    deshabilita_boton('btn-guardar-submit');
+                    deshabilita_boton('btn-enviar-submit');
+                    deshabilita_boton('btn-visar');
+                    deshabilita_boton('btn-editar');
+                    deshabilita_boton('btn-firmar');
+                    deshabilita_boton('btn-archivar');
+                    deshabilita_boton('btn-visar-derivar');
+                    deshabilita_boton('btn-firmar-derivar');
+                    deshabilita_boton('btn-derivar');
+                    deshabilita_boton('btn-derivar-2');
                     bloqueo_accion =true;
                     $.ajax({
                         url: "/firmar_documento/"+hiddIdDocumentoBuzon,
@@ -2172,7 +2263,18 @@
                             if(data.status == '200')
                             {
                                 toastr.success(data.data,"¡Aviso!");
-
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
                                 $('#card_crear_documento').hide();        
                                 fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
@@ -2182,6 +2284,18 @@
                             {
                                 toastr.error(data.data.comentario,"¡Aviso!");
                                 habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
@@ -2198,6 +2312,19 @@
                             else{
                                 toastr.error("Falla en el documento","¡Aviso!");
                                 habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-enviar-submit');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-editar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-visar-derivar');
+                                habilita_boton('btn-firmar-derivar');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
+
                             }
                             $('.btn-recibir-submit').html( 'Firmar' );
                             bloqueo_accion=false;
@@ -2208,6 +2335,19 @@
                 }
                 else{
                     habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-editar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
+                    habilita_boton('btn-derivar');
+                    habilita_boton('btn-derivar-2');
+
                 }
             }) 
     }
@@ -2238,6 +2378,7 @@
             deshabilita_boton('btn-visar-derivar');
             deshabilita_boton('btn-firmar-derivar');
             deshabilita_boton('btn-derivar');
+            deshabilita_boton('btn-derivar-2');
             Swal.fire({
                     title: 'Firmar y Enviar',
                     html: "Se realizará la firma y envío del documento: <br>" +
@@ -2286,7 +2427,7 @@
                                         {
                                             if(data.status == '200')
                                             {
-                                                toastr.success("Documento Derivado y Visado","¡Aviso!");
+                                                toastr.success("Documento Firmado y Derivado","¡Aviso!");
 
                                                 $('#card_crear_documento').hide();        
                                                 clear_form();
@@ -2303,6 +2444,7 @@
                                                 habilita_boton('btn-visar-derivar');
                                                 habilita_boton('btn-firmar-derivar');
                                                 habilita_boton('btn-derivar');
+                                                habilita_boton('btn-derivar-2');
                                                 location.reload();
                                             }
                                             else
@@ -2319,6 +2461,7 @@
                                                 habilita_boton('btn-visar-derivar');
                                                 habilita_boton('btn-firmar-derivar');
                                                 habilita_boton('btn-derivar');
+                                                habilita_boton('btn-derivar-2');
                                             }
 
                                             $('.btn-enviar-submit').html( 'Enviar' );
@@ -2337,6 +2480,7 @@
                                             habilita_boton('btn-visar-derivar');
                                             habilita_boton('btn-firmar-derivar');
                                             habilita_boton('btn-derivar');
+                                            habilita_boton('btn-derivar-2');
                                             $('.btn-firmar-derivar').html('Firmar y Enviar');
                                         }
                                     });                            
@@ -2356,6 +2500,7 @@
                                     habilita_boton('btn-visar-derivar');
                                     habilita_boton('btn-firmar-derivar');
                                     habilita_boton('btn-derivar');
+                                    habilita_boton('btn-derivar-2');
                                 }
                             
                                 $('.btn-recibir-submit').html( 'Firmar' );
@@ -2379,6 +2524,7 @@
                                     habilita_boton('btn-visar-derivar');
                                     habilita_boton('btn-firmar-derivar');
                                     habilita_boton('btn-derivar');
+                                    habilita_boton('btn-derivar-2');
                                     $('.btn-firmar-derivar').html('Firmar y Enviar');
                                 }
                                 else{
@@ -2394,6 +2540,7 @@
                                     habilita_boton('btn-visar-derivar');
                                     habilita_boton('btn-firmar-derivar');
                                     habilita_boton('btn-derivar');
+                                    habilita_boton('btn-derivar-2');
                                 }
                                 $('.btn-recibir-submit').html( 'Firmar' );
                                 $('.btn-firmar-derivar').html('Firmar y Enviar');
@@ -2415,6 +2562,7 @@
                         habilita_boton('btn-visar-derivar');
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-derivar');
+                        habilita_boton('btn-derivar-2');
                         $('.btn-firmar-derivar').html('Firmar y Enviar');
                     }
                 }) 
@@ -2570,6 +2718,7 @@
         deshabilita_boton('btn-firmar-derivar');
         deshabilita_boton('btn-visar-derivar');
         deshabilita_boton('btn-derivar');
+        deshabilita_boton('btn-derivar-2');
         Swal.fire({
             title: txtArchivado[accion][0],
             html: "Se " + txtArchivado[accion][1] + " el documento: <br><br>" +
@@ -2614,6 +2763,7 @@
                             habilita_boton('btn-firmar-derivar');
                             habilita_boton('btn-visar-derivar');
                             habilita_boton('btn-derivar');
+                            habilita_boton('btn-derivar-2');
                             location.reload();
                         }
                         else
@@ -2630,6 +2780,7 @@
                             habilita_boton('btn-firmar-derivar');
                             habilita_boton('btn-visar-derivar');
                             habilita_boton('btn-derivar');
+                            habilita_boton('btn-derivar-2');
                         }
 
                         $('.btn-enviar-submit').html( 'Enviar' );
@@ -2648,6 +2799,7 @@
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-visar-derivar');
                         habilita_boton('btn-derivar');
+                        habilita_boton('btn-derivar-2');
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
                 });
@@ -2664,6 +2816,7 @@
                 habilita_boton('btn-firmar-derivar');
                 habilita_boton('btn-visar-derivar');
                 habilita_boton('btn-derivar');
+                habilita_boton('btn-derivar-2');
             }
         })        
        
@@ -2737,7 +2890,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
 
-        var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-recibir-submit w-10">Visar</button> ';
+        var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Visar</button> ';
         $('#addButton').append(buttonVisar);
         
     }
@@ -2904,7 +3057,7 @@
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
 
-        var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Firmar</button> ';
+        var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Firmar</button> ';
         $('#addButton').append(buttonFirmar);
         
     }
@@ -2920,7 +3073,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
 
-        var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> ';
+        var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> ';
         $('#addButton').append(buttonFinaliza);
         
     }
@@ -2942,7 +3095,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html(''); 
 
-        var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn btn-success btn-recibir-submit w-10">Enviar</button> ';
+        var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Enviar</button> ';
         $('#addButton').append(buttonDerivar);
         
     }
@@ -2959,7 +3112,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
 
-        var buttonArchivar = '<button onClick="archivar_documento('+accion+')" type="button" class="btn btn-success btn-recibir-submit w-10">'+txtArchivado[accion][0]+'</button> ';
+        var buttonArchivar = '<button onClick="archivar_documento('+accion+')" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">'+txtArchivado[accion][0]+'</button> ';
         $('#addButton').append(buttonArchivar);
 
         $(".row_archivar").show();       
@@ -3370,20 +3523,22 @@
                                     if(accion == 11){ //seleccion boton ver
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
-                                            
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) { 
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
                                                 if (accionesSolicitadas[i]['id_accion'] == 4){ //editar   
-                                                    var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                                    var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-editar ">Editar</button> '; 
                                                     $('#addButton').append(buttonEditar);  
                                                 }
                                                 if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
-                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar ">Visar</button> '; 
                                                     $('#addButton').append(buttonVisar); 
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
-                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
                                                 if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
@@ -3394,24 +3549,29 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    //$('.btn-enviar-submit').show(); 
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
-                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
                                                 } 
                                             } 
-                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                                 $('#addButton').append(buttonArchivar); 
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
-                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
                                                 $('#addButton').append(buttonDesarchivar); 
                                         }//fin estado archivado
                                         if(item.id_estado_documento == 9){ //documento firmado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3423,7 +3583,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3431,6 +3592,9 @@
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3442,7 +3606,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3454,19 +3619,22 @@
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('.btn-guardar-submit').show();
                                             //$('.btn-enviar-submit').html('Guardar y Enviar');
-                                            $('#submit-enviar').removeClass('w-10');
+                                            $('#submit-enviar').removeClass('');
                                             $('#submit-enviar').addClass('w-15');
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             
                                             for (let i in accionesSolicitadas) { 
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
                                                 if (accionesSolicitadas[i]['id_accion'] == 6){ //visar                                                    
-                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                                    var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar ">Visar</button> '; 
                                                     $('#addButton').append(buttonVisar); 
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
-                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
                                                 if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
@@ -3477,25 +3645,29 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
-                                                    $('.btn-enviar-submit').html('Guardar y Enviar');
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
-                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
                                                 } 
                                             } 
-                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                                 $('#addButton').append(buttonArchivar); 
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
-                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
                                                 $('#addButton').append(buttonDesarchivar); 
                                         }//fin estadi archivado
                                         if(item.id_estado_documento == 9){ //documento firmado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
+
                                             $('.btn-guardar-submit').show();
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3507,7 +3679,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3516,6 +3689,9 @@
                                         if(item.id_estado_documento == 11){ //visado
                                             $('.btn-guardar-submit').show();
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3527,7 +3703,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3541,7 +3718,11 @@
                                         
                                         if(item.id_estado_documento == 4){ //documento pendiente  
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
-                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
+
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-editar ">Editar</button> '; 
                                             $('#addButton').append(buttonEditar);
                                             
                                             for (let i in accionesSolicitadas) { 
@@ -3556,30 +3737,34 @@
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
-                                                    var buttonVisarDerivar = '<button onClick="guarda_destinatarios_documento(8)" type="button" class="btn btn-success btn-visar-derivar w-15">Visar y Enviar</button> '; 
+                                                    var buttonVisarDerivar = '<button onClick="guarda_destinatarios_documento(8)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar-derivar w-15">Visar y Enviar</button> '; 
                                                     $('#addButton').append(buttonVisarDerivar);
                                                 } 
                                                 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
-                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
-                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
                                                 } 
                                             } 
-                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar ">Visar</button> '; 
                                             $('#addButton').append(buttonVisar); 
-                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
-                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
                                                 $('#addButton').append(buttonDesarchivar); 
                                         }//fin estadi archivado
                                         if(item.id_estado_documento == 9){ //documento firmado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
+
                                             $('.btn-guardar-submit').show();
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3591,7 +3776,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('.btn-guardar-submit').hide();
                                                     $('.btn-guardar-submit').hide();
                                                     $('#submit-enviar').removeClass('btn-primary'); 
@@ -3601,6 +3787,9 @@
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3612,7 +3801,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3626,7 +3816,11 @@
                                         
                                         if(item.id_estado_documento == 4){ //documento pendiente  
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
-                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn btn-success btn-editar w-10">Editar</button> '; 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
+
+                                            var buttonEditar = '<button onClick="activar_editar(3)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-editar ">Editar</button> '; 
                                             $('#addButton').append(buttonEditar);
                                             
                                             for (let i in accionesSolicitadas) { 
@@ -3641,32 +3835,34 @@
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success');
-                                                    var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+                                                    var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
                                                     $('#addButton').append(buttonFirmarDerivar); 
-                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn btn-success btn-derivar w-10">Enviar</button> ';
-                                                    $('#addButton').append(buttonDerivar);
                                                 } 
                                                 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
-                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn btn-success btn-firmar w-10">Firmar</button> '; 
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
-                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn btn-success btn-recibir-submit w-10">Finalizar</button> '; 
+                                                    var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
                                                 } 
                                             } 
-                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn btn-success btn-visar w-10">Visar</button> '; 
+                                            var buttonVisar = '<button onClick="guarda_destinatarios_documento(6)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar ">Visar</button> '; 
                                             $('#addButton').append(buttonVisar); 
-                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn btn-success btn-archivar w-10">Archivar</button> ';
+                                            var buttonArchivar = '<button onClick="archivar_documento(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
-                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn btn-success btn-archivar w-10">Desarchivar</button> ';
+                                            var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
                                                 $('#addButton').append(buttonDesarchivar); 
                                         }//fin estadi archivado
                                         if(item.id_estado_documento == 9){ //documento firmado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
+
                                             $('.btn-guardar-submit').show();
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3678,7 +3874,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar); 
                                                     $('.btn-guardar-submit').hide();
                                                     $('.btn-guardar-submit').hide();
                                                     $('#submit-enviar').removeClass('btn-primary'); 
@@ -3688,6 +3885,9 @@
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
+                                            //quita accion 9 del listado
+                                            $("#form_acciones_solicitadas_el option[value='9']").remove();
+                                            $('#form_acciones_solicitadas_el').multiselect('rebuild');
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
@@ -3699,7 +3899,8 @@
                                                     $('#form_comentario_otro_el').prop("disabled", false); 
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                    $('.btn-enviar-submit').show(); 
+                                                    var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
+                                                    $('#addButton').append(buttonDerivar); 
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
@@ -3731,18 +3932,18 @@
                         { 
                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
+                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
                                         '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
                             if (carpeta == 2 &&  accion == 1 && isDelete == true)               
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && accion == 1)               
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
                             if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
                                 htmlFile = "";                                 
@@ -3852,7 +4053,7 @@
         $('.btn-enviar-submit').hide();
         habilita_boton('btn-vp');
 
-        var buttonGuardar = '<button onClick="accion_editar_guardar(2)" type="button" class="btn btn-success btn-recibir-submit w-10">Guardar</button> ';
+        var buttonGuardar = '<button onClick="accion_editar_guardar(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Guardar</button> ';
         $('#addButton').html('');
         $('#addButton').append(buttonGuardar);
     }
@@ -3869,7 +4070,7 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
 
-        var buttonRecibir = '<button onClick="recibir_documento('+destino+')" type="button" class="btn btn-success btn-recibir-submit w-10">Recibir</button>';
+        var buttonRecibir = '<button onClick="recibir_documento('+destino+')" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Recibir</button>';
         $('#addButton').append(buttonRecibir);
     }
 
@@ -4186,7 +4387,7 @@
                                 return '';
                             }else{
                                 let botonera = '<div class="dropdown">';
-                                    botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                    botonera += '<button class="btn text-nowrap btn-min-w  btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                         botonera +=' <i class="fas fa-bars"></i>';
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -4264,7 +4465,7 @@
                 initComplete : function() {
                     var input = $('#gr_buscar_origen_materia input').unbind(),
                     self = this.api(),
-                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
+                    $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar btn_busqueda">')
                             .text('Limpiar')
                             .click(function() {
                                 $('#gr_buscar_origen_materia').val('');
@@ -4275,7 +4476,7 @@
                                 $('#gr_buscar_id_doc').val('');
                                 $searchButton.click();
                             }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
+                    $searchButton = $('<button class="btn text-nowrap btn-min-w  btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
@@ -4434,7 +4635,7 @@
                             return '';
                         }else{
                             let botonera = '<div class="dropdown">';
-                                botonera += '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                botonera += '<button class="btn text-nowrap btn-min-w  btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
                                     botonera +=' <i class="fas fa-bars"></i>';
                                     botonera +=' </button>';
                                     botonera +=' <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
@@ -4471,7 +4672,7 @@
             initComplete : function() {
                     var input = $('#gd_buscar_destino_materia input').unbind(),
                     self = this.api(),
-                    $clearButton = $('<button class="btn btn-secondary btn_cerrar_guardar btn_busqueda">')
+                    $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar btn_busqueda">')
                             .text('Limpiar')
                             .click(function() {
                                 $('#gd_buscar_destino_materia').val('');
@@ -4482,7 +4683,7 @@
                                 $('#gd_buscar_id_doc').val('');
                                 $searchButton.click();
                             }),
-                    $searchButton = $('<button class="btn btn-success buscar_btn_buscar">')
+                    $searchButton = $('<button class="btn text-nowrap btn-min-w  btn-success buscar_btn_buscar">')
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gd_buscar_estado').val().join("|");
