@@ -1848,12 +1848,9 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
-<<<<<<< HEAD
-=======
 
         var continuar = true;
         var msg = "";
->>>>>>> ticket-15
 
         if(tipoDestino == 2 && otrosDestinatarios == ""){
             continuar = false;
@@ -3121,34 +3118,31 @@
         $('#addButton').html(''); 
 
         var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Enviar</button> ';
-<<<<<<< HEAD
-=======
         $('#addButton').append(buttonDerivar);
         
     }
 
-    function accion_derivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){
-        $('#titulo_accion').html('Ver Documento');         
-
-        deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,44);         
-        
-        $('#form_comentario_el').prop("disabled", false); 
-
-        $('#form_otros_destinatarios_el').prop("disabled", false);
-        $('#form_comentario_otro_el').prop("disabled", false);
-        $(".bootstrap-tagsinput").removeClass("disabled");          
-
-        $('.btn-guardar-submit').hide();
-        $('.btn-guardar-submit-edit').hide();
-        $('.btn-enviar-submit').hide();
-        $('#addButton').html(''); 
-
-        var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Enviar</button> ';
->>>>>>> ticket-15
-        $('#addButton').append(buttonDerivar);
-        
-    }
+    function accion_derivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre){ 
+        $('#titulo_accion').html('Ver Documento');          
+ 
+        deshabilita_campos(); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,44);          
+         
+        $('#form_comentario_el').prop("disabled", false);  
+ 
+        $('#form_otros_destinatarios_el').prop("disabled", false); 
+        $('#form_comentario_otro_el').prop("disabled", false); 
+        $(".bootstrap-tagsinput").removeClass("disabled");           
+ 
+        $('.btn-guardar-submit').hide(); 
+        $('.btn-guardar-submit-edit').hide(); 
+        $('.btn-enviar-submit').hide(); 
+        $('#addButton').html('');  
+ 
+        var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Enviar</button> '; 
+        $('#addButton').append(buttonDerivar); 
+         
+    } 
 
     function archivar_recibidos(id_documento,id_documento_buzon,id_documento_buzon_padre,accion){
 
@@ -3670,11 +3664,6 @@
                                         if(item.id_estado_documento == 4){ //documento pendiente
                                             $('.btn-guardar-submit').show();
                                             //$('.btn-enviar-submit').html('Guardar y Enviar');
-<<<<<<< HEAD
-                                            $('#submit-enviar').removeClass('');
-                                            $('#submit-enviar').addClass('w-15');
-=======
->>>>>>> ticket-15
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
                                             //quita accion 9 del listado
                                             $("#form_acciones_solicitadas_el option[value='9']").remove();
@@ -3700,11 +3689,7 @@
                                                     $(".bootstrap-tagsinput-max").removeClass("disabled");
                                                     $(".bootstrap-tagsinput").removeClass("disabled"); 
                                                     var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
-<<<<<<< HEAD
-                                                    $('#addButton').append(buttonDerivar);
-=======
                                                     //$('#addButton').append(buttonDerivar);
->>>>>>> ticket-15
                                                     $('#submit-enviar').removeClass('btn-primary'); 
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 } 
