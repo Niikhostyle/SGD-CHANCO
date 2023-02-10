@@ -710,7 +710,11 @@ class DocumentoController extends Controller{
                         return $this->respondFail('Falla al enviar documento: Destinatario no válido.');
                     }
                 }
+<<<<<<< HEAD
                 
+=======
+
+>>>>>>> ticket-15
 
                 DB::commit();
 
@@ -918,6 +922,7 @@ class DocumentoController extends Controller{
                                                         'documento_buzon_archivo.id_documento_buzon_archivo',
                                                         'documento_buzon_archivo.id_documento_buzon',
                                                         'documento_buzon_archivo.id_tipo_archivo',
+                                                        'documento_buzon.id_tipo_destino',
                                                         'documento_buzon_archivo.nombre_archivo_original',
                                                         'documento_buzon_archivo.nombre_archivo_codificado',
                                                         'documento_buzon_archivo.fecha',
@@ -940,6 +945,7 @@ class DocumentoController extends Controller{
                                                                 'documento_buzon_bitacora.id_accion', 
                                                                 'accion.nombre', 
                                                                 'documento_buzon_bitacora.id_usuario', 
+                                                                'documento_buzon.id_tipo_destino',
                                                                 'users.nombres', 
                                                                 'users.primer_apellido', 
                                                                 'documento_buzon_bitacora.fecha',
