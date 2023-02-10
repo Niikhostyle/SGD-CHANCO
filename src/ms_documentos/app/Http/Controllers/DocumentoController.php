@@ -705,6 +705,13 @@ class DocumentoController extends Controller{
                         ]);                        
                     }
                 }
+                else
+                {
+                    if($datosRequest['id_tipo_destino'] == 2 || $datosRequest['id_tipo_destino'] == "2"){
+                        return $this->respondFail('Falla al enviar documento: Destinatario no válido.');
+                    }
+                }
+
 
                 DB::commit();
 
