@@ -710,11 +710,7 @@ class DocumentoController extends Controller{
                         return $this->respondFail('Falla al enviar documento: Destinatario no válido.');
                     }
                 }
-<<<<<<< HEAD
                 
-=======
-
->>>>>>> ticket-15
 
                 DB::commit();
 
