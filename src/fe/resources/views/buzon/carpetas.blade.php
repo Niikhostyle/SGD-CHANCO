@@ -1721,6 +1721,7 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
+
         Swal.fire({
             title: 'Enviar Documento',
             text: "¿Está seguro(a) que desea enviar este documento?",
@@ -3209,6 +3210,7 @@
                     if(data.status=='200')
                     {
                         objDoc=data.data;
+                        //&console.log(data);
                         var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
                         if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
                         {
@@ -3239,7 +3241,13 @@
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
-                        $("input[name='hiddIdTipoDestino']").val(data.data.rel_documento_buzon_actual[0].id_tipo_destino);
+                        console.log(data.data.rel_documento_buzon_actual.length);
+                        if(data.data.rel_documento_buzon_actual.length > 0){
+                            $("input[name='hiddIdTipoDestino']").val(data.data.rel_documento_buzon_actual[0].id_tipo_destino);
+                        }
+                        else{
+                            $("input[name='hiddIdTipoDestino']").val(1);
+                        }
                         $("#idAsignado").html("<b>"+data.data.identificador+"</b>");
 
                         if (data.data.folio != null)
