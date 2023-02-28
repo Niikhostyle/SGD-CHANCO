@@ -93,6 +93,7 @@ Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonCon
 Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
 Route::middleware(['auth:sanctum', 'verified'])->post('vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa_sg/{id}',[BuzonController::class,'vp_sg'])->name('documentos.vp_sg');
+Route::middleware(['auth:sanctum', 'verified'])->get('clonar',[BuzonController::class,'clonar'])->name('documentos.clonar');
 
 
 //tipos de documentos

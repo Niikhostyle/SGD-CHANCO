@@ -4129,6 +4129,51 @@
         $('#addButton').append(buttonGuardar);
     }
 
+    function accion_clonar(id_documento, id_documento_buzon,id_documento_buzon_padre, materia){
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Copiar documento', 
+            html: "Se realizará la Copia (Réplica) del documento <br><strong>"+materia+"</strong>",                      
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/clonar",
+                        type: 'GET',
+                        dataType: 'json',
+                        //dataType: 'binary',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon ,            
+                            idDocumentoBuzonPadre:id_documento_buzon_padre             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success("Documento replicado exitosamente.","¡Aviso!");  
+                                location.reload();                              
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"¡Aviso!");
+                            }
+                        },
+                        error: function (data, jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en la réplica del documento","¡Aviso!");
+                        }
+                    });
+            }
+        })  
+    }
+
     function visualizar_documento_por_recibir(id_documento,id_documento_buzon,id_documento_buzon_padre, destino)
     {           
         $('#titulo_accion').html('Ver Documento'); 
@@ -4462,6 +4507,8 @@
                                         botonera +=' <i class="fas fa-bars"></i>';
                                         botonera +=' </button>';
                                         botonera +='<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                        
+                                        botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_clonar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',\''+row.materia+'\')"  href="#"><i class="fas fa-clone text-blue"></i> Copiar (Réplica)</a>';
 
                                         if (row.id_tipo_destino == 1) //principal
                                         {
@@ -4713,6 +4760,7 @@
                                     botonera +=' <i class="fas fa-bars"></i>';
                                     botonera +=' </button>';
                                     botonera +=' <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+                                    botonera +=' <a class="dropdown-item btn-menu-ver" onclick="accion_clonar('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',\''+row.materia+'\')"  href="#"><i class="fas fa-clone text-blue"></i> Copiar (Réplica)</a>';
 
                                     if (row.id_estado_documento == 1) //B
                                     {

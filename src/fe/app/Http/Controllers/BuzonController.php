@@ -16,6 +16,7 @@ use App\DataTables\UsersDataTable;
 use App\Jobs\Firma;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+use App\Models\DocumentoBuzonBitacora;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -634,10 +635,14 @@ class BuzonController extends Controller
         try 
             {
                 //se crea documento con los datos básicos para la vista previa
+
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $request->cuerpo);
+                $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'),$request->encabezado);
+
                 $documento = new DocumentoTmp();
                 $documento->materia = $request->materia;
-                $documento->encabezado = $request->encabezado;
-                $documento->cuerpo = $request->cuerpo;
+                $documento->encabezado = $datosDocumentosencabezado;//$request->encabezado;
+                $documento->cuerpo = $datosDocumentosCuerpo;//$request->cuerpo;
                 $documento->save();
                 
                 return $documento;
@@ -752,5 +757,148 @@ class BuzonController extends Controller
         return datatables( $datos )->toJson();
     }   
     
+    public function clonar(Request $request)
+    {
+        $nIDDocumento = $request->idDocumento;
+        $nDocumentoBuzon = $request->idDocumentoBuzon;
+        $nDocumentoBuzonPadre = $request->idDocumentoBuzonPadre;
+
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        try{
+            DB::beginTransaction();
+
+            $DocumentoOriginal = Documento::where('id_documento',$nIDDocumento)->get();     
+
+            $DocumentoBuzonOriginal = DocumentoBuzon::where('id_documento_buzon',$nDocumentoBuzon)->get(); 
+
+            $nTipoDoc = $DocumentoOriginal[0]->id_tipo_documento;
+            
+            $msVerTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+            ->timeout(30)
+            ->withBody(json_encode([
+                'id_tipo_documento' => $nTipoDoc,
+            ]), 'json')
+            ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
+
+            $nFolio = null;
+            $anio = date('Y');
+
+            
+            $idTipoFolio = $msVerTipoDoc['data']['id_tipo_folio'];
+            /** CODIGO PARA OBTENER FOLIO CUANDO TIPO ASIGNACIÓN ES EN LA CREACIÓN  **/
+            
+            if( $msVerTipoDoc['data']['id_tipo_asignacion_folio'] == 1) //creación
+            { 
+                $nFolio = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+                ->timeout(30)
+                ->withBody(json_encode([
+                    'id_tipo_documento' => $nTipoDoc,
+                    'anio' => $anio,
+                    'id_buzon' => null,
+                    'id_tipo_folio' =>  $idTipoFolio,
+                ]), 'json')
+                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                
+            }
+            
+            /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
+
+            $dFechaCreacion = date('Y-m-d');
+            
+            $jsonTipoDocumento = $msVerTipoDoc->json();
+
+            //hash validación
+            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
+            $sHash = hash('sha256', $sparamHash, false);
+
+
+            $jsonRespuesta = array(); 
+            if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1)
+            {
+                if ($DocumentoOriginal[0]->son_respuesta_a != "" && $DocumentoOriginal[0]->json_respuesta_a != null)
+                {                              
+                    foreach($DocumentoOriginal[0]->json_respuesta_a as $resp)
+                    {
+                        $datosRespuesta = Documento::where('id_documento','=', $resp)->select('id_documento','identificador', 'materia','created_at')->first();
+                        $jsonRespuesta[] = $datosRespuesta;                            
+                    }   
+                }
+            }
+
+            $documento = Documento::create([
+                'id_tipo_documento' => $DocumentoOriginal[0]->id_tipo_documento,
+                'id_nivel_acceso' => $DocumentoOriginal[0]->id_nivel_acceso,
+                'efectos_terceros' => $DocumentoOriginal[0]->efectos_terceros,
+                'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
+                'json_respuesta_a' => json_encode($jsonRespuesta),
+                'materia' => "(Réplica) ".$DocumentoOriginal[0]->materia,
+                'anterior' => $DocumentoOriginal[0]->anterior,
+                'descripcion' => $DocumentoOriginal[0]->descripcion,
+                'encabezado' => $DocumentoOriginal[0]->encabezado,
+                'cuerpo' => $DocumentoOriginal[0]->cuerpo,
+                'fecha' => $dFechaCreacion,
+                'hash_validacion' => $sHash,
+                'folio' => $nFolio                    
+            ]);
+
+            $fContestarHasta =  $DocumentoOriginal[0]->contestar_hasta;
+            if($fContestarHasta == ""){
+                $fContestarHasta = "null";
+            }
+            $documento = $documento->fresh();
+            DB::enableQueryLog(); 
+            // $documentoBuzon = DocumentoBuzon::create([
+            //     'id_documento' => $documento->id_documento,
+            //     'id_buzon' => $DocumentoBuzonOriginal[0]->id_buzon,
+            //     'id_carpeta' => 3,
+            //     'id_estado_documento' => 1,
+            //     'id_tipo_destino' => 1,
+            //     'id_documento_buzon_padre' => null,
+            //     'fecha' => $dFechaCreacion,
+            //     'contestar_hasta' => $fContestarHasta,
+            //     'notificado' => false,
+            //     'recibido' => false,
+            //     'favorito' => false
+            // ]);
+            //dd(DB::getQueryLog());
+            db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."',".$fContestarHasta.",false,false,false)");
+            $idDocumentoBuzon = DB::getPdo()->lastInsertId();
+
+            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
+                'id_documento_buzon' => $idDocumentoBuzon,
+                'id_accion' => 1,
+                'fecha' => $dFechaCreacion,
+                'id_usuario' => Auth::user()->id
+            ]);
+
+
+            
+            if ($nFolio != null)
+            {
+                //registrar accion de asignacion de folio en bitacora
+                $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
+                    'id_documento_buzon' => $idDocumentoBuzon,
+                    'id_accion' => 9,
+                    'fecha' => $dFechaCreacion,
+                    'id_usuario' => Auth::user()->id
+                ]);
+            }
+            
+            $documento->rel_documento_buzon;
+            DB::commit();
+
+            return $this->respondSuccess($documento, 200);
+
+        }
+        catch (ModelNotFoundException $e){
+            
+            DB::rollBack();
+            //return $e->getMessage();
+            return $this->respondError('Falla al crear documento:' . $e->getMessage(), 500);
+            
+        }
+
+    }
 
 }
