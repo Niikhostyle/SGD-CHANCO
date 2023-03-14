@@ -221,8 +221,7 @@ class DocumentoBuzonArchivoController extends Controller
         }
 
         //reservado
-        
-        if($nAcceso=='2'){
+        if($nAcceso=='2' || $nAcceso=='3'){
             
             $Usuariosderivaciones = DocumentoBuzon::join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
            // ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
@@ -264,43 +263,44 @@ class DocumentoBuzonArchivoController extends Controller
             
         }  
 
-        //confidencial
-        if($nAcceso=='3'){
-            $idUsuarios =  DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')                               
-                                        ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
-                                        ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
-                                        ->where('nombre_archivo_codificado', $filename)
-                                        ->where('id_usuario', '>', 0)
-                                        ->select('buzon_usuario.id_usuario as id_usuario')
-                                        ->get(); 
-            $aUsuarios=[];
-            foreach ($idUsuarios as $valor ){
-                $aUsuarios[] = $valor['id_usuario'];
-            }
+        //confidencial 
+        // if($nAcceso=='3'){
+           
+        //     $idUsuarios =  DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')                               
+        //                                 ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+        //                                 ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+        //                                 ->where('nombre_archivo_codificado', $filename)
+        //                                 ->where('id_usuario', '>', 0)
+        //                                 ->select('buzon_usuario.id_usuario as id_usuario')
+        //                                 ->get(); 
+        //     $aUsuarios=[];
+        //     foreach ($idUsuarios as $valor ){
+        //         $aUsuarios[] = $valor['id_usuario'];
+        //     }
             
-            if (in_array($usuario, $aUsuarios)){
-                $valido = true;
-                $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
+        //     if (in_array($usuario, $aUsuarios)){
+        //         $valido = true;
+        //         $path = storage_path(config('app.path_files')) . $filename;//config('app.path_files')
     
-                if (!File::exists($path)) {
-                    abort(404);
-                }
+        //         if (!File::exists($path)) {
+        //             abort(404);
+        //         }
 
-                $file = File::get($path);
-                $type = File::mimeType($path);
+        //         $file = File::get($path);
+        //         $type = File::mimeType($path);
                 
-                $response = Response::make($file, 200);
-                $response->header("Content-Type", $type);
+        //         $response = Response::make($file, 200);
+        //         $response->header("Content-Type", $type);
 
-                return $response;
-            }
+        //         return $response;
+        //     }
 
-            if($valido==false){
-                 //cuando no tiene acceso al documento
-                 return View::make('pruebaPublica');
-            }
+        //     if($valido==false){
+        //          //cuando no tiene acceso al documento
+        //          return View::make('pruebaPublica');
+        //     }
             
-        }  
+        // }  
         //return $response;
     }
 
