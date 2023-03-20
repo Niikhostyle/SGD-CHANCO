@@ -33,7 +33,7 @@
 			</div>
 			<h2>Lo sentimos, Usted no tiene acceso a este documento</h2>
 			<br>
-			<a href="/">Volver al inciio</a>
+			<a href="/">Volver al incio</a>
 		</div>
 	</div>
 
