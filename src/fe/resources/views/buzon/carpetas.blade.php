@@ -850,7 +850,7 @@
         url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        maxFilesize: 50, //MB
+        maxFilesize: 4, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
@@ -870,7 +870,6 @@
             }
 
             $(".btn-delete").click(function () {
-                console.log('delete');
                 dropzoneAnexo.removeAllFiles(true);
                 }
             );
