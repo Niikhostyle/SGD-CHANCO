@@ -154,17 +154,54 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="form_contacto">Número Contacto</label>
+                        <input  type="text" class="form-control" id="form_contacto" name="form_contacto" aria-describedby="run_error" placeholder="999999999" value="" >
+                        
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="for_cargo">Cargo</label>
+                        <input type="text" class="form-control" id="form_cargo" name="form_cargo" placeholder="administrativo" aria-describedby="cargo_error"  value="">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="for_foto">Fotografía Perfil</label>
+                        <input type="file" accept="image/*" class="form-control" id="form_foto" name="form_foto" aria-describedby="imagen_error" placeholder="">
+                        <input type="hidden" id="hiddFoto" name="hiddFoto" value="" >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                   <span id="displayImgPerfil"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="input_contrasena">Contraseña</label>
                         <input type="password" class="form-control" id="form_contrasena" name="password" aria-describedby="contrasena_error"  >
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-1">
                     <div class="form-group">
-                        <label for="input_reescribir_contrasena">Reescribir-Contraseña</label>
+                    <br/><br/><i class="fa fa-eye" id="mostrarC"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="input_reescribir_contrasena">Reescribir Contraseña</label>
                         <input type="password" class="form-control" id="form_reescribir_contrasena" name="re_password" aria-describedby="reescribir_contrasena_error" >
 
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                    <br/><br/><i class="fa fa-eye" id="mostrarCC"></i>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -272,6 +309,7 @@
             $('.btn-submit').show();
             $('#form_run').focus();
             $(".displayImg").html('');
+            $("#displayImgPerfil").html('');
         });
 
         $(".btn_cerrar_guardar").click(function(e){
@@ -436,6 +474,35 @@
             var data = table.row($(this).parents('tr')).data();
             alert(data['salary']);
         });
+
+        $('#mostrarC').on('click', function(){
+            var passInput=$("#form_contrasena");
+            if(passInput.attr('type')==='password'){
+                passInput.attr('type','text');
+                $('#mostrarC').removeClass('fa-eye');
+                $('#mostrarC').addClass('fa-eye-slash');
+            }else{
+                passInput.attr('type','password');
+                $('#mostrarC').removeClass('fa-eye-slash');
+                $('#mostrarC').addClass('fa-eye');
+            }
+        });
+
+        $('#mostrarCC').on('click', function(){
+            var passInput=$("#form_reescribir_contrasena");
+            if(passInput.attr('type')==='password'){
+                passInput.attr('type','text');
+                $('#mostrarCC').removeClass('fa-eye');
+                $('#mostrarCC').addClass('fa-eye-slash');
+            }else{
+                passInput.attr('type','password');
+                $('#mostrarCC').removeClass('fa-eye-slash');
+                $('#mostrarCC').addClass('fa-eye');
+            }
+        });
+
+
+
     });
 
     function editar_usuario(identificador){
@@ -462,6 +529,8 @@
                                     $("input[name='segundo_apellido']").val(data.data.segundo_apellido);
                                     $("input[name='email']").val(data.data.email);
                                     $("input[name='form_id_usuario']").val(data.data.id);
+                                    $("input[name='form_contacto']").val(data.data.numero_contacto);
+                                    $("input[name='form_cargo']").val(data.data.cargo);
                                     if(data.data.aplica_fea==true){
                                         $("select[name='aplica_fea']").val('true');
                                     }else if(data.data.aplica_fea==false){
@@ -475,6 +544,7 @@
                                     
                                     //cargar imagen                                    
                                     $("input[name='hiddFirma']").val(data.data.img_firma); 
+                                    $("input[name='hiddFoto']").val(data.data.img_perfil);
 
                                     //mostrar imagen
                                     if (data.data.img_firma != "" && data.data.img_firma != null)
@@ -484,6 +554,15 @@
                                     } 
                                     else
                                         $(".displayImg").html('');
+                                    
+                                    //mostrar foto perfil
+                                    if (data.data.img_perfil != "" && data.data.img_perfil != null)
+                                    {
+                                        var pathImg = '/files/imagen_perfil/' + data.data.img_perfil;
+                                        $("#displayImgPerfil").html('<a href="'+pathImg+'" target="_blank" title="Ver foto"><img src="'+pathImg+'"  width="100" height="100"/></a>');
+                                    } 
+                                    else
+                                        $("#displayImgPerfil").html('');
 
                                 }
                             }
