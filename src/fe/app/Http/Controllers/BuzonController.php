@@ -832,7 +832,7 @@ class BuzonController extends Controller
                 'efectos_terceros' => $DocumentoOriginal[0]->efectos_terceros,
                 'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
                 'json_respuesta_a' => json_encode($jsonRespuesta),
-                'materia' => "(Réplica) ".$DocumentoOriginal[0]->materia,
+                'materia' => "(Copia) ".$DocumentoOriginal[0]->materia,
                 'anterior' => $DocumentoOriginal[0]->anterior,
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
                 'encabezado' => $DocumentoOriginal[0]->encabezado,

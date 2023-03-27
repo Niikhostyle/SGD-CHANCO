@@ -3292,7 +3292,6 @@
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,33);         
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,44);  
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -5520,6 +5519,7 @@
                                                                                 if(data.status == '200')
                                                                                 {
                                                                                     toastr.success("Documento Derivado","¡Aviso!");
+                                                                                    location.reload();
                                                                                 }
                                                                                 else
                                                                                 {
@@ -5733,6 +5733,7 @@
         sessionStorage.removeItem('td_recibidos');
         sessionStorage.removeItem('estados_recibidos');
         sessionStorage.removeItem('materia_recibidos');
+        sessionStorage.removeItem('carpeta_seleccionada');
     }
 
     function cargar_filtros_guardados(){
