@@ -27,105 +27,154 @@
             <input type="hidden" value="{{ $datos[0]->email }}" name="email" />
             <input type="hidden" value="{{ $datos[0]->aplica_fea }}" name="aplica_fea" />
             <input type="hidden" value="{{ $datos[0]->genera_pdf }}" name="genera_pdf" />
+            <input type="hidden" value="{{ $datos[0]->id_perfil }}" name="id_perfil" />
+            <input type="hidden" value="{{ $datos[0]->id_estado_usuario }}" name="id_estado_usuario" />
             <input type="hidden" value="{{ $datos[0]->img_firma }}" id="hiddFirma" name="hiddFirma" />
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-lg-5 d-block d-lg-none text-center">
                     <div class="form-group">
-                        <label for="form_run">RUN</label>
-                        <input disabled type="text" class="form-control" id="form_run" name="form_run" aria-describedby="run_error" placeholder="99229922-1" value="{{$datos[0]->run}}">
+                        <span id="foto_perfil_md"></span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_run">RUT</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input disabled type="text" class="form-control" id="form_run" name="form_run" aria-describedby="run_error" placeholder="99229922-1" value="{{$datos[0]->run}}">
+                            </div>
+                        </div>
                         <input type="hidden" name="form_id_usuario" value="{{$datos[0]->id}}">
                     </div>
-                </div>
-                <div class="col-md-8">
                     <div class="form-group">
-                        <label for="form_nombres">Nombre</label>
-                        <input disabled type="text" class="form-control" id="form_nombres" name="form_nombres" aria-describedby="nombres_error" value="{{$datos[0]->nombres}} {{$datos[0]->primer_apellido}} {{$datos[0]->segundo_apellido}}" required="">
+                        <div class="row">
+                                <div class="col-md-3">
+                                    <label for="form_nombres">Nombres</label>
+                                </div>
+                                <div class="col-md-9">
+                                    <input disabled type="text" class="form-control" id="form_nombres" name="form_nombres" aria-describedby="nombres_error" value="{{$datos[0]->nombres}}" required="">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_nombres">Apellido Paterno</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input disabled type="text" class="form-control" id="form_primer" name="form_primer" aria-describedby="primer_error" value="{{$datos[0]->primer_apellido}}" required="">
+                            </div>
+                        </div>
                         
                     </div>
-                </div>
-            </div>    
-            <div class="row">
-                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="form_nombres">Perfil</label>
-                        <input disabled type="text" class="form-control" id="form_perfil" name="form_perfil" aria-describedby="perfil_error" value="{{ $datos[0]->perfil}}" >
-                        <input type="hidden" name="id_perfil" value="{{ $datos[0]->id_perfil}}" />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_nombres">Apellido Materno</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input disabled type="text" class="form-control" id="form_segundo" name="form_segundo" aria-describedby="segundo_error" value="{{$datos[0]->segundo_apellido}}" required="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="for_correo">Correo Electrónico</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input disabled type="text" class="form-control" id="form_correo" name="form_correo" aria-describedby="run_error" value="{{$datos[0]->email}}" required="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="for_foto">Fotografía Perfil</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="file" accept="image/*" class="form-control" id="form_foto" name="form_foto" aria-describedby="imagen_error" placeholder="">
+                                <input type="hidden" id="hiddFoto" name="hiddFoto" value="{{ $datos[0]->img_perfil }}" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="for_cargo">Cargo</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="form_cargo" name="form_cargo" placeholder="administrativo" aria-describedby="cargo_error"  value="{{$datos[0]->cargo}}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_contacto">Número Contacto</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input  type="text" class="form-control" id="form_contacto" name="form_contacto" aria-describedby="run_error" placeholder="999999999" value="{{$datos[0]->numero_contacto}}" >
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-5 d-none d-lg-block text-center">
                     <div class="form-group">
-                        <label for="select_estado">Estado</label>
-                        <input disabled type="text" class="form-control" id="form_nombres" name="form_nombres" aria-describedby="run_error" value="{{ $datos[0]->estado}}" >
-                        <input type="hidden" name="id_estado_usuario" value="{{ $datos[0]->id_estado_usuario}}" />
-                    </div>    
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="for_correo">Correo Electrónico</label>
-                        <input disabled type="text" class="form-control" id="form_correo" name="form_correo" aria-describedby="run_error" value="{{$datos[0]->email}}" required="">
+                        <span id="foto_perfil"></span>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-12">
                     <div class="form-group">
-                        <label for="form_contacto">Número Contacto</label>
-                        <input  type="text" class="form-control" id="form_contacto" name="form_contacto" aria-describedby="run_error" placeholder="999999999" value="{{$datos[0]->numero_contacto}}" >
-                        
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="for_cargo">Cargo</label>
-                        <input type="text" class="form-control" id="form_cargo" name="form_cargo" placeholder="administrativo" aria-describedby="cargo_error"  value="{{$datos[0]->cargo}}">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="for_foto">Fotografía Perfil</label>
-                        <input type="file" accept="image/*" class="form-control" id="form_foto" name="form_foto" aria-describedby="imagen_error" placeholder="">
-                        <input type="hidden" id="hiddFoto" name="hiddFoto" value="{{ $datos[0]->img_perfil }}" >
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                   <span id="foto_perfil"></span>
+                        Cambiar Contraseña&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="btnCambiar"  data-toggle="toggle" data-on=" " data-off=" " data-onstyle="success" data-offstyle="secondary"  data-size="mini">
                     </div>
                 </div>
             </div>
             <div class="row" id="divClave" style="display:none;">
-                <div class="col-md-4">
+                <div class="col-md-7">
                     <div class="form-group">
-                        <label for="form_clave">Contraseña</label>
-                        <input  type="password" class="form-control" id="form_contrasena" name="password" aria-describedby="contrasena_error" placeholder="" value="" >
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_clave">Contraseña</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input  type="password" class="form-control" id="form_contrasena" name="password" aria-describedby="contrasena_error" placeholder="" value="" >
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <i class="fa fa-eye" id="mostrarC"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                </div>
-                <div class="col-md-1">
                     <div class="form-group">
-                    <br/><br/><i class="fa fa-eye" id="mostrarC"></i>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="form_confirmar_clave">Reescribir Contraseña</label>
-                        <input type="password" class="form-control" id="form_confirmar_contrasena" name="re_password" aria-describedby="reescribir_contrasena_error" placeholder="" value="" required>
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-group">
-                    <br/><br/><i class="fa fa-eye" id="mostrarCC"></i>
-                    </div>
-                </div>
-            </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <input type="checkbox" id="btnCambiar" class="btn-cambiar">&nbsp;&nbsp;&nbsp;Cambiar Contraseña&nbsp;&nbsp;&nbsp;&nbsp;
-                            <button type="button" class="btn btn-success btn-actualizar" >Actualizar</button>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="form_confirmar_clave">Reescribir Contraseña</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="password" class="form-control" id="form_confirmar_contrasena" name="re_password" aria-describedby="reescribir_contrasena_error" placeholder="" value="" required>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <i class="fa fa-eye" id="mostrarCC"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-success btn-actualizar" >Actualizar</button>
+                    </div>
+                </div>
+            </div>
             </form>
     </div>
 </div>
@@ -200,6 +249,8 @@
     
 </style>
 <link rel="stylesheet" href="/css/admin_custom.css">
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
 @stop
 @section('js')
 
@@ -219,13 +270,31 @@
 
 <!-- Select2 JS --> 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script>
     $(document).ready(function () {
         if('{{ $datos[0]->img_perfil }}' != ''){
             var pathImg = '/files/imagen_perfil/{{$datos[0]->img_perfil}}';
-            $("#foto_perfil").html('<a href="'+pathImg+'" target="_blank" title="Ver foto"><img src="'+pathImg+'"  width="100" height="100"/></a>');
+            $("#foto_perfil").html('<a href="'+pathImg+'" target="_blank" title="Ver foto"><img src="'+pathImg+'" style="border-radius: 50%;padding: 20px; width:50%" /></a>');
+            $("#foto_perfil_md").html('<a href="'+pathImg+'" target="_blank" title="Ver foto"><img src="'+pathImg+'" style="border-radius: 50%;padding: 20px; width:50%" /></a>');
         }
+
+        $('#btnCambiar').change(function() {
+            if($(this).prop('checked')){
+                $('#divClave').toggle();
+                if($('#divClave').is(":visible")){
+                    $('.btn-cambiar').html('Ocultar Contraseña');
+                }
+                else{
+                    $('.btn-cambiar').html('Ver Contraseña');
+                }
+                $("#form_clave").attr('type','password');
+                $("#form_confirmar_clave").attr('type','password');
+            }
+            else{
+                $('#divClave').toggle();
+            }
+        })
     });
 
     $('.btn-cambiar').click(function() {
@@ -306,6 +375,8 @@
                 errores = errores + 1;
             }
         }
+
+        
 
         if(errores == 0 ) {
             var formData = new FormData($("#fEditarPerfil")[0]);

@@ -23,14 +23,14 @@
                  alt="{{ Auth::user()->name }}">
         @endif
         <span @if(config('adminlte.usermenu_image')) class="d-none d-md-inline" @endif>
-            <div style="width:250px;float:left;padding-top:40px;text-align: right;">
-                {{ Auth::user()->nombres }} {{ Auth::user()->primer_apellido }}
-            </div>
             @if(Auth::user()->img_perfil)
             <div style="width:50px;float:left;padding:10px;margin-left: 12px;">
                 <img src="/files/imagen_perfil/{{Auth::user()->img_perfil}}" style="border-radius: 30px;width:50px;height:50px;"/> 
             </div>
             @endif
+            <div style="max-width:250px;float:left;padding-top:40px;text-align: left;margin-left: 12px;">
+                {{ strtoupper(Auth::user()->nombres) }} {{ strtoupper(Auth::user()->primer_apellido) }}
+            </div>
            
 
         </span>
