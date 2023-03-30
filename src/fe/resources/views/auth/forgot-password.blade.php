@@ -2,12 +2,14 @@
 <style>
     .box-login{
         border-radius: 50px;
+        width: 50%;
+        margin: auto;
     }
 </style>
 <script src="js/inicio/jquery.min.js"></script>
 <section class="content bg">
-        <div class="container  m-t-10 m-b-10">
-            <div class="col-md-6" style="margin-left: 20%;">
+        <div class="container">
+            <div class="col-md-12">
                 <div class="box box-login p-5">
                     <!-- @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
@@ -32,7 +34,7 @@
                                 <h2 id="span-titulo" style="color:#444;font-size: 30px;word-spacing: 2px;"> SISTEMA DE GESTIÓN<br/>DOCUMENTAL </h2>
                                 <h1 id="span-titulo" style="color:#2E71EA;font-size: 25px;word-spacing: 2px;">¿Olvidó su contraseña?</h1>
                                 <p>
-                                    Favor indíquenos su dirección de correo electrónico y enviaremos un enlace para restablecer la contraseña que le permitirá crear una nueva.
+                                Favor ingrese su correo electrónico y enviaremos un enlace para restablecer la contraseña.
                                 </p>
                             </div>
                         </div>
@@ -50,13 +52,14 @@
                                     <x-jet-label for="email"  />
                                     <x-jet-input id="email" class="form-control text-center" type="email" name="email" :value="old('email')" required autofocus placeholder="Ingrese su correo electrónico municipal" />
                                 </div>
-                                <div class="text-center p-3">
+                                <div class="row text-center p-3">
                                     <x-jet-button class="btn" style="background-color: #2e71e8;">
-                                        {{ __('Reestablecer Contraseña') }}
+                                        {{ __('Reestablecer') }}
                                     </x-jet-button>
                                 </div>
                             </form>
                             <div class="text-center p-2">
+                            
                                 <x-jet-button class="btn" style="background-color: #2e71e8;" onclick="location.href='/login';">
                                 VOLVER
                                 </x-jet-button>

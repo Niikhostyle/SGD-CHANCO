@@ -45,8 +45,8 @@
 
         <footer class="footer_login  m-b-0 text-sm">
             <div class="row">
-                <div class="col-md-12">
-                  <span class="help-block m-r-20 m-l-20 text-center">
+                <div class="col-md-12  text-center">
+                  <span class="help-block m-r-20 m-l-20">
                       2021 © Padre Las casas Maquehue 1441 - 45 2 590 000
                   </span>
                 </div>

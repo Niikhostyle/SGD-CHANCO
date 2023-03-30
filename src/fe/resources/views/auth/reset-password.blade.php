@@ -19,7 +19,9 @@
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <style>
             .box-login{
-                border-radius: 50px !important;
+                border-radius: 50px;
+                width: 50%;
+                margin: auto;
             }
             blockquote {
                 background: orange;
@@ -107,8 +109,8 @@
         </header> -->
         <div class="font-sans text-gray-900 antialiased">
             <section class="content bg">
-                <div class="container  m-t-10 m-b-10">
-                    <div class="col-md-6" style="margin-left: 20%;">
+                <div class="container">
+                    <div class="col-md-12">
                         <div class="box box-login p-5">
                             @if (session('status'))
                                 <div class="mb-4 font-medium text-sm text-green-600">
@@ -165,13 +167,10 @@
                                             <i id="togglePasswordC" class="fa fa-eye" style="margin-left: -30px;padding-top:10px; cursor: pointer;"></i>
                                         </div>
 
-                                        <div class="text-center pt-4">
-                                            <!-- <x-jet-button  class="btn" style="background-color: #2e71e8;">
-                                                REESTABLECER CONTRASEÑA
-                                            </x-jet-button> -->
-                                            <button type="button"  class="btn" style="background-color: #2e71e8; color:#fff" onclick="validar();">
-                                                REESTABLECER CONTRASEÑA
-                                            </button>
+                                        <div class="row text-center pt-4">
+                                            <x-jet-button  class="btn" style="background-color: #2e71e8;">
+                                                REESTABLECER
+                                            </x-jet-button>
                                         </div>
                                     </form>
                                 </div>

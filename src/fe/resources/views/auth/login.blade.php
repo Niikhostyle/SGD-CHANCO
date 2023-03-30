@@ -6,6 +6,8 @@
     <style>
         .box-login{
             border-radius: 50px;
+            width: 50%;
+            margin: auto;
         }
     </style>
     <script src="js/inicio/jquery.min.js"></script>
@@ -26,8 +28,8 @@
         });
     </script>
     <section class="content bg">
-        <div class="container  m-t-10 m-b-10">
-            <div class="col-md-6" style="margin-left: 20%;">
+        <div class="container">
+            <div class="col-md-12">
                 <div class="box box-login p-5">
                     @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
@@ -50,7 +52,7 @@
                         <div class="row">
                             <div class="col-12 text-center">
                                 <h2 id="span-titulo" style="color:#444;font-size: 30px;word-spacing: 2px;"> SISTEMA DE GESTIÓN<br/>DOCUMENTAL </h2>
-                                <h1 id="span-titulo" style="color:#2E71EA;font-size: 25px;word-spacing: 2px;">Bienvenido</h1>
+                                <h1 id="span-titulo" style="color:#2E71EA;font-size: 25px;word-spacing: 2px;">Bienvenido/a</h1>
                             </div>
                         </div>
                         <div class="row">
