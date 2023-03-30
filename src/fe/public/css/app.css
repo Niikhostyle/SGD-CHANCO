@@ -2281,7 +2281,7 @@ margin-top: 10px;
 
 
 .bg {
-        background-image: url("/img/fondo-login/fondo.jpeg");
+        background-image: url("/img/fondo-login/fondo.jpg");
         /* Full height */
         height: calc(100vh - 82px);
         height: -moz-calc(100vh - 82px);
