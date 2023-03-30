@@ -19,9 +19,9 @@
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <style>
             .box-login{
-                border-radius: 50px;
-                width: 50%;
-                margin: auto;
+                border-radius: 50px !important;
+                width: 50% !important;
+                margin: auto !important;
             }
             blockquote {
                 background: orange;
@@ -168,9 +168,9 @@
                                         </div>
 
                                         <div class="row text-center pt-4">
-                                            <x-jet-button  class="btn" style="background-color: #2e71e8;">
+                                            <button class="btn" style="background-color: #2e71e8; color:#fff" type="button" onclick="validar()">
                                                 REESTABLECER
-                                            </x-jet-button>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
