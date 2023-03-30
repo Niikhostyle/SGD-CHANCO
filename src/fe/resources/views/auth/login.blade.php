@@ -3,88 +3,107 @@
     <!-- Content Header (Page header) -->
     <x-guest-layout>
     <!-- Main content -->
-    
+    <style>
+        .box-login{
+            border-radius: 50px;
+        }
+    </style>
+    <script src="js/inicio/jquery.min.js"></script>
+    <script>
+        jQuery(document).ready(function () {    
+            jQuery('#togglePassword').on('click', function(){
+                var passInput=$("#password");
+                if(passInput.attr('type')==='password'){
+                    passInput.attr('type','text');
+                    $('#togglePassword').removeClass('fa-eye');
+                    $('#togglePassword').addClass('fa-eye-slash');
+                }else{
+                    passInput.attr('type','password');
+                    $('#togglePassword').removeClass('fa-eye-slash');
+                    $('#togglePassword').addClass('fa-eye');
+                }
+            });
+        });
+    </script>
     <section class="content bg">
         <div class="container  m-t-10 m-b-10">
-            <div class="col-md-6 col-sm-6">
-                <div class="box modif box-login">
+            <div class="col-md-6" style="margin-left: 20%;">
+                <div class="box box-login p-5">
                     @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
                             {{ session('status') }}
                         </div>
                     @endif
-                    
                     <div class="box-body" style="padding: 2em;">
-                        <span class="help-block p-l-10">Ingrese su correo electrónico y contraseña</span>
+                        <div class="row">
+                            <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
+                                <img class="img mx-auto " src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_plc">
+                            </div>
+                            <div class="col-md-2 col-xs-2 col-lg-2">
+                                &nbsp;
+                            </div>
 
-
-                                <x-jet-validation-errors class="mb-12" />
-
-                                @if (session('status'))
-                                    <div class="mb-4 font-medium text-sm ">
-                                        {{ session('status') }}
-                                    </div>
-                                @endif
-
-                                
-                                <form method="POST" action="{{ route('login') }}">
-                                    @csrf
-
-                                    <div>
-                                        <label for="email" value="{{ __('Correo Electronico') }}" >Correo Electronico</label>
-                                        <input type="email" class="form-control" id="email" type="email" name="email" :value="old('email')" placeholder="Correo electrónico" required autofocus >
-                                    </div>
-
-                                    <div class="mt-4">
-                                        <label for="password" value="{{ __('Contraseña') }}" >Contraseña</label>
-                                        <input id="password" class="form-control" type="password" name="password" placeholder="Contraseña" required autocomplete="current-password" >
-                                    </div>
-
-                                    <div class="block mt-4">
-                                        <label for="remember_me" class="flex items-center">
+                            <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
+                                <img class="img mx-auto" src="{{ asset('img/logoSGD.png') }}" alt="" id="logo_sgd">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h2 id="span-titulo" style="color:#444;font-size: 30px;word-spacing: 2px;"> SISTEMA DE GESTIÓN<br/>DOCUMENTAL </h2>
+                                <h1 id="span-titulo" style="color:#2E71EA;font-size: 25px;word-spacing: 2px;">Bienvenido</h1>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <x-jet-validation-errors class="mb-12" />
+                            @if (session('status'))
+                                <div class="mb-4 font-medium text-sm ">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
+                                <div class="row p-5">
+                                    <!-- <label for="email" value="{{ __('Correo Electronico') }}" >Correo Electronico</label> -->
+                                    <p>
+                                    <input type="email"  style="float:left;"  class="form-control text-center" id="email" type="email" name="email" :value="old('email')" placeholder="Ingrese su correo municipal" required autofocus >
+                                    <span><i id="mail" class="fa fa-envelope" style="margin-left: -30px;padding-top:10px;"></i></span>
+                                    </p>
+                                    <!-- <br/> -->
+                                    <p>
+                                    <input id="password"  style="float:left;" class="form-control text-center" type="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password" >
+                                    <span id="showPwd"><i id="togglePassword" class="fa fa-eye" style="margin-left: -30px;padding-top:10px; cursor: pointer;"></i></span>
+                                    </p>
+                                </div>
+                                <div class="text-center">
+                                    <x-jet-button class="btn" style="background-color: #2e71e8;">
+                                        {{ __('Acceder') }}
+                                    </x-jet-button>
+                                </div>
+                                <div class="row pt-3">
+                                    <div class="col-md-6 text-center">
+                                        <label for="remember_me" >
                                             <x-jet-checkbox id="remember_me" name="remember" />
-                                            <span class="ml-2 text-sm text-gray-600">{{ __('Recordar Contraseña') }}</span>
+                                            <span class="">&nbsp;{{ __('Recordar Contraseña') }}</span>
                                         </label>
                                     </div>
-
-                                    <div class="flex items-center justify-end mt-4">
-                        
-
-                                        <x-jet-button class="btn btn-block login-btn mb-4" style="background-color: #2e71e8;">
-                                            {{ __('Iniciar') }}
-                                        </x-jet-button>
-                                    </div>
-                                    <div class="flex items-center justify-end mt-4">
+                                    <div class="col-md-6 text-center">
                                         @if (Route::has('password.request'))
-                                            <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}" style="padding-right: 81%;">
-                                                {{ __('Olvido la clave?') }}
+                                            <a class="" style="color:#2e71e8;font-weight:bold" href="{{ route('password.request') }}" >
+                                                {{ __('¿Olvidó su contraseña?') }}
                                             </a>
                                         @endif
-
                                     </div>
-                                </form>
-                        
-
+                                </div>
+                            </form>
+                        </div>
+                        <div class="row pt-5">
+                            <div class="col-12">
+                            <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
+                            </div>
+                        </div>
                      </div>
-                     
                  </div>
             </div>
-
-            <div class="col-md-6 col-sm-6 text-center bg-white" style="opacity:0.8;border-radius: 10px;
-    padding: 3em;">
-                <div>
-                    <h2 id="span-titulo" style="color:#444;    font-size: 35px;letter-spacing: 2px;word-spacing: 2px;"> SISTEMA DE GESTIÓN DOCUMENTAL </h2>
-                    <!--<div><span id="span-titulo2">Municipalidad De Padre Las Casas</span></div>-->
-                </div>
-                <div class="col-sm-6 col-sm-offset-3 ">
-                        <img class="img img-fluid m-1" src="{{ asset('img/logo_plc-2022.png') }}" alt="" id="logo_plcx" >
-                        <img class="img img-fluid m-1" src="{{ asset('img/logo_calidad_plc.png') }}" alt="" >
-                </div>
-               
-              
-            </div>
-            <div class="col-md-1 col-sm-1"></div>
-
         </div>
     </section>
 </x-guest-layout>
