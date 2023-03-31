@@ -5197,7 +5197,6 @@
                         Swal.close();
                         toastr.success("Documentos Recepcionados","¡Aviso!");
                         fn_grilla_por_recibir();    
-                        sessionStorage.setItem('carpeta_seleccionada','Recibidos');
                         location.reload();
                     });
                 }
