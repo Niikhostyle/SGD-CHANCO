@@ -452,7 +452,8 @@ class BuzonController extends Controller
             'comentarioPrincipal'=>$request->comentarioPrincipal,
             'comentarioOtros'=>$request->comentarioOtros,
             'carpeta'=>$request->carpeta,
-            'opcionGuardar'=>$request->opcionGuardar
+            'opcionGuardar'=>$request->opcionGuardar,
+            'aParaFirma'=>$request->aParaFirma
         ]);
 
         return $accionDocumento->json();
@@ -551,6 +552,9 @@ class BuzonController extends Controller
     public function firmar_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
+
+//return $id; 145
+//{"_token":"gYOmKqKRLqzVzBzjLxY5OYUJlnV1LMNulb19DKsb","hiddIdDocumento":"66","buzon":"1","accion":"7"}
         $datosFea = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(100)        
         ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  

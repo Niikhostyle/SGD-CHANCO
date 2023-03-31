@@ -191,8 +191,10 @@ class DocumentoController extends Controller{
             {
                 DB::beginTransaction();
 
-                $datosRequest = $request->json()->all();
-
+                $datosRequest = $request->json()->all();    
+                
+                               
+                //print_r($datosRequest);exit;
                 //$validator = $this->validator->validateUpdate();
 
                 //if ($validator->fails())
@@ -295,6 +297,25 @@ class DocumentoController extends Controller{
                         }
                         else
                             $datosRequest['json_respuesta_a'] = $datosDocumento['json_respuesta_a'];
+
+                        //guarda firmas anexos
+
+                        if ($datosRequest['aParaFirma'] != "" || $datosRequest['aParaFirma'] != null)
+                        {    
+
+                            DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                        ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                        ->where('documento_buzon.id_documento', '=', $datosRequest['id_documento'])
+                                                        ->whereNull('estado_firma_anexo')
+                                                        ->where('id_tipo_archivo','=', '2')->update(['firma_anexo' => 0]); 
+                                                   
+                            //DocumentoBuzonArchivo::where('id_documento_buzon', '=', $datosRequest["id_documento_buzon"])->update(['firma_anexo' => 0]);
+                             
+                            foreach($datosRequest['aParaFirma'] as $regFirma)
+                            {
+                                DocumentoBuzonArchivo::find($regFirma)->update(['firma_anexo' => 1]); 
+                            }
+                        }
 
                         $datosDocumento->update($datosRequest);
                     }
@@ -922,7 +943,9 @@ class DocumentoController extends Controller{
                                                         'documento_buzon_archivo.nombre_archivo_original',
                                                         'documento_buzon_archivo.nombre_archivo_codificado',
                                                         'documento_buzon_archivo.fecha',
-                                                        'documento_buzon_archivo.version')
+                                                        'documento_buzon_archivo.version',
+                                                        'documento_buzon_archivo.firma_anexo',
+                                                        'documento_buzon_archivo.estado_firma_anexo')
                                                     ->orderBy('documento_buzon_archivo.version')
                                                     ->get();
                             

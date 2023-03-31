@@ -392,7 +392,7 @@
                         </div>
 
                         <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexos:</label>
+                            <label for="exampleFormControlTextarea1">Anexos: (Nota:Marque los anexos que requieren firma)</label>
                             
                             <div class="card-body card-archivos" id="cargar_anexo">
                                 <div id="dropzone-anexo-view" class="dropzone-view"></div>
@@ -875,7 +875,8 @@
             );
             this.on("queuecomplete", function (file) {
 
-            });     
+            }); 
+
         },        
         sending: function(file, xhr, formData){
             var idb = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -1303,6 +1304,14 @@
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
        
+        //check para firma anexos
+        var aParaFirma = [];
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+            }
+        }); 
+
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
 
@@ -1343,7 +1352,8 @@
                 hiddIdDocumento:hiddIdDocumento,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                 hiddIdFileDelete:hiddIdFileDelete,
-                carpeta:3
+                carpeta:3, 
+                aParaFirma:aParaFirma
             },
             success: function(data)
             {               
@@ -1604,6 +1614,15 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+
+        //check para firma anexos
+        var aParaFirma = [];
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+            }
+        }); 
+        
         deshabilita_boton('btn-recibir-submit');
         deshabilita_boton('btn_cerrar_guardar');
         deshabilita_boton('btn-guardar-submit');
@@ -1644,7 +1663,8 @@
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                 hiddIdFileDelete:hiddIdFileDelete,
                 carpeta:idCarpeta,
-                estado:((idCarpeta==2)?4:1)
+                estado:((idCarpeta==2)?4:1),
+                aParaFirma:aParaFirma
             },
             success: function(data)
             {
@@ -2272,6 +2292,7 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
         deshabilita_boton('btn-recibir-submit');
@@ -2360,11 +2381,15 @@
                             bloqueo_accion=false;
 
                         },
-                        error: function (e) {
-                            data = e.responseJSON;
+                        //error: function (e) {
+                        error: function (data,jqXHR, textStatus, errorThrown) {
+                            //data = e.responseJSON;
+                            
                             console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null){
-                                toastr.error(data.data.comentario,"¡Aviso!");
+                            //if (data.data.comentario != "" && data.data.comentario != null){
+                            if (data.comentario != "" && data.comentario != null){
+
+                                toastr.error(data.comentario,"¡Aviso!");
                                 habilita_boton('btn-recibir-submit');
                             }
                             else{
@@ -3291,7 +3316,7 @@
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,33);         
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,44);  
+        //cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2,44);  
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -3372,7 +3397,7 @@
         $('#titulo_accion').html('Ver Documento');         
 
         deshabilita_campos();
-        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre); 
+        cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,2); 
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -3432,7 +3457,7 @@
                     if(data.status=='200')
                     {
                         objDoc=data.data;
-                        //&console.log(data);
+
                         var json_tipo_doc = $.parseJSON(data.data.json_tipo_documento);
                         if (data.data.rel_documento_buzon[0]['contestar_hasta'] != null)
                         {
@@ -4293,23 +4318,66 @@
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
-                           htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       ' <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
-                                        '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
+                            if (value.firma_anexo == 1)
+                            {
+                                if(value.estado_firma_anexo == 1)
+                                {
+                                    var chkFirmaAnexo = '<div style="margin-left: -90px;">  <label class="btn btn-anexo-firmado">FIRMADO</label> </div>';
+                                    var chkFirmaAnexoView = '<div style="margin-left: -90px;">  <label class="btn btn-anexo-firmado">FIRMADO</label> </div>';
+                                }
+                                else
+                                {
+                                    var chkFirmaAnexo = '<input type="checkbox" checked name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'" style="position: absolute;top: 10px;left: 80px;">';
+                                    var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px;">  <i class="fa fa-check-square"></i> </div>';        
+                                }
+                            }    
+                            else
+                            {
+                                var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'" style="position: absolute;top: 10px;left: 80px;">';
+                                var chkFirmaAnexoView = ''; 
+                            }
+
+                            htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
+                                       '<img src="/img/pdf_file.jpg" width="83" height=94" style="" /> {checkAnexo}'+                                        
+                                       '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
+                                       '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                 '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
-                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="View Details" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
+                                    '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
-                            if (carpeta == 2 &&  accion == 1 && isDelete == true)               
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
                             
-                            if (carpeta == 3 && accion == 1)               
-                                htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                            if (carpeta == 2)   
+                            {     
+                                //revisar                           
+                                if (accion != 1 || accion == 'undefined' || accion == 'null') //22 visar 33 firmar 44 derivar 11 ver undefined archivar
+                                    htmlFile = htmlFile.replace("{checkAnexo}", chkFirmaAnexoView); 
+                                    
+                                if((accion == 33 || accion == 1) && value.id_tipo_archivo == 2)
+                                    htmlFile = htmlFile.replace("{checkAnexo}", chkFirmaAnexo); 
+                                else
+                                    htmlFile = htmlFile.replace("{checkAnexo}",""); 
+
+                                if (accion == 1 && isDelete == true)
+                                    htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                            }            
                             
-                            if (carpeta == 3 && value.id_documento_buzon != id_documento_buzon)
-                                htmlFile = "";                                 
+                            if (carpeta == 1) 
+                                htmlFile = htmlFile.replace("{checkAnexo}",chkFirmaAnexoView);    
+
+                            if (carpeta == 3) 
+                            {                                
+                                if (accion == 1)  
+                                {
+                                    htmlFile = htmlFile.replace("{checkAnexo}", chkFirmaAnexo);
+                                    htmlFile += '<button onClick="deleteFile(\''+value.id_documento_buzon_archivo+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Eliminar Pdf" style="margin-left: -27px;"><i class="fas fa-trash"></i></button>';
+                                }   
+                                else
+                                    htmlFile = htmlFile.replace("{checkAnexo}",chkFirmaAnexoView);    
+                                
+                                if (value.id_documento_buzon != id_documento_buzon)
+                                    htmlFile = "";  
+                            }  
                              
                             if (value.id_tipo_archivo == 2) //anexo
                                 htmlFileAnexo += htmlFile + '</div>';       

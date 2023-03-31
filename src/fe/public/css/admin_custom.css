@@ -226,6 +226,15 @@ color: #ffffff;
   display: inline;    
 }
 
+.btn-anexo-firmado {
+  position: absolute;
+  top: -10px;
+  display: inline;  
+  background-color: #d5f2b8;
+  border: 1px solid #123977;
+  color: #1c66a8;  
+}
+
 /* dropzone */
 
 .card {

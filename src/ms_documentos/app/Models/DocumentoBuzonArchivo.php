@@ -21,6 +21,8 @@ class DocumentoBuzonArchivo extends Model
         'id_tipo_archivo',
         'nombre_archivo_original',
         'nombre_archivo_codificado',
-        'version'
+        'version',
+        'firma_anexo', 
+        'estado_firma_anexo'
     ];
 }

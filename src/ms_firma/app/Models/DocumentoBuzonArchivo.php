@@ -20,6 +20,7 @@ class DocumentoBuzonArchivo extends Model
         'nombre_archivo_original',
         'nombre_archivo_codificado',
         'fecha',
-        'version'
+        'version',
+        'estado_firma_anexo'
     ];
 }
