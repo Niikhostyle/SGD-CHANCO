@@ -3464,7 +3464,11 @@
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
                         if(data.data.rel_documento_buzon_actual.length > 0){
-                            $("input[name='hiddIdTipoDestino']").val(data.data.rel_documento_buzon_actual[0].id_tipo_destino);
+                            jQuery.each(data.data.rel_documento_buzon_actual, function(i, val) {
+                                if(val.id_buzon = docBuzon)
+                                $("input[name='hiddIdTipoDestino']").val(val.id_tipo_destino);
+                            })
+                            
                         }
                         else{
                             $("input[name='hiddIdTipoDestino']").val(1);
