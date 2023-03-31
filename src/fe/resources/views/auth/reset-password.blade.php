@@ -20,8 +20,15 @@
         <style>
             .box-login{
                 border-radius: 50px !important;
-                width: 50% !important;
-                margin: auto !important;
+                max-width: 50%;
+                margin: auto;
+            }
+            @media all and (max-width: 500px) {
+                .box-login{
+                    border-radius: 50px;
+                    max-width: 90%;
+                    margin: auto;
+                }
             }
             blockquote {
                 background: orange;
@@ -110,7 +117,7 @@
         <div class="font-sans text-gray-900 antialiased">
             <section class="content bg">
                 <div class="container">
-                    <div class="col-md-12">
+                    <div class="d-flex align-items-center">
                         <div class="box box-login p-5">
                             @if (session('status'))
                                 <div class="mb-4 font-medium text-sm text-green-600">

@@ -2,14 +2,21 @@
 <style>
     .box-login{
         border-radius: 50px;
-        width: 50%;
+        max-width: 50%;
         margin: auto;
+    }
+    @media all and (max-width: 500px) {
+        .box-login{
+            border-radius: 50px;
+            max-width: 90%;
+            margin: auto;
+        }
     }
 </style>
 <script src="js/inicio/jquery.min.js"></script>
 <section class="content bg">
         <div class="container">
-            <div class="col-md-12">
+            <div class="d-flex align-items-center">
                 <div class="box box-login p-5">
                     <!-- @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
