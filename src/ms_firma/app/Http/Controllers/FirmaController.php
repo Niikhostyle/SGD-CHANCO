@@ -36,7 +36,7 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                //GENERACIÓN IMAGEN PARA FIRMA
+                //GENERACI��N IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
@@ -336,107 +336,104 @@ class FirmaController extends Controller
                             } 
                             
                             
-                            //firma de anexo                            
-                            $aDocumentoBuzonAnexo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                        ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
-                                                        ->where('documento.id_documento', '=', $datos['id_documento'])
-                                                        ->where('id_tipo_archivo','=', '2')                                                        
-                                                        ->where('firma_anexo','=', '1')
-                                                        ->whereNull('estado_firma_anexo')
-                                                        ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado','id_tipo_archivo')
-                                                        ->get();
-
-                            if (count($aDocumentoBuzonAnexo) > 0)
-                            {
-                                
-                                //solo primera firma
-                                if(count($datosBitacora) != 0)    
-                                {
-                                    $comentario = "No es posible firmar anexos. ";
-                                    throw new Exception($comentario);
-                                }  
-
-                                //genera imagen para firma anexo                                   
-                                
-                                $imgAnexo = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
-                                $dFechaCreacionImg = date('d.m.Y H:i:s');
-                                $imgAnexo->text('Firmado electrónicamente por:', 330, 60, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
-                                $imgAnexo->text(Str::upper($sNombre), 330, 110, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(34); }); 
-
-                                $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
-                                $imgAnexo->text($string, 330, 235, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); });         
+                            //solo primera firma
+                            if(count($datosBitacora) == 0)    
+                            {                                
                         
-                                $imgAnexo->save(storage_path('app/public/files/imagen_firma/'.$sNombreImgAnexo));  
+                                //firma de anexo                            
+                                $aDocumentoBuzonAnexo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                            ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                            ->where('documento.id_documento', '=', $datos['id_documento'])
+                                                            ->where('id_tipo_archivo','=', '2')                                                        
+                                                            ->where('firma_anexo','=', '1')
+                                                            ->whereNull('estado_firma_anexo')
+                                                            ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado','id_tipo_archivo')
+                                                            ->get();
 
-                                if ( !file_exists($imagen_firma_anexo) )
-                                {
-                                    $comentario = "Existe un problema con la imagen para anexo relacionada a la firma electrónica.";
-                                    throw new Exception($comentario);
-                                }
+                                if (count($aDocumentoBuzonAnexo) > 0)
+                                {                               
+                                    //genera imagen para firma anexo                                   
+                                    
+                                    $imgAnexo = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
+                                    $dFechaCreacionImg = date('d.m.Y H:i:s');
+                                    $imgAnexo->text('Firmado electrónicamente por:', 330, 60, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); }); 
+                                    $imgAnexo->text(Str::upper($sNombre), 330, 110, function ($font) { $font->file(storage_path('../public/calibrib.ttf')); $font->size(34); }); 
 
-                                foreach ($aDocumentoBuzonAnexo as $archAnexo)
-                                {                         
-                                    $nNombreArchivoCargarAnexo = "a_" . $archAnexo->nombre_archivo_codificado;
-                                    $classFirmaAnexos = new FirmaBase($firmaDigitalConfig);
-                                    $sArchivoAnexo = storage_path('app/public/files/'.$archAnexo->nombre_archivo_codificado);
-                                    $aRespuestaFirmaAnexo = $classFirmaAnexos->setRUN($nRutFirma)                        
-                                                ->addPDF($sArchivoAnexo, $sDescipcion, $layoutAnexo)
-                                                ->sign();                                               
-                
-                                    if (isset($aRespuestaFirmaAnexo['status'])) 
+                                    $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
+                                    $imgAnexo->text($string, 330, 235, function ($font) { $font->file(storage_path('../public/calibri.ttf')); $font->size(34); });         
+                            
+                                    $imgAnexo->save(storage_path('app/public/files/imagen_firma/'.$sNombreImgAnexo));  
+
+                                    if ( !file_exists($imagen_firma_anexo) )
                                     {
-                                        $comentario = $aRespuestaFirmaAnexo['error'];
+                                        $comentario = "Existe un problema con la imagen para anexo relacionada a la firma electrónica.";
                                         throw new Exception($comentario);
                                     }
-                                    
-                                    if ($aRespuestaFirmaAnexo['metadata']['filesSigned'] == 1 )
-                                    {
-                                        $responseFileAnexo = $aRespuestaFirmaAnexo['files'][0];            
-                                        if($responseFileAnexo['status'] == 'OK') 
+
+                                    foreach ($aDocumentoBuzonAnexo as $archAnexo)
+                                    {                         
+                                        $nNombreArchivoCargarAnexo = "a_" . $archAnexo->nombre_archivo_codificado;
+                                        $classFirmaAnexos = new FirmaBase($firmaDigitalConfig);
+                                        $sArchivoAnexo = storage_path('app/public/files/'.$archAnexo->nombre_archivo_codificado);
+                                        $aRespuestaFirmaAnexo = $classFirmaAnexos->setRUN($nRutFirma)                        
+                                                    ->addPDF($sArchivoAnexo, $sDescipcion, $layoutAnexo)
+                                                    ->sign();                                               
+                    
+                                        if (isset($aRespuestaFirmaAnexo['status'])) 
                                         {
-                                            $encondedFileAnexo = $responseFileAnexo['content'];  
-                                            
-                                            $decodedFileAnexo = base64_decode($encondedFileAnexo, true);
-                                            if (empty($encondedFileAnexo) || !base64_encode($decodedFileAnexo) === $encondedFileAnexo) {
-                                                $comentario = "Error de codificación en archivo anexo firmado.";
-                                                throw new Exception($comentario);
-                                            }                
-
-                                            $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargarAnexo),'w+');
-                                            if (!$pdf)
-                                            {
-                                                $comentario = "No se pudo crear archivo anexo firmado. ";
-                                                throw new Exception($comentario);
-                                            }
-
-                                            fwrite ($pdf, $decodedFileAnexo);
-                                            fclose ($pdf);
-                                            
-                                            if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargarAnexo)))
-                                            {
-                                                $comentario = "No se encuentra el archivo anexo firmado. ";
-                                                throw new Exception($comentario);
-                                            }
-                                            //return $archAnexo->id_documento_buzon_archivo;
-
-                                            //actualiza estado de firma
-                                            $regFirma = $archAnexo->id_documento_buzon_archivo;
-                                            //DocumentoBuzonArchivo::find($archAnexo->id_documento_buzon_archivo)->update(['estado_firma_anexo' => 1]);
-                                            DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => 1, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
-
+                                            $comentario = $aRespuestaFirmaAnexo['error'];
+                                            throw new Exception($comentario);
                                         }
                                         
-                                    }
-                                    else
-                                    {
-                                        $comentario = "No se pudo procesar la respuesta en firma anexo.";
-                                        Log::error("Dump Respuesta: " . $aRespuestaFirmaAnexo); 
-                                        throw new Exception($comentario);
-                                    }
-                                }
+                                        if ($aRespuestaFirmaAnexo['metadata']['filesSigned'] == 1 )
+                                        {
+                                            $responseFileAnexo = $aRespuestaFirmaAnexo['files'][0];            
+                                            if($responseFileAnexo['status'] == 'OK') 
+                                            {
+                                                $encondedFileAnexo = $responseFileAnexo['content'];  
+                                                
+                                                $decodedFileAnexo = base64_decode($encondedFileAnexo, true);
+                                                if (empty($encondedFileAnexo) || !base64_encode($decodedFileAnexo) === $encondedFileAnexo) {
+                                                    $comentario = "Error de codificación en archivo anexo firmado.";
+                                                    throw new Exception($comentario);
+                                                }                
 
-                                //elimina imagen anexo de firma
-                                $this->deleteImg($sNombreImgAnexo);
+                                                $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargarAnexo),'w+');
+                                                if (!$pdf)
+                                                {
+                                                    $comentario = "No se pudo crear archivo anexo firmado. ";
+                                                    throw new Exception($comentario);
+                                                }
+
+                                                fwrite ($pdf, $decodedFileAnexo);
+                                                fclose ($pdf);
+                                                
+                                                if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargarAnexo)))
+                                                {
+                                                    $comentario = "No se encuentra el archivo anexo firmado. ";
+                                                    throw new Exception($comentario);
+                                                }
+                                                //return $archAnexo->id_documento_buzon_archivo;
+
+                                                //actualiza estado de firma
+                                                $regFirma = $archAnexo->id_documento_buzon_archivo;
+                                                //DocumentoBuzonArchivo::find($archAnexo->id_documento_buzon_archivo)->update(['estado_firma_anexo' => 1]);
+                                                DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => 1, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
+
+                                            }
+                                            
+                                        }
+                                        else
+                                        {
+                                            $comentario = "No se pudo procesar la respuesta en firma anexo.";
+                                            Log::error("Dump Respuesta: " . $aRespuestaFirmaAnexo); 
+                                            throw new Exception($comentario);
+                                        }
+                                    }
+
+                                    //elimina imagen anexo de firma
+                                    $this->deleteImg($sNombreImgAnexo);
+                                }
                             }
                             
                             DB::commit();                    
