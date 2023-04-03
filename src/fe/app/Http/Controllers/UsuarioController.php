@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 //use App\Models\Session;
 use App\Models\User;
 use App\Providers\AppServiceProvider;
-//use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Http;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuario;
 use App\Http\Requests\UpdateUsuario;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class UsuarioController extends Controller
@@ -127,6 +128,11 @@ class UsuarioController extends Controller
             $uploadImg = $this->uploadFile($request);
         else
             $uploadImg = $request->hiddFirma;
+
+        if($request->hasFile('form_foto'))
+            $uploadFoto = $this->uploadFotoPerfil($request);
+        else
+            $uploadFoto = $request->hiddFoto;
             
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
@@ -144,7 +150,10 @@ class UsuarioController extends Controller
             'genera_pdf'=>$request->aplica_genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil,
-            'imagen_firma'=>$uploadImg
+            'imagen_firma'=>$uploadImg,
+            'numero_contacto'=>$request->form_contacto,
+            'cargo'=>$request->form_cargo,
+            'img_perfil'=>$uploadFoto
         ]);
 
         $response_json = response()->json($response->json());
@@ -186,5 +195,41 @@ class UsuarioController extends Controller
             //return $this->respondSuccess($nNombreArchivoCargar, 201);
         
         return $nNombreArchivoCargar;
+    }
+
+    public function uploadFotoPerfil(Request $request) {
+
+        if(!$request->hasFile('form_foto')) {
+            //throw new Exception("upload_file_not_found.");
+            return $this->respondFail("upload_file_not_found.");
+        }
+        $file = $request->file('form_foto');
+        if(!$file->isValid()) {
+            return $this->respondFail("invalid_file_upload.");
+        }
+        
+        $extension = $file->getClientOriginalExtension();
+        $nNombreArchivoCargar = $request->run . '.' . $extension;
+        
+        $uploadSuccess = $file->move(storage_path('app/public/files/imagen_perfil/'), $nNombreArchivoCargar);
+
+        if (!$uploadSuccess)
+            throw new Exception("No se pudo cargar la imagen.");
+        
+        return $nNombreArchivoCargar;
+    }
+
+    function perfil(){
+
+        $datos = User::join('estado_usuario as eu','eu.id_estado_usuario','users.id_estado_usuario')
+                ->join('perfil as p','p.id_perfil','users.id_perfil')
+                ->where('id',Auth::user()->id)
+                ->select('users.id','run','nombres','primer_apellido','segundo_apellido','email',
+                DB::raw("eu.id_estado_usuario as id_estado_usuario"),DB::raw("p.id_perfil as id_perfil"),'cargo','numero_contacto','img_perfil'
+                ,DB::raw("eu.nombre as estado"),DB::raw("p.nombre as perfil"),'aplica_fea', 'genera_pdf','img_firma')
+                ->get();
+
+
+        return view('usuario.perfil',['datos'=>$datos]);
     }
 }

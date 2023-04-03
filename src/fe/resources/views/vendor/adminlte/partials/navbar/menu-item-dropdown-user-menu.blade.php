@@ -23,7 +23,16 @@
                  alt="{{ Auth::user()->name }}">
         @endif
         <span @if(config('adminlte.usermenu_image')) class="d-none d-md-inline" @endif>
-            {{ Auth::user()->nombres }} {{ Auth::user()->primer_apellido }}
+            <div style="max-width:250px;float:left;text-align: left;margin-right: 12px;">
+                {{ strtoupper(Auth::user()->nombres) }} {{ strtoupper(Auth::user()->primer_apellido) }}
+            </div>
+            @if(Auth::user()->img_perfil)
+            <div style="width:50px;float:left;margin-left: 12px;">
+                <img src="/files/imagen_perfil/{{Auth::user()->img_perfil}}" style="border-radius: 30px;width:30px;height:30px;"/> 
+            </div>
+            @endif
+            
+           
 
         </span>
     </a>
@@ -69,6 +78,11 @@
                     {{ __('adminlte::menu.profile') }}
                 </a>
             @endif
+            <a class="btn btn-default btn-flat float-right @if(!$profile_url) btn-block @endif"
+               href="/perfil" onclick="console.log('test')">
+                <i class="fa fa-fw fa-user"></i>
+                Editar Perfil de Usuario
+            </a>
             <a class="btn btn-default btn-flat float-right @if(!$profile_url) btn-block @endif"
                href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fa fa-fw fa-power-off"></i>

@@ -35,9 +35,9 @@
 
     </head>
     <body class="row hold-transition skin-blue ">
-        <header class="main-header-guest">
+        <!-- <header class="main-header-guest">
                 <span class="logo-lg">SISTEMA DE GESTIÓN DOCUMENTAL - PADRE LAS CASAS</span>
-        </header>
+        </header> -->
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
@@ -45,8 +45,8 @@
 
         <footer class="footer_login  m-b-0 text-sm">
             <div class="row">
-                <div class="col-md-12">
-                  <span class="help-block m-r-20 m-l-20 text-center">
+                <div class="col-md-12  text-center">
+                  <span class="help-block m-r-20 m-l-20">
                       2021 © Padre Las casas Maquehue 1441 - 45 2 590 000
                   </span>
                 </div>

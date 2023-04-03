@@ -87,7 +87,9 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al actualizar usuario: revisar datos de entrada');
 
-                $datosUsuario = Users::findOrFail($datosRequest['id'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma']);
+                $datosUsuario = Users::findOrFail($datosRequest['id'],
+                    ['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 
+                    'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma','numero_contacto','cargo','img_perfil']);
                 
                 if (!empty($datosRequest['password']))
                     $datosUsuario->password = Hash::make($datosRequest['password']); 
@@ -102,6 +104,9 @@ class UsersController extends Controller{
                 $datosUsuario->id_estado_usuario = $datosRequest['id_estado_usuario'];
                 $datosUsuario->id_perfil = $datosRequest['id_perfil'];
                 $datosUsuario->img_firma = $datosRequest['imagen_firma'];
+                $datosUsuario->numero_contacto = $datosRequest['numero_contacto'];
+                $datosUsuario->cargo = $datosRequest['cargo'];
+                $datosUsuario->img_perfil = $datosRequest['img_perfil'];
 
                 $datosUsuario->save();
 
@@ -132,7 +137,7 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al obtener usuario: revisar datos de entrada');
 
-                $datosUsuario = Users::findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma']);
+                $datosUsuario = Users::findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma','numero_contacto','cargo','img_perfil']);
                 
                 return $this->respondSuccess($datosUsuario, 200);
             }  
