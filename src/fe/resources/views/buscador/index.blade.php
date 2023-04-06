@@ -38,11 +38,17 @@
             <div class="form-row">
                 <div class="col-md-2 md-2">
                     <div class="form-group">
+                    <label for="id_folio">Folio: </label>
+                        <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
+                    </div>
+                </div>
+                <div class="col-md-2 md-2">
+                    <div class="form-group">
                     <label for="id_documento">ID Documento: </label>
                         <input type="text" class="form-control" id="buscar_id_documento" name="buscar_id_documento">
                     </div>
                 </div>
-                <div class="col-md-5 md-5">
+                <div class="col-md-4 md-5">
                     <div class="form-group">
                         <label for="select_tipo_documento" >Tipo Documento</label>
                         <br>
@@ -54,7 +60,19 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-5 md-5 buscar_fila">
+                <div class="col-md-2 md-3">
+                    <div class="form-group">
+                        <label for="select_anio">Año</label>
+                        <br/>
+                        <select  style="width:100%" class="form-control" id="buscar_anio" name="buscar_anio" >
+                            <option value="">Seleccionar</option>
+                            @foreach($listadoAnios as $anios)
+                            <option value="{{$anios['descripcion']}}">{{$anios['descripcion']}}</option>
+                            @endforeach
+                        </select>
+                    </div>                    
+                </div>
+                <div class="col-md-2 md-5 buscar_fila">
                     <div class="form-group">
                         <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
                         <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
@@ -63,28 +81,7 @@
                 </div>
             </div>
             <div class="form-row">
-
-                 <div class="col-md-2 md-2">
-                    <div class="form-group">
-                    <label for="id_folio">Folio: </label>
-                        <input type="text" class="form-control" id="buscar_folio" name="buscar_folio">
-                    </div>
-                </div>
-                <div class="col-md-2 md-2">
-                    <div class="form-group">
-                        <label for="">Rango de Fechas </label>                  
-                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="col-md-2 md-2">
-                    <div class="form-group">
-                        <label for="">&nbsp;</label>                  
-                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
-                    </div>
-                </div>     
-                
-                <div class="col-md-3 md-3">
+                <div class="col-md-4 md-3">
                     <div class="form-group">
                         <label for="select_buzon_origen">Buzón Orígen</label>
                         <br/>
@@ -96,7 +93,59 @@
                         </select>
                     </div>                    
                 </div>
-
+                <div class="col-md-4 md-3">
+                    <div class="form-group">
+                        <label for="select_buzon_actual">Buzón Actual</label>
+                        <br/>
+                        <select  style="width:100%" class="form-control" id="buscar_buzon_actual" name="buscar_buzon_actual" >
+                            <option value="">Seleccionar</option>
+                            @foreach($listBuzones as $list)
+                            <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
+                            @endforeach
+                        </select>
+                    </div>                    
+                </div>
+                <div class="col-md-2 md-2" id="fic">
+                    <div class="form-group">
+                        <label for="">Rango de Fechas Creación</label>                  
+                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="col-md-2 md-2"  id="ftc">
+                    <div class="form-group">
+                        <label for="">&nbsp;</label>                  
+                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
+                    </div>
+                </div>  
+            </div> 
+            <!-- <div class="linea_content_header mb-3"></div> -->
+            <div class="form-row">
+                <div class="col-md-4 md-3">
+                    <div class="form-group">
+                        <label for="select_buzon_actual">Derivado por</label>
+                        <br/>
+                        <select  style="width:100%" class="form-control" id="buscar_derivado" name="buscar_derivado" onchange="activa_fechas(this.value)" >
+                            <option value="">Seleccionar</option>
+                            @foreach($listBuzones as $list)
+                            <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
+                            @endforeach
+                        </select>
+                    </div>                    
+                </div>
+                <div class="col-md-2 md-2" id="fid" style="display:none;">
+                    <div class="form-group">
+                        <label for="">Rango de Fechas Derivación</label>                  
+                        <input type="date" id="buscar_fecha_ini_d" name="buscar_fecha_ini_d" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="col-md-2 md-2" id="ftd" style="display:none;">
+                    <div class="form-group">
+                        <label for="">&nbsp;</label>                  
+                        <input type="date" id="buscar_fecha_fin_d" name="buscar_fecha_fin_d" class="form-control">
+                    </div>
+                </div>  
                 <div class="col-md-3 md-3 buscar_fila">
                     <div class="form-group">
                         <!-- <i id="botones_grilla_despachados"></i> 
@@ -104,7 +153,7 @@
                         <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>&nbsp;&nbsp;<button id="btnBuscar" class="btn btn-success">Buscar</button>
                     </div>
                 </div>
-            </div>    
+            </div>   
         </div>
     </div>
    
@@ -146,6 +195,7 @@
                                                 <th data-priority="1">Fecha creación</th>
                                                 <th data-priority="2">Buzón origen</th>
                                                 <th data-priority="2">Buzón Actual</th>
+                                                <th data-priority="2">Derivado a</th>
                                                 <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
@@ -536,7 +586,9 @@
    
     $(document).ready(function () {
         $('#buscar_buzon_origen').select2({ width: 'resolve'});
+        $('#buscar_buzon_actual').select2({ width: 'resolve'});
         $('#buscar_tipo_documento').select2({ width: 'resolve'});
+        $('#buscar_derivado').select2({ width: 'resolve'});
         $('#grilla_recibidos').DataTable({
             dom: 'Blrtip', 
                 buttons: {
@@ -613,6 +665,7 @@
                     },
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
+                    { data: 'destinatario', name: 'destinatario' },
                     
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento', name: 'descarga',
@@ -705,8 +758,28 @@
                 ]
             //,visible:true, searchable: true
         });
+        var table = $('#grilla_recibidos').DataTable();
+        var column = table.column(8);
+        column.visible(false);
     });
-       
+      
+    function activa_fechas(valor){
+        if(valor !=""){
+            $('#fid').show();
+            $('#ftd').show();
+            $('#buscar_fecha_ini').attr("disabled","disabled");
+            $('#buscar_fecha_fin').attr("disabled","disabled");
+            $('#buscar_fecha_ini').val('');
+            $('#buscar_fecha_fin').val('');
+        }
+        else{
+            $('#fid').hide();
+            $('#ftd').hide();
+            $('#buscar_fecha_ini').removeAttr("disabled");;
+            $('#buscar_fecha_fin').removeAttr("disabled");;
+
+        }
+    }
     
     $('#btnBuscarSimple').click(function() {
         let busqueda_simple = $('#busqueda_simple').val();
@@ -721,13 +794,25 @@
         let finicio = finicio1;
         let ffin1 = $('#buscar_fecha_fin').val();
         let ffin = ffin1;
+        let fid = $('#buscar_fecha_ini_d').val();
+        let ftd = $('#buscar_fecha_fin_d').val();
         let id_buzon = $('#buscar_buzon_origen').val();
+        let id_buzon_actual = $('#buscar_buzon_actual').val();
+        let id_buzon_derivado = $('#buscar_derivado').val();
+        let anio = $('#buscar_anio').val();
         let terceros = ""
         if($('#buscar_efectos_sobre_terceros').is(":checked")){
             terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
         }
 
-        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros).load();
+        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros+'&buscar_buzon_actual='+id_buzon_actual+'&buscar_anio='+anio+'&buscar_derivado='+id_buzon_derivado+'&buscar_fecha_ini_d='+fid+'&buscar_fecha_fin_d='+ftd).load();
+        var table = $('#grilla_recibidos').DataTable();
+        var column = table.column(8);
+        column.visible(false);
+        if(id_buzon_derivado != ""){
+            column.visible(true);
+        }
+       
     });
 
     $('#btnLimpiar').click(function(){

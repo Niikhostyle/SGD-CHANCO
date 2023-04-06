@@ -98,6 +98,8 @@ class BuscadorController extends Controller
         
         $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         $datosAccion = $listado_parametros['data']['accion'];
+        $datosAnios= $listado_parametros['data']['anio'];
+
 
         return View::make('buscador.index',[
             'lista_documento'=>$lista_documento,            
@@ -105,7 +107,8 @@ class BuscadorController extends Controller
             'listBuzones'=>$datosBuzones,
             'listadoBuzones'=>$aBuzones,
             'listadoAcciones' => $datosAccion,
-            'nivel_acceso' => $datosNivelAcceso
+            'nivel_acceso' => $datosNivelAcceso,
+            'listadoAnios' => $datosAnios
         ]);
         
     }
@@ -182,9 +185,10 @@ class BuscadorController extends Controller
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');
         }
-        
+        return $listado_parametros['data'];exit;
         $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         $datosAccion = $listado_parametros['data']['accion'];
+        $datosAnios= $listado_parametros['data']['anios'];
 
         return View::make('buscador.index2',[
             'lista_documento'=>$lista_documento,            
@@ -192,7 +196,8 @@ class BuscadorController extends Controller
             'listBuzones'=>$datosBuzones,
             'listadoBuzones'=>$aBuzones,
             'listadoAcciones' => $datosAccion,
-            'nivel_acceso' => $datosNivelAcceso
+            'nivel_acceso' => $datosNivelAcceso,
+            'listadoAnios' => $datosAnios
         ]);
         
     }
@@ -252,62 +257,127 @@ class BuscadorController extends Controller
         if($request->buscar_buzon_origen != ""){
             $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
         }
+        if($request->buscar_buzon_actual != ""){
+            $filtroAvanzado .= " and lower((select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) ) = lower('".$request->buscar_buzon_actual."')";
+        }
         if($request->terceros != ""){
             $filtroAvanzado .= "and d.efectos_terceros = ".$request->terceros;
         }
 
+        if($request->buscar_derivado != ""){
+            $filtroAvanzado .= " and lower((case when db.id_documento_buzon_padre is not null 
+            then 
+                (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon_padre) 
+            else 
+            (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon)
+            end)) = lower('".$request->buscar_derivado."') ";
+            if(isset($request->buscar_fecha_ini_d)){
+                $filtroAvanzado .= " and dbb.fecha >=  to_date('".$request->buscar_fecha_ini_d."','yyyy-mm-dd') ";
+            }
+            if(isset($request->buscar_fecha_fin_d)){
+                $filtroAvanzado .= " and dbb.fecha <= to_date('".$request->buscar_fecha_fin_d."','yyyy-mm-dd')  + INTERVAL '1 day' ";
+            }
+        }
 
 
-        if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin)){
-            $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
+
+
+        if($request->buscar_anio != ""){
+            $extraquery .= " and ( extract(year from d.created_at) = ".$request->buscar_anio." or extract(year from d.fecha)  = ".$request->buscar_anio.")";
         }
         else{
-            $extraquery .= " and d.created_at between to_date('".$request->buscar_fecha_ini."','yyyy-mm-dd') and to_date('".$request->buscar_fecha_fin."','yyyy-mm-dd') + INTERVAL '1 day'";
+            if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin)){
+                $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
+            }
+            else{
+                $extraquery .= " and d.created_at between to_date('".$request->buscar_fecha_ini."','yyyy-mm-dd') and to_date('".$request->buscar_fecha_fin."','yyyy-mm-dd') + INTERVAL '1 day'";
+            }
         }
 
         DB::enableQueryLog(); 
-        $datos =  DB::select("select 
-                distinct d.id_documento as id_documento
-                , max(db.id_documento_buzon)
-                , d.identificador
-                , d.id_nivel_acceso
-                , to_char(d.created_at,'yyyy-mm-dd') as fecha_documento
-                , to_char(d.fecha,'yyyy-mm-dd') as fecha_documento_firma
-                , d.folio
-                , d.materia 
-                , d.json_tipo_documento 
-                , d.id_tipo_documento 
-                , td.nombre as tipo_documento
-                , CASE
-                    WHEN (d.efectos_terceros is true) THEN 'true'
-                    ELSE 'false'
-                END AS efectos_terceros
-                , bo.nombre as buzon_origen
-                , 'ACTUAL' as buzon_actual
-            from 
-                documento_buzon db 
-                join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
-                join buzon b on b.id_buzon = db.id_buzon
-                join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
-                LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento AND dbo.id_documento_buzon_padre is null
-                LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
-            where 	        
-                d.id_nivel_acceso < 3
-                AND db.id_tipo_destino = 1 
-            ".$extraquery.$filtroAvanzado."
-            group by d.id_documento
-                , d.identificador
-                , d.id_nivel_acceso
-                , d.created_at        
-                , d.fecha        
-                , d.folio        
-                , d.materia        
-                , d.json_tipo_documento    
-                , d.id_tipo_documento 
-                , td.nombre
-                , buzon_origen
-                , buzon_actual");
-        
+        if($request->buscar_derivado != ""){
+            $datos =  DB::select("select 
+                                        d.id_documento ,
+                                        d.identificador,
+                                        d.id_nivel_acceso,
+                                        d.created_at as fecha_documento ,
+                                        dbb.fecha as fecha_documento_firma,
+                                        d.folio,
+                                        d.materia as materia,
+                                        d.json_tipo_documento,
+                                        td.id_tipo_documento,
+                                        td.nombre tipo_documento,
+                                        CASE
+                                            WHEN (d.efectos_terceros is true) THEN 'true'
+                                            ELSE 'false'
+                                        END AS efectos_terceros,
+                                        (case when db.id_documento_buzon_padre is not null 
+                                        then 
+                                            (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon_padre) 
+                                        else 
+                                        (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon)
+                                        end) 
+                                        as buzon_origen,
+                                        (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) 
+                                        as buzon_actual,
+                                        b.nombre as destinatario
+                                    from 
+                                        documento_buzon_bitacora dbb
+                                        join documento_buzon db on dbb.id_documento_buzon = db.id_documento_buzon
+                                        join documento d on db.id_documento = d.id_documento
+                                        join buzon b on db.id_buzon = b.id_buzon
+                                        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
+                                    where 
+                                        d.id_nivel_acceso < 3
+                                        AND db.id_tipo_destino = 1 
+                                        and id_accion = 2 
+                                        ".$extraquery.$filtroAvanzado."
+                                    ");
+        }
+        else{
+            $datos =  DB::select("select 
+                                        distinct d.id_documento as id_documento
+                                        , max(db.id_documento_buzon)
+                                        , d.identificador
+                                        , d.id_nivel_acceso
+                                        , to_char(d.created_at,'yyyy-mm-dd') as fecha_documento
+                                        , to_char(d.fecha,'yyyy-mm-dd') as fecha_documento_firma
+                                        , d.folio
+                                        , d.materia 
+                                        , d.json_tipo_documento 
+                                        , d.id_tipo_documento 
+                                        , td.nombre as tipo_documento
+                                        , CASE
+                                            WHEN (d.efectos_terceros is true) THEN 'true'
+                                            ELSE 'false'
+                                        END AS efectos_terceros
+                                        , bo.nombre as buzon_origen
+                                        , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
+                                        ,'' destinatario
+                                    from 
+                                        documento_buzon db 
+                                        join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
+                                        join buzon b on b.id_buzon = db.id_buzon
+                                        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
+                                        LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento  AND dbo.id_documento_buzon_padre is null
+                                        LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
+                                    where
+                                        d.id_nivel_acceso < 3
+                                        AND db.id_tipo_destino = 1 
+                                        ".$extraquery.$filtroAvanzado."
+                                    group by d.id_documento
+                                        , d.identificador
+                                        , d.id_nivel_acceso
+                                        , d.created_at        
+                                        , d.fecha        
+                                        , d.folio        
+                                        , d.materia        
+                                        , d.json_tipo_documento    
+                                        , d.id_tipo_documento 
+                                        , td.nombre
+                                        , buzon_origen
+                                        , buzon_actual");
+        }
         //dd(DB::getQueryLog());  
         return datatables( $datos )->toJson();
     }    

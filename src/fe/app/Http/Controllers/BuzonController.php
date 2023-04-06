@@ -693,7 +693,17 @@ class BuzonController extends Controller
         }
         if($request->id_carpeta==1){
             $sOpestado = '(3)';
-         }
+        }
+
+        $texto = $request->texto;
+        $extraquery = "";
+        if($texto){
+            $extraquery=" (lower(documento.materia) like '%".strtolower($texto)."%'"; 
+            if((int)$texto > 0){            
+                $extraquery=$extraquery." OR documento.id_documento=".(int)$texto." OR documento.folio = ".(int)$texto."";
+            }    
+            $extraquery=$extraquery.")"; 
+        }
 
         $datos =  DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
@@ -704,14 +714,6 @@ class BuzonController extends Controller
                         $join->on('documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino');
                         $join->on('documento_buzon.id_documento_buzon', '=', DB::raw('(select max(db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino and db.id_carpeta = '.$nCarpeta.' and db.id_estado_documento in '.$sOpestado.')'));
                     })
-                    //->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
- 
-                    //->leftJoin('documento_favorito_usuario','documento_favorito_usuario.id_documento','=','documento_buzon.id_documento')
-                    //->leftJoin('documento_buzon_bitacora', 'documento.id_tipo_documento', '=', 'documento_buzon_bitacora.id_tipo_documento')
-                    /*->leftJoin('documento_buzon_bitacora', function ($join) {
-                        $join->on('documento_buzon_bitacora.id_documento_buzon', '=', DB::raw('(select id_documento_buzon from documento_buzon db4 where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon)'))
-                             ->on('documento_buzon_bitacora.id_accion', '=', 3);
-                    })*/
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
                         'documento_buzon.id_estado_documento as id_estado_documento',
@@ -742,7 +744,11 @@ class BuzonController extends Controller
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta)
-                    ->whereYear('documento.created_at', $year_actual);
+                    ->whereYear('documento.created_at', $year_actual)
+                    ->when($extraquery, function ($query, $extraquery) {
+                        return $query->whereRaw($extraquery);
+                    })
+                    ;
                     //->whereRaw('documento_buzon.fecha = (select max(db.fecha) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino)');
                     
                     
@@ -852,19 +858,6 @@ class BuzonController extends Controller
             }
             $documento = $documento->fresh();
             DB::enableQueryLog(); 
-            // $documentoBuzon = DocumentoBuzon::create([
-            //     'id_documento' => $documento->id_documento,
-            //     'id_buzon' => $DocumentoBuzonOriginal[0]->id_buzon,
-            //     'id_carpeta' => 3,
-            //     'id_estado_documento' => 1,
-            //     'id_tipo_destino' => 1,
-            //     'id_documento_buzon_padre' => null,
-            //     'fecha' => $dFechaCreacion,
-            //     'contestar_hasta' => $fContestarHasta,
-            //     'notificado' => false,
-            //     'recibido' => false,
-            //     'favorito' => false
-            // ]);
             //dd(DB::getQueryLog());
             db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."',".$fContestarHasta.",false,false,false)");
             $idDocumentoBuzon = DB::getPdo()->lastInsertId();
@@ -903,6 +896,72 @@ class BuzonController extends Controller
             
         }
 
+    }
+
+    public function buscar_documento_buzon(Request $request){
+        $year_actual = session('year');  
+        //dd($request);
+        $extraquery = "";
+        // //construir filtro
+        $query = $request->texto;
+        if($query){
+            $extraquery=" (lower(documento.materia) like '%".strtolower($query)."%'"; 
+            if((int)$query > 0){            
+                $extraquery=$extraquery." OR documento.id_documento=".(int)$query." OR documento.folio = ".(int)$query."";
+            }    
+            $extraquery=$extraquery.")"; 
+            //$extraquery=$extraquery." and documento_buzon.id_buzon = ".$request->buzon; 
+        }
+        else{
+            $extraquery = " 1 = 2 ";
+        }
+        DB::enableQueryLog();
+
+        
+        $datos =  DB::table('documento_buzon')
+            ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
+            ->join('estado_documento', 'documento_buzon.id_estado_documento', '=', 'estado_documento.id_estado_documento')
+            ->join('tipo_documento', 'documento.id_tipo_documento', '=', 'tipo_documento.id_tipo_documento')
+            ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
+            ->join('tipo_destino', function($join){
+                $join->on('documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
+                ->whereRaw('documento_buzon.id_documento_buzon in (select (db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino)');
+            })
+            ->select(
+                DB::raw("case documento_buzon.id_carpeta when 1 then 'Por Recibir' when 2 then 'Recibidos' else 'Despachados' end as salida")
+                )
+            ->where('documento_buzon.id_buzon','=',$request->buzon)
+            ->whereYear('documento.created_at', $year_actual)
+            ->whereRaw('case documento_buzon.id_carpeta 
+            when 1 then documento_buzon.id_estado_documento in (3)
+            when 2 then documento_buzon.id_estado_documento in (4,5,6,7,8,9,10,11,12,13)
+            when 3 then documento_buzon.id_estado_documento in (1,2)
+            end')
+            ->whereRaw($extraquery)
+            ->groupBy('documento_buzon.id_carpeta')
+            ->get();
+
+        //dd(DB::getQueryLog());
+        //return $datos;
+
+        
+        $salida = "";
+         foreach($datos as $d){
+            if($salida == ""){
+                $salida .= $d->salida;
+            }
+            else{
+                $salida .= ", ".$d->salida;
+            }
+         }
+         if($salida == ""){
+            $salida = "<span style='color:red;'>No existen coincidencias para el criterio ingresado.</span>";
+         }
+         else{
+            $salida = "Coincidencia/s en carpeta/s: <br/> <span style='color:green;'>&nbsp;&nbsp;".$salida.".</span>";
+         }
+         return $salida;
+            
     }
 
 }
