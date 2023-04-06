@@ -185,7 +185,6 @@ class BuscadorController extends Controller
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');
         }
-        return $listado_parametros['data'];exit;
         $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
         $datosAccion = $listado_parametros['data']['accion'];
         $datosAnios= $listado_parametros['data']['anios'];
