@@ -589,6 +589,7 @@
         $('#buscar_buzon_actual').select2({ width: 'resolve'});
         $('#buscar_tipo_documento').select2({ width: 'resolve'});
         $('#buscar_derivado').select2({ width: 'resolve'});
+        $('#buscar_anio').select2({ width: 'resolve'});
         $('#grilla_recibidos').DataTable({
             dom: 'Blrtip', 
                 buttons: {
@@ -818,10 +819,15 @@
     $('#btnLimpiar').click(function(){
         $('#buscar_id_documento').val('');
         $('#buscar_folio').val('');
-        $('#buscar_tipo_documento').find('option:eq(0)').prop('selected', true);
-        $('#buscar_buzon_origen').find('option:eq(0)').prop('selected', true);
+        $('#buscar_tipo_documento').val(null).trigger('change');
+        $('#buscar_buzon_origen').val(null).trigger('change');
+        $('#buscar_buzon_actual').val(null).trigger('change');
+        $('#buscar_derivado').val(null).trigger('change');
+        $('#buscar_anio').val(null).trigger('change');
         $('#buscar_fecha_ini').val('');
         $('#buscar_fecha_fin').val('');
+        $('#buscar_fecha_ini_d').val('');
+        $('#buscar_fecha_fin_d').val('');
         $('#buscar_efectos_sobre_terceros').prop('checked', false);
     });
 

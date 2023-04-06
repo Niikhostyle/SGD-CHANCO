@@ -253,9 +253,18 @@ class BuscadorController extends Controller
         if($request->buscar_tipo_documento != ""){
             $filtroAvanzado .= " and lower(td.nombre) = lower('".$request->buscar_tipo_documento."')";
         }
-        if($request->buscar_buzon_origen != ""){
+        if($request->buscar_buzon_origen != "" && $request->buscar_derivado == ""){
             $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
         }
+        if($request->buscar_buzon_origen != "" && $request->buscar_derivado != ""){
+            $filtroAvanzado .= " and lower((case when db.id_documento_buzon_padre is not null 
+            then 
+                (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon_padre) 
+            else 
+            (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon)
+            end) ) = lower('".$request->buscar_buzon_origen."')";
+        }
+
         if($request->buscar_buzon_actual != ""){
             $filtroAvanzado .= " and lower((select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) ) = lower('".$request->buscar_buzon_actual."')";
         }
