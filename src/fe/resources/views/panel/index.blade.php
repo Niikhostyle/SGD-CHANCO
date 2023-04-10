@@ -858,7 +858,15 @@
                         if(isEven(nroFila)){
                             var color= '#f4f6f9';
                         }
-                        fila = "<tr><td class='p-2' style='background-color:"+color+";'>"+val.nombres+" "+val.primer_apellido+" "+val.segundo_apellido+"</td><td>&nbsp;</td><td class='p-2' style='background-color:"+color+";'>"+val.cargo+"</td><td>&nbsp;</td><td class='p-2'  style='background-color:"+color+";'>"+val.email+"</td><td>&nbsp;</td><td class='p-2' style='background-color:"+color+";'>"+val.numero_contacto+"</td></tr>";
+                        let cargo = val.cargo
+                        let contacto = val.numero_contacto
+                        if( cargo === null){
+                            cargo = 'Sin información';
+                        }
+                        if( contacto === null){
+                            contacto = 'Sin información';
+                        }
+                        fila = "<tr><td class='p-2' style='background-color:"+color+";'>"+val.nombres+" "+val.primer_apellido+" "+val.segundo_apellido+"</td><td>&nbsp;</td><td class='p-2' style='background-color:"+color+";'>"+cargo+"</td><td>&nbsp;</td><td class='p-2'  style='background-color:"+color+";'>"+val.email+"</td><td>&nbsp;</td><td class='p-2' style='background-color:"+color+";'>"+contacto+"</td></tr>";
                         $("#grilla_contactos tbody").append(fila);
                     })
                 }
