@@ -5215,7 +5215,7 @@
 
                                                 for (let i in accionesSolicitadas) 
                                                 {                                                    
-                                                    if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
+                                                    if (accionesSolicitadas[i]['id_accion'] == 7 && row.id_estado_documento == 4) //Firmar                                                   
                                                         return '<input class="dt-checkboxes" type="checkbox" name="checkFrm" value="'+row.id_documento+'-'+row.id_documento_buzon+'">';
                                                 } 
                                             }                                                
