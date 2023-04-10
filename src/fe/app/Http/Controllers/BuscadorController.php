@@ -6,6 +6,7 @@ use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonArchivoDescarga;
+use App\Models\TipoDocumento;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
@@ -239,7 +240,11 @@ class BuscadorController extends Controller
             if((int)$query > 0){            
                 $extraquery=$extraquery." OR d.id_documento=".(int)$query." OR d.folio = ".(int)$query."";
             }    
+            if(isset($request->inicio)){
+                $extraquery=$extraquery." OR lower(d.descripcion) like '%".strtolower($query)."%' ";
+            }
             $extraquery=$extraquery.")"; 
+            
         }
         $filtroAvanzado = " and 1 = 1 ";
         if($request->buscar_id_documento != ""){
@@ -253,9 +258,19 @@ class BuscadorController extends Controller
         if($request->buscar_tipo_documento != ""){
             $filtroAvanzado .= " and lower(td.nombre) = lower('".$request->buscar_tipo_documento."')";
         }
-        if($request->buscar_buzon_origen != ""){
+        if($request->buscar_buzon_origen != "" && $request->buscar_derivado == ""){ 
             $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
         }
+
+        if($request->buscar_buzon_origen != "" && $request->buscar_derivado != ""){ 
+            $filtroAvanzado .= " and lower((case when db.id_documento_buzon_padre is not null  
+            then  
+                (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon_padre)  
+            else  
+            (select b2.nombre from documento_buzon db2 join buzon b2 on b2.id_buzon = db2.id_buzon  where db2.id_documento_buzon = db.id_documento_buzon) 
+            end) ) = lower('".$request->buscar_buzon_origen."')"; 
+        } 
+
         if($request->buscar_buzon_actual != ""){
             $filtroAvanzado .= " and lower((select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) ) = lower('".$request->buscar_buzon_actual."')";
         }
@@ -378,6 +393,7 @@ class BuscadorController extends Controller
                                         , buzon_actual");
         }
         //dd(DB::getQueryLog());  
+        //return $datos;exit;
         return datatables( $datos )->toJson();
     }    
 
@@ -477,6 +493,17 @@ class BuscadorController extends Controller
         //return $ruta;
         return response()->json($result, '200');  
 
+    }
+
+    public function buscar(){
+        $datos = TipoDocumento::leftJoin('documento as d','d.id_tipo_documento','tipo_documento.id_tipo_documento')
+                ->groupBy('tipo_documento.nombre')
+                ->orderBy('tipo_documento.nombre')
+                ->select(DB::raw('count(d.*) as total'),DB::raw('tipo_documento.nombre as tipo'))
+                ->get();
+        
+        //return datatables( $datos )->toJson();
+        return $datos;
     }
    
 

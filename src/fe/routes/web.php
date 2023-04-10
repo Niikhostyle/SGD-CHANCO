@@ -44,6 +44,7 @@ Route::middleware(['auth:sanctum', 'verified'])->post('usuarios',[UsuarioControl
 Route::middleware(['auth:sanctum', 'verified'])->get('usuarios/{id}',[UsuarioController::class,'show'])->name('usuarios.show');
 Route::middleware(['auth:sanctum', 'verified'])->post('usuarios_img',[UsuarioController::class,'update'])->name('usuarios.update');
 Route::middleware(['auth:sanctum', 'verified'])->put('usuarios/{id}',[UsuarioController::class,'estado'])->name('usuarios.estado');
+Route::middleware(['auth:sanctum', 'verified'])->post('buscar_usuarios',[UsuarioController::class,'buscar'])->name('usuarios.buscar');
 
 //Documentos
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
@@ -51,6 +52,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar/',[Buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[BuscadorController::class,'documentoBuzonArchivo'])->name('buscador.documentoBuzonArchivo');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
+Route::middleware(['auth:sanctum', 'verified'])->get('buscar_categorias',[BuscadorController::class,'buscar'])->name('buscador.categorias');
 
 //version 2 - buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador2',[BuscadorController::class,'index2'])->name('buscador.index2');
