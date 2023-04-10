@@ -239,7 +239,7 @@ class UsuarioController extends Controller
         if(!isset($sTexto)){
             $sTexto = "123xyza";
         }
-        $datos = Users::whereRaw("lower(users.nombres) like lower('%".$sTexto."%') or lower(users.primer_apellido) like lower('%".$sTexto."%') or lower(users.segundo_apellido) like lower('%".$sTexto."%') or lower(users.cargo) like lower('%".$sTexto."%')")
+        $datos = Users::whereRaw("lower(users.nombres) like lower('%".$sTexto."%') or lower(users.primer_apellido) like lower('%".$sTexto."%') or lower(users.segundo_apellido) like lower('%".$sTexto."%') or lower(users.cargo) like lower('%".$sTexto."%') or lower(users.email) like lower('%".$sTexto."%') ")
                 ->get();
         return $datos;
     }

@@ -19,7 +19,7 @@
                         <a href="#" onclick="mostrar_categorias();" ><h2>{{$total_documentos}}</h2></a>
                     </div>
                     <div class="col-6 text-center p-2">
-                        <i class="fa fa-file fa-3x"></i>
+                        <i id="iconoDoctos" class="fa fa-file fa-3x"></i>
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
                     <h2>{{$total_usuarios}}</h2>
                     </div>
                     <div class="col-6 text-center p-2">
-                        <i class="fa fa-users fa-3x"></i>
+                        <i id="iconoUsuarios" class="fa fa-users fa-3x"></i>
                     </div>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <h2>{{$total_buzones}}</h2>
                     </div>
                     <div class="col-6 text-center p-2">
-                        <i class="fa fa-envelope fa-3x"></i>
+                        <i id="iconoBuzones" class="fa fa-envelope fa-3x"></i>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                         @endif
                     </div>
                     <div class="col-6 text-center p-2">
-                        <i class="fa fa-star fa-3x"></i>
+                        <i id="iconoFavoritos" class="fa fa-star fa-3x"></i>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                                 <button class="btn btn-success" id="btnBuscarDocto">Buscar</button>
                             </div>
                             <div class="col-md-5 mb-1">
-                                <input class="form-control" type="text" name="buscar_contacto" id="buscar_contacto" placeholder="Buscar contacto por nombre, cargo">
+                                <input class="form-control" type="text" name="buscar_contacto" id="buscar_contacto" placeholder="Buscar contacto por nombre, cargo o correo">
                             </div>
                             <div class="col-md-1 mb-1">
                                 <button class="btn btn-success" id="btnBuscarContacto">Buscar</button>
@@ -202,13 +202,9 @@
             </div>
             <div class="card">
                 <div class="card-body">
-                    <div class="row text-center" id="logoPLC">
-                        <div class="col-6">
-                            <img src="/img/logoPLC.png" width="50%;float:left;" />
-                        </div>
-                        <div class="col-6">
-                            <img src="/img/logoSGD.png" width="50%;float:left;" />
-                        </div>
+                    <div class="row text-right" id="logoPLC">
+                        <div class="col-12">
+                            <img src="/img/logoCalidad.png" width="20%" style="margin-top:30%" />
                     </div>
                 </div>
             </div>
@@ -642,6 +638,19 @@
         });
         
         $(document).ready(function () {
+            setTimeout(function() { 
+                animar_iconos('iconoDoctos',10000,'fa-pulse',1,1);
+            }, 2000);
+            setTimeout(function() { 
+                animar_iconos('iconoUsuarios',15000,'fa-spin',0,1);
+            }, 7000);
+            setTimeout(function() { 
+                animar_iconos('iconoFavoritos',8500,'fa-spin',1,0);
+            }, 9000);
+            setTimeout(function() { 
+                animar_iconos('iconoBuzones',11000,'fa-pulse',0,1);
+            }, 6000);
+
             $('#contenedor_tabla_doctos').hide();
             $('#contenedor_tabla_contacto').hide();
             $('#contenedor_tabla_categorias').hide();
@@ -952,6 +961,29 @@
     function isOdd(n) {
         return Math.abs(n % 2) == 1;
     }
+
+    function animar_iconos(idIcono,tiempo,clase,girar,agrandar){
+        if(girar == 1){
+            $('#'+idIcono).addClass(clase);
+        }
+        if(agrandar == 1){
+            $('#'+idIcono).removeClass("fa-3x");
+            $('#'+idIcono).addClass("fa-2x");
+        }
+        setTimeout(function() { 
+            if(girar == 1){
+                $('#'+idIcono).removeClass(clase);
+            }
+            if(agrandar == 1){
+                $('#'+idIcono).removeClass("fa-2x");
+                $('#'+idIcono).addClass("fa-3x");
+            }
+        }, 2000);
+        setTimeout(function() { 
+            animar_iconos(idIcono,tiempo,clase,girar,agrandar);
+        }, tiempo);
+    }
+
     function visualizar_documento(id_documento, id_documento_buzon, id_documento_buzon_padre)
     {
         $(".print-error-msg").hide();
