@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuario;
 use App\Http\Requests\UpdateUsuario;
+use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -231,5 +232,15 @@ class UsuarioController extends Controller
 
 
         return view('usuario.perfil',['datos'=>$datos]);
+    }
+
+    public function buscar(Request $request){
+        $sTexto = $request->texto;
+        if(!isset($sTexto)){
+            $sTexto = "123xyza";
+        }
+        $datos = Users::whereRaw("lower(users.nombres) like lower('%".$sTexto."%') or lower(users.primer_apellido) like lower('%".$sTexto."%') or lower(users.segundo_apellido) like lower('%".$sTexto."%') or lower(users.cargo) like lower('%".$sTexto."%')")
+                ->get();
+        return $datos;
     }
 }
