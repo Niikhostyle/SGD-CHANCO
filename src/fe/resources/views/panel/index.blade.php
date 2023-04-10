@@ -811,6 +811,10 @@
     });
 
     $('#btnBuscarDocto').click(function() {
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
         $('#carpetas').show();
         $('#logoPLC').hide();
         $('#contenedor_tabla_contacto').hide();
@@ -827,6 +831,10 @@
     });
 
     $('#btnBuscarContacto').click(function() {
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
         $('#carpetas').show();
         $('#logoPLC').hide();
         $('#contenedor_tabla_doctos').hide();
@@ -883,6 +891,10 @@
     });
 
     function mostrar_categorias(){
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
         $('#carpetas').show();
         $('#logoPLC').hide();
         $('#contenedor_tabla_doctos').hide();
