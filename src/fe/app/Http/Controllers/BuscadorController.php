@@ -257,7 +257,7 @@ class BuscadorController extends Controller
         }
         if($request->buscar_tipo_documento != ""){
             $filtroAvanzado .= " and lower(td.nombre) = lower('".$request->buscar_tipo_documento."')";
-        }
+        } 
         if($request->buscar_buzon_origen != "" && $request->buscar_derivado == ""){
             $filtroAvanzado .= " and lower(bo.nombre) = lower('".$request->buscar_buzon_origen."')";
         }
