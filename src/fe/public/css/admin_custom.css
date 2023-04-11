@@ -9,6 +9,9 @@
   text-decoration: inherit;
 }
 
+.nota_destacada {
+  color: #f34b4a;
+}
 .text-white a:hover{
  color: #47b92a;
 }
@@ -226,13 +229,20 @@ color: #ffffff;
   display: inline;    
 }
 
-.btn-anexo-firmado {
+.btn-anexo-firmado1 {
+  left: 75px;
   position: absolute;
-  top: -10px;
+  top: 5px;
   display: inline;  
-  background-color: #d5f2b8;
-  border: 1px solid #123977;
-  color: #1c66a8;  
+  color: #8ed752;  
+}
+
+.btn-anexo-firmado2 {
+  left: 75px;
+  position: absolute;
+  top: 25px;
+  display: inline;  
+  color: #123977;  
 }
 
 /* dropzone */

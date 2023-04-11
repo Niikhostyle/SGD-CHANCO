@@ -336,19 +336,39 @@ class FirmaController extends Controller
                             } 
                             
                             
-                            //solo primera firma
-                            if(count($datosBitacora) == 0)    
+                            //solo primera y segunda firma
+                            if(count($datosBitacora) == 0 || count($datosBitacora) == 1)    
                             {                                
                         
-                                //firma de anexo                            
-                                $aDocumentoBuzonAnexo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                            ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
-                                                            ->where('documento.id_documento', '=', $datos['id_documento'])
-                                                            ->where('id_tipo_archivo','=', '2')                                                        
-                                                            ->where('firma_anexo','=', '1')
-                                                            ->whereNull('estado_firma_anexo')
-                                                            ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado','id_tipo_archivo')
-                                                            ->get();
+                                //firma de anexo   
+                                if (count($datosBitacora) == 0)
+                                {
+                                    $aDocumentoBuzonAnexo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                                                ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                                                ->where('documento.id_documento', '=', $datos['id_documento'])
+                                                                ->where('id_tipo_archivo','=', '2')                                                        
+                                                                ->whereIn('firma_anexo',array(1,2))
+                                                                ->whereNull('estado_firma_anexo')
+                                                                ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado','id_tipo_archivo')
+                                                                ->get();
+
+                                    $iEstadoFirma = 1;                            
+                                }
+
+                                if (count($datosBitacora) == 1)   
+                                {
+                                    $aDocumentoBuzonAnexo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                    ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
+                                    ->where('documento.id_documento', '=', $datos['id_documento'])
+                                    ->where('id_tipo_archivo','=', '2')                                                        
+                                    ->where('firma_anexo','=', '2')
+                                    ->where('estado_firma_anexo','=', '1')
+                                    ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado','id_tipo_archivo')
+                                    ->get();
+
+                                    $iEstadoFirma = 2;                            
+
+                                }
 
                                 if (count($aDocumentoBuzonAnexo) > 0)
                                 {                               
@@ -413,12 +433,11 @@ class FirmaController extends Controller
                                                     $comentario = "No se encuentra el archivo anexo firmado. ";
                                                     throw new Exception($comentario);
                                                 }
-                                                //return $archAnexo->id_documento_buzon_archivo;
 
                                                 //actualiza estado de firma
                                                 $regFirma = $archAnexo->id_documento_buzon_archivo;
                                                 //DocumentoBuzonArchivo::find($archAnexo->id_documento_buzon_archivo)->update(['estado_firma_anexo' => 1]);
-                                                DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => 1, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
+                                                DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => $iEstadoFirma, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
 
                                             }
                                             

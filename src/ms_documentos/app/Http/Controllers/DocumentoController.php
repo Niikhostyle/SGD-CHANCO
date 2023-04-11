@@ -191,9 +191,8 @@ class DocumentoController extends Controller{
             {
                 DB::beginTransaction();
 
-                $datosRequest = $request->json()->all();    
-                
-                               
+                $datosRequest = $request->json()->all();   
+                             
                 //print_r($datosRequest);exit;
                 //$validator = $this->validator->validateUpdate();
 
@@ -313,7 +312,13 @@ class DocumentoController extends Controller{
                              
                             foreach($datosRequest['aParaFirma'] as $regFirma)
                             {
-                                DocumentoBuzonArchivo::find($regFirma)->update(['firma_anexo' => 1]); 
+                                //DcumentoBuzonArchivo::find($regFirma)->update(['firma_anexo' => 1]); 
+                                $aCountAnexos = explode("-", $regFirma);
+                                $nAnexo = $aCountAnexos[0];
+                                $nAnexo2 = $aCountAnexos[1];
+
+                                DocumentoBuzonArchivo::find($aCountAnexos[0])->update(['firma_anexo' => $aCountAnexos[1]]);                                
+
                             }
                         }
 
