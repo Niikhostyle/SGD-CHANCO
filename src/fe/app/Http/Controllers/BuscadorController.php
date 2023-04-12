@@ -277,6 +277,10 @@ class BuscadorController extends Controller
             $filtroAvanzado .= "and d.efectos_terceros = ".$request->terceros;
         }
 
+        if($request->respondidos != ""){
+            $filtroAvanzado .= " and d.json_respuesta_a is not null";
+        }
+
         if($request->buscar_derivado != ""){
             $filtroAvanzado .= " and lower((case when db.id_documento_buzon_padre is not null 
             then 
@@ -334,6 +338,7 @@ class BuscadorController extends Controller
                                         (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) 
                                         as buzon_actual,
                                         b.nombre as destinatario
+                                        ,d.json_respuesta_a as respuesta_a
                                     from 
                                         documento_buzon_bitacora dbb
                                         join documento_buzon db on dbb.id_documento_buzon = db.id_documento_buzon
@@ -367,6 +372,7 @@ class BuscadorController extends Controller
                                         , bo.nombre as buzon_origen
                                         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
                                         ,'' destinatario
+                                        ,d.json_respuesta_a as respuesta_a
                                     from 
                                         documento_buzon db 
                                         join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
@@ -389,7 +395,8 @@ class BuscadorController extends Controller
                                         , d.id_tipo_documento 
                                         , td.nombre
                                         , buzon_origen
-                                        , buzon_actual");
+                                        , buzon_actual
+                                        ,d.json_respuesta_a");
         }
         //dd(DB::getQueryLog());  
         //return $datos;exit;

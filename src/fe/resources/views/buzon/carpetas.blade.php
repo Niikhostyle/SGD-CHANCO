@@ -405,7 +405,7 @@
                         </div>
 
                         <div class="form-group row_anexo">
-                            <label for="exampleFormControlTextarea1">Anexos: (Nota:Marque los anexos que requieren firma)</label>
+                            <label for="exampleFormControlTextarea1">Anexos: <span class="nota_destacada">(NOTA: MARQUE LOS ANEXOS QUE REQUIEREN FIRMA)</span></label>
                             
                             <div class="card-body card-archivos" id="cargar_anexo">
                                 <div id="dropzone-anexo-view" class="dropzone-view"></div>
@@ -487,6 +487,7 @@
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+                                    <input type="hidden" name="hiddFirmaAnexo" id="hiddFirmaAnexo" value="">                                    
                                     <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
                                     <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
                                     
@@ -1576,10 +1577,27 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+        var cuerpo = editor_cuerpo.getData();
 
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        var efectos_terceros = $("select[name='efectos_terceros']").val();
+        var contestar_hasta = $("input[name='contestar_hasta']").val();
+        var materia = $("input[name='materia']").val();
+        var anterior = $("input[name='anterior']").val();
+        var descripcion = $("textarea[name='descripcion']").val();
+        var encabezado = $("input[name='encabezado']").val();
+        var hiddIdFileDelete = $("input[name='hiddIdFileDelete']").val();
         var opcionGuardarDestinatarios = 1;
+        //check para firma anexos
+        var aParaFirma = [];
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+            }
+        }); 
 
-
+        
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
             type: 'PUT',
@@ -1594,9 +1612,20 @@
                 comentarioOtros:comentarioOtros,
                 acciones_solicitadas:acciones_solicitadas,
                 hiddIdDocumento:hiddIdDocumento,
+                cuerpo:cuerpo,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                 carpeta:2,
-                opcionGuardar:opcionGuardarDestinatarios
+                opcionGuardar:opcionGuardarDestinatarios,
+                tipo_documento:tipo_documento,
+                nivel_acceso:nivel_acceso,
+                descripcion:descripcion,
+                efectos_terceros:efectos_terceros,
+                materia:materia,
+                anterior:anterior,
+                encabezado:encabezado,
+                hiddIdFileDelete:hiddIdFileDelete,
+                estado:4,
+                aParaFirma:aParaFirma
             },
             success: function(data)
             {
@@ -1774,6 +1803,149 @@
                 habilita_boton('btn-firmar-derivar');
                 habilita_boton('btn-derivar-2');
                 habilita_boton('btn-derivar');
+            }
+
+        });
+    }
+
+    function guardar_enviar(){
+        $('.btn-derivar-2').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+        var _token = $("input[name='_token']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        var efectos_terceros = $("select[name='efectos_terceros']").val();
+        var contestar_hasta = $("input[name='contestar_hasta']").val();
+        var materia = $("input[name='materia']").val();
+        var anterior = $("input[name='anterior']").val();
+        var descripcion = $("textarea[name='descripcion']").val();
+        var encabezado = $("input[name='encabezado']").val();
+        var cuerpo = editor_cuerpo.getData();
+
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var hiddIdFileDelete = $("input[name='hiddIdFileDelete']").val();
+
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        var comentarioPrincipal = $('#form_comentario_el').val();
+        var comentarioOtros = $('#form_comentario_otro_el').val();
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+
+        //check para firma anexos
+        var aParaFirma = [];
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+            }
+        }); 
+        
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-derivar-2');
+        deshabilita_boton('btn-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+        
+        setea_sesiones_recibidos();
+        setea_sesiones_despachados();
+
+        $.ajax({
+            url: "{{route('buzones.update_documento')}}",
+            type: 'PUT',
+            dataType: 'json',
+            data: {
+                _token:_token,
+                tipo_documento:tipo_documento,
+                nivel_acceso:nivel_acceso,
+                descripcion:descripcion,
+                efectos_terceros:efectos_terceros,
+                contestar_hasta:contestar_hasta,
+                materia:materia,
+                anterior:anterior,
+                encabezado:encabezado,
+                cuerpo:cuerpo,
+                buzon:hiddIdBuzon,
+                destinatarioPrincipal:destinatarioPrincipal,
+                destinatarioOtros:otrosDestinatarios,
+                comentarioPrincipal:comentarioPrincipal,
+                comentarioOtros:comentarioOtros,
+                acciones_solicitadas:acciones_solicitadas,
+                hiddIdDocumento:hiddIdDocumento,
+                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                hiddIdFileDelete:hiddIdFileDelete,
+                carpeta:2,
+                estado:4,
+                aParaFirma:aParaFirma
+            },
+            success: function(data)
+            {
+                if(data.status == '200')
+                {
+                    toastr.success("Documento guardado","¡Aviso!");
+                    derivar_documento();
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
+                    habilita_boton('btn-derivar-2');
+                    habilita_boton('btn-derivar');
+                    $('.btn-derivar-2').html('Guardar y Enviar');
+                }
+                else
+                {
+                    toastr.error(data.data.comentario,"¡Aviso!");
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
+                    habilita_boton('btn-derivar-2');
+                    habilita_boton('btn-derivar');
+                    $('.btn-derivar-2').html('Guardar y Enviar');
+                    $('.btn-guardar-submit-edit').html("Guardar");
+                    //if(idCarpeta != 2){
+                        $('.btn-recibir-submit').html('Guardar');
+                    //}
+                }
+
+                
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr.error("Falla en el documento","¡Aviso!");
+
+                $('.btn-guardar-submit-edit').html( 'Guardar' );
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-firmar-derivar');
+                habilita_boton('btn-derivar-2');
+                habilita_boton('btn-derivar');
+                $('.btn-derivar-2').html('Guardar y Enviar');
             }
 
         });
@@ -2332,6 +2504,27 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
+        //anexos
+        var aParaFirma = [];
+        var hayAnexos = "";
+        var firmaAnexo = $("input[name='hiddFirmaAnexo']").val();
+
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+                hayAnexos = " y <b>anexos</b> seleccionados";
+            }
+        }); 
+
+        if (firmaAnexo > 0)
+        {
+            hayAnexos = " y <b>anexos</b> seleccionados";
+        }
+        console.log(aParaFirma);
+        console.log(hayAnexos);
+
+        //y anexos seleccionados
         
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
@@ -2339,7 +2532,7 @@
         Swal.fire({
                 title: 'Firmar',
                 html: "Se realizará la firma del documento: <br>" +
-                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                    "<b>" + $("input[name='materia']").val() + "</b>"+ hayAnexos +"<br>",
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#3085d6',
@@ -3174,6 +3367,21 @@
         $('#addButton').html('');
 
     }
+    function ver_recibidos_alerta(id_documento, id_documento_buzon,id_documento_buzon_padre,materia){
+        Swal.fire({
+            title: 'Advertencia', 
+            html: "Se visualizará Documento: <br><strong>"+id_documento+"-"+materia+"</strong><br>¿Desea continuar?",                      
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) {
+                    ver_recibidos(id_documento, id_documento_buzon,id_documento_buzon_padre);
+                }
+            });  
+    }
 
     function responder_recibidos(id_documento)
     {
@@ -3799,7 +4007,7 @@
                                     $('#form_respuesta_a').multiselect('select', jsonRespuesta[j]['id_documento']);
                             
                                 //completa carrusel lado izq
-                                sDivIzq += ' <div class="item"><div class="item_display">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
+                                sDivIzq += ' <div class="item"><div class="item_display" onclick="ver_recibidos_alerta('+jsonRespuesta[j]['identificador']+','+id_documento_buzon+','+docBuzon+',\''+jsonRespuesta[j]['materia']+'\')" style="cursor:pointer;">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
                             }
 
                             $('#form_respuesta_a').multiselect('rebuild');
@@ -3807,11 +4015,12 @@
 
                             //completar carrusel lado der
                             var sDivDer = "";
-                            for (let d in jsonDocResponder)
-                                sDivDer += ' <div class="item"><div class="item_display">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                            for (let d in jsonDocResponder){
+                                sDivDer += ' <div class="item"><div class="item_display" onclick="ver_recibidos_alerta('+jsonDocResponder[d]['identificador']+','+id_documento_buzon+','+docBuzon+',\''+jsonDocResponder[d]['materia']+'\')" style="cursor:pointer;">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                            }
                                  
                             
-                            sDivActual = '<div class="item"><div class="item_display item-doc">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                            sDivActual = '<div class="item"><div class="item_display item-doc"  onclick="ver_recibidos_alerta('+data.data.identificador+','+id_documento_buzon+','+docBuzon+',\''+data.data.materia+'\')" style="cursor:pointer;">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
                             
                             if (sDivDer != '')
                                 sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';
@@ -3913,7 +4122,7 @@
                                             //$('.btn-enviar-submit').show(); 
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
-                                            var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
+                                            var buttonDerivar = '<button onClick="guardar_enviar()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
                                             $('#addButton').append(buttonDerivar);
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
@@ -3986,7 +4195,7 @@
                                             $('#form_comentario_otro_el').prop("disabled", false); 
                                             $(".bootstrap-tagsinput-max").removeClass("disabled");
                                             $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                            var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
+                                            var buttonDerivar = '<button onClick="guardar_enviar()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
                                             $('#addButton').append(buttonDerivar);
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
@@ -4358,26 +4567,73 @@
                         let htmlFilePrincipal_va = '<div class="col-md-12 file-container-all">';
                         
                         aFilesPrincipal = [];
-                        aFilesDelete = [];                  
+                        aFilesDelete = [];  
+                        
+                        let contAnexo = 1;
+                        var firma_anexo = 0;
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
                             if (value.firma_anexo == 1)
                             {
-                                if(value.estado_firma_anexo == 1)
+                                if(value.estado_firma_anexo == 1) //firmado
                                 {
-                                    var chkFirmaAnexo = '<div style="margin-left: -90px;">  <label class="btn btn-anexo-firmado">FIRMADO</label> </div>';
-                                    var chkFirmaAnexoView = '<div style="margin-left: -90px;">  <label class="btn btn-anexo-firmado">FIRMADO</label> </div>';
+                                    var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
+                                    //chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+                                    chkFirmaAnexo += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';       
+
+
+                                    var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';        
+
                                 }
                                 else
                                 {
-                                    var chkFirmaAnexo = '<input type="checkbox" checked name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'" style="position: absolute;top: 10px;left: 80px;">';
-                                    var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px;">  <i class="fa fa-check-square"></i> </div>';        
+                                    var chkFirmaAnexo = '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-1" data-toggle="tooltip" checked data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" name="chkFirmaAnexo" style="accent-color: #8ed752;position: absolute;top: 10px;left: 80px;">';
+                                    chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+
+                                    var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px; color:#8ed752">  <i class="fa fa-check-square"></i> </div>'; 
+                                    chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';        
+                                    firma_anexo +=1;
+                                 }
+                            } 
+                            else if (value.firma_anexo == 2)
+                            {
+                                if(value.estado_firma_anexo == 1)
+                                {
+                                    var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexo += '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+                                    //chkFirmaAnexo += '<div class="btn-anexo-firmado2"> <i class="fa fa-check-circle"></i> </div>';
+
+                                    var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px; color:#123977">  <i class="fa fa-check-square"></i> </div>';        
+                                    firma_anexo +=1;
+
                                 }
-                            }    
+                                else if(value.estado_firma_anexo == 2)
+                                {
+                                    var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexo += '<div class="btn-anexo-firmado2"> <i class="fa fa-check-circle"></i> </div>';
+
+                                    var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexoView += '<div class="btn-anexo-firmado2">  <i class="fa fa-check-circle"></i> </div>';
+                                }
+                                else
+                                {
+                                    var chkFirmaAnexo = '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-1" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" name="chkFirmaAnexo" style="accent-color: #8ed752;position: absolute;top: 10px;left: 80px;">';
+                                    chkFirmaAnexo += '<input type="checkbox" onClick="selCheckAnexo(this)" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+
+                                    var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px; color:#8ed752">  <i class="fa fa-check-square"></i> </div>'; 
+                                    chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px; color:#123977">  <i class="fa fa-check-square"></i> </div>';        
+
+                                    firma_anexo +=1;
+                                }
+                            }       
                             else
                             {
-                                var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'" style="position: absolute;top: 10px;left: 80px;">';
+                                var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-1" style="position: absolute;top: 5px;left: 80px;">';
+                                chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" style="position: absolute;top: 23px;left: 80px;">';
+
                                 var chkFirmaAnexoView = ''; 
                             }
 
@@ -4437,8 +4693,11 @@
                             if (value.id_tipo_archivo == 1 && value.version != 1) 
                                 htmlFilePrincipal_va += htmlFile_va + '</div>'; 
 
+                            contAnexo += 1;   
+
                         });
                        
+                        $('#hiddFirmaAnexo').val(firma_anexo);
 
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
                         $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
@@ -4458,7 +4717,28 @@
                 }
             }
         });
-    }    
+    }  
+    
+    function selCheckAnexo(x)
+    {
+        var checkValSel = x.value;
+        var checkComp = checkValSel.substring(0, checkValSel.length - 2)+'-1';
+        
+        if (x.checked == true)
+        {
+            $('input:checkbox[name="chkFirmaAnexo"]').each(function()
+            {    
+                let valorChkComp = $(this).val();
+                valorChkComp = valorChkComp.substring(0, valorChkComp.length - 2); 
+
+                let valorChk = valorChkComp+'-1';
+
+                if (valorChk == checkComp) {
+                    $(this).prop("checked", true);
+                }
+            }); 
+        }
+     }
 
     function deleteFile(codFile){
         //obtener datos y eliminar el seleccionado
