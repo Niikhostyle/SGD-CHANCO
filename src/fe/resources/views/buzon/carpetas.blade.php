@@ -487,6 +487,7 @@
                                     <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
                                     <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
                                     <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+                                    <input type="hidden" name="hiddFirmaAnexo" id="hiddFirmaAnexo" value="">                                    
                                     <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
                                     <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
                                     
@@ -2322,7 +2323,7 @@
     }
 
 
-    function firmar_documento()
+    function firmar_documento() 
     {
         if(bloqueo_accion){
             return false;
@@ -2336,13 +2337,19 @@
         //anexos
         var aParaFirma = [];
         var hayAnexos = "";
+        var firmaAnexo = $("input[name='hiddFirmaAnexo']").val();
 
         $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
             if (this.checked) {
                 aParaFirma.push($(this).val());
-                hayAnexos = " y anexos seleccionados";
+                hayAnexos = " y <b>anexos</b> seleccionados";
             }
         }); 
+
+        if (firmaAnexo > 0)
+        {
+            hayAnexos = " y <b>anexos</b> seleccionados";
+        }
         console.log(aParaFirma);
         console.log(hayAnexos);
 
@@ -2353,8 +2360,8 @@
         deshabilita_boton('btn-recibir-submit');
         Swal.fire({
                 title: 'Firmar',
-                html: "Se realizará la firma del documento: "+ hayAnexos +"<br>" +
-                    "<b>" + $("input[name='materia']").val() + "</b><br>",
+                html: "Se realizará la firma del documento: <br>" +
+                    "<b>" + $("input[name='materia']").val() + "</b>"+ hayAnexos +"<br>",
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#3085d6',
@@ -4376,6 +4383,7 @@
                         aFilesDelete = [];  
                         
                         let contAnexo = 1;
+                        var firma_anexo = 0;
 
                         $.each(relDocumentoBuzonArchivo, function(key,value)
                         { 
@@ -4385,7 +4393,7 @@
                                 {
                                     var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
                                     //chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
-                                    chkFirmaAnexo += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';        
+                                    chkFirmaAnexo += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';       
 
 
                                     var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
@@ -4395,11 +4403,11 @@
                                 else
                                 {
                                     var chkFirmaAnexo = '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-1" data-toggle="tooltip" checked data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" name="chkFirmaAnexo" style="accent-color: #8ed752;position: absolute;top: 10px;left: 80px;">';
-                                    chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+                                    chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
 
                                     var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px; color:#8ed752">  <i class="fa fa-check-square"></i> </div>'; 
                                     chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';        
-
+                                    firma_anexo +=1;
                                  }
                             } 
                             else if (value.firma_anexo == 2)
@@ -4407,11 +4415,12 @@
                                 if(value.estado_firma_anexo == 1)
                                 {
                                     var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
-                                    //chkFirmaAnexo += '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
-                                    chkFirmaAnexo += '<div class="btn-anexo-firmado2"> <i class="fa fa-check-circle"></i> </div>';
+                                    chkFirmaAnexo += '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+                                    //chkFirmaAnexo += '<div class="btn-anexo-firmado2"> <i class="fa fa-check-circle"></i> </div>';
 
                                     var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
                                     chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px; color:#123977">  <i class="fa fa-check-square"></i> </div>';        
+                                    firma_anexo +=1;
 
                                 }
                                 else if(value.estado_firma_anexo == 2)
@@ -4425,16 +4434,18 @@
                                 else
                                 {
                                     var chkFirmaAnexo = '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-1" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" name="chkFirmaAnexo" style="accent-color: #8ed752;position: absolute;top: 10px;left: 80px;">';
-                                    chkFirmaAnexo += '<input type="checkbox" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
+                                    chkFirmaAnexo += '<input type="checkbox" onClick="selCheckAnexo(this)" checked value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
 
                                     var chkFirmaAnexoView = '<div style="margin-left: -5px;position: absolute;top: 5px;left: 80px; color:#8ed752">  <i class="fa fa-check-square"></i> </div>'; 
                                     chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px; color:#123977">  <i class="fa fa-check-square"></i> </div>';        
+
+                                    firma_anexo +=1;
                                 }
                             }       
                             else
                             {
                                 var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-1" style="position: absolute;top: 5px;left: 80px;">';
-                                chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" style="position: absolute;top: 23px;left: 80px;">';
+                                chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" style="position: absolute;top: 23px;left: 80px;">';
 
                                 var chkFirmaAnexoView = ''; 
                             }
@@ -4499,6 +4510,7 @@
 
                         });
                        
+                        $('#hiddFirmaAnexo').val(firma_anexo);
 
                         $('#dropzone-principal-view').html(htmlFilePrincipal + '</div>');
                         $('#dropzone-anexo-view').html(htmlFileAnexo + '</div>');
@@ -4518,7 +4530,28 @@
                 }
             }
         });
-    }    
+    }  
+    
+    function selCheckAnexo(x)
+    {
+        var checkValSel = x.value;
+        var checkComp = checkValSel.substring(0, checkValSel.length - 2)+'-1';
+        
+        if (x.checked == true)
+        {
+            $('input:checkbox[name="chkFirmaAnexo"]').each(function()
+            {    
+                let valorChkComp = $(this).val();
+                valorChkComp = valorChkComp.substring(0, valorChkComp.length - 2); 
+
+                let valorChk = valorChkComp+'-1';
+
+                if (valorChk == checkComp) {
+                    $(this).prop("checked", true);
+                }
+            }); 
+        }
+     }
 
     function deleteFile(codFile){
         //obtener datos y eliminar el seleccionado
