@@ -121,9 +121,9 @@ function cargar_datos_grilla(id_documento)
                     var idBuzon = $("input[name='hiddIdBuzon']").val();
                     var carpeta = "";
                     var idBuzonOrigen = "";
-
                     $.each(data.data.rel_documento_buzon, function(key,value)
                     {
+                        id_buzon = value.id_buzon;
                         if (value.id_documento_buzon_padre == null) //buzon origen id_documento_buzon_padre = null
                             idBuzonOrigen = value.id_buzon;
 
@@ -145,7 +145,7 @@ function cargar_datos_grilla(id_documento)
                     //$("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
 
                     $("#idAsignado").text(data.data.identificador);
-                    
+                    $("#idFolio").html("No Asignado");
                     if (data.data.folio != null)
                         $("#idFolio").html("<b>"+data.data.folio+"</b>");
 
@@ -251,19 +251,22 @@ function cargar_datos_grilla(id_documento)
                     var sDivIzq = "";
                     var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                     var jsonDocResponder = data.data.rel_responder;
-
+                    $('#form_respuesta_a').empty();
                     for (let j in jsonRespuesta) 
                     {                           
                         //completa carrusel lado izq
-                        sDivIzq += ' <div class="item"><div class="item_display">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
+                        sDivIzq += ' <div class="item"><div class="item_display"  onclick="visualizar_documento_alerta('+jsonRespuesta[j]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonRespuesta[j]['materia']+'\')" style="cursor:pointer;">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
+                        $('#form_respuesta_a').append("<option selected>"+jsonRespuesta[j]['identificador']+"-"+jsonRespuesta[j]['materia']+"</option>");
+
                     }
 
                     //completar carrusel lado der
                     var sDivDer = "";
-                    for (let d in jsonDocResponder)
-                        sDivDer += ' <div class="item"><div class="item_display">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                    for (let d in jsonDocResponder){
+                        sDivDer += ' <div class="item"><div class="item_display"  onclick="visualizar_documento_alerta('+jsonDocResponder[d]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonDocResponder[d]['materia']+'\')"  style="cursor:pointer;">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                    }
                      
-                    sDivActual = '<div class="item"><div class="item_display item-doc">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                    sDivActual = '<div class="item"><div class="item_display item-doc"  onclick="visualizar_documento_alerta('+data.data.identificador+','+id_buzon+','+idBuzonOrigen+',\''+data.data.materia+'\')" style="cursor:pointer;">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
                     
                     if (sDivDer != '')
                         sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';
@@ -428,6 +431,22 @@ function cargar_datos_bitacora(id_documento)
     //window.someGlobalOrWhatever = response.balance
    });
 
+}
+
+function visualizar_documento_alerta(id_documento, id_documento_buzon,id_documento_buzon_padre,materia){
+    Swal.fire({
+        title: 'Advertencia', 
+        html: "Se visualizará Documento: <br><strong>"+id_documento+"-"+materia+"</strong><br>¿Desea continuar?",                      
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Aceptar'
+        }).then((result) => {
+            if (result.value==true) {
+                visualizar_documento(id_documento, id_documento_buzon,id_documento_buzon_padre);
+            }
+        });  
 }
 
 

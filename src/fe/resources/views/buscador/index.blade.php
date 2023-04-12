@@ -76,6 +76,9 @@
                     <div class="form-group">
                         <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
                         <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
+                        <br>
+                        <input type="checkbox" name="buscar_respondidos" id="buscar_respondidos" class="valign middle">
+                        <label for="check_respondidos">Respondido</label>
                     </div>
                     
                 </div>
@@ -196,10 +199,11 @@
                                                 <th data-priority="2">Buzón origen</th>
                                                 <th data-priority="2">Buzón Actual</th>
                                                 <th data-priority="2">Derivado a</th>
+                                                <th data-priority="2">ID Respuesta</th>
+                                                <th data-priority="2">Fecha DOC Respuesta</th>
                                                 <th>Efectos Terceros</th>
                                                 <th>Acciones</th>
                                                 <th></th>
-                                    
                                             </tr>
                                         </thead>
                                     </table>
@@ -277,7 +281,7 @@
                             <div class="form-row">
                                 <div class="col-md-4 mb-3">
                                     <label for="inputState">Respuesta a:</label>
-                                    <select id="form_respuesta_a" name="respuesta_a" class="form-control form-disabled">                                  
+                                    <select id="form_respuesta_a" name="respuesta_a" class="form-control form-disabled">                           
                                     </select>
                                 </div>
                                 <div class="col-md-8 mb-3">
@@ -667,7 +671,44 @@
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
                     { data: 'destinatario', name: 'destinatario' },
-                    
+                    { data: 'respuesta_a', 
+                            render: function(data, type, row) {
+                                if (type === 'display') 
+                                {
+                                    var docsRespuesta = row.respuesta_a;
+                                    var docs = '';   
+                                    
+                                    if (docsRespuesta != null)
+                                    {
+                                        docsRespuesta = $.parseJSON(docsRespuesta.replace(/(&quot\;)/g,"\""));                                                
+                                        
+                                        if (docsRespuesta.length > 0) 
+                                        {                                 
+                                            for (let i in docsRespuesta) 
+                                            {
+                                                docs += docsRespuesta[i]['identificador'] + ' - '; 
+                                            }
+
+                                            return docs.substring(0, docs.length - 2);                                    
+                                        }
+                                        else
+                                            return '';
+                                    }
+                                }
+                                return '';
+                            }     
+                },
+                { data: 'fecha_documento', 
+                            render: function(data, type, row){
+                                var docsRespuesta = row.respuesta_a;
+                                if (docsRespuesta != null){
+                                    return moment(data).format('DD-MM-YYYY');
+                                }
+                                else{
+                                    return '';
+                                }
+                            }
+                },
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){
@@ -783,11 +824,19 @@
     }
     
     $('#btnBuscarSimple').click(function() {
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
         let busqueda_simple = $('#busqueda_simple').val();
         $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?busqueda_simple='+busqueda_simple).load();
     });
 
     $('#btnBuscar').click(function() {
+        $('#card_documento').hide();
+        $('#card_bitacora').hide();	
+        $('.btn_cerrar_guardar').hide();
+        $("#collapseOne").collapse('show');
         let id_documento = $('#buscar_id_documento').val();
         let tipo_documento = $('#buscar_tipo_documento').val();
         let folio = $('#buscar_folio').val();
@@ -801,12 +850,16 @@
         let id_buzon_actual = $('#buscar_buzon_actual').val();
         let id_buzon_derivado = $('#buscar_derivado').val();
         let anio = $('#buscar_anio').val();
-        let terceros = ""
+        let terceros = "";
         if($('#buscar_efectos_sobre_terceros').is(":checked")){
             terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
         }
+        let respondidos = "";
+        if($('#buscar_respondidos').is(":checked")){
+            respondidos = 1;
+        }
 
-        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros+'&buscar_buzon_actual='+id_buzon_actual+'&buscar_anio='+anio+'&buscar_derivado='+id_buzon_derivado+'&buscar_fecha_ini_d='+fid+'&buscar_fecha_fin_d='+ftd).load();
+        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros+'&buscar_buzon_actual='+id_buzon_actual+'&buscar_anio='+anio+'&buscar_derivado='+id_buzon_derivado+'&buscar_fecha_ini_d='+fid+'&buscar_fecha_fin_d='+ftd+'&respondidos='+respondidos).load();
         var table = $('#grilla_recibidos').DataTable();
         var column = table.column(8);
         column.visible(false);
@@ -829,6 +882,7 @@
         $('#buscar_fecha_ini_d').val('');
         $('#buscar_fecha_fin_d').val('');
         $('#buscar_efectos_sobre_terceros').prop('checked', false);
+        $('#buscar_respondidos').prop('checked', false);
     });
 
     owl = $('.owl-carousel').owlCarousel(); 
