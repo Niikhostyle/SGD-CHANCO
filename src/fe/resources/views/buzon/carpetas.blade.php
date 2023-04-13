@@ -1751,6 +1751,7 @@
                         //if(idCarpeta != 2){
                             $('.btn-recibir-submit').html('Guardar');
                         //}
+                        
                         habilita_boton('btn-recibir-submit');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-guardar-submit-edit');
@@ -1763,6 +1764,10 @@
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-derivar-2');
                         habilita_boton('btn-derivar');
+
+                        //recarga
+
+                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
 
                     }, 5000);
                 }
