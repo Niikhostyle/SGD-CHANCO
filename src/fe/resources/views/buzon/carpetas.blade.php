@@ -721,7 +721,7 @@
 
     aplicaFrm = @json($aplicaFrm);
 
-    owl = $('.owl-carousel').owlCarousel(); 
+    //owl = $('.owl-carousel').owlCarousel(); 
 
     $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
         $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
@@ -1112,6 +1112,7 @@
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
+        owl = $('.owl-carousel').owlCarousel();
         owl.trigger('destroy.owl.carousel'); 
         owl.find('.owl-stage-outer').children().unwrap();
         owl.removeClass("owl-center owl-loaded owl-text-select-on");
@@ -1164,6 +1165,7 @@
     }
 
     $(".btn_cerrar_guardar").click(function(e){
+        clear_form();
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
@@ -4030,6 +4032,7 @@
 
                             if (sDivIzq != '' || sDivDer != '')
                             {
+                                owl = $('.owl-carousel').owlCarousel();
                                 owl.trigger('destroy.owl.carousel'); 
                                 owl.find('.owl-stage-outer').children().unwrap();
                                 owl.removeClass("owl-center owl-loaded owl-text-select-on");
@@ -4046,8 +4049,7 @@
                                     navText: ["<div class='nav-button owl-prev'>‹</div>", "<div class='nav-button owl-next'>›</div>"],
                                     
                                 }).trigger('refresh.owl.carousel');
-                            }             
-
+                            }       
 
                             $.each(relDocumentoBuzon, function(i, item)
                             {                     
@@ -6796,8 +6798,7 @@
 
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
-        $('#fDerivarMasivaDestPpal').select2();
-        
+        $('#fDerivarMasivaDestPpal').select2(); 
         $(function() {
 
             fn_grilla_por_recibir();

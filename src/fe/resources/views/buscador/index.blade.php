@@ -608,7 +608,7 @@
                             exportOptions: { 
                                 columns: function(column, data, node) {
                                     
-                                    if (column > 9) {
+                                    if (column > 10) {
                                         return false;
                                     }
                                     return true;
@@ -631,13 +631,7 @@
             columns: [
                     { data: 'identificador', name: 'identificador' },
                     { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'materia', name: 'documento.materia' //,'width':200,
-                        // render:function(data){
-                        //     return "<span style='width:300px'>"+data+"</span>";
-                        //     // if(data==null){ return ''; }
-                        //     // return data.length > 60 ? data.substr( 0, 60 ) +'…' : data;
-                        //}
-                    },
+                    { data: 'materia', name: 'documento.materia' },
                     
                     { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
                             {
