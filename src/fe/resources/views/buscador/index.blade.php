@@ -545,6 +545,10 @@
             padding-top:30px;
             padding-left:50px !important; 
         }
+
+        .item a, a:hover{
+            text-decoration: underline !important;
+        }
         
     </style>
     <link rel="stylesheet" href="/css/admin_custom.css">
@@ -665,44 +669,8 @@
                     { data: 'buzon_origen', name: 'buzon_origen' },
                     { data: 'buzon_actual', name: 'buzon_actual' },
                     { data: 'destinatario', name: 'destinatario' },
-                    { data: 'respuesta_a', 
-                            render: function(data, type, row) {
-                                if (type === 'display') 
-                                {
-                                    var docsRespuesta = row.respuesta_a;
-                                    var docs = '';   
-                                    
-                                    if (docsRespuesta != null)
-                                    {
-                                        docsRespuesta = $.parseJSON(docsRespuesta.replace(/(&quot\;)/g,"\""));                                                
-                                        
-                                        if (docsRespuesta.length > 0) 
-                                        {                                 
-                                            for (let i in docsRespuesta) 
-                                            {
-                                                docs += docsRespuesta[i]['identificador'] + ' - '; 
-                                            }
-
-                                            return docs.substring(0, docs.length - 2);                                    
-                                        }
-                                        else
-                                            return '';
-                                    }
-                                }
-                                return '';
-                            }     
-                },
-                { data: 'fecha_documento', 
-                            render: function(data, type, row){
-                                var docsRespuesta = row.respuesta_a;
-                                if (docsRespuesta != null){
-                                    return moment(data).format('DD-MM-YYYY');
-                                }
-                                else{
-                                    return '';
-                                }
-                            }
-                },
+                    { data: 'id_respuesta', name:'id_respuesta'},
+                    { data: 'fecha_respuesta',name:'fecha_respuesta'},
                     { data: 'efectos_terceros', searchable: true, visible: false,},
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){

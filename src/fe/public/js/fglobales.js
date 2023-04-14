@@ -255,7 +255,7 @@ function cargar_datos_grilla(id_documento)
                     for (let j in jsonRespuesta) 
                     {                           
                         //completa carrusel lado izq
-                        sDivIzq += ' <div class="item"><div class="item_display"  onclick="visualizar_documento_alerta('+jsonRespuesta[j]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonRespuesta[j]['materia']+'\')" style="cursor:pointer;">'+jsonRespuesta[j]['identificador']+'<p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
+                        sDivIzq += ' <div class="item"><div class="item_display" ><a href="" onclick="visualizar_documento_alerta('+jsonRespuesta[j]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonRespuesta[j]['materia']+'\')">'+jsonRespuesta[j]['identificador']+'</a><p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
                         $('#form_respuesta_a').append("<option selected>"+jsonRespuesta[j]['identificador']+"-"+jsonRespuesta[j]['materia']+"</option>");
 
                     }
@@ -263,10 +263,10 @@ function cargar_datos_grilla(id_documento)
                     //completar carrusel lado der
                     var sDivDer = "";
                     for (let d in jsonDocResponder){
-                        sDivDer += ' <div class="item"><div class="item_display"  onclick="visualizar_documento_alerta('+jsonDocResponder[d]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonDocResponder[d]['materia']+'\')"  style="cursor:pointer;">'+jsonDocResponder[d]['identificador']+'<p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
+                        sDivDer += ' <div class="item"><div class="item_display" "><a href="#" onclick="visualizar_documento_alerta('+jsonDocResponder[d]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonDocResponder[d]['materia']+'\')" >'+jsonDocResponder[d]['identificador']+'</a><p>'+moment(jsonDocResponder[d]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';
                     }
                      
-                    sDivActual = '<div class="item"><div class="item_display item-doc"  onclick="visualizar_documento_alerta('+data.data.identificador+','+id_buzon+','+idBuzonOrigen+',\''+data.data.materia+'\')" style="cursor:pointer;">'+data.data.identificador+'<p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
+                    sDivActual = '<div class="item"><div class="item_display item-doc" ><a href="#" onclick="visualizar_documento_alerta('+data.data.identificador+','+id_buzon+','+idBuzonOrigen+',\''+data.data.materia+'\')">'+data.data.identificador+'</a><p>'+moment(data.data.created_at).format('DD-MM-YYYY')+'</p></div></div>';
                     
                     if (sDivDer != '')
                         sDivActualPrev = '<div class="item"><div class="item_prev"><i class="fas fa-reply-all fa-2x"></i></div></div>';

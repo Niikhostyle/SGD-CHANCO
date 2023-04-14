@@ -278,7 +278,7 @@ class BuscadorController extends Controller
         }
 
         if($request->respondidos != ""){
-            $filtroAvanzado .= " and d.json_respuesta_a is not null";
+            $filtroAvanzado .= " and d2.id_documento  is not null";
         }
 
         if($request->buscar_derivado != ""){
@@ -338,13 +338,15 @@ class BuscadorController extends Controller
                                         (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) 
                                         as buzon_actual,
                                         b.nombre as destinatario
-                                        ,d.json_respuesta_a as respuesta_a
+                                        ,d2.id_documento as id_respuesta
+                                        ,d2.created_at as fecha_respuesta
                                     from 
                                         documento_buzon_bitacora dbb
                                         join documento_buzon db on dbb.id_documento_buzon = db.id_documento_buzon
                                         join documento d on db.id_documento = d.id_documento
                                         join buzon b on db.id_buzon = b.id_buzon
                                         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
+                                        left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
                                     where 
                                         d.id_nivel_acceso < 3
                                         AND db.id_tipo_destino = 1 
@@ -372,12 +374,14 @@ class BuscadorController extends Controller
                                         , bo.nombre as buzon_origen
                                         , (select b2.nombre from documento_buzon db3 join buzon b2 on b2.id_buzon = db3.id_buzon where db3.id_documento = db.id_documento order by db3.id_documento_buzon desc limit 1) as buzon_actual
                                         ,'' destinatario
-                                        ,d.json_respuesta_a as respuesta_a
+                                        ,d2.id_documento as id_respuesta
+                                        ,d2.created_at as fecha_respuesta
                                     from 
                                         documento_buzon db 
                                         join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
                                         join buzon b on b.id_buzon = db.id_buzon
                                         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
+                                        left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
                                         LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento  AND dbo.id_documento_buzon_padre is null
                                         LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
                                     where
@@ -396,7 +400,8 @@ class BuscadorController extends Controller
                                         , td.nombre
                                         , buzon_origen
                                         , buzon_actual
-                                        ,d.json_respuesta_a");
+                                        ,d2.id_documento
+                                        ,d2.created_at");
         }
         //dd(DB::getQueryLog());  
         //return $datos;exit;
