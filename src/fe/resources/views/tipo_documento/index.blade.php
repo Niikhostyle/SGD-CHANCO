@@ -131,7 +131,7 @@
             </div>            
 
             <div class="row">
-                <div class="col-md-5">
+            <div class="col-md-4">
                     <div class="form-group">
                         <label for="input_tipo_folio">Tipo Folio:</label>
                         <select class="form-control" id="form_tipo_folio" name="tipo_folio" required>
@@ -142,7 +142,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
                         <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
@@ -156,13 +156,27 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label for="input_fe">Requiere FE:</label>
-                        <select class="form-control" id="form_fe" name="fe" required>
+                        <select class="form-control" id="form_fe" name="fe" required onchange="activa_firmas(this.value)">
                             <option value="">Seleccionar</option>
                             <option value="true">Si</option>
                             <option value="false">No</option>
                         </select>
                     </div>
-                </div>               
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="input_fe">Número de Firmas:</label>
+                        <select class="form-control" id="form_numero_firmas" name="numero_firmas" >
+                            <option value="">Seleccionar</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                </div>              
                 
             </div>  
             
@@ -178,6 +192,12 @@
                     <div class="form-group">
                         <label for="input_cuerpo">Plantilla cuerpo:</label>
                         <textarea class="form-control" id="form_plantilla_cuerpo" name="plantilla_cuerpo"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="input_distribucion">Distribución:</label>
+                        <textarea class="form-control" id="form_plantilla_distribucion" name="plantilla_distribucion"></textarea>
                     </div>
                 </div>
             </div>    
@@ -274,6 +294,14 @@
              filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
              filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
          });
+    
+    const editor_distribucion = CKEDITOR.replace('form_plantilla_distribucion',{  
+        
+        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+        height: 100
+    });
 
       
          CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
@@ -378,6 +406,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         {
             editor_encabezado.setReadOnly(false);
             editor_cuerpo.setReadOnly(false);
+            editor_distribucion.setReadOnly(false);
             $('#titulo_crear_editar').html('Editar Tipo de Documento'); 
             $('.form-control').prop("disabled", false);
             $('.btn-submit').show();
@@ -386,6 +415,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         {
             editor_encabezado.setReadOnly(true);
             editor_cuerpo.setReadOnly(true);
+            editor_distribucion.setReadOnly(true);
             $('#titulo_crear_editar').html('Ver Tipo de Documento'); 
             $('.btn-submit').prop("disabled", false); 
             $('.form-control').prop("disabled", true);
@@ -398,7 +428,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                 dataType: 'json',
                 success: function(data) { 
                     if(data.status=='400') { 
-                        toastr.error(data.data.comentario,"Aviso!");                        
+                        toastr.error(data.data.comentario,"¡Aviso!");                        
                     }
                     else { 
                         if(data.status=='200' || data.status=='201'){ 
@@ -415,7 +445,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             
                             editor_encabezado.setData(data.data.plantilla_encabezado);   
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);   
-
+                            editor_distribucion.setData(data.data.plantilla_distribucion);
                             $("input[name='hiddTipoDocumento']").val(data.data.id_tipo_documento);
 
                             //validaciones
@@ -425,13 +455,26 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             changeTipoFlujo(data.data.id_tipo_flujo, data.data.buzones_flujo.length);
 
                             cargarDatosFlujoAcciones(data.data.buzones_flujo);
+                            setTimeout(function() {
+                                activa_firmas(""+data.data.requiere_fe+"");
+                                if (op != 1 || op === undefined){
+                                    $('#form_numero_firmas').prop('disabled', true);
+                                }
+                                if (op == 2){
+                                    if(""+data.data.requiere_fe+"" == "true"){
+                                        $('#form_numero_firmas').prop('disabled', false);
+                                    }
+                                }
+                                $('#form_numero_firmas').val(data.data.numero_firmas);
+                            },1000);   
+                            
                            
                         } 
                     } 
                     $('.btn-submit').prop("disabled", false); 
                 }, 
                 error: function (jqXHR, textStatus, errorThrown) {                                                      
-                    toastr.error("Falla al obtener el tipo de documento","Aviso!");
+                    toastr.error("Falla al obtener el tipo de documento","¡Aviso!");
                     $('.btn-submit').prop("disabled", false); 
 
                 }  
@@ -705,16 +748,16 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                         success: function(data) { 
                             if(data.status == '200')
                             { 
-                                toastr.success("Tipo de Documento eliminado","Aviso!");                     
+                                toastr.success("Tipo de Documento eliminado","¡Aviso!");                     
                                 autoRefresh();
                             } 
                             else
                             {                         
-                                toastr.error(data.data.comentario,"Aviso!");
+                                toastr.error(data.data.comentario,"¡Aviso!");
                             }                    
                         }, 
                         error: function (jqXHR, textStatus, errorThrown) {                                                      
-                           toastr.error("Falla al eliminar tipo de documento","Aviso!");
+                           toastr.error("Falla al eliminar tipo de documento","¡Aviso!");
                         } 
                 }); 
             }
@@ -748,8 +791,10 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         var tipo_avance = $("select[name='tipo_avance']").val();
         var tipo_asignacion_folio = $("select[name='tipo_asignacion_folio']").val();
         var requiere_fe = $("select[name='fe']").val();
+        var numero_firmas = $("select[name='numero_firmas']").val();
         var plantilla_encabezado = editor_encabezado.getData();
         var plantilla_cuerpo = editor_cuerpo.getData();
+        var plantilla_distribucion = editor_distribucion.getData();
         var hiddTipoDocumento = $("input[name='hiddTipoDocumento']").val();
  
         var datosBuzonFlujo = [];
@@ -811,57 +856,144 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
             var urlAccion = "{{route('tipos_documentos.update')}}";
             var typeAccion = 'PUT';
         }    
-
-        $.ajax({
-            url: urlAccion,
-            type: typeAccion,
-            dataType: 'json',
-            data: { 
-                _token:_token, 
-                nombre:nombre, 
-                nombre_corto:nombre_corto, 
-                descripcion:descripcion,
-                tipo_origen:tipo_origen,
-                tipo_flujo:tipo_flujo,
-                tipo_folio:tipo_folio,
-                tipo_avance:tipo_avance,
-                tipo_asignacion_folio:tipo_asignacion_folio,  
-                requiere_fe:requiere_fe,                  
-                bzs_flujo:datosBuzonFlujo,
-                plantilla_encabezado:plantilla_encabezado,
-                plantilla_cuerpo:plantilla_cuerpo,
-                hiddTipoDocumento:hiddTipoDocumento
-            },
-            success: function(data) 
-            {
-           
-                if(data.status == '200')
+        if(requiere_fe == "false"){
+            $('.btn-submit').prop("disabled", true);
+            $('.btn_cerrar_guardar').prop("disabled", true);
+            $.ajax({
+                url: urlAccion,
+                type: typeAccion,
+                dataType: 'json',
+                data: { 
+                    _token:_token, 
+                    nombre:nombre, 
+                    nombre_corto:nombre_corto, 
+                    descripcion:descripcion,
+                    tipo_origen:tipo_origen,
+                    tipo_flujo:tipo_flujo,
+                    tipo_folio:tipo_folio,
+                    tipo_avance:tipo_avance,
+                    tipo_asignacion_folio:tipo_asignacion_folio,  
+                    requiere_fe:requiere_fe,  
+                    numero_firmas:numero_firmas,                
+                    bzs_flujo:datosBuzonFlujo,
+                    plantilla_encabezado:plantilla_encabezado,
+                    plantilla_cuerpo:plantilla_cuerpo,
+                    plantilla_distribucion:plantilla_distribucion,
+                    hiddTipoDocumento:hiddTipoDocumento
+                },
+                success: function(data) 
                 {
-                    toastr.success("Tipo de Documento actualizado","Aviso!");
-                    autoRefresh();
-                }
-                else if(data.status == '201')
-                {
-                    toastr.success("Tipo de Documento creado","Aviso!");                  
-                    autoRefresh();
-                }
-                else
-                {
-                    toastr.error(data.data.comentario,"Aviso!");                    
-                }
-
-                $('.btn-submit').html( 'Guardar' );
-            },
-            error: function (e) {
-                data = e.responseJSON;
-                if (typeof data.errors !== 'undefined') {
-                    printErrorMsg(data.errors);
-                }
-
-                $('.btn-submit').html( 'Guardar' );
-            }
             
-        });             
+                    if(data.status == '200')
+                    {
+                        toastr.success("Tipo de Documento actualizado","¡Aviso!");
+                        $('.btn-submit').prop("disabled", false);
+                        $('.btn_cerrar_guardar').prop("disabled", false);
+                        autoRefresh();
+                    }
+                    else if(data.status == '201')
+                    {
+                        toastr.success("Tipo de Documento creado","¡Aviso!"); 
+                        $('.btn-submit').prop("disabled", false);
+                        $('.btn_cerrar_guardar').prop("disabled", false);                 
+                        autoRefresh();
+                    }
+                    else
+                    {
+                        toastr.error(data.data.comentario,"¡Aviso!"); 
+                        $('.btn-submit').prop("disabled", false);
+                        $('.btn_cerrar_guardar').prop("disabled", false);                   
+                    }
+
+                    $('.btn-submit').html( 'Guardar' );
+                },
+                error: function (e) {
+                    data = e.responseJSON;
+                    if (typeof data.errors !== 'undefined') {
+                        printErrorMsg(data.errors);
+                    }
+
+                    $('.btn-submit').html( 'Guardar' );
+                    $('.btn-submit').prop("disabled", false);
+                    $('.btn_cerrar_guardar').prop("disabled", false);
+                }
+                
+            });  
+        }
+        else{
+            if(requiere_fe == "true"){
+                if(parseInt(numero_firmas) > 0){
+                    $('.btn-submit').prop("disabled", true);
+                    $('.btn_cerrar_guardar').prop("disabled", true);
+                    $.ajax({
+                            url: urlAccion,
+                            type: typeAccion,
+                            dataType: 'json',
+                            data: { 
+                                _token:_token, 
+                                nombre:nombre, 
+                                nombre_corto:nombre_corto, 
+                                descripcion:descripcion,
+                                tipo_origen:tipo_origen,
+                                tipo_flujo:tipo_flujo,
+                                tipo_folio:tipo_folio,
+                                tipo_avance:tipo_avance,
+                                tipo_asignacion_folio:tipo_asignacion_folio,  
+                                requiere_fe:requiere_fe,  
+                                numero_firmas:numero_firmas,                
+                                bzs_flujo:datosBuzonFlujo,
+                                plantilla_encabezado:plantilla_encabezado,
+                                plantilla_cuerpo:plantilla_cuerpo,
+                                plantilla_distribucion:plantilla_distribucion,
+                                hiddTipoDocumento:hiddTipoDocumento
+                            },
+                            success: function(data) 
+                            {
+                        
+                                if(data.status == '200')
+                                {
+                                    toastr.success("Tipo de Documento actualizado","¡Aviso!");
+                                    $('.btn-submit').prop("disabled", false);
+                                    $('.btn_cerrar_guardar').prop("disabled", false);
+                                    autoRefresh();
+                                }
+                                else if(data.status == '201')
+                                {
+                                    toastr.success("Tipo de Documento creado","¡Aviso!"); 
+                                    $('.btn-submit').prop("disabled", false);
+                                    $('.btn_cerrar_guardar').prop("disabled", false);                 
+                                    autoRefresh();
+                                }
+                                else
+                                {
+                                    toastr.error(data.data.comentario,"¡Aviso!");  
+                                    $('.btn-submit').prop("disabled", false);
+                                    $('.btn_cerrar_guardar').prop("disabled", false);                  
+                                }
+
+                                $('.btn-submit').html( 'Guardar' );
+                            },
+                            error: function (e) {
+                                data = e.responseJSON;
+                                if (typeof data.errors !== 'undefined') {
+                                    printErrorMsg(data.errors);
+                                }
+
+                                $('.btn-submit').html( 'Guardar' );
+                                $('.btn-submit').prop("disabled", false);
+                                $('.btn_cerrar_guardar').prop("disabled", false);
+                            }
+                            
+                        }); 
+                }
+                else{
+                    toastr.error("Debe seleccionar el número de firmas.","¡Aviso!");  
+                    $('.btn-submit').html( 'Guardar' );
+                    $('.btn-submit').prop("disabled", false);
+                    $('.btn_cerrar_guardar').prop("disabled", false);
+                }
+            }
+        }
     });
 
     function printErrorMsg(msg) {
@@ -878,6 +1010,15 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                         },2000);
     }
 
+    function activa_firmas(re){
+        if(re == "true"){
+            $('#form_numero_firmas').prop('disabled', false);
+        }
+        else{
+            $('#form_numero_firmas').prop('disabled', true);
+            $('#form_numero_firmas').val('');
+        }
+    }
 
 </script>
 @stop

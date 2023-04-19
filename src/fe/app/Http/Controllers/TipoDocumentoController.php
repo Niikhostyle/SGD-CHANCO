@@ -146,6 +146,8 @@ class TipoDocumentoController extends Controller
             'id_tipo_avance'=>$request->tipo_avance,
             'id_tipo_asignacion_folio'=>$request->tipo_asignacion_folio,
             'requiere_fe'=>$request->requiere_fe,
+            'numero_firmas'=>$request->numero_firmas,
+            'plantilla_distribucion'=>$request->plantilla_distribucion,
             'plantilla_encabezado'=>$request->plantilla_encabezado,
             'plantilla_cuerpo'=>$request->plantilla_cuerpo,
             'buzones_flujo'=>$request->bzs_flujo       
@@ -186,6 +188,8 @@ class TipoDocumentoController extends Controller
             'id_tipo_avance'=>$request->tipo_avance,
             'id_tipo_asignacion_folio'=>$request->tipo_asignacion_folio,
             'requiere_fe'=>$request->requiere_fe,
+            'numero_firmas'=>$request->numero_firmas,
+            'plantilla_distribucion'=>$request->plantilla_distribucion,
             'plantilla_encabezado'=>$request->plantilla_encabezado,
             'plantilla_cuerpo'=>$request->plantilla_cuerpo,
             'buzones_flujo'=>$request->bzs_flujo       

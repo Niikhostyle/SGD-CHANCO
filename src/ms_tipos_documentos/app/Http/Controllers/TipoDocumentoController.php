@@ -152,7 +152,7 @@ class TipoDocumentoController extends Controller{
 
                 $datosTipoDoc = TipoDocumento::findOrFail($datosRequest['id_tipo_documento']);
                 $datosTipoDoc->update($datosRequest);
-
+                
                 //agregar a ms
                 //actualizar en flujos buzones
 
