@@ -1915,10 +1915,11 @@
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
                     
-                    //setTimeout(function() {
+                    setTimeout(function() {
                         toastr.success("Borrador guardado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-                        $('.btn-recibir-submit').html('Guardar');                        
+                        $('.btn-recibir-submit').html('Guardar');
+                        
                         habilita_boton('btn-recibir-submit');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-guardar-submit-edit');
@@ -1931,8 +1932,10 @@
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-derivar-2');
                         habilita_boton('btn-derivar');
-                        //editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
-                    //}, 5000);
+                        setTimeout(function() {
+                            auto_guardado();
+                        },30000);
+                    }, 5000);
                 }
                 else
                 {
@@ -4963,10 +4966,9 @@
         habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
         habilita_boton('btn-vp');
-        console.log('llamada al editar');
         setTimeout(function() {
             auto_guardado();
-        },30000);
+        },30000);  
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
