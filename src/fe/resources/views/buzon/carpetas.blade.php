@@ -1169,7 +1169,7 @@
     }
 
     $(".btn_cerrar_guardar").click(function(e){
-        clear_form();
+       clear_form();
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
@@ -1915,13 +1915,10 @@
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
                     
-                    setTimeout(function() {
+                    //setTimeout(function() {
                         toastr.success("Borrador guardado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-                        //if(idCarpeta != 2){
-                            $('.btn-recibir-submit').html('Guardar');
-                        //}
-                        
+                        $('.btn-recibir-submit').html('Guardar');                        
                         habilita_boton('btn-recibir-submit');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-guardar-submit-edit');
@@ -1934,8 +1931,8 @@
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-derivar-2');
                         habilita_boton('btn-derivar');
-                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
-                    }, 5000);
+                        //editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                    //}, 5000);
                 }
                 else
                 {
@@ -1953,9 +1950,7 @@
                     habilita_boton('btn-derivar-2');
                     habilita_boton('btn-derivar');
                     $('.btn-guardar-submit-edit').html("Guardar");
-                    //if(idCarpeta != 2){
-                        $('.btn-recibir-submit').html('Guardar');
-                    //}
+                    $('.btn-recibir-submit').html('Guardar');
                 }
 
                 
