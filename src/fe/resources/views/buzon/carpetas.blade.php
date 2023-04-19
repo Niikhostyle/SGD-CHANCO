@@ -1173,6 +1173,8 @@
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
+        recarga_grilla_recibidos();
+        recarga_grilla_despachados();
     });
 
     $(".btn_cerrar_bitacora").click(function(e){
@@ -1437,7 +1439,7 @@
                             habilita_boton('btn-derivar-2');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
                             // $('.btn-vp-sg').hide();       
-                            // $('.btn-vp').show();       
+                            // $('.btn-vp').show();  
 
                         }, 5000);                        
                         
@@ -1519,6 +1521,9 @@
                     //actualiza grilla despachados
                     fn_grilla_despachados();   
                     recarga_grilla_despachados();
+                    setTimeout(function() {
+                        auto_guardado();
+                    },30000);     
 
                 }
                 else
@@ -1818,6 +1823,163 @@
 
         });
     }
+
+    function accion_auto_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
+    {
+        //if(idCarpeta != 2){
+            $('.btn-recibir-submit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+        //}
+        $('.btn-guardar-submit-edit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+        );
+        var _token = $("input[name='_token']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        var efectos_terceros = $("select[name='efectos_terceros']").val();
+        var contestar_hasta = $("input[name='contestar_hasta']").val();
+        var materia = $("input[name='materia']").val();
+        var anterior = $("input[name='anterior']").val();
+        var descripcion = $("textarea[name='descripcion']").val();
+        var encabezado = $("input[name='encabezado']").val();
+        var cuerpo = editor_cuerpo.getData();
+
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        var hiddIdFileDelete = $("input[name='hiddIdFileDelete']").val();
+
+        var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
+        var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
+        var comentarioPrincipal = $('#form_comentario_el').val();
+        var comentarioOtros = $('#form_comentario_otro_el').val();
+        var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
+
+        //check para firma anexos
+        var aParaFirma = [];
+        $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
+            if (this.checked) {
+                aParaFirma.push($(this).val());
+            }
+        }); 
+        
+        deshabilita_boton('btn-recibir-submit');
+        deshabilita_boton('btn_cerrar_guardar');
+        deshabilita_boton('btn-guardar-submit');
+        deshabilita_boton('btn-enviar-submit');
+        deshabilita_boton('btn-visar');
+        deshabilita_boton('btn-firmar');
+        deshabilita_boton('btn-archivar');
+        deshabilita_boton('btn-visar-derivar');
+        deshabilita_boton('btn-derivar-2');
+        deshabilita_boton('btn-derivar');
+        deshabilita_boton('btn-firmar-derivar');
+        
+        setea_sesiones_recibidos();
+        setea_sesiones_despachados();
+
+        $.ajax({
+            url: "{{route('buzones.update_documento')}}",
+            type: 'PUT',
+            dataType: 'json',
+            data: {
+                _token:_token,
+                tipo_documento:tipo_documento,
+                nivel_acceso:nivel_acceso,
+                descripcion:descripcion,
+                efectos_terceros:efectos_terceros,
+                contestar_hasta:contestar_hasta,
+                materia:materia,
+                anterior:anterior,
+                encabezado:encabezado,
+                cuerpo:cuerpo,
+                buzon:hiddIdBuzon,
+                destinatarioPrincipal:destinatarioPrincipal,
+                destinatarioOtros:otrosDestinatarios,
+                comentarioPrincipal:comentarioPrincipal,
+                comentarioOtros:comentarioOtros,
+                acciones_solicitadas:acciones_solicitadas,
+                hiddIdDocumento:hiddIdDocumento,
+                hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
+                hiddIdFileDelete:hiddIdFileDelete,
+                carpeta:idCarpeta,
+                estado:((idCarpeta==2)?4:1),
+                aParaFirma:aParaFirma
+            },
+            success: function(data)
+            {
+                if(data.status == '200')
+                {
+                    dropzoneAnexo.processQueue(); 
+                    dropzoneOtros.processQueue(); 
+                    dropzonePrincipal.processQueue(); 
+                    
+                    setTimeout(function() {
+                        toastr.success("Borrador guardado","¡Aviso!");
+                        $('.btn-guardar-submit-edit').html("Guardar");
+                        //if(idCarpeta != 2){
+                            $('.btn-recibir-submit').html('Guardar');
+                        //}
+                        
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar-2');
+                        habilita_boton('btn-derivar');
+                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                    }, 5000);
+                }
+                else
+                {
+                    toastr.error(data.data.comentario,"¡Aviso!");
+                    habilita_boton('btn-recibir-submit');
+                    habilita_boton('btn_cerrar_guardar');
+                    habilita_boton('btn-guardar-submit-edit');
+                    habilita_boton('btn-guardar-submit');
+                    habilita_boton('btn-enviar-submit');
+                    habilita_boton('btn-visar');
+                    habilita_boton('btn-firmar');
+                    habilita_boton('btn-archivar');
+                    habilita_boton('btn-visar-derivar');
+                    habilita_boton('btn-firmar-derivar');
+                    habilita_boton('btn-derivar-2');
+                    habilita_boton('btn-derivar');
+                    $('.btn-guardar-submit-edit').html("Guardar");
+                    //if(idCarpeta != 2){
+                        $('.btn-recibir-submit').html('Guardar');
+                    //}
+                }
+
+                
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                toastr.error("Falla en guardado del borrador","¡Aviso!");
+
+                $('.btn-guardar-submit-edit').html( 'Guardar' );
+                habilita_boton('btn-guardar-submit-edit');
+                habilita_boton('btn-guardar-submit');
+                habilita_boton('btn-enviar-submit');
+                habilita_boton('btn_cerrar_guardar');
+                habilita_boton('btn-recibir-submit');
+                habilita_boton('btn-visar');
+                habilita_boton('btn-firmar');
+                habilita_boton('btn-archivar');
+                habilita_boton('btn-visar-derivar');
+                habilita_boton('btn-firmar-derivar');
+                habilita_boton('btn-derivar-2');
+                habilita_boton('btn-derivar');
+            }
+
+        });
+    }    
 
     function guardar_enviar(){
         $('.btn-derivar-2').html(
@@ -4806,6 +4968,10 @@
         habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
         habilita_boton('btn-vp');
+        console.log('llamada al editar');
+        setTimeout(function() {
+            auto_guardado();
+        },30000);
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -6115,6 +6281,14 @@
         $('#despachados').on('error.dt', function(e, settings, techNote, message) {
             console.log( 'Error DataTables: ', message);
         }); 
+    }
+
+    function auto_guardado(){
+        setTimeout(function() {
+            if($('#hiddIdDocumento').val() != ""){
+                accion_auto_guardar(3);
+            }
+        }, 30000);   
     }
 
     function recepcion_masiva(){
