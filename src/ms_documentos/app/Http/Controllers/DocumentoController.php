@@ -953,6 +953,20 @@ class DocumentoController extends Controller{
                                                         'documento_buzon_archivo.estado_firma_anexo')
                                                     ->orderBy('documento_buzon_archivo.version')
                                                     ->get();
+
+                foreach ($datosDocumentoBuzon as $value) 
+                {
+                    if ($value['id_tipo_archivo'] == 2) 
+                    {
+                        $sNombreArchivo = $value['nombre_archivo_codificado'];
+                        $sArchivo = storage_path('app/public/files/'.$sNombreArchivo);
+                        
+                        $filesize = filesize($sArchivo);
+                        $filesize_mb = round($filesize / 1048576, 2);
+
+                        $value['mb'] = $filesize_mb;
+                    }  
+                }                                    
                             
                 $datosDocumento['rel_archivos'] =  $datosDocumentoBuzon;
 
