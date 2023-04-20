@@ -1169,7 +1169,7 @@
     }
 
     $(".btn_cerrar_guardar").click(function(e){
-       clear_form();
+        clear_form();
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
@@ -1523,7 +1523,8 @@
                     recarga_grilla_despachados();
                     setTimeout(function() {
                         auto_guardado();
-                    },30000);     
+                        console.log('despues de creado');
+                    },2000);     
 
                 }
                 else
@@ -1934,7 +1935,8 @@
                         habilita_boton('btn-derivar');
                         setTimeout(function() {
                             auto_guardado();
-                        },30000);
+                            console.log('en accion_auto_guardar');
+                        },2000);
                     }, 5000);
                 }
                 else
@@ -4968,7 +4970,8 @@
         habilita_boton('btn-vp');
         setTimeout(function() {
             auto_guardado();
-        },30000);  
+            console.log('despues editar_despachados');
+        },2000);  
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -6284,8 +6287,9 @@
         setTimeout(function() {
             if($('#hiddIdDocumento').val() != ""){
                 accion_auto_guardar(3);
+                console.log('ppal');
             }
-        }, 30000);   
+        }, 180000);   
     }
 
     function recepcion_masiva(){
