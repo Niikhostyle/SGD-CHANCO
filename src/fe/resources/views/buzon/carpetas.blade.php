@@ -1827,11 +1827,9 @@
 
     function accion_auto_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
-        //if(idCarpeta != 2){
-            $('.btn-recibir-submit').html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-            );
-        //}
+        $('.btn-recibir-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+        );
         $('.btn-guardar-submit-edit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
