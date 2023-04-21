@@ -868,7 +868,7 @@
         url: "{{route('files.store')}}",
         autoProcessQueue: false,
         uploadMultiple: true,
-        maxFilesize: 4, //MB
+        maxFilesize: 20, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
         //acceptedFiles: "image/*",
@@ -1523,7 +1523,8 @@
                     recarga_grilla_despachados();
                     setTimeout(function() {
                         auto_guardado();
-                    },30000);     
+                        console.log('despues de creado');
+                    },2000);     
 
                 }
                 else
@@ -1826,11 +1827,9 @@
 
     function accion_auto_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
-        //if(idCarpeta != 2){
-            $('.btn-recibir-submit').html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-            );
-        //}
+        $('.btn-recibir-submit').html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+        );
         $('.btn-guardar-submit-edit').html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
         );
@@ -1918,9 +1917,7 @@
                     setTimeout(function() {
                         toastr.success("Borrador guardado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
-                        //if(idCarpeta != 2){
-                            $('.btn-recibir-submit').html('Guardar');
-                        //}
+                        $('.btn-recibir-submit').html('Guardar');
                         
                         habilita_boton('btn-recibir-submit');
                         habilita_boton('btn_cerrar_guardar');
@@ -1934,7 +1931,10 @@
                         habilita_boton('btn-firmar-derivar');
                         habilita_boton('btn-derivar-2');
                         habilita_boton('btn-derivar');
-                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                        setTimeout(function() {
+                            auto_guardado();
+                            console.log('en accion_auto_guardar');
+                        },2000);
                     }, 5000);
                 }
                 else
@@ -1953,9 +1953,7 @@
                     habilita_boton('btn-derivar-2');
                     habilita_boton('btn-derivar');
                     $('.btn-guardar-submit-edit').html("Guardar");
-                    //if(idCarpeta != 2){
-                        $('.btn-recibir-submit').html('Guardar');
-                    //}
+                    $('.btn-recibir-submit').html('Guardar');
                 }
 
                 
@@ -4752,9 +4750,7 @@
                                 if(value.estado_firma_anexo == 1) //firmado
                                 {
                                     var chkFirmaAnexo = '<div class="btn-anexo-firmado1"> <i class="fa fa-check-circle"></i> </div>';
-                                    //chkFirmaAnexo += '<input type="checkbox" value="'+value.id_documento_buzon_archivo+'-2" data-toggle="tooltip" data-placement="right" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)" name="chkFirmaAnexo" style="accent-color: #123977;position: absolute;top: 30px;left: 80px;">';
                                     chkFirmaAnexo += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';       
-
 
                                     var chkFirmaAnexoView = '<div class="btn-anexo-firmado1">  <i class="fa fa-check-circle"></i> </div>';
                                     chkFirmaAnexoView += '<div style="margin-left: -5px;position: absolute;top: 25px;left: 80px;color:#123977">  <i class="fa fa-square"></i> </div>';        
@@ -4804,8 +4800,13 @@
                             }       
                             else
                             {
-                                var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-1" style="position: absolute;top: 5px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" >';
-                                chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" style="position: absolute;top: 23px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)">';
+                                if (value.mb <= 4)
+                                {
+                                    var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-1" style="position: absolute;top: 5px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" >';
+                                    chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" style="position: absolute;top: 23px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)">';
+                                }
+                                else
+                                    var chkFirmaAnexo = '';
 
                                 var chkFirmaAnexoView = ''; 
                             }
@@ -4968,10 +4969,10 @@
         habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
         habilita_boton('btn-vp');
-        console.log('llamada al editar');
         setTimeout(function() {
             auto_guardado();
-        },30000);
+            console.log('despues editar_despachados');
+        },2000);  
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -6287,8 +6288,9 @@
         setTimeout(function() {
             if($('#hiddIdDocumento').val() != ""){
                 accion_auto_guardar(3);
+                console.log('ppal');
             }
-        }, 30000);   
+        }, 180000);   
     }
 
     function recepcion_masiva(){
