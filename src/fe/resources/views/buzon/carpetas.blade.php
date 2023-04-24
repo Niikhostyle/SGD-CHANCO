@@ -1170,6 +1170,7 @@
 
     $(".btn_cerrar_guardar").click(function(e){
         clear_form();
+        clearTimeout(timeoutId);
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
@@ -1283,7 +1284,7 @@
         deshabilita_boton('btn-firmar-derivar');
         deshabilita_boton('btn-derivar');
         deshabilita_boton('btn-derivar-2');
-
+        clearTimeout(timeoutId);
         guarda_documento(1);
     });
 
@@ -1577,6 +1578,7 @@
     function guarda_destinatarios_documento(accion) 
     {
 
+        clearTimeout(timeoutId);
         var _token = $("input[name='_token']").val();
         var contestar_hasta = $("input[name='contestar_hasta']").val();
 
@@ -2027,7 +2029,7 @@
         
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
-
+        clearTimeout(timeoutId);
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
             type: 'PUT',
@@ -2667,6 +2669,7 @@
 
     function firmar_documento() 
     {
+        clearTimeout(timeoutId);
         if(bloqueo_accion){
             return false;
         }
@@ -3107,6 +3110,7 @@
 
     function finalizar_documento()
     {
+        clearTimeout(timeoutId);
         var _token = $("input[name='_token']").val();
         
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -6287,7 +6291,7 @@
     }
 
     function auto_guardado(){
-        setTimeout(function() {
+        timeoutId = setTimeout(function() {
             if($('#hiddIdDocumento').val() != ""){
                 accion_auto_guardar(3);
                 console.log('ppal');
@@ -6991,6 +6995,7 @@
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
         $('#fDerivarMasivaDestPpal').select2(); 
+        const timeoutId = "";
         $(function() {
 
             fn_grilla_por_recibir();
