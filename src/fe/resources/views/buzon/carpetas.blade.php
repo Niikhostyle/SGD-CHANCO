@@ -4950,7 +4950,7 @@
     
     }
 
-    function editar_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre)
+    function editar_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre,ag = 0)
     {       
         $('#titulo_accion').html('Editar Documento'); 
         
@@ -4969,10 +4969,12 @@
         habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
         habilita_boton('btn-vp');
-        setTimeout(function() {
-            auto_guardado();
-            console.log('despues editar_despachados');
-        },2000);  
+        if(ag > 0){
+            setTimeout(function() {
+                auto_guardado();
+                console.log('despues editar_despachados');
+            },2000);  
+        }
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -6029,7 +6031,7 @@
 
                                     if (row.id_estado_documento == 1) //B
                                     {
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
                                         botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
                                     }    
 
@@ -6220,7 +6222,7 @@
 
                                     if (row.id_estado_documento == 1) //B
                                     {
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
                                         botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
                                     }    
 
