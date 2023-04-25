@@ -827,7 +827,7 @@
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
-        createImageThumbnails: true,
+        createImageThumbnails: true,        
         timeout: 50000,
         init: function() {
             dropzonePrincipal = this; // closure              
@@ -877,6 +877,7 @@
         params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
+        parallelUploads: 20,
         init: function() {
             dropzoneAnexo = this; // closure            
 
@@ -893,6 +894,10 @@
             );
             this.on("queuecomplete", function (file) {
 
+                var idb = $("input[name='hiddIdDocumentoBuzon']").val();
+                var idoc = $("input[name='hiddIdDocumento']").val();
+
+                editar_despachados(idoc,idb,null);
             }); 
 
         },        
