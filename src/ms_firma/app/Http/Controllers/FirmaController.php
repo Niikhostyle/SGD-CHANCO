@@ -36,7 +36,7 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();
 
-                //GENERACI��N IMAGEN PARA FIRMA
+                //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
@@ -97,10 +97,8 @@ class FirmaController extends Controller
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
                     $comentario = "No existe archivo para realizar firma electrónica.";
-                    //throw new Exception($comentario);
-
-                    //generar pdf
                     
+                    //generar pdf                    
                     $datosArchivo = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
                     ->timeout(30)        
                     ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
@@ -142,8 +140,7 @@ class FirmaController extends Controller
                 $nRut = explode("-",$aInfoUsuarios['run']);
                 $nRutFirma = $nRut[0];
                 $sPath = config('app.path_upload') . '/'; 
-                $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte
-                //$sArchivo = storage_path($sPath.$request['archivo']);                
+                $sArchivo = storage_path('app/public/files/'.$sNombreArchivo); //cambiar por linea sgte               
                 $id_documento_buzon = $datos['id_documento_buzon'];
                 $imagen_firma = storage_path('app/public/files/imagen_firma/'.$sNombreImg); 
                 $imagen_firma_anexo = storage_path('app/public/files/imagen_firma/'.$sNombreImgAnexo);
@@ -152,20 +149,26 @@ class FirmaController extends Controller
                 {
                     $comentario = "Existe un problema con la imagen relacionada a la firma electrónica.";
                     throw new Exception($comentario);
-                    //return $this->respondFail($comentario);
                 }
 
+                //acciones de firma en bitacora
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
-                //->whereIn('documento_buzon.id_estado_documento',array(9,10))
                 ->get();
+
+                //obtener máximo de firmas
+                $datosJsonTipoDocumento = json_decode($aInfoDocumento['json_tipo_documento'],true);
+
+                if (isset($datosJsonTipoDocumento['numero_firmas']))
+                    $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
+                else 
+                    $nNroFirmas = 4;
                 
-                if (count($datosBitacora) > 3)
+                if (count($datosBitacora) > $nNroFirmas)
                 {
                     $comentario = "Excede el máximo de firmas electrónicas posibles.";
                     throw new Exception($comentario);
-                    //return $this->respondFail($comentario);
                 }
 
                 if (count($datosBitacora) == 0) //firma 1
