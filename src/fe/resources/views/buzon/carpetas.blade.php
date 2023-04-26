@@ -817,6 +817,13 @@
     var numArchivosPorCargar = 0;
     var numArchivosFinalizados = 0;
 
+    function iniQueueComplete()
+    {
+        totalArchivosCargados = 0;
+        numArchivosPorCargar = 0;
+        numArchivosFinalizados = 0;
+    }
+
     function archivosCargados() 
     {
         console.log('archivos cargados:'+numArchivosPorCargar);
@@ -873,8 +880,8 @@
             this.on("success", function(file) {
                 totalArchivosCargados++;                               
             });
-            this
-            .on("queuecomplete", function (file) {
+            this.on("queuecomplete", function (file) {
+
             });     
         },        
         sending: function(file, xhr, formData){
@@ -917,6 +924,7 @@
                 }
             );
             this.on("queuecomplete", function (file) {
+               
             }); 
 
             this.on("addedfile", function(file) {
@@ -971,6 +979,7 @@
                 totalArchivosCargados++;                               
             });
             this.on("queuecomplete", function (file) {
+
             }); 
                
         },        
@@ -1692,7 +1701,7 @@
         if (nroCarga == 0) {            
             setTimeout(function() {
                 valida_carga();
-            }, 1000);
+            }, 2000);
         }
 
         return nroCarga;
@@ -1796,6 +1805,7 @@
                         if (varTermina == 1) {                          
                             console.log('TERMINA');
                             clearInterval (intervalCarga);
+                            iniQueueComplete();
 
                             toastr.success("Documento actualizado","¡Aviso!");
                             $('.btn-guardar-submit-edit').html("Guardar");
@@ -1822,7 +1832,7 @@
                         }
                         else
                             valida_carga();
-                    }, 1000);
+                    }, 3000);
                     
                     /*
                     toastr.success("Documento actualizado","¡Aviso!");
