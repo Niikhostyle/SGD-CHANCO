@@ -1447,6 +1447,45 @@
                         dropzoneOtros.processQueue();   
                         dropzoneAnexo.processQueue(); 
 
+                        intervalCarga = setInterval(function() 
+                        {                          
+                            varTermina = valida_carga();
+                            if (varTermina == 1) {                          
+                                console.log('completado');
+                                clearInterval (intervalCarga);
+                                iniQueueComplete();
+
+                                //codigo a ejecutar
+                                toastr.success("Documento actualizado","¡Aviso!");
+                                
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');     
+
+                                //fn_grilla_recibidos();
+                                recarga_grilla_recibidos();
+
+                                //fn_grilla_despachados();
+                                recarga_grilla_despachados();
+
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn-enviar-submit');  
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
+                                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                            }
+                            else
+                                valida_carga();
+                        }, 3000); 
+                        
+                        
+                        
+                        /*
                         setTimeout(function() {
                             toastr.success("Documento actualizado","¡Aviso!");
                             
@@ -1471,7 +1510,8 @@
                             habilita_boton('btn-derivar-2');
                             $('.btn-guardar-submit').html( 'Guardar y Cerrar' ); 
 
-                        }, 5000);                        
+                        }, 5000);    
+                        */                    
                         
                     }
 
@@ -1480,8 +1520,38 @@
 
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
-                        dropzoneAnexo.processQueue();  
+                        dropzoneAnexo.processQueue(); 
                         
+                        intervalCarga = setInterval(function() 
+                        {                          
+                            varTermina = valida_carga();
+                            if (varTermina == 1) {                          
+                                console.log('completado');
+                                clearInterval (intervalCarga);
+                                iniQueueComplete();
+
+                                //codigo a ejecutar
+                                callback(data);
+                                respuesta_guarda = data;         
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn-enviar-submit');  
+                                habilita_boton('btn_cerrar_guardar');   
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar'); 
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
+                                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );    
+                                recarga_grilla_recibidos();
+                                recarga_grilla_despachados();
+                            }
+                            else
+                                valida_carga();
+                        }, 3000); 
+                        
+                        /*
                         setTimeout(function() {
                             callback(data);
                             respuesta_guarda = data;  
@@ -1501,6 +1571,7 @@
                             recarga_grilla_recibidos();
                             recarga_grilla_despachados();           
                         }, 5000);
+                        */
                         
 
                     }                     
@@ -1793,8 +1864,7 @@
             success: function(data)
             {
                 if(data.status == '200')
-                {
-                    console.log('INICIO CARGA');
+                {                    
                     dropzoneAnexo.processQueue(); 
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
@@ -1803,7 +1873,7 @@
                     {                          
                         varTermina = valida_carga();
                         if (varTermina == 1) {                          
-                            console.log('TERMINA');
+                            console.log('completado');
                             clearInterval (intervalCarga);
                             iniQueueComplete();
 
@@ -1832,72 +1902,7 @@
                         }
                         else
                             valida_carga();
-                    }, 3000);
-                    
-                    /*
-                    toastr.success("Documento actualizado","¡Aviso!");
-                        $('.btn-guardar-submit-edit').html("Guardar");
-                        //if(idCarpeta != 2){
-                            $('.btn-recibir-submit').html('Guardar');
-                        //}
-                        
-                        habilita_boton('btn-recibir-submit');
-                        habilita_boton('btn_cerrar_guardar');
-                        habilita_boton('btn-guardar-submit-edit');
-                        habilita_boton('btn-guardar-submit');
-                        habilita_boton('btn-enviar-submit');
-                        habilita_boton('btn-visar');
-                        habilita_boton('btn-firmar');
-                        habilita_boton('btn-archivar');
-                        habilita_boton('btn-visar-derivar');
-                        habilita_boton('btn-firmar-derivar');
-                        habilita_boton('btn-derivar-2');
-                        habilita_boton('btn-derivar');
-
-                        //recarga
-
-                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
-                    */
-                
-                   
-
-
-                                        
-                    
-                    //uploadsFiles();
-                    //dropzoneAnexo.processQueue(); 
-                    //dropzoneOtros.processQueue(); 
-                    //dropzonePrincipal.processQueue(); 
-
-                    
-
-                    
-/*
-                    setTimeout(function() {
-                        toastr.success("Documento actualizado","¡Aviso!");
-                        $('.btn-guardar-submit-edit').html("Guardar");
-                        //if(idCarpeta != 2){
-                            $('.btn-recibir-submit').html('Guardar');
-                        //}
-                        
-                        habilita_boton('btn-recibir-submit');
-                        habilita_boton('btn_cerrar_guardar');
-                        habilita_boton('btn-guardar-submit-edit');
-                        habilita_boton('btn-guardar-submit');
-                        habilita_boton('btn-enviar-submit');
-                        habilita_boton('btn-visar');
-                        habilita_boton('btn-firmar');
-                        habilita_boton('btn-archivar');
-                        habilita_boton('btn-visar-derivar');
-                        habilita_boton('btn-firmar-derivar');
-                        habilita_boton('btn-derivar-2');
-                        habilita_boton('btn-derivar');
-
-                        //recarga
-
-                        //editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
-
-                    }, 5000);*/
+                    }, 3000);                   
                 }
                 else
                 {
@@ -2178,21 +2183,40 @@
             {
                 if(data.status == '200')
                 {
-                    toastr.success("Documento guardado","¡Aviso!");
-                    derivar_documento();
-                    habilita_boton('btn-recibir-submit');
-                    habilita_boton('btn_cerrar_guardar');
-                    habilita_boton('btn-guardar-submit-edit');
-                    habilita_boton('btn-guardar-submit');
-                    habilita_boton('btn-enviar-submit');
-                    habilita_boton('btn-visar');
-                    habilita_boton('btn-firmar');
-                    habilita_boton('btn-archivar');
-                    habilita_boton('btn-visar-derivar');
-                    habilita_boton('btn-firmar-derivar');
-                    habilita_boton('btn-derivar-2');
-                    habilita_boton('btn-derivar');
-                    $('.btn-derivar-2').html('Guardar y Enviar');
+                    dropzoneAnexo.processQueue(); 
+                    dropzoneOtros.processQueue(); 
+                    dropzonePrincipal.processQueue();
+                    
+                    intervalCarga = setInterval(function() 
+                    {                          
+                        varTermina = valida_carga();
+                        if (varTermina == 1) {                          
+                            console.log('completado');
+                            clearInterval (intervalCarga);
+                            iniQueueComplete();
+
+                            //codigo a ejecutar
+                            toastr.success("Documento guardado","¡Aviso!");
+                            derivar_documento();
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-derivar-2');
+                            habilita_boton('btn-derivar');
+                            $('.btn-derivar-2').html('Guardar y Enviar');
+                        }
+                        else
+                            valida_carga();
+                    }, 3000);                    
+                    
+                    
                 }
                 else
                 {
