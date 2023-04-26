@@ -810,7 +810,30 @@
 
     $(".bootstrap-tagsinput").addClass("disabled");   
 
+    
     //dropzone
+
+    var totalArchivosCargados = 0;
+    var numArchivosPorCargar = 0;
+    var numArchivosFinalizados = 0;
+
+    function archivosCargados() 
+    {
+        console.log('archivos cargados:'+numArchivosPorCargar);
+        console.log('total archivos:'+totalArchivosCargados);
+
+        if (totalArchivosCargados == numArchivosPorCargar) {
+            numArchivosFinalizados = 1;
+
+            return numArchivosFinalizados;
+        }
+        else if (numArchivosPorCargar == 0)
+            return 1;
+        else
+            return numArchivosFinalizados;
+
+
+    }  
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
@@ -840,16 +863,18 @@
             }
 
             $(".btn-delete").click(function () {
-                console.log('delete');
-                //Dropzone.forElement("#dropzoneAnexo").removeAllFiles(true);
                 dropzoneAnexo.removeAllFiles(true);
-                //console.log(Dropzone.forElement("#dropzoneAnexo"));
-                        }
-                ); 
+            }); 
 
-            this.on("queuecomplete", function (file) {
-                console.log('completado');
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
 
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
+            this
+            .on("queuecomplete", function (file) {
             });     
         },        
         sending: function(file, xhr, formData){
@@ -871,7 +896,6 @@
         maxFilesize: 20, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 2},
@@ -879,8 +903,8 @@
         timeout: 50000,
         parallelUploads: 20,
         init: function() {
-            dropzoneAnexo = this; // closure            
-
+            dropzoneAnexo = this; // closure 
+            
             if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
             {
                 var _this = this;
@@ -893,12 +917,15 @@
                 }
             );
             this.on("queuecomplete", function (file) {
-
-                var idb = $("input[name='hiddIdDocumentoBuzon']").val();
-                var idoc = $("input[name='hiddIdDocumento']").val();
-
-                editar_despachados(idoc,idb,null);
             }); 
+
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
+
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
 
         },        
         sending: function(file, xhr, formData){
@@ -920,12 +947,12 @@
         maxFilesize: 50, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
         timeout: 50000,
+        parallelUploads: 20,
         init: function() {
             dropzoneOtros = this; // closure              
 
@@ -936,9 +963,14 @@
                 _this.removeAllFiles();
 
             }           
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
 
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
             this.on("queuecomplete", function (file) {
-                console.log('completado');
             }); 
                
         },        
@@ -1318,20 +1350,6 @@
         $('.'+tClase+'').prop("disabled", false);
     }
 
-    function testAsync(){
-        return new Promise((resolve,reject)=>{
-            //here our function should be implemented 
-            dropzoneAnexo.processQueue(); 
-        });
-    }
-
-    async function callerFun(){
-        console.log("Caller");
-        await testAsync();
-        console.log("After waiting");
-    }
-
-
     //async function guarda_documento(accion, callback)
     function guarda_documento(accion, callback)
     {
@@ -1418,8 +1436,7 @@
                     {
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
-                        dropzoneAnexo.processQueue();                     
-
+                        dropzoneAnexo.processQueue(); 
 
                         setTimeout(function() {
                             toastr.success("Documento actualizado","¡Aviso!");
@@ -1443,9 +1460,7 @@
                             habilita_boton('btn-recibir-submit');
                             habilita_boton('btn-derivar');
                             habilita_boton('btn-derivar-2');
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                            // $('.btn-vp-sg').hide();       
-                            // $('.btn-vp').show();  
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' ); 
 
                         }, 5000);                        
                         
@@ -1671,6 +1686,18 @@
         });
     }
 
+    function valida_carga()
+    {
+        nroCarga = archivosCargados();
+        if (nroCarga == 0) {            
+            setTimeout(function() {
+                valida_carga();
+            }, 1000);
+        }
+
+        return nroCarga;
+    }
+
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
     {
         //if(idCarpeta != 2){
@@ -1758,10 +1785,84 @@
             {
                 if(data.status == '200')
                 {
+                    console.log('INICIO CARGA');
                     dropzoneAnexo.processQueue(); 
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
                     
+                    intervalCarga = setInterval(function() 
+                    {                          
+                        varTermina = valida_carga();
+                        if (varTermina == 1) {                          
+                            console.log('TERMINA');
+                            clearInterval (intervalCarga);
+
+                            toastr.success("Documento actualizado","¡Aviso!");
+                            $('.btn-guardar-submit-edit').html("Guardar");
+                            //if(idCarpeta != 2){
+                                $('.btn-recibir-submit').html('Guardar');
+                            //}
+                            
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-derivar-2');
+                            habilita_boton('btn-derivar');
+
+                            //recarga
+
+                            editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                        }
+                        else
+                            valida_carga();
+                    }, 1000);
+                    
+                    /*
+                    toastr.success("Documento actualizado","¡Aviso!");
+                        $('.btn-guardar-submit-edit').html("Guardar");
+                        //if(idCarpeta != 2){
+                            $('.btn-recibir-submit').html('Guardar');
+                        //}
+                        
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit-edit');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar-2');
+                        habilita_boton('btn-derivar');
+
+                        //recarga
+
+                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                    */
+                
+                   
+
+
+                                        
+                    
+                    //uploadsFiles();
+                    //dropzoneAnexo.processQueue(); 
+                    //dropzoneOtros.processQueue(); 
+                    //dropzonePrincipal.processQueue(); 
+
+                    
+
+                    
+/*
                     setTimeout(function() {
                         toastr.success("Documento actualizado","¡Aviso!");
                         $('.btn-guardar-submit-edit').html("Guardar");
@@ -1784,9 +1885,9 @@
 
                         //recarga
 
-                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                        //editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
 
-                    }, 5000);
+                    }, 5000);*/
                 }
                 else
                 {
@@ -7000,7 +7101,9 @@
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
         $('#fDerivarMasivaDestPpal').select2(); 
-        const timeoutId = "";
+        
+        timeoutId = "";
+
         $(function() {
 
             fn_grilla_por_recibir();
