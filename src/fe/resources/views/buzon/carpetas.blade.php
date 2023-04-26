@@ -810,7 +810,37 @@
 
     $(".bootstrap-tagsinput").addClass("disabled");   
 
+    
     //dropzone
+
+    var totalArchivosCargados = 0;
+    var numArchivosPorCargar = 0;
+    var numArchivosFinalizados = 0;
+
+    function iniQueueComplete()
+    {
+        totalArchivosCargados = 0;
+        numArchivosPorCargar = 0;
+        numArchivosFinalizados = 0;
+    }
+
+    function archivosCargados() 
+    {
+        console.log('archivos cargados:'+numArchivosPorCargar);
+        console.log('total archivos:'+totalArchivosCargados);
+
+        if (totalArchivosCargados == numArchivosPorCargar) {
+            numArchivosFinalizados = 1;
+
+            return numArchivosFinalizados;
+        }
+        else if (numArchivosPorCargar == 0)
+            return 1;
+        else
+            return numArchivosFinalizados;
+
+
+    }  
 
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
@@ -827,7 +857,7 @@
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
-        createImageThumbnails: true,
+        createImageThumbnails: true,        
         timeout: 50000,
         init: function() {
             dropzonePrincipal = this; // closure              
@@ -840,15 +870,17 @@
             }
 
             $(".btn-delete").click(function () {
-                console.log('delete');
-                //Dropzone.forElement("#dropzoneAnexo").removeAllFiles(true);
                 dropzoneAnexo.removeAllFiles(true);
-                //console.log(Dropzone.forElement("#dropzoneAnexo"));
-                        }
-                ); 
+            }); 
 
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
+
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
             this.on("queuecomplete", function (file) {
-                console.log('completado');
 
             });     
         },        
@@ -871,15 +903,15 @@
         maxFilesize: 20, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
         timeout: 50000,
+        parallelUploads: 20,
         init: function() {
-            dropzoneAnexo = this; // closure            
-
+            dropzoneAnexo = this; // closure 
+            
             if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) 
             {
                 var _this = this;
@@ -892,8 +924,16 @@
                 }
             );
             this.on("queuecomplete", function (file) {
-
+               
             }); 
+
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
+
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
 
         },        
         sending: function(file, xhr, formData){
@@ -915,12 +955,12 @@
         maxFilesize: 50, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        //acceptedFiles: "image/*",
         acceptedFiles: "application/pdf",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
         timeout: 50000,
+        parallelUploads: 20,
         init: function() {
             dropzoneOtros = this; // closure              
 
@@ -931,9 +971,15 @@
                 _this.removeAllFiles();
 
             }           
+            this.on("addedfile", function(file) {
+                numArchivosPorCargar++;
+            });
 
+            this.on("success", function(file) {
+                totalArchivosCargados++;                               
+            });
             this.on("queuecomplete", function (file) {
-                console.log('completado');
+
             }); 
                
         },        
@@ -1170,6 +1216,7 @@
 
     $(".btn_cerrar_guardar").click(function(e){
         clear_form();
+        clearTimeout(timeoutId);
         $('#card_crear_documento').hide();
         $('#form_crear_editar').trigger("reset");
         $("#collapseOne").collapse('show');
@@ -1283,7 +1330,7 @@
         deshabilita_boton('btn-firmar-derivar');
         deshabilita_boton('btn-derivar');
         deshabilita_boton('btn-derivar-2');
-
+        clearTimeout(timeoutId);
         guarda_documento(1);
     });
 
@@ -1311,20 +1358,6 @@
     function habilita_boton(tClase){
         $('.'+tClase+'').prop("disabled", false);
     }
-
-    function testAsync(){
-        return new Promise((resolve,reject)=>{
-            //here our function should be implemented 
-            dropzoneAnexo.processQueue(); 
-        });
-    }
-
-    async function callerFun(){
-        console.log("Caller");
-        await testAsync();
-        console.log("After waiting");
-    }
-
 
     //async function guarda_documento(accion, callback)
     function guarda_documento(accion, callback)
@@ -1412,9 +1445,47 @@
                     {
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
-                        dropzoneAnexo.processQueue();                     
+                        dropzoneAnexo.processQueue(); 
 
+                        intervalCarga = setInterval(function() 
+                        {                          
+                            varTermina = valida_carga();
+                            if (varTermina == 1) {                          
+                                console.log('completado');
+                                clearInterval (intervalCarga);
+                                iniQueueComplete();
 
+                                //codigo a ejecutar
+                                toastr.success("Documento actualizado","¡Aviso!");
+                                
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');     
+
+                                //fn_grilla_recibidos();
+                                recarga_grilla_recibidos();
+
+                                //fn_grilla_despachados();
+                                recarga_grilla_despachados();
+
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn-enviar-submit');  
+                                habilita_boton('btn_cerrar_guardar');
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar');
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
+                                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
+                            }
+                            else
+                                valida_carga();
+                        }, 3000); 
+                        
+                        
+                        
+                        /*
                         setTimeout(function() {
                             toastr.success("Documento actualizado","¡Aviso!");
                             
@@ -1437,11 +1508,10 @@
                             habilita_boton('btn-recibir-submit');
                             habilita_boton('btn-derivar');
                             habilita_boton('btn-derivar-2');
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
-                            // $('.btn-vp-sg').hide();       
-                            // $('.btn-vp').show();  
+                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' ); 
 
-                        }, 5000);                        
+                        }, 5000);    
+                        */                    
                         
                     }
 
@@ -1450,8 +1520,38 @@
 
                         dropzonePrincipal.processQueue();   
                         dropzoneOtros.processQueue();   
-                        dropzoneAnexo.processQueue();  
+                        dropzoneAnexo.processQueue(); 
                         
+                        intervalCarga = setInterval(function() 
+                        {                          
+                            varTermina = valida_carga();
+                            if (varTermina == 1) {                          
+                                console.log('completado');
+                                clearInterval (intervalCarga);
+                                iniQueueComplete();
+
+                                //codigo a ejecutar
+                                callback(data);
+                                respuesta_guarda = data;         
+                                habilita_boton('btn-guardar-submit');
+                                habilita_boton('btn-guardar-submit-edit');
+                                habilita_boton('btn-enviar-submit');  
+                                habilita_boton('btn_cerrar_guardar');   
+                                habilita_boton('btn-visar');
+                                habilita_boton('btn-firmar'); 
+                                habilita_boton('btn-archivar');
+                                habilita_boton('btn-recibir-submit');
+                                habilita_boton('btn-derivar');
+                                habilita_boton('btn-derivar-2');
+                                $('.btn-guardar-submit').html( 'Guardar y Cerrar' );    
+                                recarga_grilla_recibidos();
+                                recarga_grilla_despachados();
+                            }
+                            else
+                                valida_carga();
+                        }, 3000); 
+                        
+                        /*
                         setTimeout(function() {
                             callback(data);
                             respuesta_guarda = data;  
@@ -1471,6 +1571,7 @@
                             recarga_grilla_recibidos();
                             recarga_grilla_despachados();           
                         }, 5000);
+                        */
                         
 
                     }                     
@@ -1577,6 +1678,7 @@
     function guarda_destinatarios_documento(accion) 
     {
 
+        clearTimeout(timeoutId);
         var _token = $("input[name='_token']").val();
         var contestar_hasta = $("input[name='contestar_hasta']").val();
 
@@ -1662,6 +1764,18 @@
             }
 
         });
+    }
+
+    function valida_carga()
+    {
+        nroCarga = archivosCargados();
+        if (nroCarga == 0) {            
+            setTimeout(function() {
+                valida_carga();
+            }, 2000);
+        }
+
+        return nroCarga;
     }
 
     function accion_editar_guardar(idCarpeta) //**** revisar si se puede usar funcion que guarda documento ****//
@@ -1750,36 +1864,45 @@
             success: function(data)
             {
                 if(data.status == '200')
-                {
+                {                    
                     dropzoneAnexo.processQueue(); 
                     dropzoneOtros.processQueue(); 
                     dropzonePrincipal.processQueue(); 
                     
-                    setTimeout(function() {
-                        toastr.success("Documento actualizado","¡Aviso!");
-                        $('.btn-guardar-submit-edit').html("Guardar");
-                        //if(idCarpeta != 2){
-                            $('.btn-recibir-submit').html('Guardar');
-                        //}
-                        
-                        habilita_boton('btn-recibir-submit');
-                        habilita_boton('btn_cerrar_guardar');
-                        habilita_boton('btn-guardar-submit-edit');
-                        habilita_boton('btn-guardar-submit');
-                        habilita_boton('btn-enviar-submit');
-                        habilita_boton('btn-visar');
-                        habilita_boton('btn-firmar');
-                        habilita_boton('btn-archivar');
-                        habilita_boton('btn-visar-derivar');
-                        habilita_boton('btn-firmar-derivar');
-                        habilita_boton('btn-derivar-2');
-                        habilita_boton('btn-derivar');
+                    intervalCarga = setInterval(function() 
+                    {                          
+                        varTermina = valida_carga();
+                        if (varTermina == 1) {                          
+                            console.log('completado');
+                            clearInterval (intervalCarga);
+                            iniQueueComplete();
 
-                        //recarga
+                            toastr.success("Documento actualizado","¡Aviso!");
+                            $('.btn-guardar-submit-edit').html("Guardar");
+                            //if(idCarpeta != 2){
+                                $('.btn-recibir-submit').html('Guardar');
+                            //}
+                            
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-derivar-2');
+                            habilita_boton('btn-derivar');
 
-                        editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                            //recarga
 
-                    }, 5000);
+                            editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                        }
+                        else
+                            valida_carga();
+                    }, 3000);                   
                 }
                 else
                 {
@@ -2027,7 +2150,7 @@
         
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
-
+        clearTimeout(timeoutId);
         $.ajax({
             url: "{{route('buzones.update_documento')}}",
             type: 'PUT',
@@ -2060,21 +2183,40 @@
             {
                 if(data.status == '200')
                 {
-                    toastr.success("Documento guardado","¡Aviso!");
-                    derivar_documento();
-                    habilita_boton('btn-recibir-submit');
-                    habilita_boton('btn_cerrar_guardar');
-                    habilita_boton('btn-guardar-submit-edit');
-                    habilita_boton('btn-guardar-submit');
-                    habilita_boton('btn-enviar-submit');
-                    habilita_boton('btn-visar');
-                    habilita_boton('btn-firmar');
-                    habilita_boton('btn-archivar');
-                    habilita_boton('btn-visar-derivar');
-                    habilita_boton('btn-firmar-derivar');
-                    habilita_boton('btn-derivar-2');
-                    habilita_boton('btn-derivar');
-                    $('.btn-derivar-2').html('Guardar y Enviar');
+                    dropzoneAnexo.processQueue(); 
+                    dropzoneOtros.processQueue(); 
+                    dropzonePrincipal.processQueue();
+                    
+                    intervalCarga = setInterval(function() 
+                    {                          
+                        varTermina = valida_carga();
+                        if (varTermina == 1) {                          
+                            console.log('completado');
+                            clearInterval (intervalCarga);
+                            iniQueueComplete();
+
+                            //codigo a ejecutar
+                            toastr.success("Documento guardado","¡Aviso!");
+                            derivar_documento();
+                            habilita_boton('btn-recibir-submit');
+                            habilita_boton('btn_cerrar_guardar');
+                            habilita_boton('btn-guardar-submit-edit');
+                            habilita_boton('btn-guardar-submit');
+                            habilita_boton('btn-enviar-submit');
+                            habilita_boton('btn-visar');
+                            habilita_boton('btn-firmar');
+                            habilita_boton('btn-archivar');
+                            habilita_boton('btn-visar-derivar');
+                            habilita_boton('btn-firmar-derivar');
+                            habilita_boton('btn-derivar-2');
+                            habilita_boton('btn-derivar');
+                            $('.btn-derivar-2').html('Guardar y Enviar');
+                        }
+                        else
+                            valida_carga();
+                    }, 3000);                    
+                    
+                    
                 }
                 else
                 {
@@ -2667,6 +2809,7 @@
 
     function firmar_documento() 
     {
+        clearTimeout(timeoutId);
         if(bloqueo_accion){
             return false;
         }
@@ -3107,6 +3250,7 @@
 
     function finalizar_documento()
     {
+        clearTimeout(timeoutId);
         var _token = $("input[name='_token']").val();
         
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -4950,7 +5094,7 @@
     
     }
 
-    function editar_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre)
+    function editar_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre,ag = 0)
     {       
         $('#titulo_accion').html('Editar Documento'); 
         
@@ -4969,10 +5113,12 @@
         habilita_boton('btn_cerrar_guardar');
         $('#addButton').html('');
         habilita_boton('btn-vp');
-        setTimeout(function() {
-            auto_guardado();
-            console.log('despues editar_despachados');
-        },2000);  
+        if(ag > 0){
+            setTimeout(function() {
+                auto_guardado();
+                console.log('despues editar_despachados');
+            },2000);  
+        }
     }
 
     function accion_editar(id_documento, id_documento_buzon,id_documento_buzon_padre)
@@ -6029,7 +6175,7 @@
 
                                     if (row.id_estado_documento == 1) //B
                                     {
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
                                         botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
                                     }    
 
@@ -6220,7 +6366,7 @@
 
                                     if (row.id_estado_documento == 1) //B
                                     {
-                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
+                                        botonera +='<a class="dropdown-item btn-menu-editar" onclick="editar_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+',1)"  href="#"><i class="fas fa-edit text-blue"></i> Editar</a>';
                                         botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_despachados('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
                                     }    
 
@@ -6285,7 +6431,7 @@
     }
 
     function auto_guardado(){
-        setTimeout(function() {
+        timeoutId = setTimeout(function() {
             if($('#hiddIdDocumento').val() != ""){
                 accion_auto_guardar(3);
                 console.log('ppal');
@@ -6989,6 +7135,9 @@
     $(document).ready(function () {
         $(".nuevo_documento").prop("disabled", true);
         $('#fDerivarMasivaDestPpal').select2(); 
+        
+        timeoutId = "";
+
         $(function() {
 
             fn_grilla_por_recibir();
