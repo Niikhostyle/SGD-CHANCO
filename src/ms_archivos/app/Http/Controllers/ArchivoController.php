@@ -71,9 +71,14 @@ class ArchivoController extends Controller{
                 $idTipoFolio = $datosJsonTipoDocumento['id_tipo_folio'];
                 $idTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
                 $nFolio = $datosDocumentos['folio'];
+                $tPlantillaDistribucion = "";
+
+                if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
+                    $tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
 
                 //si existe folio, saltar proceso de obtención de folio
                 if($nFolio==null){
+                    
                     if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
                     {                                           
                         $anio = date('Y');
@@ -108,33 +113,52 @@ class ArchivoController extends Controller{
                         }  
                 
                     }
+                    else $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']);
                 }else{
                     $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']);
                 }
-
+                
                 //reemplazar valores en encabezado
                 //Nº {t_folio} {t_anio} {t_fecha}
 
                 $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");                
-                //$sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
+ 
                 //unificacion para set encabezado de fecha cuando viene fecha seteada o cuando es actual    
                 $sfecha = $fecha->format('d')." de ".$aMeses[$fecha->format('n')-1]. " del ".$fecha->format('Y');                
 
                 $sEncabezado = $datosDocumentos['encabezado'];
-                $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);//$datosDocumentos['folio']
+                $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
-                
-                //reemplazar path imagenes antes de generar pdf
-                //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
-                
+                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);                
+               
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+
+                $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $tPlantillaDistribucion);         
                 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
-                
+                //$pdf = app('dompdf.wrapper');
+                //$pdf->getDomPDF()->set_option("enable_php", true);
+
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);           
+                //PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
+                //$pdf->setOptions(['isHtml5ParserEnabled' => true]);
+                
+                //$pdf->setOption('footer-html', $tPlantillaDistribucion);
+                //$pdf->output();
+
+                //$pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
+        
+                //$dom_pdf = $pdf->getDomPDF();
+                //$canvas = $dom_pdf->get_canvas();
+
+                //$canvas->page_text(520, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+
+     
+                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);           
  
+               
                 //ver cuantas paginas tiene para poner firma
                 //Obtiene pagina para agregar firma
                 $pdfPages = file_get_contents(storage_path('app/public/files/') . $nNombreArchivoCargar);
@@ -161,7 +185,7 @@ class ArchivoController extends Controller{
                 $oMerger->merge();
                 $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 */
-                $dFechaCreacion = date('Y-m-d H:i:s');        
+                $dFechaCreacion = date('Y-m-d H:i:s');                  
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
                 {                                
@@ -228,7 +252,7 @@ class ArchivoController extends Controller{
                 ]], 500);
             }      
     }
-
+ 
     public function generar_vista_previa(Request $request)
     { 
         try 

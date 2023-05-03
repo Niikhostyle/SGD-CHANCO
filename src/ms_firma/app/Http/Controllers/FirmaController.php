@@ -34,7 +34,7 @@ class FirmaController extends Controller
             {
                 DB::beginTransaction();
 
-                $datos = $request->json()->all();
+                $datos = $request->json()->all();                
 
                 //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
@@ -76,7 +76,7 @@ class FirmaController extends Controller
                 $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
 
                 //INICIO PROCESO FIRMA
-                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador']);                
+                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador', 'json_tipo_documento']);                
 
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
@@ -84,7 +84,7 @@ class FirmaController extends Controller
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }                    
-
+                
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                                                         ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
                                                         ->where('documento_buzon.id_documento', '=', $datos['id_documento'])
@@ -93,9 +93,10 @@ class FirmaController extends Controller
                                                         ->where('nombre_archivo_codificado','!=', null)
                                                         ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
                                                         ->first();
-
+                
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                 {
+                    
                     $comentario = "No existe archivo para realizar firma electrónica.";
                     
                     //generar pdf                    
@@ -107,7 +108,6 @@ class FirmaController extends Controller
                         'id_usuario'=>$datos['id_usuario'],
                         'id_buzon'=>$datos['id_buzon']
                     ]);
-
 
                     if (isset($datosArchivo['status']) && $datosArchivo['status'] == '400')
                     {
@@ -124,7 +124,7 @@ class FirmaController extends Controller
                                                         ->first();
                     
                 }
-
+                
                 $firmaDigitalConfig = array(
                     'api'       => env('PLCSGD_API_URL'),
                     'purpose'   => env('PLCSGD_API_PURPOSE'),
@@ -136,6 +136,7 @@ class FirmaController extends Controller
                 $classFirma = new FirmaBase($firmaDigitalConfig);
 
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
+
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $nRut = explode("-",$aInfoUsuarios['run']);
                 $nRutFirma = $nRut[0];
@@ -150,56 +151,90 @@ class FirmaController extends Controller
                     $comentario = "Existe un problema con la imagen relacionada a la firma electrónica.";
                     throw new Exception($comentario);
                 }
-
+                
                 //acciones de firma en bitacora
                 $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                 ->where('documento_buzon.id_documento', $datos['id_documento'])
                 ->where('documento_buzon_bitacora.id_accion', 7)
                 ->get();
-
+                
                 //obtener máximo de firmas
                 $datosJsonTipoDocumento = json_decode($aInfoDocumento['json_tipo_documento'],true);
+
+                //plantilla distribución
+
+                $nEspacioDistribucion = 0;
+                if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
+                {
+                    $tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
+                    $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+
+                    $nEspacioDistribucion = $numLineasDistribucion * 20;
+                }
 
                 if (isset($datosJsonTipoDocumento['numero_firmas']))
                     $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
                 else 
-                    $nNroFirmas = 4;
-                
-                if (count($datosBitacora) > $nNroFirmas)
+                    $nNroFirmas = 4;  
+
+                if (count($datosBitacora) >= $nNroFirmas)
                 {
                     $comentario = "Excede el máximo de firmas electrónicas posibles.";
                     throw new Exception($comentario);
                 }
 
-                if (count($datosBitacora) == 0) //firma 1
-                {
-                    $n_llx = 300;
-                    $n_lly = 180;
-                    $n_urx = 555;
-                    $n_ury = 265;
-                }
+                $aUbicacionesFirma = array(
+                    array(300, 280, 555, 365), 
+                    array(30, 280, 285, 365),
+                    array(300, 180, 555, 265),
+                    array(30, 180, 285, 265),
+                    array(300, 80, 555, 165),
+                    array(30, 80, 285, 165)
+                );
 
-                if (count($datosBitacora) == 1) //firma 2
-                {
-                    $n_llx = 30;
-                    $n_lly = 180;
-                    $n_urx = 285;
-                    $n_ury = 265;
-                }
-                if (count($datosBitacora) == 2) //firma 3
-                {
-                    $n_llx = 300;
-                    $n_lly = 80;
-                    $n_urx = 555;
-                    $n_ury = 165;
-                }
+                //posiciones desde donde comenzar a utilizar las ubicaciones del array anterior
+                $aFirmaPosicion = array(
+                    '1' => 4, 
+                    '2' => array('0'=>4,'1'=>5), 
+                    '3' => array('0'=>2,'1'=>3,'2'=>4),
+                    '4' => array('0'=>2,'1'=>3,'2'=>4,'3'=>5),
+                    '5' => array('0'=>0,'1'=>1,'2'=>2,'3'=>3,'4'=>4), 
+                    '6' => array('0'=>0,'1'=>1,'2'=>2,'3'=>3,'4'=>4,'5'=>5) 
+                );               
 
-                if (count($datosBitacora) == 3) //firma 4
+                //$aFirmaPosicion[5]; hay 5 firmas, parten desde la posicion 0 del array $aUbicacionesFirma
+                //cantidad de firmas $nNroFirmas
+                //count($datosBitacora) firma actual
+
+                $nPosFirma = count($datosBitacora);
+                $nPosCant = $aFirmaPosicion[$nNroFirmas][$nPosFirma];
+                
+                $n_llx = $aUbicacionesFirma[$nPosCant][0];
+                $n_lly = $aUbicacionesFirma[$nPosCant][1] + $nEspacioDistribucion;
+                $n_urx = $aUbicacionesFirma[$nPosCant][2];
+                $n_ury = $aUbicacionesFirma[$nPosCant][3] + $nEspacioDistribucion; 
+                
+                //por defecto anexo
+                $n_llx_anexo = 300;
+                $n_lly_anexo = 80;
+                $n_urx_anexo = 555;
+                $n_ury_anexo = 165;
+
+                //firma 1 anexo
+                if (count($datosBitacora) == 0)
                 {
-                    $n_llx = 30;
-                    $n_lly = 80;
-                    $n_urx = 285;
-                    $n_ury = 165;
+                    $n_llx_anexo = 300;
+                    $n_lly_anexo = 80;
+                    $n_urx_anexo = 555;
+                    $n_ury_anexo = 165;
+                }
+                //firma 2 anexo
+                if (count($datosBitacora) == 1) 
+                {
+                    $n_llx_anexo = 30;
+                    $n_lly_anexo = 80;
+                    $n_urx_anexo = 285;
+                    $n_ury_anexo = 165;
                 }
                 
                 $pdf = new PDF();
@@ -208,7 +243,7 @@ class FirmaController extends Controller
                 $nPaginasPdf = $aDocumentoBuzon['paginas_archivo'];
                 if ($aDocumentoBuzon['paginas_archivo'] == '' || $aDocumentoBuzon['paginas_archivo'] == null)
                     $nPaginasPdf = $pageCount;
-                
+
                 $layout = array(
                     'filename' => $imagen_firma,
                     'page'     => $nPaginasPdf,
@@ -217,27 +252,26 @@ class FirmaController extends Controller
                     'urx'      => $n_urx, //210
                     'ury'      => $n_ury  //100
                 );
-                
+
                 $layoutAnexo = array(
                     'filename' => $imagen_firma_anexo,
                     'page'     => 'LAST',
-                    'llx'      => $n_llx, //50
-                    'lly'      => $n_lly, //50
-                    'urx'      => $n_urx, //210
-                    'ury'      => $n_ury  //100
+                    'llx'      => $n_llx_anexo, 
+                    'lly'      => $n_lly_anexo, 
+                    'urx'      => $n_urx_anexo, 
+                    'ury'      => $n_ury_anexo  
                 );
-
+                
                 $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']); 
                 
                 //agrega Hash de validación
                 if (count($datosBitacora) == 0)
-                {                              
-                    $pdf->AliasNbPages();
+                {                            
+                    $pdf->AliasNbPages();                    
                     $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
                     $pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
                     $pdf->footer_link = env('PLCSGD_LINKVALIDADOR');
-                    $pdf->PageFirma = $nPaginasPdf;
-                    
+                    $pdf->PageFirma = $nPaginasPdf;                    
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template
@@ -254,7 +288,7 @@ class FirmaController extends Controller
                     $pdf->Output($sArchivo, 'F');                    
                     
                 }
-                
+
                 $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();   

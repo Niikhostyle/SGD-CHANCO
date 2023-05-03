@@ -13,8 +13,8 @@ class PDF extends FPDI
         $this->SetFont('Arial','',8);
         $this->Cell(0,10,$this->PageNo().'/{nb}',0,0,'R');        
         
-        if ($this->PageFirma == $this->PageNo())
-        {
+        //if ($this->PageFirma == $this->PageNo())
+        //{
             $this->SetY(-20);
             $this->SetFont('Arial','',8);
             $this->Cell(0,0,$this->footer_txt,0,0,'C');
@@ -29,7 +29,7 @@ class PDF extends FPDI
             $this->SetFont('Arial','U',8);
             $this->SetTextColor(0, 0, 255);
             $this->Cell(80,0,$this->footer_link,0,0,'L');
-        }
+        //}
 
     }
 }
