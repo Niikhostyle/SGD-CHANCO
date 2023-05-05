@@ -368,8 +368,13 @@
                                 <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
                                 <input type="hidden" id="form_encabezado" name="encabezado"> 
                             </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="view-txt-row" for="distribucion">Distribución:</label>                              
+                                <textarea class="form-control" id="form_distribucion" name="distribucion"></textarea>
+                            </div>
                         
                         </div>
+
                         <div style="display:none">
                             <div class="col-md-12">
                                 <form> </form>
@@ -1045,6 +1050,13 @@
         filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
     }); 
 
+    const editor_distribucion = CKEDITOR.replace('form_distribucion', {        
+        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+        height: 100
+    }); 
+
     CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)
@@ -1062,6 +1074,7 @@
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
         editor_cuerpo.setReadOnly(false);
+        editor_distribucion.setReadOnly(false);
 
         $('.btn-guardar-submit').show();   
         habilita_boton('btn-guardar-submit');
@@ -1107,6 +1120,7 @@
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
         editor_cuerpo.setReadOnly(true);
+        editor_distribucion.setReadOnly(false);
         $('#form_destinatario_principal').prop("disabled", true);
         $('#form_comentario_el').prop("disabled", true);        
         $('#form_otros_destinatarios_el').prop("disabled", true);
@@ -1132,6 +1146,7 @@
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
         editor_cuerpo.setReadOnly(false);
+        editor_distribucion.setReadOnly(false);
         $('#form_destinatario_principal').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $('#form_comentario_el').prop("disabled", false);        
@@ -1159,6 +1174,7 @@
         $('#form_crear_editar').trigger("reset");
         $("input[name='encabezado']").val('');
         editor_cuerpo.setData('');
+        editor_distribucion.setData('');
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
@@ -1252,6 +1268,7 @@
                             idTipoFlujo = data.data.id_tipo_flujo;
 
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);
+                            editor_distribucion.setData(data.data.plantilla_distribucion);
 
                             //habilita respuesta a: solo a flujo libre
 
@@ -1373,6 +1390,7 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
+        var distribucion = editor_distribucion.getData();
         var responder = $('#form_respuesta_a').val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -1424,6 +1442,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                distribucion:distribucion,
                 responder:responder,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
@@ -1692,6 +1711,7 @@
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var cuerpo = editor_cuerpo.getData();
+        var distribucion = editor_distribucion.getData();
 
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -1727,6 +1747,7 @@
                 acciones_solicitadas:acciones_solicitadas,
                 hiddIdDocumento:hiddIdDocumento,
                 cuerpo:cuerpo,
+                distribucion:distribucion,
                 hiddIdDocumentoBuzon:hiddIdDocumentoBuzon,
                 carpeta:2,
                 opcionGuardar:opcionGuardarDestinatarios,
@@ -1798,7 +1819,8 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
-
+        var distribucion = editor_distribucion.getData();
+        console.log(distribucion);
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -1848,6 +1870,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                distribucion: distribucion,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
                 destinatarioOtros:otrosDestinatarios,
@@ -1966,7 +1989,7 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
-
+        var distribucion = editor_distribucion.getData();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2016,6 +2039,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                distribucion: distribucion,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
                 destinatarioOtros:otrosDestinatarios,
@@ -2116,7 +2140,7 @@
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
-
+        var distribucion = editor_distribucion.getData();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2166,6 +2190,7 @@
                 anterior:anterior,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                distribucion:distribucion,
                 buzon:hiddIdBuzon,
                 destinatarioPrincipal:destinatarioPrincipal,
                 destinatarioOtros:otrosDestinatarios,
@@ -3829,6 +3854,7 @@
         var materia = $("input[name='materia']").val();
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
+        var distribucion = editor_distribucion.getData();
         urlAccion = "{{route('documentos.vista_previa_sg')}}";
         $.ajax({
             url: urlAccion,
@@ -3840,6 +3866,7 @@
                 materia:materia,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
+                distribucion:distribucion
             },
             success: function(data)
             {   
@@ -4048,6 +4075,7 @@
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
 
                         editor_cuerpo.setData(data.data.cuerpo);
+                        editor_distribucion.setData(data.data.distribucion);
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
@@ -6955,6 +6983,7 @@
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", false); 
         editor_cuerpo.setReadOnly(false); 
+        editor_distribucion.setReadOnly(false);
         $('#dropzone-principal').prop("disabled", false); 
         $('#dropzone-anexo').prop("disabled", false); 
         $('#dropzone-otros').prop("disabled", false); 

@@ -8,6 +8,7 @@
 <div style="">
     {!! $encabezado !!}
     {!! $cuerpo !!}
+    {!! $distribucion !!}
 </div>
 <div style="height:300px;page-break-inside: avoid !important;">
 <p>&nbsp;</p>

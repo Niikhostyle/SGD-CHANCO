@@ -401,7 +401,6 @@ class BuzonController extends Controller
     public function store_documento(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
         ->post('http://sgd_ms_documentos:3333/api/sgd-documentos/crear', [
@@ -414,6 +413,7 @@ class BuzonController extends Controller
             'descripcion'=>$request->descripcion,
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
+            'distribucion'=>$request->distribucion,
             'id_buzon'=>$request->buzon,
             'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id
@@ -441,6 +441,7 @@ class BuzonController extends Controller
             'descripcion'=>$request->descripcion,
             'encabezado'=>$request->encabezado,
             'cuerpo'=>$request->cuerpo,
+            'distribucion'=>$request->distribucion,
             'id_buzon'=>$request->buzon,
             'contestar_hasta'=>$request->contestar_hasta,
             'id_usuario'=>Auth::user()->id,
@@ -622,7 +623,7 @@ class BuzonController extends Controller
 
         $datosDocumentos = DocumentoTmp::findOrFail($nID);
 
-        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo']  );
+        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo'], 'distribucion'=>$datosDocumentos['distribucion']  );
 
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
@@ -641,11 +642,13 @@ class BuzonController extends Controller
 
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $request->cuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'),$request->encabezado);
+                $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'),$request->distribucion);
 
                 $documento = new DocumentoTmp();
                 $documento->materia = $request->materia;
                 $documento->encabezado = $datosDocumentosencabezado;//$request->encabezado;
                 $documento->cuerpo = $datosDocumentosCuerpo;//$request->cuerpo;
+                $documento->distribucion = $datosDocumentosDistribucion;//$request->cuerpo;
                 $documento->save();
                 
                 return $documento;

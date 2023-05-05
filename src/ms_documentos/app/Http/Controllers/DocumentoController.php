@@ -46,7 +46,7 @@ class DocumentoController extends Controller{
                 DB::beginTransaction();
                 
                 $datosDocumento = $request->json()->all();                
-
+                //return $datosDocumento;
                 //$validator = $this->validator->validateInsert();
 
                 //if ($validator->fails())
@@ -123,11 +123,11 @@ class DocumentoController extends Controller{
                     'descripcion' => $datosDocumento['descripcion'],
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
+                    'distribucion' => $datosDocumento['distribucion'],
                     'fecha' => $dFechaCreacion,
                     'hash_validacion' => $sHash,
                     'folio' => $nFolio                    
                 ]);
-
                 $documento = $documento->fresh();
                 
                 $documentoBuzon = DocumentoBuzon::create([
@@ -192,10 +192,9 @@ class DocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();   
-                             
                 //print_r($datosRequest);exit;
                 //$validator = $this->validator->validateUpdate();
-
+                
                 //if ($validator->fails())
                 //    return $this->respondFail('Falla al actualizar buzón: revisar datos de entrada');
 
@@ -204,6 +203,7 @@ class DocumentoController extends Controller{
                 //3: elimina dest secundario y crea nuevamente
                 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                
 
                 if ($datosDocumento->id_documento != '')
                 {   

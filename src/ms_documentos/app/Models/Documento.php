@@ -26,7 +26,8 @@ class Documento extends Model{
         'efectos_terceros',
         'hash_validacion',
         'archivo_existente',
-        'finalizado'
+        'finalizado',
+        'distribucion'
     ];
 
 

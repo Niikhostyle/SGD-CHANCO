@@ -30,7 +30,8 @@ class DocumentoTmp extends Model
         'archivo_existente',
         'finalizado',
         'paginas_archivo',
-        'img_firma'
+        'img_firma',
+        'distribucion'
     ];
 
     public function rel_tipo_documento()
