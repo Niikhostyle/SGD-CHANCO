@@ -268,9 +268,10 @@ class FirmaController extends Controller
                 if (count($datosBitacora) == 0)
                 {                            
                     $url= '/validador_qr/'.$aInfoDocumento['hash_validacion'];
-                    $codigoQR = 'http://chart.apis.google.com/chart?chs=50X50&amp;cht=qr&amp;chl='.$url.'&amp;choe=UTF-8';
+                    $codigoQR = 'http://chart.apis.google.com/chart?chs=50x50&amp;cht=qr&amp;chl='.$url.'&amp;choe=UTF-8';
                     $pdf->AliasNbPages();                    
-                    $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion']. " ". $codigoQR;
+                    $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
+                    $pdf->imagen_qr = "<img src='".$codigoQR."' />";
                     $pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
                     $pdf->footer_link = env('PLCSGD_LINKVALIDADOR');
                     $pdf->PageFirma = $nPaginasPdf;                    

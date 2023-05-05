@@ -18,6 +18,7 @@ class PDF extends FPDI
             $this->SetY(-20);
             $this->SetFont('Arial','',8);
             $this->Cell(0,0,$this->footer_txt,0,0,'C');
+            $this->Image($this->imagen_qr,10,8,22);
             $this->SetY(-15);
 
             //$ancho = $this->ancho;
