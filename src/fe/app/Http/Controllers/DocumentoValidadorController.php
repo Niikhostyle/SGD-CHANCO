@@ -66,6 +66,46 @@ class DocumentoValidadorController extends Controller
         
     }
 
+    public function validar_qr($id)
+    {
+        
+        $codigo = $id;
+        //return $codigo;
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_documentos = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(30)
+        ->withBody(json_encode([
+            'hash_validacion' => $codigo 
+        ]), 'json')
+        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
+        
+        //return $lista_documentos;
+        if($lista_documentos->failed()){
+            //return $lista_documentos ;
+            $mensaje= $lista_documentos->json()['data']['comentario'];
+
+            $lista_documentos=['data'=>[
+                0=>['hash_validacion'=>'sin datos','folio'=>'sin datos','fecha_documento'=>'sin datos','materia'=>'sin datos', 'id_nivel_acceso'=>'', 'version'=>'']
+            ]];
+            toast($mensaje,'error');
+        }else{
+            $lista_documentos->json();
+        }
+
+        $status = 1;
+        foreach($lista_documentos['data'] as $list){
+            if ($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3 || $list['id_nivel_acceso']==1){
+                $status = 0;
+
+            }
+        }
+        
+        
+        
+        return View::make('validador.index',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
+        
+    }
+
     public function download(Request $request)
     {
         /*
