@@ -35,7 +35,6 @@ class FirmaController extends Controller
                 DB::beginTransaction();
 
                 $datos = $request->json()->all();                
-
                 //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
@@ -84,7 +83,7 @@ class FirmaController extends Controller
                     throw new Exception($comentario);
                     //return $this->respondFail($comentario);
                 }                    
-                
+
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                                                         ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
                                                         ->where('documento_buzon.id_documento', '=', $datos['id_documento'])
@@ -261,17 +260,19 @@ class FirmaController extends Controller
                     'urx'      => $n_urx_anexo, 
                     'ury'      => $n_ury_anexo  
                 );
-                
+               
                 $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']); 
-                
                 //agrega Hash de validación
                 if (count($datosBitacora) == 0)
                 {                            
-                    $url= '/validador_qr/'.$aInfoDocumento['hash_validacion'];
-                    $codigoQR = 'http://chart.apis.google.com/chart?chs=50x50&amp;cht=qr&amp;chl='.$url.'&amp;choe=UTF-8';
+                    //QR para validacion
+                    $url= env('APP_URL').':'.env('APP_PORT').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
+                    $codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
+                    
                     $pdf->AliasNbPages();                    
-                    $pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];
-                    $pdf->imagen_qr = "<img src='".$codigoQR."' />";
+                    //$pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];}
+                    $pdf->footer_txt = "Para verificar este documento, use el siguiente QR:";
+                    $pdf->footer_qr = $codigoQR;
                     $pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
                     $pdf->footer_link = env('PLCSGD_LINKVALIDADOR');
                     $pdf->PageFirma = $nPaginasPdf;                    
@@ -291,7 +292,6 @@ class FirmaController extends Controller
                     $pdf->Output($sArchivo, 'F');                    
                     
                 }
-
                 $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();   
