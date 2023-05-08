@@ -266,7 +266,7 @@ class FirmaController extends Controller
                 if (count($datosBitacora) == 0)
                 {                            
                     //QR para validacion
-                    $url= env('APP_URL').':'.env('APP_PORT').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
+                    $url= env('APP_URL').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
                     $codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
                     
                     $pdf->AliasNbPages();                    
