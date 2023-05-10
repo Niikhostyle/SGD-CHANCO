@@ -102,7 +102,7 @@ class DocumentoValidadorController extends Controller
         
         
         
-        return View::make('validador.index',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
+        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
         
     }
 

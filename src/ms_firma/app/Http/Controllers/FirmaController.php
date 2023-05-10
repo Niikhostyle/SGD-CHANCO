@@ -268,13 +268,14 @@ class FirmaController extends Controller
                     //QR para validacion
                     $url= env('APP_URL').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
                     $codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
-                    
+                    $html = '                                               Para validar el documento haga click <a href="'.$url.'">aqui</a>, o escanee el codigo QR.';
+
                     $pdf->AliasNbPages();                    
                     //$pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];}
-                    $pdf->footer_txt = "Para verificar este documento, use el siguiente QR:";
+                    $pdf->footer_txt = $html;//"Para verificar este documento haga clic en ".$url." o use el siguiente QR:";
                     $pdf->footer_qr = $codigoQR;
                     $pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
-                    $pdf->footer_link = env('PLCSGD_LINKVALIDADOR');
+                    $pdf->footer_link = $aInfoDocumento['hash_validacion'];//env('PLCSGD_LINKVALIDADOR');
                     $pdf->PageFirma = $nPaginasPdf;                    
 
                     for ($i=1; $i <= $pageCount; $i++) { 

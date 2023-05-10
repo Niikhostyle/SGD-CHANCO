@@ -54,7 +54,7 @@
                 <div class="form-row">                                
                         <div class="col-md-4 md-4">
                         <div class="form-group">
-                        <label for="id_documento" >Codigo de documento valido: </label>
+                        <label for="id_documento" >Código de documento válido: </label>
                             
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                             
                              
                                 <th scope="row">Resultado</th>
-                                <td class="valido">Codigo de documento valido</td>
+                                <td class="valido">Código de documento válido</td>
                                 
                                 
                             
@@ -158,7 +158,7 @@
         @endif
     
     @if($status==1)
-      <div class="card" id="card_invalido" style="border: 2px solid #cededf;   background-color: #cededf;">
+      <div class="card" id="card_invalido" style="border: 2px;">
                 <div class="card-body">
 
                 
@@ -170,26 +170,10 @@
                         <tr>
                                 
                                 <th scope="row">Resultado</th>
-                                <td class="invalido">Codigo de documento invalido</td>
+                                <td class="invalido">Código de documento inválido</td>
                                 
                                   
                             </tr>
-                            <tr>
-                                
-                                <th scope="row">Folio</th>
-                                <td></td>
-                        
-                            
-                            </tr>
-                            <tr>
-                        
-                                <th scope="row">Fecha</th>
-                                <td colspan="2"></td>
-                            
-                                
-                            </tr>
-
-                        
                     </table>
                     
                     
@@ -217,7 +201,7 @@
 
 
     <style type="text/css">
-        .valido { color: #6bff33; }
+        .valido { color: #28a745; }
         .invalido { color: #f71313; }
 
         .contenedor_global{
