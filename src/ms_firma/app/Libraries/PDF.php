@@ -19,18 +19,18 @@ class PDF extends FPDI
             $this->SetFont('Arial','',8);
             //$this->Cell(0,0,$this->footer_txt,0,0,'C');
             $this->WriteHTML($this->footer_txt);
-            $this->Image($this->footer_qr,140,315);
+            $this->Image($this->footer_qr,140,325);
             $this->SetY(-15);
 
             //$ancho = $this->ancho;
 
             $this->SetFont('Arial','',8);
             $this->SetTextColor(0, 0, 0);
-            $this->Cell(50,0,$this->footer_id_txt,0,0,'R');
+            //$this->Cell(50,0,$this->footer_id_txt,0,0,'R');
 
             $this->SetFont('Arial','U',8);
             $this->SetTextColor(0, 0, 255);
-            $this->Cell(50,0,$this->footer_link,0,0,'L');
+            //$this->Cell(50,0,$this->footer_link,0,0,'L');
         //}
 
     }
