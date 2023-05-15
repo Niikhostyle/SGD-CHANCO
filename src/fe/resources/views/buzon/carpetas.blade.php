@@ -2881,9 +2881,10 @@
                     console.log(result);
                 if (result.value==true) 
                 {  
-                    $('.btn-recibir-submit').html(
-                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmar'
+                    $('.btn-firmar').html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
                     );
+                    
                     deshabilita_boton('btn-recibir-submit');
                     deshabilita_boton('btn_cerrar_guardar');
                     deshabilita_boton('btn-guardar-submit');
@@ -2950,6 +2951,7 @@
                             }
                            
                             $('.btn-recibir-submit').html( 'Firmar' );
+                            $('.btn-firmar').html('Firmar');
                             bloqueo_accion=false;
 
                         },
@@ -2982,6 +2984,7 @@
 
                             }
                             $('.btn-recibir-submit').html( 'Firmar' );
+                            $('.btn-firmar').html('Firmar');
                             bloqueo_accion=false;
                         }
                     });
@@ -3917,7 +3920,7 @@
         //listado de visaciones y firmas
         $('.row_txt_firmar').show();
 
-        var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Firmar</button> ';
+        var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit btn-firmar">Firmar</button> ';
         $('#addButton').append(buttonFirmar);
         
     }
