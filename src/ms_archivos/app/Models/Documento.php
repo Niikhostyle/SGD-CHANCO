@@ -23,6 +23,7 @@ class Documento extends Model{
         'descripcion',
         'encabezado',
         'cuerpo',
+        'distibucion',
         'efectos_terceros',
         'hash_validacion',
         'archivo_existente',

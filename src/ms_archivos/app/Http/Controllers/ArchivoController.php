@@ -73,8 +73,31 @@ class ArchivoController extends Controller{
                 $nFolio = $datosDocumentos['folio'];
                 $tPlantillaDistribucion = "";
 
+                if (isset($datosJsonTipoDocumento['numero_firmas']))
+                    $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
+                else 
+                    $nNroFirmas = 4;  
+
+                if (isset($datosDocumentos['distribucion']))
+                    $tPlantillaDistribucion = $datosDocumentos['distribucion'];
+
+                //agregar espacio para firmas al contenido del documento
+
+                $aFirmaPosicion = array(
+                    '1' => 165, 
+                    '2' => 165, 
+                    '3' => 265,
+                    '4' => 265,
+                    '5' => 365, 
+                    '6' => 365
+                );  
+                
+                $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
+
+                /*
                 if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
-                    $tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
+                $tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
+                */
 
                 //si existe folio, saltar proceso de obtención de folio
                 if($nFolio==null){
@@ -133,15 +156,19 @@ class ArchivoController extends Controller{
                
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+                $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+
 
                 $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $tPlantillaDistribucion);         
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas);         
                 
                 //$pdf = app('dompdf.wrapper');
                 //$pdf->getDomPDF()->set_option("enable_php", true);
 
-                PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);           
+                PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);  
+                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);            
+                
                 //PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
                 //$pdf->setOptions(['isHtml5ParserEnabled' => true]);
                 

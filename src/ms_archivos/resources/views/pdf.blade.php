@@ -11,7 +11,7 @@
                 content: counter(page);
             }
             .page {
-               page-break-after: avoid;
+               page-break-after: avoid;               
             }
             .page:last-child {
                 /* Ocultar el contenido de la última página */
@@ -25,6 +25,8 @@
 <div class="content page">
     {!! $encabezado !!}
     {!! $cuerpo !!} 
+</div>
+<div style="height:{{$altoFirmas}}">
 </div>
 <div class="page">
     <footer>{!! $distribucion !!}</footer>
