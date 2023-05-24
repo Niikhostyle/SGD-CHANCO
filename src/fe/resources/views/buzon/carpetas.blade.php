@@ -3869,7 +3869,8 @@
                 materia:materia,
                 encabezado:encabezado,
                 cuerpo:cuerpo,
-                distribucion:distribucion
+                distribucion:distribucion,
+                tipo_documento:tipo_documento
             },
             success: function(data)
             {   

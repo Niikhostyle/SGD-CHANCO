@@ -623,7 +623,42 @@ class BuzonController extends Controller
 
         $datosDocumentos = DocumentoTmp::findOrFail($nID);
 
-        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentos['encabezado'], 'cuerpo'=>$datosDocumentos['cuerpo'], 'distribucion'=>$datosDocumentos['distribucion']  );
+        $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
+
+        if (isset($datosJsonTipoDocumento['numero_firmas']))
+            $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
+        else 
+            $nNroFirmas = 4;  
+
+        //agregar espacio para firmas al contenido del documento
+        $aFirmaPosicion = array(
+            '1' => 165, 
+            '2' => 165, 
+            '3' => 265,
+            '4' => 265,
+            '5' => 365, 
+            '6' => 365
+        );  
+        
+        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
+        $tPlantillaDistribucion = "";
+        if (isset($datosDocumentos['distribucion']))
+                    $tPlantillaDistribucion = $datosDocumentos['distribucion'];
+        
+        //$aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");    
+        $fecha = date('Y-m-d H:i:s');
+        $sfecha = $fecha = date('Y-m-d H:i:s');
+        $sEncabezado = $datosDocumentos['encabezado'];
+        $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
+        $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
+
+
+        $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+        $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+        //$datosDocumentosencabezado = $sEncabezado;
+        $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+
+        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
 
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
@@ -639,16 +674,23 @@ class BuzonController extends Controller
         try 
             {
                 //se crea documento con los datos básicos para la vista previa
-
+                $sesion_key = AppServiceProvider::session_key_general();
                 $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $request->cuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'),$request->encabezado);
                 $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'),$request->distribucion);
+                $msVerTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
+                ->timeout(30)
+                ->withBody(json_encode([
+                    'id_tipo_documento' => $request->tipo_documento,
+                ]), 'json')
+                ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
 
                 $documento = new DocumentoTmp();
                 $documento->materia = $request->materia;
                 $documento->encabezado = $datosDocumentosencabezado;//$request->encabezado;
                 $documento->cuerpo = $datosDocumentosCuerpo;//$request->cuerpo;
                 $documento->distribucion = $datosDocumentosDistribucion;//$request->cuerpo;
+                $documento->json_tipo_documento = json_encode($msVerTipoDoc['data']);
                 $documento->save();
                 
                 return $documento;
