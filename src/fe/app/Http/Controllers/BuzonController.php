@@ -39,6 +39,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 //use Barryvdh\DomPDF\Facade\Pdf;
 
+
 class BuzonController extends Controller
 {
     private $userFirma;
@@ -623,6 +624,7 @@ class BuzonController extends Controller
 
         $datosDocumentos = DocumentoTmp::findOrFail($nID);
 
+        //ORIGINAL
         $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
 
         if (isset($datosJsonTipoDocumento['numero_firmas']))
@@ -650,13 +652,14 @@ class BuzonController extends Controller
         $sfecha = $fecha = date('Y-m-d H:i:s');
         $sEncabezado = $datosDocumentos['encabezado'];
         $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-        $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
+        //$sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
 
 
         $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
         //$datosDocumentosencabezado = $sEncabezado;
-        $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+        $datosDocumentosDistribucion = "";
+        $datosDocumentosDistribucion .= str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
         $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
 
@@ -667,6 +670,7 @@ class BuzonController extends Controller
         $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
                 
         return $pdf->stream('vista_previa.pdf');
+        //return view('pdf', ['materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas]);
     }
 
     public function generar_vista_previa_sg(Request $request)

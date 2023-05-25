@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>       
 
-            footer { position: fixed; bottom: 40px; }
+            footer { position: fixed; bottom: 40px;width:100% }
             footer .pagenum:before 
             {
                 content: counter(page);
@@ -17,6 +17,13 @@
                 /* Ocultar el contenido de la última página */
                 display: none;
             }
+            .seccion-firma{
+                border:2px solid #c2c2c2; 
+                min-height:{{$altoFirmas  + 80 }} px !important;
+                width:100% !important;
+                margin-botom:15px;
+                text-align:right;
+            }
                        
         </style>
         
@@ -26,30 +33,18 @@
     {!! $encabezado !!}
     {!! $cuerpo !!} 
 </div>
-<div style="min-height:{{$altoFirmas}} px; border: 2px solid #333;">
-
-            <!-- @if($altoFirmas == 165)
-                <img src="img/firma_vp.png" style="width:255px;height:85px" > &nbsp; <img src="img/firma_vp.png" style="width:255px;height:85px"  >
-            @endif
-            @if($altoFirmas == 265)
-                <img src="img/firma_vp.png" style="width:255px;height:85px"  > &nbsp; <img src="img/firma_vp.png" style="width:255px;height:85px"  >
-                <div style="height:15px"></div>
-                <img src="img/firma_vp.png" style="width:255px;height:85px"  > &nbsp; <img src="img/firma_vp.png" style="width:255px;height:85px"  >
-                <div style="height:15px"></div>
-            @endif
-            @if($altoFirmas == 365)
-                <img src="img/firma_vp.png" style="width:255px;height:85px;margin-right:15px;margin-bottom:15px"  > &nbsp; <img src="img/firma_vp.png" style="width:255px;height:85px;margin-right:15px;margin-bottom:15px"  >
-                <div style="height:15px"></div>
-                <img src="img/firma_vp.png" style="width:255px;height:85px;margin-right:15px;margin-bottom:15px"  > &nbsp; <img src="img/firma_vp.png"  style="width:255px;height:85px;margin-right:15px;margin-bottom:15px" >
-                <div style="height:15px"></div>
-                <img src="img/firma_vp.png" style="width:255px;height:85px;margin-right:15px;margin-bottom:15px" > &nbsp; <img src="img/firma_vp.png" style="width:255px;height:85px;margin-right:15px;margin-bottom:15px"  >                 
-            @endif -->
-            <br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sección para firma(s)
+<div style="height:{{$altoFirmas}}">
 </div>
 <div class="page">
-    <footer>{!! $distribucion !!}</footer>
+    <footer>
+        <p class="seccion-firma">
+            <img src="img/firma_vp.png" style="width:295px;height:110px;margin-right:55px;margin-top:15px" />
+        </p>
+        {!! $distribucion !!}
+    </footer>
 </div>
 <div style="height:300px;page-break-inside: avoid !important;">
+<p>&nbsp;</p>
 </div>
 </body>
 </html>
