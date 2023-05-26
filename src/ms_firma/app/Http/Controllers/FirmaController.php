@@ -183,13 +183,22 @@ class FirmaController extends Controller
                 }
 
                 $aUbicacionesFirma = array(
+                    array(300, 240, 555, 325), 
+                    array(30, 240, 285, 325),
+                    array(300, 140, 555, 225),
+                    array(30, 140, 285, 225),
+                    array(300, 40, 555, 125),
+                    array(30, 40, 285, 125)
+                );
+
+/*                $aUbicacionesFirma = array(
                     array(300, 280, 555, 365), 
                     array(30, 280, 285, 365),
                     array(300, 180, 555, 265),
                     array(30, 180, 285, 265),
                     array(300, 80, 555, 165),
                     array(30, 80, 285, 165)
-                );
+                );*/
 
                 //posiciones desde donde comenzar a utilizar las ubicaciones del array anterior
                 $aFirmaPosicion = array(

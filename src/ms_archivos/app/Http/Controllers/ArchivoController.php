@@ -84,12 +84,12 @@ class ArchivoController extends Controller{
                 //agregar espacio para firmas al contenido del documento
 
                 $aFirmaPosicion = array(
-                    '1' => 165, 
-                    '2' => 165, 
-                    '3' => 265,
-                    '4' => 265,
-                    '5' => 365, 
-                    '6' => 365
+                    '1' => 85,  //165, 
+                    '2' => 85,  //165, 
+                    '3' => 185, //265,
+                    '4' => 185, //265,
+                    '5' => 285, //365, 
+                    '6' => 285, //365
                 );  
                 
                 $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
