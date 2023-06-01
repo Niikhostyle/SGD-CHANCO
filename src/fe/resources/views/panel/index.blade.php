@@ -200,11 +200,12 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            <div class="card" id="card-logo">
                 <div class="card-body">
-                    <div class="row text-right" id="logoPLC">
+                    <div class="row text-right" id="Purranque">
                         <div class="col-12">
-                            <img src="/img/logoCalidad.png" width="20%" style="margin-top:30%" />
+                            <img src="/img/EscudoPurranque.png" width="20%" style="margin-top:15%" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -822,6 +823,7 @@
     $('#btnBuscarDocto').click(function() {
         $('#card_documento').hide();
         $('#card_bitacora').hide();	
+        $('#card-logo').hide();
         $('.btn_cerrar_guardar').hide();
         $("#collapseOne").collapse('show');
         $('#carpetas').show();
@@ -842,6 +844,7 @@
     $('#btnBuscarContacto').click(function() {
         $('#card_documento').hide();
         $('#card_bitacora').hide();	
+        $('#card-logo').hide();
         $('.btn_cerrar_guardar').hide();
         $("#collapseOne").collapse('show');
         $('#carpetas').show();
@@ -903,6 +906,7 @@
         $('#card_documento').hide();
         $('#card_bitacora').hide();	
         $('.btn_cerrar_guardar').hide();
+        $('#card-logo').hide();
         $("#collapseOne").collapse('show');
         $('#carpetas').show();
         $('#logoPLC').hide();

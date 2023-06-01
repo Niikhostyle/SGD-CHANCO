@@ -105,11 +105,13 @@
                                 </div>
                             </form>
                         </div>
-                        <!-- <div class="row pt-5">
-                            <div class="col-12">
-                            <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
+                        <div class="row pt-5">
+                            <div class="col-12 text-center text-base text-bold">
+                                Software gentileza de <a href="https://www.padrelascasas.cl/" target="_blank">Municipalidad de Padre las Casas</a>, Convenio de Colaboración
+                            
+                                <img class="img mx-auto d-block" src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_calidad" style="max-width: 15%;">
                             </div>
-                        </div> -->
+                        </div>
                      </div>
                  </div>
             </div>
