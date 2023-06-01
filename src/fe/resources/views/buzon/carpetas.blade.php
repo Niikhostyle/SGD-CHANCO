@@ -4976,13 +4976,13 @@
                             }       
                             else
                             {
-                                if (value.mb <= 4)
-                                {
+                                //if (value.mb <= 4)
+                                //{
                                     var chkFirmaAnexo = '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-1" style="position: absolute;top: 5px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el primer firmante (Alcalde, Administrador, etc.)" >';
                                     chkFirmaAnexo += '<input type="checkbox" name="chkFirmaAnexo" value="'+value.id_documento_buzon_archivo+'-2" onClick="selCheckAnexo(this)" style="position: absolute;top: 23px;left: 80px;" data-toggle="tooltip" data-placement="top" title="Al seleccionar esta casilla, este anexo se firmará electrónicamente por el segundo firmante (Secretario Municipal, etc.)">';
-                                }
-                                else
-                                    var chkFirmaAnexo = '';
+                                //}
+                                //else
+                                //    var chkFirmaAnexo = '';
 
                                 var chkFirmaAnexoView = ''; 
                             }
