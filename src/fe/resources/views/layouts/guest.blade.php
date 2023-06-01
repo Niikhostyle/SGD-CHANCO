@@ -9,7 +9,7 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="shortcut icon" href="http://www.padrelascasas.cl/newplc/wp-content/themes/plc/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="https://www.purranque.cl/portal-municipal/images/logo1.png" type="image/x-icon">
 
 
 
@@ -47,7 +47,7 @@
             <div class="row">
                 <div class="col-md-12  text-center">
                   <span class="help-block m-r-20 m-l-20">
-                      2021 © Padre Las casas Maquehue 1441 - 45 2 590 000
+                      2023 © MUNICIPALIDAD DE PURRANQUE<br/>Av. Pedro Montt 249, Purranque - Décima Region de Los Lagos, Teléfono (64-2) 35 11 35
                   </span>
                 </div>
             </div>
