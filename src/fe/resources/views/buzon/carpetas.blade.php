@@ -5287,6 +5287,56 @@
         
      
     }
+
+    function eliminar_enviado(id_documento,id_documento_buzon){
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Eliminar documento', 
+            html: "Se realizará la eliminación del documento.... <br>",                      
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.value==true) 
+                {
+                    $.ajax({
+                        url: "/eliminar_documento",
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            _token:_token,
+                            idDocumento:id_documento,
+                            idDocumentoBuzon:id_documento_buzon             
+                        },
+                        success: function(data)
+                        {
+                            if(data.status == '200')
+                            {
+                                toastr.success(data.data,"¡Aviso!");                                
+                                fn_grilla_despachados();
+                                $('#card_crear_documento').hide();
+                                $("#collapseOne").collapse('show');  
+                            }
+                            else
+                            {
+                                toastr.error(data.data.comentario,"¡Aviso!");
+                            }
+                        },
+                        error: function (data, jqXHR, textStatus, errorThrown) {
+                            toastr.error("Falla en la eliminación del documento","¡Aviso!");
+                        }
+                    });
+            }
+        })             
+
+
+    }
+
+
+
     function grilla_por_recibir_texto(sTexto){
         $('#documento').hide();
             if ( $.fn.DataTable.isDataTable('#grilla_por_recibir') ) {
@@ -6405,6 +6455,12 @@
                                     if (row.id_estado_documento == 2) //E
                                     {
                                         botonera +='<a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                        
+                                        if(row.eliminar > 0){
+                                            botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_enviado('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+                                        }
+                                        
+                                        
                                         botonera +='<a class="dropdown-item btn-menu-editar" onclick="bitacora('+data+')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
 
                                         if (row.favorito == null)
