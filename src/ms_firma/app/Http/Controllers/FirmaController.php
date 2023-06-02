@@ -308,17 +308,24 @@ class FirmaController extends Controller
                 $fileSize = filesize($sArchivo);
                 $fileSize_mb = round($fileSize / 1048576, 0, PHP_ROUND_HALF_UP);
                 $nfh = 0;
+                Log::error('FIRMA - peso archivo '.$fileSize_mb); 
 
                 if ($fileSize_mb >= 5) //firma hash  
                 {              
                     $aRespuestaFirma = $this->callHash($sArchivo, $layout, '', $nNombreArchivoCargar, $nRutFirma);
                     $nfh = 1;
+
+                Log::error('FIRMA - hash '); 
+
                 }
                 else //firma tradicional
                 {
                     $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                                   ->addPDF($sArchivo, $sDescipcion, $layout)
-                                                  ->sign();    
+                                                  ->sign();   
+                                                  
+                    Log::error('FIRMA - tradicional '); 
+                                                  
                 }                                                 
                 
                 if (isset($aRespuestaFirma['status'])) 
