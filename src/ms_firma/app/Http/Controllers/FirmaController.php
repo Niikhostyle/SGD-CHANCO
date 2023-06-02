@@ -526,7 +526,7 @@ class FirmaController extends Controller
                 throw new Exception($comentario);                
                 
 
-            } catch (Exception $e) {
+            } catch (Exception $e) { 
 
                 DB::rollBack();
                 
