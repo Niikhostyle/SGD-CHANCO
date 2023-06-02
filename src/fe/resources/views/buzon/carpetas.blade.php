@@ -6457,7 +6457,7 @@
                                         botonera +='<a class="dropdown-item btn-menu-ver" onclick="ver_despachados('+data+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
                                         
                                         if(row.eliminar > 0){
-                                            botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_enviado('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar</a>';
+                                            botonera +='<a class="dropdown-item btn-menu-editar" onclick="eliminar_enviado('+data+','+row.id_documento_buzon+')"  href="#"><i class="fas fa-trash-alt text-red"></i> Eliminar Envío</a>';
                                         }
                                         
                                         

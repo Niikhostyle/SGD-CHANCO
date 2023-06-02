@@ -1037,13 +1037,18 @@ class BuzonController extends Controller
                     return $this->respondError('Falla al eliminar documento: Documento no encontrado', 500);
                 }
 
-                DB::delete('delete from documento_buzon_bitacora where id_documento_buzon in (select id_documento_buzon  from documento_buzon db where id_documento ='.$request->idDocumento.')');
+                DB::delete('delete from documento_buzon_bitacora where id_documento_buzon in (select id_documento_buzon  from documento_buzon db where id_documento ='.$request->idDocumento.' and db.id_documento_buzon_padre is not null)');
                 //DocumentoBuzonBitacora::where('id_documento_buzon',$request->idDocumentoBuzon)->delete();
                
-                $datosDocumento->rel_documento_buzon()->delete();
-                DocumentoBuzon::where('id_documento',$request->idDocumento)->delete();
-//                dd(DB::getQueryLog());
-                $datosDocumento->delete();     
+               // $datosDocumento->rel_documento_buzon()->delete();
+                DocumentoBuzon::where('id_documento',$request->idDocumento)
+                            ->whereRaw('id_documento_buzon_padre is not null')
+                            ->delete();
+
+                //$datosDocumento->delete(); 
+                DB::statement('update documento_buzon set id_estado_documento = 1 where id_documento ='. $request->idDocumento);
+                        
+                //dd(DB::getQueryLog());
                 
                 DB::commit();
 
