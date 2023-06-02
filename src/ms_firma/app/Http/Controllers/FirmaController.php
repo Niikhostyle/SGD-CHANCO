@@ -299,16 +299,22 @@ class FirmaController extends Controller
                     }
                     
                     $sArchivo = storage_path('app/public/files/'.$nNombreArchivoCargar);                 
-                    $pdf->Output($sArchivo, 'F');                    
+                    $pdf->Output($sArchivo, 'F');
+                    Log::error("ARCHIVO NUEVO CON HASH Y QR: " . $nNombreArchivoCargar); 
+
                     
                 }
+                
+                Log::error("ARCHIVO A FIRMAR: " . $sArchivo); 
+
                 $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                               ->addPDF($sArchivo, $sDescipcion, $layout)
                                               ->sign();   
                 
 
+
                 //Log::error("Dump Respuesta: " . $nRutFirma); 
-                //Log::error("Dump Respuesta: " . $aRespuestaFirma); 
+                Log::error("SALIDA API: " . $aRespuestaFirma); 
 
                 if (isset($aRespuestaFirma['status'])) 
                 {
@@ -340,6 +346,9 @@ class FirmaController extends Controller
 
                             fwrite ($pdf, $decodedFile);
                             fclose ($pdf);
+
+                            Log::error("ARCHIVO FIRMADO: " . $nNombreArchivoCargar); 
+
                             
                             if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargar)))
                             {
