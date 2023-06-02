@@ -26,8 +26,8 @@ RUN apt-get install -y libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql
 
 #Instalar Java
-RUN apt-get update && \
-    apt-get install -y openjdk-11-jdk
+#RUN apt-get update && \
+#    apt-get install -y openjdk-11-jdk
 
 ENV COMPOSER_HOME /composer
 ENV PATH ./vendor/bin:/composer/vendor/bin:$PATH
