@@ -124,13 +124,20 @@ class FirmaController extends Controller
                     
                 }
                 
+                // $firmaDigitalConfig = array(
+                //     'api'       => env('PLCSGD_API_URL'),
+                //     'purpose'   => env('PLCSGD_API_PURPOSE'),
+                //     'entity'    => env('PLCSGD_API_ENTITY'),
+                //     'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
+                //     'secretKey' => env('PLCSGD_SECRETO')
+                // );                
                 $firmaDigitalConfig = array(
-                    'api'       => env('PLCSGD_API_URL'),
-                    'purpose'   => env('PLCSGD_API_PURPOSE'),
-                    'entity'    => env('PLCSGD_API_ENTITY'),
-                    'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
-                    'secretKey' => env('PLCSGD_SECRETO')
-                );                
+                    'api'       => 'https://api.firma.digital.gob.cl/firma/v2/files/tickets',
+                    'purpose'   => 'Desatendido',
+                    'entity'    => 'Municipalidad de Purranque',
+                    'tokenKey'  => 'e81b667a-0254-41d1-814a-cd247229f/ab',
+                    'secretKey' => 'be3cae200718419eb1d90725396bd6b8'
+                );  
 
                 $classFirma = new FirmaBase($firmaDigitalConfig);
 
