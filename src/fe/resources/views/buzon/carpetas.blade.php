@@ -5292,7 +5292,7 @@
         var _token = $("input[name='_token']").val();
 
         Swal.fire({
-            title: 'Eliminar documento', 
+            title: 'Eliminar Envío', 
             html: "Se eliminarán los envíos del documento<br>",                      
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
