@@ -16,9 +16,10 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'links', items: [ 'Link', 'Unlink' ] },
 		{ name: 'insert', items: [ 'Image', 'Table', 'HorizontalRule' ] },
 		{ name: 'tools', items: [ 'Maximize' ] },
-		{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike','Underline', '-', 'RemoveFormat' ] },
 		{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
-		{ name: 'styles', items: [ 'Styles', 'Format' ] }
+		{ name: 'styles', items: [ 'Styles', 'Format' ] },
+		{ name: 'Source', items: [ 'Source' ] }
 
 	];
 
