@@ -5293,7 +5293,7 @@
 
         Swal.fire({
             title: 'Eliminar documento', 
-            html: "Se realizará la eliminación del documento<br>",                      
+            html: "Se eliminarán los envíos del documento<br>",                      
             showCancelButton: true,
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
