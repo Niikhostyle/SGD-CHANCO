@@ -135,8 +135,8 @@ class FirmaController extends Controller
                     'api'       => 'https://api.firma.digital.gob.cl/firma/v2/files/tickets',
                     'purpose'   => 'Desatendido',
                     'entity'    => 'Municipalidad de Purranque',
-                    'tokenKey'  => 'e81b667a-0254-41d1-814a-cd247229f7ab',
-                    'secretKey' => 'be3cae200718419eb1d90725396bd6b8'
+                    'tokenKey'  => 'e81b667a-0254-41d1-8f4a-cd247229f7ab',
+                    'secretKey' => 'be3cae2007184f9eb1d90725396bd6b8'
                 );  
 
                 $classFirma = new FirmaBase($firmaDigitalConfig);
