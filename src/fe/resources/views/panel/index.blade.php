@@ -932,7 +932,12 @@
             success: function(data){  
                 let nTotalRegistros = data.length;
                 let nRegistrosPorTabla = Math.round(nTotalRegistros/3);
-                $("#grilla_categorias"+idTabla).find("tr:gt(0)").remove();
+                if(nTotalRegistros >= 4){
+                    $("#grilla_categorias"+idTabla).find("tr:gt(0)").remove();
+                }
+                else{
+                    $("#grilla_categorias2").find("tr:gt(0)").remove();
+                }
                 let nroFila = 0;
                 if(data.length > 0){
                     $.each(data, function(i, val) {
