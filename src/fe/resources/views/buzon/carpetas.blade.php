@@ -1120,7 +1120,7 @@
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
         editor_cuerpo.setReadOnly(true);
-        editor_distribucion.setReadOnly(false);
+        editor_distribucion.setReadOnly(true);
         $('#form_destinatario_principal').prop("disabled", true);
         $('#form_comentario_el').prop("disabled", true);        
         $('#form_otros_destinatarios_el').prop("disabled", true);
