@@ -163,55 +163,14 @@ class ArchivoController extends Controller{
 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas);         
                 
-                //$pdf = app('dompdf.wrapper');
-                //$pdf->getDomPDF()->set_option("enable_php", true);
 
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);  
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);            
-                
-                //PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
-                //$pdf->setOptions(['isHtml5ParserEnabled' => true]);
-                
-                //$pdf->setOption('footer-html', $tPlantillaDistribucion);
-                //$pdf->output();
-
-                //$pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
-        
-                //$dom_pdf = $pdf->getDomPDF();
-                //$canvas = $dom_pdf->get_canvas();
-
-                //$canvas->page_text(520, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-
-     
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);           
- 
-               
-                //ver cuantas paginas tiene para poner firma
-                //Obtiene pagina para agregar firma
                 $pdfPages = file_get_contents(storage_path('app/public/files/') . $nNombreArchivoCargar);
                 $count = 0;
                 $count = preg_match_all("/\/Page\W/", $pdfPages, $dummy);
                 
                 Documento::find($nDocumento)->update(['paginas_archivo' => $count, 'archivo_existente' => true]);
 
-                //se comenta merge por problemas de peso al generar firma
-                //23-05-2022
-                /*
-                $oMerger = PDFMerger::init();
-                $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
-
-                $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
-                                                ->where('id_documento', $nDocumento)
-                                                ->where('id_tipo_archivo', 2)
-                                                ->select('nombre_archivo_codificado')
-                                                ->get();      
-
-                foreach ($anexos as $file)
-                    $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
-   
-                $oMerger->merge();
-                $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
-                */
                 $dFechaCreacion = date('Y-m-d H:i:s');                  
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))

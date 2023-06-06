@@ -1671,7 +1671,7 @@
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento 1","¡Aviso!");
+                toastr.error("Falla en el documento","¡Aviso!");
 
                 if($("#idAsignado").html() != "No Asignado"){
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
@@ -1951,7 +1951,7 @@
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento 2","¡Aviso!");
+                toastr.error("Falla en el documento","¡Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
                 habilita_boton('btn-guardar-submit-edit');
@@ -2268,7 +2268,7 @@
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento 3","¡Aviso!");
+                toastr.error("Falla en el documento","¡Aviso!");
 
                 $('.btn-guardar-submit-edit').html( 'Guardar' );
                 habilita_boton('btn-guardar-submit-edit');
@@ -2631,7 +2631,7 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error("Falla en el documento 4","¡Aviso!");
+                            toastr.error("Falla en el documento","¡Aviso!");
                         }
                     }); 
                 }
@@ -2732,7 +2732,7 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error("Falla en el documento 5","¡Aviso!");
+                            toastr.error("Falla en el documento","¡Aviso!");
                             $('.btn-visar-derivar').html('Visar y Enviar');
                         }
                     }); 
@@ -2811,7 +2811,7 @@
                                 if (data.data.comentario != "" && data.data.comentario != null)
                                     toastr.error(data.data.comentario,"¡Aviso!");
                                 else
-                                    toastr.error("Falla en el documento 6","¡Aviso!");
+                                    toastr.error("Falla en el documento","¡Aviso!");
 
                                 $('.btn-aplicar').html('Aplicar');
                                 habilita_boton('btn-aplicar');
@@ -2967,7 +2967,7 @@
                                 habilita_boton('btn-recibir-submit');
                             }
                             else{
-                                toastr.error("Falla en el documento 7","¡Aviso!");
+                                toastr.error("Falla en el documento","¡Aviso!");
                                 habilita_boton('btn-recibir-submit');
                                 habilita_boton('btn-recibir-submit');
                                 habilita_boton('btn_cerrar_guardar');
@@ -3232,7 +3232,7 @@
                                     $('.btn-firmar-derivar').html('Firmar y Enviar');
                                 }
                                 else{
-                                    toastr.error("Falla en el documento 8","¡Aviso!");
+                                    toastr.error("Falla en el documento","¡Aviso!");
                                     habilita_boton('btn-recibir-submit');
                                     habilita_boton('btn_cerrar_guardar');
                                     habilita_boton('btn-guardar-submit');
@@ -3329,7 +3329,7 @@
                             }
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            toastr.error("Falla en el documento 9","¡Aviso!");
+                            toastr.error("Falla en el documento","¡Aviso!");
                             habilita_boton('btn-recibir-submit');
                         }
                     });
@@ -3394,7 +3394,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
 
-                        toastr.error("Falla en el documento 10","¡Aviso!");
+                        toastr.error("Falla en el documento","¡Aviso!");
 
                         $('.btn-enviar-submit').html( 'Enviar' );
                     }
@@ -3497,7 +3497,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
 
-                        toastr.error("Falla en el documento 11","¡Aviso!");
+                        toastr.error("Falla en el documento","¡Aviso!");
                         habilita_boton('btn-archivar');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-editar');
@@ -3630,7 +3630,7 @@
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
 
-                        toastr.error("Falla en el documento 12","¡Aviso!");
+                        toastr.error("Falla en el documento","¡Aviso!");
                         habilita_boton('btn-archivar');
                         habilita_boton('btn_cerrar_guardar');
                         habilita_boton('btn-editar');
@@ -3879,7 +3879,7 @@
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento 13","¡Aviso!");
+                toastr.error("Falla en el documento","¡Aviso!");
                 Swal.close();
 
                 if($("#idAsignado").html() != "No Asignado"){
@@ -6677,7 +6677,7 @@
                                                 },
                                                 error: function (jqXHR, textStatus, errorThrown) {
 
-                                                    toastr.error("Falla en el documento 14","¡Aviso!");
+                                                    toastr.error("Falla en el documento","¡Aviso!");
 
                                                     habilita_boton('btn-aplicar');
                                                     $('.btn-aplicar').html('Aplicar');

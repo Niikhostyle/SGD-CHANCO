@@ -444,14 +444,14 @@ class FirmaController extends Controller
 
                 DB::rollBack();
                 
-                $msgError = "Error al generar la Firma Electónica:" . $e->getMessage();
+                $msgError = "Error al generar la Firma Electrónica:" . $e->getMessage();
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);                
                 $this->deleteImg($sNombreImgAnexo);//elimina imagen anexo de firma
 
-                Log::error("Error al generar la Firma Electónica: " . $e->getMessage()); 
+                Log::error("Error al generar la Firma Electrónica: " . $e->getMessage()); 
 
-                return $this->respondFail("Error al generar la Firma Electónica: " . $e->getMessage());
+                return $this->respondFail("Error al generar la Firma Electrónica: " . $e->getMessage());
             }
         }
         else
