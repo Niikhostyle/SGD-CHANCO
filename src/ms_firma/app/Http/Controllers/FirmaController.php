@@ -307,24 +307,18 @@ class FirmaController extends Controller
 
                 $fileSize = filesize($sArchivo);
                 $fileSize_mb = round($fileSize / 1048576, 0, PHP_ROUND_HALF_UP);
-                $nfh = 0;
-                Log::error('FIRMA - peso archivo '.$fileSize_mb); 
+                $nfh = 0;                
 
                 if ($fileSize_mb >= 5) //firma hash  
-                {              
-                    $aRespuestaFirma = $this->callHash($sArchivo, $layout, '', $nNombreArchivoCargar, $nRutFirma);
-                    $nfh = 1;
-
-                Log::error('FIRMA - hash '); 
-
+                {             
+                    $aRespuestaFirma = $this->callHash($sArchivo, $layout, 0, $nNombreArchivoCargar, $nRutFirma);
+                    $nfh = 1; 
                 }
                 else //firma tradicional
                 {
                     $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                                   ->addPDF($sArchivo, $sDescipcion, $layout)
-                                                  ->sign();   
-                                                  
-                    Log::error('FIRMA - tradicional '); 
+                                                  ->sign(); 
                                                   
                 }                                                 
                 
@@ -333,7 +327,7 @@ class FirmaController extends Controller
                     $comentario = $aRespuestaFirma['error'];
                     throw new Exception($comentario);
                 }
-
+                
                 if (isset($aRespuestaFirma['metadata']))
                 {
                     if ($aRespuestaFirma['metadata']['filesSigned'] == 1 )
@@ -419,13 +413,16 @@ class FirmaController extends Controller
                                 }
                             }                             
                             
-                            DB::commit();     
+                            DB::commit();  
+                            
+                            //elimina imagen de firma 
+                            $this->deleteImg($sNombreImg); 
 
                             return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
                                 
                         }
 
-                        //elimina imagen de firma
+                        //elimina imagen de firma 
                         $this->deleteImg($sNombreImg);  
                                                 
                     }
@@ -484,15 +481,14 @@ class FirmaController extends Controller
     {
         $classFilePath = storage_path('../app/Libraries/firmaHashV1.jar');
         $sPathArchivoFirmado = storage_path('app/public/files/'.$nNombreArchivoFirmado);
-       
+               
         if ($ultimaPag == 0)
             $nPagina = $layout['page'];
         else
             $nPagina = $ultimaPag;
         
-        //$cmd = "java -jar firma.jar -a '".env('PLCSGD_API_URL')."' -e '".env('PLCSGD_API_ENTITY')."' -f '".$sArchivo."' -k ".env('PLCSGD_SECRETO')." -p ".env('PLCSGD_API_PURPOSE')." -r 22222222";
         $cmd = "java -jar ".$classFilePath." -a '".env('PLCSGD_API_URL')."' -e '".env('PLCSGD_API_ENTITY')."' -f '".$sArchivo."' -i ".$layout['filename']." -o ".$sPathArchivoFirmado." -k ".env('PLCSGD_SECRETO')." -p ".env('PLCSGD_API_PURPOSE')." -r ".$nRut." -t ".env('PLCSGD_API_TOKEN_KEY')." -u '".$layout['llx'].",".$layout['lly'].",".$layout['urx'].",".$layout['ury']."' -s " . $nPagina;
-
+        
         exec($cmd, $output, $estado);        
 
         if ($estado == 0) //firma ok
@@ -507,13 +503,15 @@ class FirmaController extends Controller
             {
                 $aSalida = array("files"=>array(array("content"=>"", "status"=>"OK")), "metadata"=>array("filesSigned"=>1));
             }
+                  
+
         }
         else
         {
             $aSalida = array("status"=>"400", "error"=>$output);
         }
 
-        return json_encode($aSalida);
+        return $aSalida;
     }
 
     public function firmaAnexos($id_documento, $datosBitacora, $sNombre, $img_firma, $datosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma)
@@ -582,7 +580,7 @@ class FirmaController extends Controller
                     $sArchivoAnexo = storage_path('app/public/files/'.$archAnexo->nombre_archivo_codificado);
                     
                     //lamada por hash a anexos
-                    //Obtiene pagina para agregar firma //DF6-80-20230426-45935741.pdf
+                    //Obtiene pagina para agregar firma
                     $pdfPagesAnexo = file_get_contents($sArchivoAnexo);
                     $countAnexo = 0;
                     $countAnexo = preg_match_all("/\/Page\W/", $pdfPagesAnexo, $dummy);
@@ -599,7 +597,7 @@ class FirmaController extends Controller
                         
                         return $aSalida;
                     }
-
+                    
                     if (isset($nSalidaHashAnexo['status'])) 
                     {
                         $comentario = $nSalidaHashAnexo['error'];
@@ -608,69 +606,12 @@ class FirmaController extends Controller
                         
                         return $aSalida;
                     }
+                    
                    
-
                     //actualiza estado de firma
                     $regFirma = $archAnexo->id_documento_buzon_archivo;
                     DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => $iEstadoFirma, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
-
-
-                    /*
-
-                    $aRespuestaFirmaAnexo = $classFirmaAnexos->setRUN($nRutFirma)                        
-                                ->addPDF($sArchivoAnexo, $sDescipcion, $layoutAnexo)
-                                ->sign();                                               
-
-                    if (isset($aRespuestaFirmaAnexo['status'])) 
-                    {
-                        $comentario = $aRespuestaFirmaAnexo['error'];
-                        throw new Exception($comentario);
-                    }
-                    
-                    if ($aRespuestaFirmaAnexo['metadata']['filesSigned'] == 1 )
-                    {
-                        $responseFileAnexo = $aRespuestaFirmaAnexo['files'][0];            
-                        if($responseFileAnexo['status'] == 'OK') 
-                        {
-                            $encondedFileAnexo = $responseFileAnexo['content'];  
-                            
-                            $decodedFileAnexo = base64_decode($encondedFileAnexo, true);
-                            if (empty($encondedFileAnexo) || !base64_encode($decodedFileAnexo) === $encondedFileAnexo) {
-                                $comentario = "Error de codificación en archivo anexo firmado.";
-                                throw new Exception($comentario);
-                            }                
-
-                            $pdf = fopen (storage_path('app/public/files/'.$nNombreArchivoCargarAnexo),'w+');
-                            if (!$pdf)
-                            {
-                                $comentario = "No se pudo crear archivo anexo firmado. ";
-                                throw new Exception($comentario);
-                            }
-
-                            fwrite ($pdf, $decodedFileAnexo);
-                            fclose ($pdf);
-                            
-                            if (!file_exists(storage_path('app/public/files/'.$nNombreArchivoCargarAnexo)))
-                            {
-                                $comentario = "No se encuentra el archivo anexo firmado. ";
-                                throw new Exception($comentario);
-                            }
-
-                            //actualiza estado de firma
-                            $regFirma = $archAnexo->id_documento_buzon_archivo;
-                            //DocumentoBuzonArchivo::find($archAnexo->id_documento_buzon_archivo)->update(['estado_firma_anexo' => 1]);
-                            DocumentoBuzonArchivo::find($regFirma)->update(['estado_firma_anexo' => $iEstadoFirma, 'nombre_archivo_codificado' => $nNombreArchivoCargarAnexo]); 
-
-                        }
-                        
-                    }
-                    else
-                    {
-                        $comentario = "No se pudo procesar la respuesta en firma anexo.";
-                        Log::error("Dump Respuesta: " . $aRespuestaFirmaAnexo); 
-                        throw new Exception($comentario);
-                    }
-                    */
+ 
                 }
 
                 //elimina imagen anexo de firma

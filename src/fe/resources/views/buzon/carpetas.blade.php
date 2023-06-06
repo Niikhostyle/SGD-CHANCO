@@ -863,7 +863,7 @@
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 1},
         createImageThumbnails: true,        
-        timeout: 50000,
+        timeout: 100000,
         init: function() {
             dropzonePrincipal = this; // closure              
 
@@ -912,7 +912,7 @@
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 2},
         createImageThumbnails: true,
-        timeout: 50000,
+        timeout: 100000,
         parallelUploads: 20,
         init: function() {
             dropzoneAnexo = this; // closure 
@@ -964,7 +964,7 @@
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
-        timeout: 50000,
+        timeout: 100000,
         parallelUploads: 20,
         init: function() {
             dropzoneOtros = this; // closure              
