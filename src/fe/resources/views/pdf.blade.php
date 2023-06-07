@@ -18,11 +18,11 @@
                 display: none;
             }
             .seccion-firma{
-                border:2px solid #c2c2c2; 
-                min-height:{{$altoFirmas  + 80 }} px !important;
+                border:1px solid #c2c2c2; 
+                min-height:{{$altoFirmas}}px !important;
                 width:100% !important;
-                margin-botom:15px;
-                text-align:right;
+                /*margin-botom:15px;*/
+                text-align:center;
             }
                        
         </style>
@@ -38,7 +38,8 @@
 <div class="page">
     <footer>
         <p class="seccion-firma">
-            <img src="img/firma_vp.png" style="width:295px;height:110px;margin-right:55px;margin-top:15px" />
+            <br>
+            <br> Sección para firma(s)
         </p>
         {!! $distribucion !!}
     </footer>

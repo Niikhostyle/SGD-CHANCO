@@ -634,15 +634,19 @@ class BuzonController extends Controller
 
         //agregar espacio para firmas al contenido del documento
         $aFirmaPosicion = array(
-            '1' => 165, 
-            '2' => 165, 
-            '3' => 265,
-            '4' => 265,
-            '5' => 365, 
-            '6' => 365
+            '1' => 85,  //165, 
+            '2' => 85,  //165, 
+            '3' => 185, //265,
+            '4' => 185, //265,
+            '5' => 285, //365, 
+            '6' => 285, //365
         );  
         
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
+        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+40;
+
+        
+
+
         $tPlantillaDistribucion = "";
         if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
@@ -657,9 +661,7 @@ class BuzonController extends Controller
 
         $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-        //$datosDocumentosencabezado = $sEncabezado;
-        $datosDocumentosDistribucion = "";
-        $datosDocumentosDistribucion .= str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+        $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
         $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
 
@@ -789,10 +791,6 @@ class BuzonController extends Controller
                         //DB::raw('(select dbb.fecha from documento_buzon_bitacora dbb join documento_buzon db4 on dbb.id_documento_buzon = db4.id_documento_buzon where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db4.id_tipo_destino = 1 and dbb.id_accion = 3) as fecha_recepcion'),
                         'documento_buzon.fecha as fecha_recepcion',
                         'documento_buzon.contestar_hasta as contestas_hasta',
-                        DB::raw('case when '.$request->id_carpeta.' = 3 then case when (select count(1) from  documento_buzon db 
-                        where db.id_documento = documento_buzon.id_documento 
-                        and db.id_documento_buzon_padre  = documento_buzon.id_documento_buzon 
-                        and db.id_estado_documento >=4) > 0 then 0 else 1 end  else 0 end as eliminar')
                         )
                     ->where('documento_buzon.id_buzon','=',$request->id_buzon)
                     ->where('documento_buzon.id_carpeta','=',$request->id_carpeta)
@@ -899,6 +897,7 @@ class BuzonController extends Controller
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
                 'encabezado' => $DocumentoOriginal[0]->encabezado,
                 'cuerpo' => $DocumentoOriginal[0]->cuerpo,
+                'distribucion' => $DocumentoOriginal[0]->distribucion,
                 'fecha' => $dFechaCreacion,
                 'hash_validacion' => $sHash,
                 'folio' => $nFolio                    
@@ -1014,55 +1013,6 @@ class BuzonController extends Controller
          }
          return $salida;
             
-    }
-
-    public function eliminar_documento_enviado(Request $request){
-        try {
-            DB::beginTransaction();
-
-
-            $datoDocBuzon = DocumentoBuzon::where('id_documento_buzon', $request->idDocumentoBuzon)
-                                            ->where('id_estado_documento','2')                          
-                                            ->first();
-            
-            if ($datoDocBuzon['id_documento_buzon'])
-            {
-                
-                //elimina de las tablas relacionadas
-                DB::enableQueryLog(); 
-                $datosDocumento = Documento::findOrFail($request->idDocumento);
-               
-                if (!$datosDocumento['id_documento']){
-                    
-                    return $this->respondError('Falla al eliminar documento: Documento no encontrado', 500);
-                }
-
-                DB::delete('delete from documento_buzon_bitacora where id_documento_buzon in (select id_documento_buzon  from documento_buzon db where id_documento ='.$request->idDocumento.' and db.id_documento_buzon_padre is not null)');
-                //DocumentoBuzonBitacora::where('id_documento_buzon',$request->idDocumentoBuzon)->delete();
-               
-               // $datosDocumento->rel_documento_buzon()->delete();
-                DocumentoBuzon::where('id_documento',$request->idDocumento)
-                            ->whereRaw('id_documento_buzon_padre is not null')
-                            ->delete();
-
-                //$datosDocumento->delete(); 
-                DB::statement('update documento_buzon set id_estado_documento = 1 where id_documento ='. $request->idDocumento);
-                        
-                //dd(DB::getQueryLog());
-                
-                DB::commit();
-
-                return $this->respondSuccess("Documento eliminado", 200);           
-            }
-            else
-                return $this->respondError('Falla al eliminar documento:  Documento-Buzon no encontrado', 500);
-            
-
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-
-            return $this->respondError('Falla al eliminar documento:' . $e->getMessage(), 500);
-        }
     }
 
 }
