@@ -364,13 +364,14 @@
                                     <button onClick="vista_previa_sg()" type="button" class="btn text-nowrap btn-min-w  btn-default btn-vp">
                                         <i class="fa fa-file-pdf fa-solid"></i>&nbsp;&nbsp;Generar vista previa
                                     </button>      
-                                </label>                                
-                                <textarea class="form-control" id="form_cuerpo" name="cuerpo"></textarea>
+                                </label>  
+                                <br><br>                              
+                                <textarea class="form-control tiny" id="form_cuerpo" name="cuerpo"></textarea>
                                 <input type="hidden" id="form_encabezado" name="encabezado"> 
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="view-txt-row" for="distribucion">Distribución:</label>                              
-                                <textarea class="form-control" id="form_distribucion" name="distribucion"></textarea>
+                                <textarea class="form-control tiny" id="form_distribucion" name="distribucion"></textarea>
                             </div>
                         
                         </div>
@@ -679,6 +680,9 @@
         .item a, a:hover{
             text-decoration: underline !important;
         }
+        .tox-statusbar__branding{
+            display: none;
+        }
         
      </style>
 
@@ -692,6 +696,9 @@
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
  
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
@@ -703,6 +710,51 @@
 
 
 <script>
+    tinymce.init({
+        selector: '.tiny',
+        language: 'es',
+        contextmenu_never_use_native: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'image undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
+        image_title: true,
+        menu: {
+            edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
+            view: { title: 'Ver', items: 'code | visualaid visualchars visualblocks | spellchecker  | showcomments' },
+            insert: { title: 'Insertar', items: 'image link  pageembed template codesample inserttable ' },
+            format: { title: 'Formato', items: 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat' },
+            table: { title: 'Tabla', items: 'inserttable | cell row column | advtablesort | tableprops deletetable' }
+        },
+        menubar: 'edit view insert format table',
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        file_picker_callback: (cb, value, meta) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+
+                const reader = new FileReader();
+                reader.addEventListener('load', () => {
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+
+                    cb(blobInfo.blobUri(), { title: file.name });
+                    });
+                reader.readAsDataURL(file);
+            });
+
+            input.click();
+        }
+    });
     //globales
 
     var grilla_por_recibir;
@@ -1043,21 +1095,21 @@
 
     /* **DOCUMENTOS** SCRIPT */
 
-    const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
+    // const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
              
-        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
-        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
-        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
-    }); 
+    //     filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+    //     filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+    //     filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    // }); 
 
-    const editor_distribucion = CKEDITOR.replace('form_distribucion', {        
-        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
-        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
-        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
-        height: 100
-    }); 
+    // const editor_distribucion = CKEDITOR.replace('form_distribucion', {        
+    //     filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+    //     filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+    //     filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    //     height: 100
+    // }); 
 
-    CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
+    // CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)
     {
@@ -1073,8 +1125,10 @@
         deshabilita_campos();
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.setReadOnly(false);
-        editor_distribucion.setReadOnly(false);
+        // editor_cuerpo.setReadOnly(false);
+        // editor_distribucion.setReadOnly(false);
+        tinymce.get("form_cuerpo").mode.set("design");
+        tinymce.get("form_distribucion").mode.set("design");
 
         $('.btn-guardar-submit').show();   
         habilita_boton('btn-guardar-submit');
@@ -1119,8 +1173,10 @@
     {
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
-        editor_cuerpo.setReadOnly(true);
-        editor_distribucion.setReadOnly(false);
+        //editor_cuerpo.setReadOnly(true);
+        //editor_distribucion.setReadOnly(true);
+        tinymce.get("form_cuerpo").mode.set("readonly");
+        tinymce.get("form_distribucion").mode.set("readonly");
         $('#form_destinatario_principal').prop("disabled", true);
         $('#form_comentario_el').prop("disabled", true);        
         $('#form_otros_destinatarios_el').prop("disabled", true);
@@ -1145,8 +1201,10 @@
     {
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.setReadOnly(false);
-        editor_distribucion.setReadOnly(false);
+        // editor_cuerpo.setReadOnly(false);
+        // editor_distribucion.setReadOnly(false);
+        tinymce.get("form_cuerpo").mode.set("design");
+        tinymce.get("form_distribucion").mode.set("design");
         $('#form_destinatario_principal').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $('#form_comentario_el').prop("disabled", false);        
@@ -1173,8 +1231,10 @@
 
         $('#form_crear_editar').trigger("reset");
         $("input[name='encabezado']").val('');
-        editor_cuerpo.setData('');
-        editor_distribucion.setData('');
+        //editor_cuerpo.setData('');
+        tinymce.get("form_cuerpo").setContent('');
+        //editor_distribucion.setData('');
+        tinymce.get("form_distribucion").setContent('');
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
@@ -1267,8 +1327,10 @@
 
                             idTipoFlujo = data.data.id_tipo_flujo;
 
-                            editor_cuerpo.setData(data.data.plantilla_cuerpo);
-                            editor_distribucion.setData(data.data.plantilla_distribucion);
+                            //editor_cuerpo.setData(data.data.plantilla_cuerpo);
+                            tinymce.get("form_cuerpo").setContent(data.data.plantilla_cuerpo);
+                            //editor_distribucion.setData(data.data.plantilla_distribucion);
+                            tinymce.get("form_distribucion").setContent(data.data.plantilla_distribucion);
 
                             //habilita respuesta a: solo a flujo libre
 
@@ -1389,8 +1451,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
         var responder = $('#form_respuesta_a').val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -1710,8 +1774,10 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
 
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
@@ -1818,8 +1884,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
         console.log(distribucion);
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
@@ -1988,8 +2056,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2139,8 +2209,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -3856,8 +3928,10 @@
         var tipo_documento = $("select[name='tipo_documento']").val();
         var materia = $("input[name='materia']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
+        var cuerpo = tinymce.get("form_cuerpo").getContent();
+        var distribucion = tinymce.get("form_distribucion").getContent();
         urlAccion = "{{route('documentos.vista_previa_sg')}}";
         $.ajax({
             url: urlAccion,
@@ -4077,9 +4151,10 @@
 
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
-
-                        editor_cuerpo.setData(data.data.cuerpo);
-                        editor_distribucion.setData(data.data.distribucion);
+                        //editor_cuerpo.setData(data.data.cuerpo);
+                        tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
+                        //editor_distribucion.setData(data.data.distribucion);
+                        tinymce.get("form_distribucion").setContent(data.data.distribucion);
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
@@ -5114,7 +5189,7 @@
     function ver_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre)
     {
         $('#titulo_accion').html('Ver Documento');         
-
+        $('.row_cuerpo').show();
         deshabilita_campos();
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,0); 
 
@@ -5129,7 +5204,7 @@
     function editar_despachados(id_documento,id_documento_buzon,id_documento_buzon_padre,ag = 0)
     {       
         $('#titulo_accion').html('Editar Documento'); 
-        
+        $('.row_cuerpo').show();
         habilita_campos();
         isDelete = true;
         cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,3,1); 
@@ -6986,8 +7061,10 @@
     function activar_editar(nBotones){
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", false); 
-        editor_cuerpo.setReadOnly(false); 
-        editor_distribucion.setReadOnly(false);
+        // editor_cuerpo.setReadOnly(false); 
+        // editor_distribucion.setReadOnly(false);
+        tinymce.get("form_cuerpo").mode.set("design");
+        tinymce.get("form_distribucion").mode.set("design");
         $('#dropzone-principal').prop("disabled", false); 
         $('#dropzone-anexo').prop("disabled", false); 
         $('#dropzone-otros').prop("disabled", false); 

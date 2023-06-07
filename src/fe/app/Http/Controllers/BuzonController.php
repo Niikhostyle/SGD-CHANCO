@@ -634,15 +634,19 @@ class BuzonController extends Controller
 
         //agregar espacio para firmas al contenido del documento
         $aFirmaPosicion = array(
-            '1' => 165, 
-            '2' => 165, 
-            '3' => 265,
-            '4' => 265,
-            '5' => 365, 
-            '6' => 365
+            '1' => 85,  //165, 
+            '2' => 85,  //165, 
+            '3' => 185, //265,
+            '4' => 185, //265,
+            '5' => 285, //365, 
+            '6' => 285, //365
         );  
         
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
+        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+40;
+
+        
+
+
         $tPlantillaDistribucion = "";
         if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
@@ -657,15 +661,13 @@ class BuzonController extends Controller
 
         $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-        //$datosDocumentosencabezado = $sEncabezado;
-        $datosDocumentosDistribucion = "";
-        $datosDocumentosDistribucion .= str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+        $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
         $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
 
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
-        $registro->delete();
+        //$registro->delete();
 
         $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
                 
@@ -895,6 +897,7 @@ class BuzonController extends Controller
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
                 'encabezado' => $DocumentoOriginal[0]->encabezado,
                 'cuerpo' => $DocumentoOriginal[0]->cuerpo,
+                'distribucion' => $DocumentoOriginal[0]->distribucion,
                 'fecha' => $dFechaCreacion,
                 'hash_validacion' => $sHash,
                 'folio' => $nFolio                    
