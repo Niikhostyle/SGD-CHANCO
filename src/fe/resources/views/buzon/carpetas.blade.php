@@ -719,7 +719,7 @@
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
+        toolbar: 'image undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
