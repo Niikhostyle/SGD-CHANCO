@@ -719,7 +719,7 @@
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic underline | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
+        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
@@ -1328,9 +1328,20 @@
                             idTipoFlujo = data.data.id_tipo_flujo;
 
                             //editor_cuerpo.setData(data.data.plantilla_cuerpo);
-                            tinymce.get("form_cuerpo").setContent(data.data.plantilla_cuerpo);
+                            if(data.data.plantilla_cuerpo !== null){
+                                tinymce.get("form_cuerpo").setContent(data.data.plantilla_cuerpo);
+                            }
+                            else{
+                                tinymce.get("form_cuerpo").setContent('&nbsp;');
+                            }
+
                             //editor_distribucion.setData(data.data.plantilla_distribucion);
-                            tinymce.get("form_distribucion").setContent(data.data.plantilla_distribucion);
+                            if(data.data.plantilla_distribucion !== null){
+                                tinymce.get("form_distribucion").setContent(data.data.plantilla_distribucion);
+                            }
+                            else{
+                                tinymce.get("form_distribucion").setContent('&nbsp;');
+                            }
 
                             //habilita respuesta a: solo a flujo libre
 
@@ -1888,7 +1899,6 @@
         //var distribucion = editor_distribucion.getData();
         var cuerpo = tinymce.get("form_cuerpo").getContent();
         var distribucion = tinymce.get("form_distribucion").getContent();
-        console.log(distribucion);
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -4096,6 +4106,9 @@
 
         cargar_datos_bitacora(id_documento);
     }
+    function isEmpty(string) {
+       return typeof string === 'string' && string.length === 0;
+    }
 
     function cargar_datos_grilla(id_documento,id_documento_buzon,id_documento_buzon_padre,carpeta,accion)
     {
@@ -4152,9 +4165,22 @@
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
                         //editor_cuerpo.setData(data.data.cuerpo);
-                        tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
+                        //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         //editor_distribucion.setData(data.data.distribucion);
-                        tinymce.get("form_distribucion").setContent(data.data.distribucion);
+                        if(data.data.cuerpo !== null){
+                            tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
+                        }
+                        else{
+                            tinymce.get("form_cuerpo").setContent('&nbsp;');
+                        }
+
+                        //editor_distribucion.setData(data.data.plantilla_distribucion);
+                        if(data.data.distribucion !== null){
+                            tinymce.get("form_distribucion").setContent(data.data.distribucion);
+                        }
+                        else{
+                            tinymce.get("form_distribucion").setContent('&nbsp;');
+                        }
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
