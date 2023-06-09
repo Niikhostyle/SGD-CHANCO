@@ -731,7 +731,7 @@
                             render:function(data, type, row){
 
                                 if(row.id_nivel_acceso == 1){
-                                    return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                                    return "<a href='descargar_docto?idDocumento="+data+"' target='_blank'>Descargar</a>";
                                 }
                                 else{
                                     return '';
