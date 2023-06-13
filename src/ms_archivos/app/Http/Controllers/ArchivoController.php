@@ -152,9 +152,14 @@ class ArchivoController extends Controller{
                 $sEncabezado = $datosDocumentos['encabezado'];
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);                
+                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);               
+                
+                $sCuerpo = $datosDocumentos['cuerpo'];
+                $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);//$datosDocumentos['folio']
+                $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+                $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
                
-                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
                 $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
@@ -286,12 +291,16 @@ class ArchivoController extends Controller{
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
 
+                $sCuerpo = $datosDocumentos['cuerpo'];
+                $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);//$datosDocumentos['folio']
+                $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+                $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+
                 //reemplazar path imagenes antes de generar pdf
                 //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
                 
-                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-
                // dd($datosDocumentosencabezado);
                 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
