@@ -711,15 +711,17 @@
 
 <script>
     tinymce.init({
+        browser_spellcheck: true,
+        contextmenu: false,
         selector: '.tiny',
         language: 'es',
-        contextmenu_never_use_native: true,
+        //contextmenu_never_use_native: true,
         plugins: [
             'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
+        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
@@ -753,7 +755,8 @@
             });
 
             input.click();
-        }
+        },
+        
     });
     //globales
 

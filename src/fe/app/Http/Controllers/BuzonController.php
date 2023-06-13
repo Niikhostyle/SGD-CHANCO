@@ -871,9 +871,9 @@ class BuzonController extends Controller
             $dFechaCreacion = date('Y-m-d');
             
             $jsonTipoDocumento = $msVerTipoDoc->json();
-
+            $tMateriaClon = "(Copia) ".$DocumentoOriginal[0]->materia;
             //hash validación
-            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
+            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$tMateriaClon;
             $sHash = hash('sha256', $sparamHash, false);
 
 
@@ -896,7 +896,7 @@ class BuzonController extends Controller
                 'efectos_terceros' => $DocumentoOriginal[0]->efectos_terceros,
                 'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
                 'json_respuesta_a' => json_encode($jsonRespuesta),
-                'materia' => "(Copia) ".$DocumentoOriginal[0]->materia,
+                'materia' => $tMateriaClon,
                 'anterior' => $DocumentoOriginal[0]->anterior,
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
                 'encabezado' => $DocumentoOriginal[0]->encabezado,
