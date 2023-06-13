@@ -642,7 +642,7 @@ class BuzonController extends Controller
             '6' => 285, //365
         );  
         
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+40;
+        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
 
         
 
@@ -651,20 +651,23 @@ class BuzonController extends Controller
         if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
         
-        //$aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");    
-        $fecha = date('Y-m-d H:i:s');
-        $sfecha = $fecha = date('Y-m-d H:i:s');
+        $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");    
+        // $fecha = date('Y-m-d H:i:s');
+        // $sfecha = $fecha = date('Y-m-d H:i:s');
+        $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
         $sEncabezado = $datosDocumentos['encabezado'];
         $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-        //$sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
+        $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
+        $sCuerpo = $datosDocumentos['cuerpo'];
+        $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+        $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
 
 
-        $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+        $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
         $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
         $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
-
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
         $registro->delete();

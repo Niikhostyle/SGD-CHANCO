@@ -33,8 +33,8 @@
     {!! $encabezado !!}
     {!! $cuerpo !!} 
 </div>
-<div style="height:{{$altoFirmas}}">
-</div>
+<div style="height:0px">
+</div> 
 <div class="page">
     <footer>
         <p class="seccion-firma">
