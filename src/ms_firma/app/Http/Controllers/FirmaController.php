@@ -90,7 +90,7 @@ class FirmaController extends Controller
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
-                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo','folio')
                                                         ->first();
                 
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
@@ -119,7 +119,7 @@ class FirmaController extends Controller
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
-                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo','folio')
                                                         ->first();
                     
                 }
@@ -416,6 +416,9 @@ class FirmaController extends Controller
                                 }
                             }                             
                             
+                            //desbloquear folio 
+                            db::statement("update bloqueo_folio set estado = 0 where folio = ".$aDocumentoBuzon['folio']." and tipo_folio = ".$datosJsonTipoDocumento['id_tipo_folio']); 
+
                             DB::commit();  
                             
                             //elimina imagen de firma 

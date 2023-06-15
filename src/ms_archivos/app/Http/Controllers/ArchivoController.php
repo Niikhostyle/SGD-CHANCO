@@ -16,7 +16,7 @@ use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
-
+use App\Models\BloqueoFolio; 
 use Barryvdh\DomPDF\Options;
 
 class ArchivoController extends Controller{
@@ -107,15 +107,31 @@ class ArchivoController extends Controller{
                         $anio = date('Y');
                         $fecha = new \DateTime('now');
 
-                        $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
-                        ->timeout(30)
-                        ->withBody(json_encode([
-                            'id_tipo_documento' => $idTipoDocumento,
-                            'anio' => $anio ,
-                            'id_buzon' => $datosRequest['id_buzon'],
-                            'id_tipo_folio' => $idTipoFolio
-                        ]), 'json')
-                        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                        // $nFolio = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                        // ->timeout(30)
+                        // ->withBody(json_encode([
+                        //     'id_tipo_documento' => $idTipoDocumento,
+                        //     'anio' => $anio ,
+                        //     'id_buzon' => $datosRequest['id_buzon'],
+                        //     'id_tipo_folio' => $idTipoFolio
+                        // ]), 'json')
+                        // ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+
+                        //nueva forma de obtener folio 
+                        $datosBloqueo = DB::table('bloqueo_folio') 
+                                        ->where('tipo_folio', $idTipoFolio) 
+                                        ->where('estado', 1) 
+                                        ->get(); 
+ 
+                        $existeBloqueo = count($datosBloqueo); 
+                         
+                        if($existeBloqueo > 0){ 
+                            return $this->respondError('No se puede obtener el folio, favor intente en unos minutos.', 400); 
+                        } 
+ 
+                        $nFolio = $this->obtenerFolio($request->header('key'), $anio, $idTipoDocumento, $idTipoFolio, $datosRequest['id_buzon']); 
+                        //fin nueva forma de obtener folio 
+
 
                         if (isset($nFolio))
                         {
@@ -368,4 +384,28 @@ class ArchivoController extends Controller{
         return $nombreFinal;
     }
 
+    public function obtenerFolio($llave, $anio, $tipo_documento, $tipo_folio, $buzon = null){ 
+        $nFolio = Http::withHeaders(['key'=>$llave,'Content-Type'=>'application/json'])  
+                ->timeout(30) 
+                ->withBody(json_encode([ 
+                    'id_tipo_documento' => $tipo_documento, 
+                    'anio' => $anio , 
+                    'id_buzon' => $buzon, 
+                    'id_tipo_folio' => $tipo_folio 
+                ]), 'json') 
+                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio'); 
+         
+        $this->estado_folio($nFolio,1,$tipo_folio); 
+        return $nFolio; 
+    } 
+ 
+    public function estado_folio($folio,$estado,$tipo_folio){ 
+        if($estado == 1){ 
+            db::statement("insert into bloqueo_folio (folio,estado,tipo_folio) values (".$folio.",1,".$tipo_folio.")"); 
+        } 
+        else{ 
+            db::statement("update bloqueo_folio set estado = 0 where folio = ".$folio." and tipo_folio = ".$tipo_folio); 
+        } 
+         
+    } 
 }
