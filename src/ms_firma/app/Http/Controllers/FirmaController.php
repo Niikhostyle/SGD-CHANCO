@@ -90,7 +90,7 @@ class FirmaController extends Controller
                                                         ->where('id_tipo_archivo','=', '1')
                                                         ->where('version','=', '1')
                                                         ->where('nombre_archivo_codificado','!=', null)
-                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo')
+                                                        ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo','folio')
                                                         ->first();
                 
                 if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
@@ -421,7 +421,9 @@ class FirmaController extends Controller
                                     throw new Exception($comentario);
                                 }
                             }                             
-                            
+                            //desbloquear folio
+                            db::statement("update bloqueo_folio set estado = 0 where folio = ".$aDocumentoBuzon['folio']);
+
                             DB::commit();     
 
                             return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
