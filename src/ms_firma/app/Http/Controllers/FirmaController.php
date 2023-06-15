@@ -170,6 +170,9 @@ class FirmaController extends Controller
 
                     $nEspacioDistribucion = $numLineasDistribucion * 20;
                 }
+                else{
+                    $nEspacioDistribucion = 50;
+                }
 
                 if (isset($datosJsonTipoDocumento['numero_firmas']))
                     $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
@@ -202,7 +205,7 @@ class FirmaController extends Controller
 
                 //posiciones desde donde comenzar a utilizar las ubicaciones del array anterior
                 $aFirmaPosicion = array(
-                    '1' => 4, 
+                    '1' => array('0'=>4),//4, 
                     '2' => array('0'=>4,'1'=>5), 
                     '3' => array('0'=>2,'1'=>3,'2'=>4),
                     '4' => array('0'=>2,'1'=>3,'2'=>4,'3'=>5),

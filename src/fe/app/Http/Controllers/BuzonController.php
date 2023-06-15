@@ -642,7 +642,7 @@ class BuzonController extends Controller
             '6' => 285, //365
         );  
         
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+40;
+        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
 
         
 
