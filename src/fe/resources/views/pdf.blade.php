@@ -36,8 +36,12 @@
 <div style="height:0px">
 </div>
 <div class="page">
-    <footer>
-        <p class="seccion-firma">
+    <footer style="@if($altoFirmas > 0) then 
+                                            display:block; 
+                                        @else
+                                            display:none; 
+                                        @endif">
+        <p class="seccion-firma" >
             <br>
             <br> Sección para firma(s)
         </p>

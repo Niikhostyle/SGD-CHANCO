@@ -627,23 +627,27 @@ class BuzonController extends Controller
         //ORIGINAL
         $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
 
-        if (isset($datosJsonTipoDocumento['numero_firmas']))
-            $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-        else 
-            $nNroFirmas = 4;  
+        if($datosJsonTipoDocumento['requiere_fe']){
+            if (isset($datosJsonTipoDocumento['numero_firmas']))
+                $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
+            else 
+                $nNroFirmas = 4;  
 
-        //agregar espacio para firmas al contenido del documento
-        $aFirmaPosicion = array(
-            '1' => 85,  //165, 
-            '2' => 85,  //165, 
-            '3' => 185, //265,
-            '4' => 185, //265,
-            '5' => 285, //365, 
-            '6' => 285, //365
-        );  
-        
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
-
+            //agregar espacio para firmas al contenido del documento
+            $aFirmaPosicion = array(
+                '1' => 85,  //165, 
+                '2' => 85,  //165, 
+                '3' => 185, //265,
+                '4' => 185, //265,
+                '5' => 285, //365, 
+                '6' => 285, //365
+            );  
+            
+            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
+        }
+        else{
+            $nAltoFirmas = 0;
+        }
         
 
 
