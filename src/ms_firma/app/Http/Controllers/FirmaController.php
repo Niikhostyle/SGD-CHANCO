@@ -416,9 +416,6 @@ class FirmaController extends Controller
                                 }
                             }                             
                             
-                            //desbloquear folio 
-                            db::statement("update bloqueo_folio set estado = 0 where folio = ".$aDocumentoBuzon['folio']." and tipo_folio = ".$datosJsonTipoDocumento['id_tipo_folio']); 
-
                             DB::commit();  
                             
                             //elimina imagen de firma 

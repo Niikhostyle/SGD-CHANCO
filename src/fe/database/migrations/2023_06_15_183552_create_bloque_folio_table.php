@@ -16,8 +16,11 @@ class CreateBloqueFolioTable extends Migration
         Schema::create('bloqueo_folio', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('folio');
-            $table->integer('estado');
             $table->integer('tipo_folio');
+            $table->integer('tipo_documento');
+            $table->integer('buzon');
+            $table->integer('reversado');
+            $table->integer('estado');
         });
     }
 
