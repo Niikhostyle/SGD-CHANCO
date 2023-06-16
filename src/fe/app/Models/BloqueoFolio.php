@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class BloqueoFolio extends Model
 {
     protected $fillable = [
-        'folio', 'estado'
+        'folio', 'estado','tipo_folio', 'buzon', 'reversado', 'tipo_documento'
     ];
 }

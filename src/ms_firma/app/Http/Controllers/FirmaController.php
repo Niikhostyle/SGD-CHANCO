@@ -421,8 +421,6 @@ class FirmaController extends Controller
                                     throw new Exception($comentario);
                                 }
                             }                             
-                            //desbloquear folio
-                            db::statement("update bloqueo_folio set estado = 0 where folio = ".$aDocumentoBuzon['folio']);
 
                             DB::commit();     
 

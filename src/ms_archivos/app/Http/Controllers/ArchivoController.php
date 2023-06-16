@@ -119,6 +119,9 @@ class ArchivoController extends Controller{
 
                         //nueva forma de obtener folio
                         $datosBloqueo = DB::table('bloqueo_folio')
+                                        ->where('tipo_folio', $idTipoFolio)  
+                                        ->where('tipo_documento', $idTipoDocumento)  
+                                        ->where('buzon', $datosRequest['id_buzon'])  
                                         ->where('estado', 1)
                                         ->get();
 
@@ -137,12 +140,12 @@ class ArchivoController extends Controller{
                             Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha->format('Y-m-d H:i:s')]);    
                             
                             //registrar accion de asignacion de folio en bitacora
-                            $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
-                                'id_documento_buzon' => $idDocumentoBuzon,
-                                'id_accion' => 9,
-                                'fecha' => $fecha,
-                                'id_usuario' => $datosRequest['id_usuario']
-                            ]);
+                            // $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
+                            //     'id_documento_buzon' => $idDocumentoBuzon,
+                            //     'id_accion' => 9,
+                            //     'fecha' => $fecha,
+                            //     'id_usuario' => $datosRequest['id_usuario']
+                            // ]);
                         }
                         else
                         {
@@ -215,7 +218,14 @@ class ArchivoController extends Controller{
                     ]);
 
                     //registrar accion en bitacora
-
+                    $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([ 
+                        'id_documento_buzon' => $idDocumentoBuzon, 
+                        'id_accion' => 9, 
+                        'fecha' => $fecha, 
+                        'id_usuario' => $datosRequest['id_usuario'] 
+                    ]); 
+ 	 
+                    //registrar accion en bitacora generar pdf 
                     $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                         'id_documento_buzon' => $idDocumentoBuzon,
                         'id_accion' => 8,
@@ -235,6 +245,13 @@ class ArchivoController extends Controller{
                 }
                 else
                 {
+                    //reversa folio 
+                    Documento::find($datosRequest["id_documento"])->update(['folio' => null]);  
+                    Documento::find($datosRequest["id_documento"])->update(['fecha' => null]);     
+                             
+                    //$folio,$estado,$tipo_folio,$buzon,$tipo_documento,$reversado 
+                    $this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,1);  
+
                     return $this->respondError('No se encuentra el archivo generado. ', 400);
                 }
                 
@@ -242,6 +259,8 @@ class ArchivoController extends Controller{
                 $datosJsonTipoDocumento['id_tipo_origen'] = 2;
                 $datosDocumentos->update(['json_tipo_documento' => $datosJsonTipoDocumento]);  
                
+                $this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,0);  
+
                 DB::commit();
 
                 return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
@@ -361,16 +380,16 @@ class ArchivoController extends Controller{
                 ]), 'json')
                 ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
         
-        $this->estado_folio($nFolio,1);
+        $this->estado_folio($nFolio,1,$tipo_folio,$buzon,$tipo_documento,0); 
         return $nFolio;
     }
 
-    public function estado_folio($folio,$estado){
+    public function estado_folio($folio,$estado,$tipo_folio,$buzon,$tipo_documento,$reversado){ 
         if($estado == 1){
-            db::statement("insert into bloqueo_folio (folio,estado) values (".$folio.",1)");
+            db::statement("insert into bloqueo_folio (folio,estado,tipo_folio,buzon,tipo_documento,reversado) values (".$folio.",1,".$tipo_folio.",".$buzon.",".$tipo_documento.",".$reversado.")");
         }
         else{
-            db::statement("update bloqueo_folio set estado = 0 where folio = ".$folio);
+            db::statement("update bloqueo_folio set estado = 0, reversado = ".$reversado." where folio = ".$folio." and tipo_folio = ".$tipo_folio." and buzon = ".$buzon." and tipo_documento = ".$tipo_documento); 
         }
         
     }
