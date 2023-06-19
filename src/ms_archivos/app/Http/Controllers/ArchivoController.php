@@ -18,6 +18,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use App\Models\BloqueoFolio; 
 use Barryvdh\DomPDF\Options;
+use App\Models\TipoDocumentoBuzonFolio;
+use Illuminate\Support\Facades\Log;
+
 
 class ArchivoController extends Controller{
 
@@ -152,7 +155,7 @@ class ArchivoController extends Controller{
                         {
                             return $this->respondError('No fue posible generar el folio.', 400);
                         }  
-                
+                        
                     }
                     else $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']);
                 }else{
@@ -181,27 +184,8 @@ class ArchivoController extends Controller{
 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas);         
                 
-                //$pdf = app('dompdf.wrapper');
-                //$pdf->getDomPDF()->set_option("enable_php", true);
-
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);  
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);            
-                
-                //PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
-                //$pdf->setOptions(['isHtml5ParserEnabled' => true]);
-                
-                //$pdf->setOption('footer-html', $tPlantillaDistribucion);
-                //$pdf->output();
-
-                //$pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
         
-                //$dom_pdf = $pdf->getDomPDF();
-                //$canvas = $dom_pdf->get_canvas();
-
-                //$canvas->page_text(520, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-
-     
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);           
  
                
                 //ver cuantas paginas tiene para poner firma
@@ -212,24 +196,6 @@ class ArchivoController extends Controller{
                 
                 Documento::find($nDocumento)->update(['paginas_archivo' => $count, 'archivo_existente' => true]);
 
-                //se comenta merge por problemas de peso al generar firma
-                //23-05-2022
-                /*
-                $oMerger = PDFMerger::init();
-                $oMerger->addPDF(storage_path('app/public/files/') . $nNombreArchivoCargar);
-
-                $anexos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
-                                                ->where('id_documento', $nDocumento)
-                                                ->where('id_tipo_archivo', 2)
-                                                ->select('nombre_archivo_codificado')
-                                                ->get();      
-
-                foreach ($anexos as $file)
-                    $oMerger->addPDF(storage_path('app/public/files/') . $file['nombre_archivo_codificado']);
-   
-                $oMerger->merge();
-                $oMerger->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
-                */
                 $dFechaCreacion = date('Y-m-d H:i:s');                  
 
                 if (file_exists(storage_path('app/public/files/') . $nNombreArchivoCargar))
@@ -288,8 +254,10 @@ class ArchivoController extends Controller{
                             
                     //$folio,$estado,$tipo_folio,$buzon,$tipo_documento,$reversado
                     $this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,1); 
+                    //db::statement("update bloqueo_folio set estado = 0, reversado = 1 where folio = ".$nFolio." and tipo_folio = ".$idTipoFolio." and buzon = ".$datosRequest['id_buzon']." and tipo_documento = ".$idTipoDocumento); 
 
-                    return $this->respondError('No se encuentra el archivo generado. ', 400);
+
+                    return $this->respondError("No se encuentra el archivo generado.", 400);
                 }
                 
                 $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
@@ -306,8 +274,12 @@ class ArchivoController extends Controller{
 
             }
             catch (ModelNotFoundException $e) {
-                DB::rollBack();
+                
+                db::statement("update bloqueo_folio set estado = 0, reversado = 1 where folio = ".$nFolio." and tipo_folio = ".$idTipoFolio." and buzon = ".$datosRequest['id_buzon']." and tipo_documento = ".$idTipoDocumento); 
 
+                DB::rollBack();
+                
+                //$this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,1); 
                 return response()->json([
                     'status' => 500, 
                     'data' => [
@@ -405,16 +377,77 @@ class ArchivoController extends Controller{
     }
 
     public function obtenerFolio($llave, $anio, $tipo_documento, $tipo_folio, $buzon = null){ 
-        $nFolio = Http::withHeaders(['key'=>$llave,'Content-Type'=>'application/json'])  
-                ->timeout(30) 
-                ->withBody(json_encode([ 
-                    'id_tipo_documento' => $tipo_documento, 
-                    'anio' => $anio , 
-                    'id_buzon' => $buzon, 
-                    'id_tipo_folio' => $tipo_folio 
-                ]), 'json') 
-                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio'); 
-         
+        // $nFolio = Http::withHeaders(['key'=>$llave,'Content-Type'=>'application/json'])  
+        //         ->timeout(30) 
+        //         ->withBody(json_encode([ 
+        //             'id_tipo_documento' => $tipo_documento, 
+        //             'anio' => $anio , 
+        //             'id_buzon' => $buzon, 
+        //             'id_tipo_folio' => $tipo_folio 
+        //         ]), 'json') 
+        //         ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio'); 
+        $nFolio = 0;
+        //Por tipo de documento y año
+        if($tipo_folio == 1){
+            $dFolio = DB::table('tipo_documento_buzon_folio')
+                        ->where('id_tipo_documento',$tipo_documento)
+                        ->where('anio',$anio)
+                        ->select('valor')
+                        ->get();
+            
+            Log::error("folio 1: " . count($dFolio));  
+            if(count($dFolio)>0){
+                $nFolio = $dFolio[0]->valor;
+            }
+            $nFolio++;
+            
+            if($nFolio <= 1){
+                DB::statement('insert into tipo_documento_buzon_folio (id_tipo_documento,anio,valor,created_at,updated_at) values ('.$tipo_documento.','.$anio.','.$nFolio.',now(),now())');
+            }
+            else{
+                DB::statement('update tipo_documento_buzon_folio set valor = '.$nFolio.', updated_at = now() where id_tipo_documento= '.$tipo_documento.' and anio = '.$anio.' ');
+            }
+        }
+        //Por tipo de documento, buzón y año
+        if($tipo_folio == 2){
+            $dFolio = DB::table('tipo_documento_buzon_folio')
+                        ->where('id_tipo_documento',$tipo_documento)
+                        ->where('id_buzon',$buzon)
+                        ->where('anio',$anio)
+                        ->get();
+
+            Log::error("folio 2: " . count($dFolio));  
+            if(count($dFolio)>0){
+                $nFolio = $dFolio[0]->valor;
+            }
+            $nFolio++;
+
+            if($nFolio <= 1){
+                DB::statement('insert into tipo_documento_buzon_folio (id_tipo_documento,anio,id_buzon,valor,created_at,updated_at) values ('.$tipo_documento.','.$anio.','.$buzon.','.$nFolio.',now(),now())');
+            }
+            else{
+                DB::statement('update tipo_documento_buzon_folio set valor = '.$nFolio.', updated_at = now() where id_tipo_documento= '.$tipo_documento.' and anio = '.$anio.' and id_buzon = '.$buzon);
+            }
+            // $documentoBuzon = TipoDocumentoBuzonFolio::updateOrCreate([
+            //     'id_tipo_documento' => $tipo_documento,
+            //     'id_buzon' => $buzon,
+            //     'anio' => $anio, 
+                
+            // ],[
+            //     'id_tipo_documento' => $tipo_documento,
+            //     'anio' => $anio, 
+            //     'id_buzon' => $buzon,
+            //     'valor' => $nFolio,
+            // ]);
+        }
+
+        //sin folio
+        if($tipo_folio == 3){
+            $nFolio = $nFolio;
+        }
+        
+        
+
         $this->estado_folio($nFolio,1,$tipo_folio,$buzon,$tipo_documento,0); 
         return $nFolio; 
     } 
