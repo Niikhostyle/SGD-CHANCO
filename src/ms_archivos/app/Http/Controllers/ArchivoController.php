@@ -160,31 +160,18 @@ class ArchivoController extends Controller{
 
 
                 $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+                $nEspacioDistribucion = $numLineasDistribucion * 20;
 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas);         
+                $altoTotal = $nEspacioDistribucion + $nAltoFirmas;
+
+
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas, 'altoDistribucion'=>$nEspacioDistribucion, 'altoTotal'=>$altoTotal);         
                 
                 //$pdf = app('dompdf.wrapper');
                 //$pdf->getDomPDF()->set_option("enable_php", true);
 
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);  
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);            
-                
-                //PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
-                //$pdf->setOptions(['isHtml5ParserEnabled' => true]);
-                
-                //$pdf->setOption('footer-html', $tPlantillaDistribucion);
-                //$pdf->output();
-
-                //$pageCount = $pdf->getDomPDF()->get_canvas()->get_page_count();
-        
-                //$dom_pdf = $pdf->getDomPDF();
-                //$canvas = $dom_pdf->get_canvas();
-
-                //$canvas->page_text(520, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-
-     
-                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);           
- 
+                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);  
                
                 //ver cuantas paginas tiene para poner firma
                 //Obtiene pagina para agregar firma
