@@ -181,12 +181,15 @@ class ArchivoController extends Controller{
 
 
                 $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+                $nEspacioDistribucion = $numLineasDistribucion * 20;
 
-                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas);         
+                $altoTotal = $nEspacioDistribucion + $nAltoFirmas;
+
+
+                $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas, 'altoDistribucion'=>$nEspacioDistribucion, 'altoTotal'=>$altoTotal);         
                 
                 PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);  
-        
- 
+                //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);  
                
                 //ver cuantas paginas tiene para poner firma
                 //Obtiene pagina para agregar firma
