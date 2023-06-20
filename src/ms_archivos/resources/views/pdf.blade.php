@@ -6,7 +6,7 @@
     <style>       
             footer { 
                 position: fixed; 
-                bottom: 40px;                 
+                bottom: 40px;              
             }
             footer .pagenum:before 
             {
@@ -20,12 +20,11 @@
                 display: block;
             }
             .content {               
-                margin-bottom: 50px;
-                
+                margin-bottom: 60px;
             }
             .pie {
                 height: {{$altoTotal}}px;                
-                page-break-inside: avoid !important;   
+                page-break-inside: avoid !important;                   
             }                       
         </style>        
 </head>

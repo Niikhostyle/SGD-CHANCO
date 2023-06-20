@@ -80,19 +80,19 @@ class ArchivoController extends Controller{
                     $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
                 else 
                     $nNroFirmas = 4;  
-
+ 
                 if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
 
                 //agregar espacio para firmas al contenido del documento
 
                 $aFirmaPosicion = array(
-                    '1' => 85,  //165, 
-                    '2' => 85,  //165, 
-                    '3' => 185, //265,
-                    '4' => 185, //265,
-                    '5' => 285, //365, 
-                    '6' => 285, //365
+                    '1' => 115,//85,  //165, 
+                    '2' => 115,//85,  //165, 
+                    '3' => 245,//185, //265,
+                    '4' => 245,//185, //265,
+                    '5' => 378,//285, //365, 
+                    '6' => 378,//285, //365
                 );  
                 
                 $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
@@ -179,12 +179,10 @@ class ArchivoController extends Controller{
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
                 $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
-
                 $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
                 $nEspacioDistribucion = $numLineasDistribucion * 20;
 
                 $altoTotal = $nEspacioDistribucion + $nAltoFirmas;
-
 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=> $datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas, 'altoDistribucion'=>$nEspacioDistribucion, 'altoTotal'=>$altoTotal);         
                 
