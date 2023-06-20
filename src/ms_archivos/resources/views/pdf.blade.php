@@ -20,7 +20,8 @@
                 display: block;
             }
             .content {               
-                margin-bottom: 40px;
+                margin-bottom: 50px;
+                
             }
             .pie {
                 height: {{$altoTotal}}px;                
