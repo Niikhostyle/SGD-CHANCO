@@ -881,11 +881,12 @@ class BuzonController extends Controller
             /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
             $dFechaCreacion = date('Y-m-d');
+            $dFechaHash = date('Y-m-d H:i:s');
             
             $jsonTipoDocumento = $msVerTipoDoc->json();
 
             //hash validación
-            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
+            $sparamHash = $dFechaHash.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
             $sHash = hash('sha256', $sparamHash, false);
 
 
