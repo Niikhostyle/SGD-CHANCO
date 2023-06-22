@@ -1744,7 +1744,6 @@
                     else{
                         $('.btn-guardar-submit').html( 'Guardar' );
                     }
-                    
                 }
                 
             },
@@ -2003,6 +2002,9 @@
                             //recarga
 
                             editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                            if(idCarpeta == 2){
+                                accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                            }
                         }
                         else
                             valida_carga();
@@ -2027,6 +2029,9 @@
                     //if(idCarpeta != 2){
                         $('.btn-recibir-submit').html('Guardar');
                     //}
+                    if(idCarpeta == 2){
+                        accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                    }
                 }
 
                 
@@ -2047,6 +2052,9 @@
                 habilita_boton('btn-firmar-derivar');
                 habilita_boton('btn-derivar-2');
                 habilita_boton('btn-derivar');
+                if(idCarpeta == 2){
+                    accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                }
             }
 
         });
