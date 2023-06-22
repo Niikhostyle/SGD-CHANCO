@@ -5105,7 +5105,7 @@
                             {
                                 htmlFile = htmlFile.replace("{checkAnexo}","");             
                             }
-
+                            
                             if (carpeta == 2)   
                             {     
                                 //revisar                           
@@ -5134,10 +5134,10 @@
                                 else
                                     htmlFile = htmlFile.replace("{checkAnexo}",chkFirmaAnexoView);    
                                 
-                                if (value.id_documento_buzon != id_documento_buzon)
-                                    htmlFile = "";  
+                                //if (value.id_documento_buzon != id_documento_buzon)
+                                //    htmlFile = "";  
                             }  
-                             
+
                             if (value.id_tipo_archivo == 2) //anexo
                                 htmlFileAnexo += htmlFile + '</div>';       
 
@@ -5146,7 +5146,7 @@
                             
                             if (value.id_tipo_archivo == 1 && value.version == 1) //principal
                                 htmlFilePrincipal += htmlFile + '</div>'; 
-
+                            
                             //versiones anteriores 
                             
                             if (value.id_tipo_archivo == 1 && value.version != 1) 
