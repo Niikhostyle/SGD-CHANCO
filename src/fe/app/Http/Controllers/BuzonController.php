@@ -627,23 +627,28 @@ class BuzonController extends Controller
         //ORIGINAL
         $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true);
 
-        if (isset($datosJsonTipoDocumento['numero_firmas']))
-            $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-        else 
-            $nNroFirmas = 4;  
+        if($datosJsonTipoDocumento['requiere_fe']){
+            if (isset($datosJsonTipoDocumento['numero_firmas']))
+                $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
+            else 
+                $nNroFirmas = 4;  
 
-        //agregar espacio para firmas al contenido del documento
-        $aFirmaPosicion = array(
-            '1' => 85,  //165, 
-            '2' => 85,  //165, 
-            '3' => 185, //265,
-            '4' => 185, //265,
-            '5' => 285, //365, 
-            '6' => 285, //365
-        );  
+            //agregar espacio para firmas al contenido del documento
+            $aFirmaPosicion = array(
+                '1' => 85,  //165, 
+                '2' => 85,  //165, 
+                '3' => 185, //265,
+                '4' => 185, //265,
+                '5' => 285, //365, 
+                '6' => 285, //365
+            );  
+            
+            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
+        }
+        else{
+            $nAltoFirmas = 0;
+        }
         
-        $nAltoFirmas = $aFirmaPosicion[$nNroFirmas]+10;
-
         
 
 
@@ -651,23 +656,27 @@ class BuzonController extends Controller
         if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
         
+        $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+        $nEspacioDistribucion = $numLineasDistribucion * 20;
+
+        $altoTotal = $nEspacioDistribucion + $nAltoFirmas;
+
         $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");    
-        // $fecha = date('Y-m-d H:i:s');
-        // $sfecha = $fecha = date('Y-m-d H:i:s');
         $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
         $sEncabezado = $datosDocumentos['encabezado'];
         $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
         $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);   
+
         $sCuerpo = $datosDocumentos['cuerpo'];
         $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
         $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
-
 
         $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
         $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
-        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
+        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas,'altoTotal'=> $altoTotal  );
+
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
         $registro->delete();
@@ -874,9 +883,9 @@ class BuzonController extends Controller
             $dFechaCreacion = date('Y-m-d');
             
             $jsonTipoDocumento = $msVerTipoDoc->json();
-            $tMateriaClon = "(Copia) ".$DocumentoOriginal[0]->materia;
+
             //hash validación
-            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$tMateriaClon;
+            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
             $sHash = hash('sha256', $sparamHash, false);
 
 
@@ -899,7 +908,7 @@ class BuzonController extends Controller
                 'efectos_terceros' => $DocumentoOriginal[0]->efectos_terceros,
                 'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
                 'json_respuesta_a' => json_encode($jsonRespuesta),
-                'materia' => $tMateriaClon,
+                'materia' => "(Copia) ".$DocumentoOriginal[0]->materia,
                 'anterior' => $DocumentoOriginal[0]->anterior,
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
                 'encabezado' => $DocumentoOriginal[0]->encabezado,
