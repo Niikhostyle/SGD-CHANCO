@@ -31,6 +31,6 @@ class CreateBloqueFolioTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bloque_folio');
+        Schema::dropIfExists('bloqueo_folio');
     }
 }
