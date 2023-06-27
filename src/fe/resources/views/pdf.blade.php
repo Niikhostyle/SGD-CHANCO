@@ -5,7 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>       
 
-            footer { position: fixed; bottom: 40px;width:100% }
+footer { 
+                position: fixed; 
+                bottom: 40px;  
+                width:100% !important;            
+            }
             footer .pagenum:before 
             {
                 content: counter(page);
@@ -15,11 +19,18 @@
             }
             .page:last-child {
                 /* Ocultar el contenido de la última página */
-                display: none;
+                display: block;
             }
+            .content {               
+                margin-bottom: 60px;
+            }
+            .pie {
+                height: {{$altoTotal}}px;                
+                page-break-inside: avoid !important;                   
+            }                       
             .seccion-firma{
                 border:1px solid #c2c2c2; 
-                min-height:{{$altoFirmas}}px !important;
+                min-height:{{$altoTotal}}px !important;
                 width:100% !important;
                 /*margin-botom:15px;*/
                 text-align:center;
@@ -29,27 +40,39 @@
         
 </head>
 <body>
-<div class="content page">
+<!-- div class="content page">
     {!! $encabezado !!}
     {!! $cuerpo !!} 
 </div>
 <div style="height:0px">
-</div>
+</div> 
 <div class="page">
-    <footer style="@if($altoFirmas > 0) then 
-                                            display:block; 
-                                        @else
-                                            display:none; 
-                                        @endif">
-        <p class="seccion-firma" >
+    <footer>
+        <p class="seccion-firma">
             <br>
             <br> Sección para firma(s)
         </p>
         {!! $distribucion !!}
+        
     </footer>
 </div>
 <div style="height:300px;page-break-inside: avoid !important;">
 <p>&nbsp;</p>
+</div -->
+
+
+<div class="content page">
+    {!! $encabezado !!}
+    {!! $cuerpo !!}    
+</div>
+<div class="page pie">
+    <footer>  
+    <p class="seccion-firma">
+            <br>
+            <br> Sección para firma(s)
+        </p>  
+    {!! $distribucion !!}
+    </footer>
 </div>
 </body>
 </html>

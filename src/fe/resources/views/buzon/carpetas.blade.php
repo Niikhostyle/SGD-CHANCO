@@ -711,15 +711,17 @@
 
 <script>
     tinymce.init({
+        browser_spellcheck: true,
+        contextmenu: false,
         selector: '.tiny',
         language: 'es',
-        contextmenu_never_use_native: true,
+        //contextmenu_never_use_native: true,
         plugins: [
             'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist',
+        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
@@ -753,7 +755,8 @@
             });
 
             input.click();
-        }
+        },
+        
     });
     //globales
 
@@ -2000,6 +2003,9 @@
                             //recarga
 
                             editar_despachados(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                            if(idCarpeta == 2){
+                                accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                            }
                         }
                         else
                             valida_carga();
@@ -2024,6 +2030,9 @@
                     //if(idCarpeta != 2){
                         $('.btn-recibir-submit').html('Guardar');
                     //}
+                    if(idCarpeta == 2){
+                        accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                    }
                 }
 
                 
@@ -2044,6 +2053,9 @@
                 habilita_boton('btn-firmar-derivar');
                 habilita_boton('btn-derivar-2');
                 habilita_boton('btn-derivar');
+                if(idCarpeta == 2){
+                    accion_editar(hiddIdDocumento,hiddIdDocumentoBuzon,null);
+                }
             }
 
         });
@@ -5131,8 +5143,8 @@
                                 else
                                     htmlFile = htmlFile.replace("{checkAnexo}",chkFirmaAnexoView);    
                                 
-                                if (value.id_documento_buzon != id_documento_buzon)
-                                    htmlFile = "";  
+                                //if (value.id_documento_buzon != id_documento_buzon)
+                                //    htmlFile = "";  
                             }  
                              
                             if (value.id_tipo_archivo == 2) //anexo

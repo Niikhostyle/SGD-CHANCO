@@ -655,6 +655,11 @@ class BuzonController extends Controller
         if (isset($datosDocumentos['distribucion']))
                     $tPlantillaDistribucion = $datosDocumentos['distribucion'];
         
+        $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
+        $nEspacioDistribucion = $numLineasDistribucion * 20;
+
+        $altoTotal = $nEspacioDistribucion + $nAltoFirmas;
+
         $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");    
         $sfecha = date('d')." de ".$aMeses[date('n')-1]. " del ".date('Y');
         $sEncabezado = $datosDocumentos['encabezado'];
@@ -669,7 +674,7 @@ class BuzonController extends Controller
         $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
         $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
-        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas  );
+        $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$datosDocumentosencabezado, 'cuerpo'=>$datosDocumentosCuerpo, 'distribucion'=>$datosDocumentosDistribucion, 'altoFirmas'=>$nAltoFirmas,'altoTotal'=> $altoTotal  );
 
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
@@ -875,11 +880,12 @@ class BuzonController extends Controller
             /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */    
 
             $dFechaCreacion = date('Y-m-d');
+            $dFechaHash = date('Y-m-d H:i:s');
             
             $jsonTipoDocumento = $msVerTipoDoc->json();
 
             //hash validación
-            $sparamHash = $dFechaCreacion.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
+            $sparamHash = $dFechaHash.$msVerTipoDoc['data']['nombre_corto'].$DocumentoOriginal[0]->materia;
             $sHash = hash('sha256', $sparamHash, false);
 
 
