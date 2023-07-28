@@ -18,7 +18,8 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'tools', items: [ 'Maximize' ] },
 		{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike', '-', 'RemoveFormat' ] },
 		{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
-		{ name: 'styles', items: [ 'Styles', 'Format' ] }
+		{ name: 'styles', items: [ 'Styles', 'Format' ] },
+                { name: 'source', items: ['Source']}
 
 	];
 
