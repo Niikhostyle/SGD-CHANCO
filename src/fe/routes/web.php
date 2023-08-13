@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
-use App\Http\Controllers\DescargaPdfController;
+//use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
 use App\Http\Controllers\PLCController;
 use App\Http\Controllers\PanelController;
@@ -89,8 +89,6 @@ Route::middleware(['auth:sanctum', 'verified'])->put('actualizar_estado_document
 Route::middleware(['auth:sanctum', 'verified'])->put('firmar_documento/{id}',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
 Route::middleware(['auth:sanctum', 'verified'])->put('firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
 Route::middleware(['auth:sanctum', 'verified'])->delete('documento',[BuzonController::class,'delete_documento'])->name('buzones.delete_documento');
-Route::middleware(['auth:sanctum', 'verified'])->get('eliminar_documento',[BuzonController::class,'eliminar_documento_enviado'])->name('buzones.eliminar_documento_enviado');
-
 
 Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
 Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
@@ -115,7 +113,6 @@ Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoC
 //validador
 Route::get('validador',[DocumentoValidadorController::class,'index'])->name('validador.index');
 Route::post('validadorCodigo',[DocumentoValidadorController::class,'store'])->name('validador.store');
-Route::get('validador_qr/{id}',[DocumentoValidadorController::class,'validar_qr'])->name('validador.validar_qr');
 //Route::middleware(['auth:sanctum', 'verified'])->get('pdf',[DocumentoValidadorController::class,'download'])->name('validador.download');
 
 //buscador
@@ -152,9 +149,9 @@ Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_perfil/{filen
 
 
 //verificacion archivos
-Route::get('pdf/{id}', [DescargaPdfController::class,'descarga'])->name('pdf.descarga');
+//Route::get('pdf/{id}', [DescargaPdfController::class,'descarga'])->name('pdf.descarga');
 
-Route::get('Firma', [DescargaPdfController::class,'descarga']);
+//Route::get('Firma', [DescargaPdfController::class,'descarga']);
 
 //Route::put('/firmamasiva', function () {
 //    Firma::dispatch("Mensaje de firma");
@@ -163,6 +160,9 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc_anexo',[PLCController::class,'getDocAnexo'])->name('buscador.descargar_plc_anexo');
+Route::middleware(['auth:sanctum', 'verified'])->get('transparencia',[PLCController::class,'indexTransparencia'])->name('transparencia.index1');
+Route::middleware(['auth:sanctum', 'verified'])->get('transparencia/getitems',[PLCController::class,'getItems'])->name('transparencia.getitems');
 
 //auditoria de folios
 Route::middleware(['auth:sanctum', 'verified'])->get('auditoria_folios',[AuditoriaFoliosController::class,'index'])->name('auditoria_folios.index');
@@ -171,3 +171,5 @@ Route::middleware(['auth:sanctum', 'verified'])->get('obtener_folios',[Auditoria
 
 //perfil de usuario
 Route::middleware(['auth:sanctum', 'verified'])->get('perfil',[UsuarioController::class,'perfil'])->name('usuario.perfil');
+
+//include_once('plc.php');
