@@ -696,7 +696,7 @@
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
  
-<script src="https://cdn.tiny.cloud/1/vrmhk77mujotoyysy5q37jmn5r0kodurg8u7vcs6b5hmzco8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/779rqxm1bq47n7i0pgujhz6l5821gsc2kf4s0q717wrvtyde/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -712,17 +712,16 @@
 <script>
     tinymce.init({
         browser_spellcheck: true,
-        contextmenu: true,
+        contextmenu: false,
         selector: '.tiny',
         language: 'es',
-		contextmenu: "bold italic underline link linkchecker image imagetools lists table spellchecker",
         //contextmenu_never_use_native: true,
         plugins: [
             'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker | fullscreen',
+        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
