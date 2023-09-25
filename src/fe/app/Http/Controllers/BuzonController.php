@@ -268,7 +268,6 @@ class BuzonController extends Controller
             $datosTipoDoc = $listado_tiposdoc['data'];
 
         }
-
         //parametros
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
@@ -791,6 +790,7 @@ class BuzonController extends Controller
                         'documento_buzon.fecha as fecha_envio_recepcion',
                         'documento_buzon.fecha as fecha_envio', //carpeta 3 y 1
                         'tipo_documento.nombre as tipo_documento',
+                        'tipo_documento.id_tipo_documento as id_tipo_documento',
                         'documento_buzon.json_acciones as json_acciones',
                         'documento.materia as materia',
                         'documento.json_respuesta_a as respuesta_a',

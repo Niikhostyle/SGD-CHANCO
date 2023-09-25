@@ -134,7 +134,8 @@
                                     <div class="col-lg-3 col-md-12 col-sm-12">
                                        Tipo Documento:<br/><select id="gr_buscar_tipo_doc" style="display:grid;" name="gr_buscar_tipo_doc" class="form-control " multiple="multiple">
                                                     @foreach($listado_tiposdoc as $list)
-                                                    <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
+                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                                    <!-- <option value="{{$list['nombre']}}">{{$list['nombre']}}</option> -->
                                                     @endforeach
                                                 </select>
                                     </div>
@@ -190,6 +191,7 @@
                                             <th data-priority="2">Contestar Hasta</th>
                                             <th data-priority="0">Folio</th>
                                             <th data-priority="1">Acciones</th>
+                                            <th data-priority="1">TIPO DOCUMENTO</th>
                                             
                                         </tr>
                                     </thead>
@@ -730,6 +732,7 @@
             format: { title: 'Formato', items: 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat' },
             table: { title: 'Tabla', items: 'inserttable | cell row column | advtablesort | tableprops deletetable' }
         },
+        //paste_as_text: true,
         menubar: 'edit view insert format table',
         automatic_uploads: true,
         file_picker_types: 'image',
@@ -5870,7 +5873,8 @@
                         }
                         return '';
                     }
-                    }
+                    },
+                    {data:'id_tipo_documento', name:'tipo_documento.id_tipo_documento'}
                 ],
                 
                 initComplete : function() {
@@ -5894,7 +5898,7 @@
                                 grilla_recibidos.columns(4).search(""+estados+"",true,false).draw();
                                 grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();    
-                                grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                grilla_recibidos.columns(14).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
                             })
                             
                     $('#botones_grilla_recibidos').html('');
@@ -6184,7 +6188,9 @@
                         }
                         return '';
                     }
-                    }
+                    },
+                    {data:'id_tipo_documento', name:'tipo_documento.id_tipo_documento'}
+
                 ],
                 
                 initComplete : function() {
@@ -6205,10 +6211,14 @@
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
+                                var tipos = $('#gr_buscar_tipo_doc').val();
+
+
                                 grilla_recibidos.columns(4).search(""+estados+"",true,false).draw();
                                 grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();    
-                                grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
+                                grilla_recibidos.columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'),true,true).draw();
                             })
                             
                     $('#botones_grilla_recibidos').html('');
@@ -6228,6 +6238,7 @@
                     grilla_recibidos.column(0).visible(false);
                     grilla_recibidos.column(1).visible(false);
                     grilla_recibidos.column(2).visible(false);
+                    grilla_recibidos.column(14).visible(false);
                 }
                 
         });
