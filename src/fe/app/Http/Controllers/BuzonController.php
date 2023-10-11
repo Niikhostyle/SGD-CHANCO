@@ -847,7 +847,7 @@ class BuzonController extends Controller
             $DocumentoOriginal = Documento::where('id_documento',$nIDDocumento)->get();     
 
             $DocumentoBuzonOriginal = DocumentoBuzon::where('id_documento_buzon',$nDocumentoBuzon)->get(); 
-
+            //dd($DocumentoOriginal[0]);
             $nTipoDoc = $DocumentoOriginal[0]->id_tipo_documento;
             
             $msVerTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
@@ -920,14 +920,19 @@ class BuzonController extends Controller
                 'folio' => $nFolio                    
             ]);
 
-            $fContestarHasta =  $DocumentoOriginal[0]->contestar_hasta;
+            $fContestarHasta =  $DocumentoBuzonOriginal[0]->contestar_hasta;
             if($fContestarHasta == ""){
                 $fContestarHasta = "null";
+                db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."',".$fContestarHasta.",false,false,false)");
             }
+            else{
+                db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."','".$fContestarHasta."',false,false,false)");
+            }
+            //dd($fContestarHasta);
             $documento = $documento->fresh();
             DB::enableQueryLog(); 
+            //db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."',".$fContestarHasta.",false,false,false)");
             //dd(DB::getQueryLog());
-            db::statement("insert into documento_buzon (id_documento,id_buzon,id_carpeta,id_estado_documento,id_tipo_destino,id_documento_buzon_padre,fecha,contestar_hasta,notificado,recibido,favorito) values (".$documento->id_documento.",".$DocumentoBuzonOriginal[0]->id_buzon.",3,1,1,null,'". $dFechaCreacion."',".$fContestarHasta.",false,false,false)");
             $idDocumentoBuzon = DB::getPdo()->lastInsertId();
 
             $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
