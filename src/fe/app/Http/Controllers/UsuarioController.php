@@ -66,7 +66,6 @@ class UsuarioController extends Controller
             $uploadImg = $this->uploadFile($request);
         else
             $uploadImg = $request->hiddFirma;       
-
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
@@ -79,6 +78,8 @@ class UsuarioController extends Controller
             'password'=>$request->password,
             'confirmar_password'=>$request->re_password,
             'aplica_fea'=>$request->aplica_fea,
+            'numero_contacto'=>$request->form_contacto,
+            'cargo'=>$request->form_cargo,
             'genera_pdf'=>$request->aplica_genera_pdf,
             'id_estado_usuario'=>$request->id_estado_usuario,
             'id_perfil'=>$request->id_perfil,
