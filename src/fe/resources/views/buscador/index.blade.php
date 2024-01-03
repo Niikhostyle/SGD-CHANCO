@@ -675,7 +675,7 @@
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){
                             //console.log(row);
-                            if(row.id_nivel_acceso == 1){
+                            if(row.id_nivel_acceso == 1 && parseInt(row.folio) > 0){
                                 return "<a href='descargar_docto?idDocumento="+data+"' target='_blank'>Descargar</a>";
                             }
                             else{

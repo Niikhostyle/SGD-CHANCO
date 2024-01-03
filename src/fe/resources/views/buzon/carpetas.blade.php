@@ -344,7 +344,7 @@
 
                         <div class="form-row">
                             <div class="col-md-12 mb-3">
-                                <label for="inputState">Anterior:</label>
+                                <label for="inputState">Antecedentes:</label>
                                 <input type="text" class="form-control" id="form_anterior" name="anterior">
                             </div>
                         </div>
