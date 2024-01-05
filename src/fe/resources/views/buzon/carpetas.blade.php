@@ -1015,7 +1015,7 @@
         maxFilesize: 50, //MB
         //maxFiles: 2,
         dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        acceptedFiles: "application/pdf",
+        acceptedFiles: "application/pdf,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
