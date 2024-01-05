@@ -1029,7 +1029,7 @@
                 var _this = this;
                 // Remove all files
                 _this.removeAllFiles();
-
+ 
             }           
             this.on("addedfile", function(file) {
                 numArchivosPorCargar++;
