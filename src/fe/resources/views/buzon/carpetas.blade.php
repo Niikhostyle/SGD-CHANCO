@@ -5131,7 +5131,7 @@
                                     '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
                             
-                            if (value.id_tipo_archivo == 1) //ppal externo
+                            if (value.id_tipo_archivo == 1 || value.id_tipo_archivo == 3) //ppal externo
                             {
                                 htmlFile = htmlFile.replace("{checkAnexo}","");             
                             }
