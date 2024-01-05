@@ -5105,18 +5105,20 @@
                             switch (extension) {
                                 case "xls":
                                 case "xlsx":
-                                    imagen = "excel.jpg";
+                                    imagen = "excel.png";
                                     break;
                                 case "doc":
                                 case "docx":
-                                    imagen = "doc.jpg";
+                                    imagen = "word.png";
                                     break;
                                 case "rar":
+                                    imagen = "rar.png";
+                                    break;
                                 case "zip":
-                                    imagen = "zip.jpg";
+                                    imagen = "zip.png";
                                     break;
                                 default:
-                                    imagen = "pdf.jpg";
+                                    imagen = "pdf.png";
                                     break;
                             }
                             htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
