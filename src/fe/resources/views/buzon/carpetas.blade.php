@@ -1014,8 +1014,8 @@
         uploadMultiple: true,
         maxFilesize: 50, //MB
         //maxFiles: 2,
-        dictDefaultMessage: "Arrastre y suelte archivos pdf aquí <br> <i class='fa fa-upload fa-lg'></i>",
-        acceptedFiles: "application/pdf,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        dictDefaultMessage: "Arrastre y suelte archivos pdf, word, excel, zip o rar aquí <br> <i class='fa fa-upload fa-lg'></i>",
+        acceptedFiles: "application/pdf,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.rar, application/x-rar-compressed, application/octet-stream,application/zip, application/octet-stream, application/x-zip-compressed, multipart/x-zip",
         addRemoveLinks: true,
         params: {'id_tipo_archivo' : 3},
         createImageThumbnails: true,
@@ -5099,14 +5099,33 @@
 
                                 var chkFirmaAnexoView = ''; 
                             }
-                            console.log(value.nombre_archivo_original.split('.').pop());
+                            var extension = value.nombre_archivo_original.split('.').pop();
+                            var imagen = "";
+
+                            switch (extension) {
+                                case "xls":
+                                case "xlsx":
+                                    imagen = "excel.jpg";
+                                    break;
+                                case "doc":
+                                case "docx":
+                                    imagen = "doc.jpg";
+                                    break;
+                                case "rar":
+                                case "zip":
+                                    imagen = "zip.jpg";
+                                    break;
+                                default:
+                                    imagen = "pdf.jpg";
+                                    break;
+                            }
                             htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                       '<img src="/img/pdf_file.jpg" width="83" height=94" style="" /> {checkAnexo}'+                                        
+                                       '<img src="/img/'+imagen+'" width="83" height=94" style="" /> {checkAnexo}'+                                        
                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
                                        '<p style="width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;">'+value.nombre_archivo_original+'</p>';
 
                             htmlFile_va = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
-                                '  <img src="/img/pdf_file.jpg" width="83" height=94" style="" />'+
+                                '  <img src="/img/'+imagen+'" width="83" height=94" style="" />'+
                                     '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>';
                             //if (carpeta == 2 && value.id_documento_buzon == id_documento_buzon && accion == 1)               
                             
