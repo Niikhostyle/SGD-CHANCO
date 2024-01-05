@@ -5099,7 +5099,7 @@
 
                                 var chkFirmaAnexoView = ''; 
                             }
-                            console.log(value.nombre_archivo_codificado.split('.').pop());
+                            console.log(value.nombre_archivo_original.split('.').pop());
                             htmlFile = '<div class="file-container '+value.id_documento_buzon_archivo+'">'+
                                        '<img src="/img/pdf_file.jpg" width="83" height=94" style="" /> {checkAnexo}'+                                        
                                        '<button onClick="ver_archivo(\''+value.nombre_archivo_codificado+'\')" type="button" class="btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle" title="Ver" style="margin-left: 3px;"><i class="fa fa-download"></i></button>'+
