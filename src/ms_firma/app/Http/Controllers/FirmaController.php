@@ -131,10 +131,11 @@ class FirmaController extends Controller
                     'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
                     'secretKey' => env('PLCSGD_SECRETO')
                 );                
-
                 $classFirma = new FirmaBase($firmaDigitalConfig);
-
+                
                 $sNombreArchivo = $aDocumentoBuzon['nombre_archivo_codificado'];
+                // $comentario = $sNombreArchivo;
+                // throw new Exception($comentario);
 
                 $sDescipcion = "Firmado electrónicamente por " . $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $nRut = explode("-",$aInfoUsuarios['run']);
@@ -144,6 +145,8 @@ class FirmaController extends Controller
                 $id_documento_buzon = $datos['id_documento_buzon'];
                 $imagen_firma = storage_path('app/public/files/imagen_firma/'.$sNombreImg); 
                 $imagen_firma_anexo = storage_path('app/public/files/imagen_firma/'.$sNombreImgAnexo);
+
+                
 
                 if ( !file_exists($imagen_firma) )
                 {
@@ -280,7 +283,7 @@ class FirmaController extends Controller
                     //QR para validacion
                     $url= env('APP_URL').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
                     //$codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
-                    $codigoQR ='https://quickchart.io/qr?text='.$url.'&.png';
+                    $codigoQR ='https://quickchart.io/qr?text='.$url.'&size=100&.png';
                     $html = '                                      ID: ' . $aInfoDocumento['identificador'] .' | Para validar el documento haga click <a href="'.$url.'">aqui</a>, o escanee el codigo QR.';
 
                     $pdf->AliasNbPages();                    
