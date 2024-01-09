@@ -284,7 +284,7 @@ class FirmaController extends Controller
                     $url= env('APP_URL').'/validador_qr/'.$aInfoDocumento['hash_validacion'];
                     //$codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
                     //$codigoQR ='https://quickchart.io/qr?text='.$url.'&size=100&.png';
-                    $codigoQR ='QR';
+                    $codigoQR ='';
                     $html = '                                      ID: ' . $aInfoDocumento['identificador'] .' | Para validar el documento haga click <a href="'.$url.'">aqui</a>, o escanee el codigo QR.';
 
                     $pdf->AliasNbPages();                    
