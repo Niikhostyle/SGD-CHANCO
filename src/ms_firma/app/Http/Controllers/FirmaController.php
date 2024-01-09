@@ -286,6 +286,12 @@ class FirmaController extends Controller
                     $codigoQR ='https://quickchart.io/qr?text='.$url.'&size=100&.png';
                     $html = '                                      ID: ' . $aInfoDocumento['identificador'] .' | Para validar el documento haga click <a href="'.$url.'">aqui</a>, o escanee el codigo QR.';
 
+                    
+                    if(!file_get_contents($codigoQR)){
+                        $comentario = "Falla en la generación de código QR";
+                        throw new Exception($comentario);
+                    }
+
                     $pdf->AliasNbPages();                    
                     //$pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];}
                     $pdf->footer_txt = $html;//"Para verificar este documento haga clic en ".$url." o use el siguiente QR:";
