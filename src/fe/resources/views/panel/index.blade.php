@@ -695,7 +695,12 @@
                         { data: 'tipo_documento', name: 'tipo_documento' },
                         { data: 'materia', name: 'documento.materia',render: function(data, type, row)
                             {
-                                return data.substring(0,50);
+                                if(data.length > 50){
+                                    return data.substring(0,50)+"...";
+                                }
+                                else{
+                                    return data;
+                                }
                             },
                         },
                         { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
