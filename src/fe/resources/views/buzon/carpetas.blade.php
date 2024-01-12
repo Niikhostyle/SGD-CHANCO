@@ -297,7 +297,7 @@
                             <div class="col-md-3 mb-3">
                                 <label for="inputState">Tipo Documento:</label>
                                 <select id="form_tipo_documento" name="tipo_documento" class="form-control">
-                                    <option selected>Seleccionar</option>
+                                    <option value="">Seleccionar</option>
                                     @foreach($listado_tiposdoc as $list)
                                     <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
                                     @endforeach
@@ -1384,64 +1384,154 @@
     // guardar y mantener
     $(".btn-guardar-submit-edit").click(function(e)
     {
-        e.preventDefault();
-        $('.btn-guardar-submit-edit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-        );
-        $(".print-error-msg").hide();
-        deshabilita_boton('btn-guardar-submit-edit');
-        deshabilita_boton('btn-guardar-submit');
-        deshabilita_boton('btn-enviar-submit');
-        deshabilita_boton('btn_cerrar_guardar');
-        deshabilita_boton('btn-visar');
-        deshabilita_boton('btn-firmar');
-        deshabilita_boton('btn-archivar');
-        deshabilita_boton('btn-visar-derivar');
-        deshabilita_boton('btn-firmar-derivar');
-        
-        accion_editar_guardar(3);
+        var materia = $("input[name='materia']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        console.log(tipo_documento);
+        var errores = "";
+        if(materia.length == 0 || materia.length > 500){
+            errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
+        }
+        if(tipo_documento == ""){
+            errores = errores + "Seleccione un tipo de documento.<br>";
+        }
+        if(nivel_acceso == ""){
+            errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+
+        if(errores != ""){
+            toastr.error(errores,"¡Aviso!");
+            habilita_boton('btn-guardar-submit');
+            habilita_boton('btn-guardar-submit-edit');
+            habilita_boton('btn-enviar-submit');  
+            habilita_boton('btn_cerrar_guardar');
+            habilita_boton('btn-visar');
+            habilita_boton('btn-firmar');
+            habilita_boton('btn-archivar');
+            habilita_boton('btn-recibir-submit');
+            habilita_boton('btn-derivar');
+            habilita_boton('btn-derivar-2');
+        }
+        else{
+            e.preventDefault();
+            $('.btn-guardar-submit-edit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+            $(".print-error-msg").hide();
+            deshabilita_boton('btn-guardar-submit-edit');
+            deshabilita_boton('btn-guardar-submit');
+            deshabilita_boton('btn-enviar-submit');
+            deshabilita_boton('btn_cerrar_guardar');
+            deshabilita_boton('btn-visar');
+            deshabilita_boton('btn-firmar');
+            deshabilita_boton('btn-archivar');
+            deshabilita_boton('btn-visar-derivar');
+            deshabilita_boton('btn-firmar-derivar');
+            
+            accion_editar_guardar(3);
+        }
     });
 
 
     //SUBMIT
     $(".btn-guardar-submit").click(function(e)
     {
-        e.preventDefault();
-        $('.btn-guardar-submit').html(
-            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
-        );
-        $(".print-error-msg").hide();
-        deshabilita_boton('btn-guardar-submit');
-        deshabilita_boton('btn-guardar-submit-edit');
-        deshabilita_boton('btn-enviar-submit');
-        deshabilita_boton('btn_cerrar_guardar');
-        deshabilita_boton('btn-visar');
-        deshabilita_boton('btn-firmar');
-        deshabilita_boton('btn-archivar');
-        deshabilita_boton('btn-recibir-submit');
-        deshabilita_boton('btn-visar-derivar');
-        deshabilita_boton('btn-firmar-derivar');
-        deshabilita_boton('btn-derivar');
-        deshabilita_boton('btn-derivar-2');
-        clearTimeout(timeoutId);
-        guarda_documento(1);
+        var materia = $("input[name='materia']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        console.log(tipo_documento);
+        var errores = "";
+        if(materia.length == 0 || materia.length > 500){
+            errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
+        }
+        if(tipo_documento == ""){
+            errores = errores + "Seleccione un tipo de documento.<br>";
+        }
+        if(nivel_acceso == ""){
+            errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+
+        if(errores != ""){
+            toastr.error(errores,"¡Aviso!");
+            habilita_boton('btn-guardar-submit');
+            habilita_boton('btn-guardar-submit-edit');
+            habilita_boton('btn-enviar-submit');  
+            habilita_boton('btn_cerrar_guardar');
+            habilita_boton('btn-visar');
+            habilita_boton('btn-firmar');
+            habilita_boton('btn-archivar');
+            habilita_boton('btn-recibir-submit');
+            habilita_boton('btn-derivar');
+            habilita_boton('btn-derivar-2');
+        }
+        else{
+            e.preventDefault();
+            $('.btn-guardar-submit').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando'
+            );
+            $(".print-error-msg").hide();
+            deshabilita_boton('btn-guardar-submit');
+            deshabilita_boton('btn-guardar-submit-edit');
+            deshabilita_boton('btn-enviar-submit');
+            deshabilita_boton('btn_cerrar_guardar');
+            deshabilita_boton('btn-visar');
+            deshabilita_boton('btn-firmar');
+            deshabilita_boton('btn-archivar');
+            deshabilita_boton('btn-recibir-submit');
+            deshabilita_boton('btn-visar-derivar');
+            deshabilita_boton('btn-firmar-derivar');
+            deshabilita_boton('btn-derivar');
+            deshabilita_boton('btn-derivar-2');
+            clearTimeout(timeoutId);
+            guarda_documento(1);
+        }
     });
 
     $(".btn-enviar-submit").click(function(e)
     {
-        e.preventDefault();
-        $(".print-error-msg").hide();
-        deshabilita_boton('btn-enviar-submit');
-        deshabilita_boton('btn-guardar-submit');
-        deshabilita_boton('btn-guardar-submit-edit');
-        deshabilita_boton('btn_cerrar_guardar');
-        deshabilita_boton('btn-visar');
-        deshabilita_boton('btn-firmar');
-        deshabilita_boton('btn-archivar');
-        deshabilita_boton('btn-editar');
-        deshabilita_boton('btn-recibir-submit');
-        //guarda_documento();
-        enviar_documento();
+        var materia = $("input[name='materia']").val();
+        var tipo_documento = $("select[name='tipo_documento']").val();
+        var nivel_acceso = $("select[name='nivel_acceso']").val();
+        console.log(tipo_documento);
+        var errores = "";
+        if(materia.length == 0 || materia.length > 500){
+            errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
+        }
+        if(tipo_documento == ""){
+            errores = errores + "Seleccione un tipo de documento.<br>";
+        }
+        if(nivel_acceso == ""){
+            errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+
+        if(errores != ""){
+            toastr.error(errores,"¡Aviso!");
+            habilita_boton('btn-guardar-submit');
+            habilita_boton('btn-guardar-submit-edit');
+            habilita_boton('btn-enviar-submit');  
+            habilita_boton('btn_cerrar_guardar');
+            habilita_boton('btn-visar');
+            habilita_boton('btn-firmar');
+            habilita_boton('btn-archivar');
+            habilita_boton('btn-recibir-submit');
+            habilita_boton('btn-derivar');
+            habilita_boton('btn-derivar-2');
+        }
+        else{
+            e.preventDefault();
+            $(".print-error-msg").hide();
+            deshabilita_boton('btn-enviar-submit');
+            deshabilita_boton('btn-guardar-submit');
+            deshabilita_boton('btn-guardar-submit-edit');
+            deshabilita_boton('btn_cerrar_guardar');
+            deshabilita_boton('btn-visar');
+            deshabilita_boton('btn-firmar');
+            deshabilita_boton('btn-archivar');
+            deshabilita_boton('btn-editar');
+            deshabilita_boton('btn-recibir-submit');
+            //guarda_documento();
+            enviar_documento();
+        }
 
     });
 
@@ -1578,37 +1668,7 @@
                             }
                             else
                                 valida_carga();
-                        }, 3000); 
-                        
-                        
-                        
-                        /*
-                        setTimeout(function() {
-                            toastr.success("Documento actualizado","¡Aviso!");
-                            
-                            $('#card_crear_documento').hide();
-                            $("#collapseOne").collapse('show');     
-
-                            //fn_grilla_recibidos();
-                            recarga_grilla_recibidos();
-
-                            //fn_grilla_despachados();
-                            recarga_grilla_despachados();
-
-                            habilita_boton('btn-guardar-submit');
-                            habilita_boton('btn-guardar-submit-edit');
-                            habilita_boton('btn-enviar-submit');  
-                            habilita_boton('btn_cerrar_guardar');
-                            habilita_boton('btn-visar');
-                            habilita_boton('btn-firmar');
-                            habilita_boton('btn-archivar');
-                            habilita_boton('btn-recibir-submit');
-                            habilita_boton('btn-derivar');
-                            habilita_boton('btn-derivar-2');
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' ); 
-
-                        }, 5000);    
-                        */                    
+                        }, 3000);       
                         
                     }
 
@@ -1647,29 +1707,6 @@
                             else
                                 valida_carga();
                         }, 3000); 
-                        
-                        /*
-                        setTimeout(function() {
-                            callback(data);
-                            respuesta_guarda = data;  
-                            // $('.btn-vp-sg').hide();       
-                            // $('.btn-vp').show();       
-                            habilita_boton('btn-guardar-submit');
-                            habilita_boton('btn-guardar-submit-edit');
-                            habilita_boton('btn-enviar-submit');  
-                            habilita_boton('btn_cerrar_guardar');   
-                            habilita_boton('btn-visar');
-                            habilita_boton('btn-firmar'); 
-                            habilita_boton('btn-archivar');
-                            habilita_boton('btn-recibir-submit');
-                            habilita_boton('btn-derivar');
-                            habilita_boton('btn-derivar-2');
-                            $('.btn-guardar-submit').html( 'Guardar y Cerrar' );    
-                            recarga_grilla_recibidos();
-                            recarga_grilla_despachados();           
-                        }, 5000);
-                        */
-                        
 
                     }                     
                 }
@@ -1749,7 +1786,7 @@
                 
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en el documento","¡Aviso!");
+                toastr.error("Falla en el documento 2","¡Aviso!");
 
                 if($("#idAsignado").html() != "No Asignado"){
                     $('.btn-guardar-submit').html( 'Guardar y Cerrar' );
