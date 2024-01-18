@@ -45,7 +45,8 @@ class DocumentoBuzonArchivoController extends Controller
                 {
                     $fileName = $file->getClientOriginalName();
                     $ext = end((explode(".", $fileName))); # extra () to prevent notice
-                    $nNombreArchivoCargar = $this->getNombreDocumento($request->id_documento).$ext;
+                    $nNombreArchivoCargar = $this->getNombreDocumento($request->id_documento);
+                    $nNombreArchivoCargar = $nNombreArchivoCargar.".".$ext;
                     $nVersion = null;
                     
                     $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
