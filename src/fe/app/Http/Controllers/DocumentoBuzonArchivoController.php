@@ -44,7 +44,8 @@ class DocumentoBuzonArchivoController extends Controller
                 foreach($files as $file)
                 {
                     $fileName = $file->getClientOriginalName();
-                    $nNombreArchivoCargar = $this->getNombreDocumento($request->id_documento);
+                    $ext = end((explode(".", $fileName))); # extra () to prevent notice
+                    $nNombreArchivoCargar = $this->getNombreDocumento($request->id_documento).$ext;
                     $nVersion = null;
                     
                     $uploadSuccess = $file->move(storage_path('app/public/files'), $nNombreArchivoCargar);
@@ -130,7 +131,7 @@ class DocumentoBuzonArchivoController extends Controller
     
     }
 
-    public function ver(Request $request)
+    public function ver(Request $request) 
     {
         $datosDocumentos = DocumentoBuzonArchivo::where('id_documento_buzon', $request['id_documento_buzon'])
                                                 ->where('id_tipo_archivo', 2)
