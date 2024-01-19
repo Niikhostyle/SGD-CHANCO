@@ -971,8 +971,7 @@
             $('#form_destinatario_principal_el').prop("disabled", true);
             $('#form_otros_destinatarios_el').prop("disabled", true);
             $(".bootstrap-tagsinput-max").addClass("disabled");
-            $(".bootstrap-tagsinput").addClass("disabled");  
-
+            $(".bootstrap-tagsinput").addClass("disabled"); 
             cargar_datos_grilla(id_documento);
             cargar_datos_bitacora(id_documento);
 
