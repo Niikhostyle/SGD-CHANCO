@@ -134,8 +134,7 @@
                                     <div class="col-lg-3 col-md-12 col-sm-12">
                                        Tipo Documento:<br/><select id="gr_buscar_tipo_doc" style="display:grid;" name="gr_buscar_tipo_doc" class="form-control " multiple="multiple">
                                                     @foreach($listado_tiposdoc as $list)
-                                                    <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
-                                                    <!-- <option value="{{$list['nombre']}}">{{$list['nombre']}}</option> -->
+                                                    <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
                                                     @endforeach
                                                 </select>
                                     </div>
@@ -191,7 +190,6 @@
                                             <th data-priority="2">Contestar Hasta</th>
                                             <th data-priority="0">Folio</th>
                                             <th data-priority="1">Acciones</th>
-                                            <th data-priority="1">TIPO DOCUMENTO</th>
                                             
                                         </tr>
                                     </thead>
@@ -698,7 +696,7 @@
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
  
-<script src="https://cdn.tiny.cloud/1/vrmhk77mujotoyysy5q37jmn5r0kodurg8u7vcs6b5hmzco8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/779rqxm1bq47n7i0pgujhz6l5821gsc2kf4s0q717wrvtyde/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -714,17 +712,16 @@
 <script>
     tinymce.init({
         browser_spellcheck: true,
-        contextmenu: true,
+        contextmenu: false,
         selector: '.tiny',
         language: 'es',
-        contextmenu: "bold italic underline link linkchecker image imagetools lists table spellchecker",
         //contextmenu_never_use_native: true,
         plugins: [
             'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
             'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
             'insertdatetime', 'media', 'table', 'help', 'wordcount'
         ],
-        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker | fullscreen',
+        toolbar: 'image undo redo | styles | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | spellchecker',
         image_title: true,
         menu: {
             edit: { title: 'Edición', items: 'undo redo | cut copy paste pastetext | selectall | searchreplace' },
@@ -733,7 +730,6 @@
             format: { title: 'Formato', items: 'bold italic underline strikethrough superscript subscript codeformat | styles blocks fontfamily fontsize align lineheight | forecolor backcolor | language | removeformat' },
             table: { title: 'Tabla', items: 'inserttable | cell row column | advtablesort | tableprops deletetable' }
         },
-        //paste_as_text: true,
         menubar: 'edit view insert format table',
         automatic_uploads: true,
         file_picker_types: 'image',
@@ -3774,12 +3770,10 @@
         }
         $('#boton_carpetas_texto').html('Carpetas - <i><b>'+texto+'</b></i>');
         if(texto=='Recibidos'){
-            fn_grilla_recibidos();
-            //$('#grilla_recibidos').DataTable().draw();
+            $('#grilla_recibidos').DataTable().draw();
         }
         if(texto=='Despachados'){
-            fn_grilla_despachados();
-           // $('#grilla_despachados').DataTable().draw();
+            $('#grilla_despachados').DataTable().draw();
             $(".nuevo_documento").removeAttr('disabled');
         }else{
             $(".nuevo_documento").prop("disabled", true);
@@ -5876,8 +5870,7 @@
                         }
                         return '';
                     }
-                    },
-                    {data:'id_tipo_documento', name:'tipo_documento.id_tipo_documento'}
+                    }
                 ],
                 
                 initComplete : function() {
@@ -5901,7 +5894,7 @@
                                 grilla_recibidos.columns(4).search(""+estados+"",true,false).draw();
                                 grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();    
-                                grilla_recibidos.columns(14).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
+                                grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
                             })
                             
                     $('#botones_grilla_recibidos').html('');
@@ -6191,9 +6184,7 @@
                         }
                         return '';
                     }
-                    },
-                    {data:'id_tipo_documento', name:'tipo_documento.id_tipo_documento'}
-
+                    }
                 ],
                 
                 initComplete : function() {
@@ -6214,14 +6205,10 @@
                             .text('Buscar')
                             .click(function() {
                                 let estados=$('#gr_buscar_estado').val().join("|");
-                                var tipos = $('#gr_buscar_tipo_doc').val();
-
-
                                 grilla_recibidos.columns(4).search(""+estados+"",true,false).draw();
                                 grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                                 grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();    
-                                //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
-                                grilla_recibidos.columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'),true,true).draw();
+                                grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false).draw();
                             })
                             
                     $('#botones_grilla_recibidos').html('');
@@ -6241,7 +6228,6 @@
                     grilla_recibidos.column(0).visible(false);
                     grilla_recibidos.column(1).visible(false);
                     grilla_recibidos.column(2).visible(false);
-                    grilla_recibidos.column(14).visible(false);
                 }
                 
         });
@@ -7353,8 +7339,8 @@
         $(function() {
 
             fn_grilla_por_recibir();
-            //fn_grilla_recibidos();
-            //fn_grilla_despachados();
+            fn_grilla_recibidos();
+            fn_grilla_despachados();
             $('#gr_buscar_tipo_doc').multiselect({includeSelectAllOption: true,maxHeight: 400});
             $('#gr_buscar_tipo_doc').multiselect('selectAll', true);
 
