@@ -193,6 +193,7 @@
                                                 <th data-priority="0">ID</th>
                                                 <th>TD</th>
                                                 <th data-priority="1">Materia</th>
+                                                <th data-priority="1">Materia</th>
                                                 <th data-priority="2">Fecha DOC</th>
                                                 <th data-priority="1">Folio</th>
                                                 <th data-priority="1">Fecha creación</th>
@@ -610,13 +611,14 @@
                         {
                             extend:"excel",
                             exportOptions: { 
-                                columns: function(column, data, node) {
+                                // columns: function(column, data, node) {
                                     
-                                    if (column > 10) {
-                                        return false;
-                                    }
-                                    return true;
-                                }
+                                //     if (column > 10) {
+                                //         return false;
+                                //     }
+                                //     return true;
+                                // }
+                                columns: [0,1,3,4,5,6,7,8,9,10,11 ]
                              },
                             text:'Descargar busqueda',
                             className: 'btn btn-success',
@@ -643,6 +645,12 @@
                                 else{
                                     return data;
                                 }                               
+                            }
+                    },
+                    { data: 'materia', name: 'documento.materia',render: function(data, type, row)
+                            {
+                               
+                                    return data;
                             }
                     },
                     
@@ -774,6 +782,8 @@
         var table = $('#grilla_recibidos').DataTable();
         var column = table.column(8);
         column.visible(false);
+        var columnm2 = table.column(3);
+        columnm2.visible(false);
     });
       
     function activa_fechas(valor){
