@@ -591,14 +591,14 @@ class BuzonController extends Controller
         $sesion_key = AppServiceProvider::session_key_general();
         
         $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(100)        
+        ->timeout(200)        
         ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
             'id_documento'=>$request->idDocumento,
             'id_documento_buzon'=>$request->idDocumentoBuzon,
             'id_usuario'=>Auth::user()->id,
             'id_buzon'=>$request->idBuzon
         ]);
-
+        //dd($datosArchivo);
         return $datosArchivo->json();  
     }
     
@@ -679,7 +679,8 @@ class BuzonController extends Controller
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
         $registro->delete();
-
+        set_time_limit(300);
+        
         $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
                 
         return $pdf->stream('vista_previa.pdf');
@@ -773,7 +774,7 @@ class BuzonController extends Controller
                     ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
                     ->join('tipo_destino', function($join)  use ($nCarpeta,$sOpestado) {
                         $join->on('documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino');
-                        $join->on('documento_buzon.id_documento_buzon', '=', DB::raw('(select max(db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino and db.id_carpeta = '.$nCarpeta.' and db.id_estado_documento in '.$sOpestado.')'));
+                       // $join->on('documento_buzon.id_documento_buzon', '=', DB::raw('(select max(db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino and db.id_carpeta = '.$nCarpeta.' and db.id_estado_documento in '.$sOpestado.')'));
                     })
                     ->select(
                         'documento_buzon.id_documento_buzon as id_documento_buzon',
@@ -798,8 +799,11 @@ class BuzonController extends Controller
                         'tipo_destino.nombre as tipo_envio',
                         'tipo_destino.id_tipo_destino as id_tipo_destino',
                        // "documento_buzon.id_documento_buzon as buzon_origen","documento_buzon.id_documento_buzon as destinatario",
-                        DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre limit 1) as buzon_origen'),
-                        DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1 limit 1) as destinatario'),
+                      // 'documento_buzon.id_documento as buzon_origen',
+                      // 'documento_buzon.id_documento as destinatario',
+                       DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre limit 1) as buzon_origen'),
+                       DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1 limit 1) as destinatario'),
+
                         //DB::raw('(select dbb.fecha from documento_buzon_bitacora dbb join documento_buzon db4 on dbb.id_documento_buzon = db4.id_documento_buzon where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db4.id_tipo_destino = 1 and dbb.id_accion = 3) as fecha_recepcion'),
                         'documento_buzon.fecha as fecha_recepcion',
                         'documento_buzon.contestar_hasta as contestas_hasta',
