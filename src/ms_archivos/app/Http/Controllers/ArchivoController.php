@@ -458,7 +458,7 @@ class ArchivoController extends Controller{
             db::statement("insert into bloqueo_folio (folio,estado,tipo_folio,buzon,tipo_documento,reversado) values (".$folio.",1,".$tipo_folio.",".$buzon.",".$tipo_documento.",".$reversado.")"); 
         } 
         else{ 
-            db::statement("update bloqueo_folio set estado = 0, reversado = ".$reversado." where folio = ".$folio." and tipo_folio = ".$tipo_folio." and buzon = ".$buzon." and tipo_documento = ".$tipo_documento); 
+            db::statement("update bloqueo_folio set estado = 0, reversado = ".$reversado." where folio = ".(($folio==null)?'0':$folio)." and tipo_folio = ".$tipo_folio." and buzon = ".$buzon." and tipo_documento = ".$tipo_documento); 
         } 
          
     } 

@@ -411,7 +411,7 @@ class FirmaController extends Controller
                             {
                                 if ($fAnexos['status'] == "400")
                                 {
-                                    $comentario = "Error en firma de anexo. ";
+                                    $comentario = "Error en firma de anexo. (".$fAnexos['error'].")";
                                     throw new Exception($comentario);
                                 }
                             }                             
@@ -438,7 +438,7 @@ class FirmaController extends Controller
                 }
 
                 $comentario = "Error en el proceso de firma.";
-                throw new Exception($comentario);                    
+                throw new Exception($comentario." - ".$aRespuestaFirma['metadata']);                    
 
             } catch (Exception $e) {
 
@@ -590,6 +590,10 @@ class FirmaController extends Controller
 
                     if ($iEstadoFirma == 2)
                         $countAnexo -= 1;
+
+
+                    //convertir a PDF 1.4
+
 
                     $nSalidaHashAnexo = $this->callHash($sArchivoAnexo, $layoutAnexo, $countAnexo, $nNombreArchivoCargarAnexo, $nRutFirma);
 
