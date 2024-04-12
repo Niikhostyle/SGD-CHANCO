@@ -98,7 +98,7 @@ class FirmaBase //extends FirmaDigitalBase
         //$this->removeFiles();
 
         $salida = Http::withHeaders(['Content-Type'=>'application/json'])
-        ->timeout(30)
+        ->timeout(120)
         ->withBody(json_encode($data), 'json')
         ->post($this->api);
 
