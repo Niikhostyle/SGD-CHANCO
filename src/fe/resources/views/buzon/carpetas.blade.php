@@ -3808,10 +3808,12 @@
         }
         $('#boton_carpetas_texto').html('Carpetas - <i><b>'+texto+'</b></i>');
         if(texto=='Recibidos'){
-            $('#grilla_recibidos').DataTable().draw();
+            fn_grilla_recibidos();
+            //$('#grilla_recibidos').DataTable().draw();
         }
         if(texto=='Despachados'){
-            $('#grilla_despachados').DataTable().draw();
+            fn_grilla_despachados();
+            //$('#grilla_despachados').DataTable().draw();
             $(".nuevo_documento").removeAttr('disabled');
         }else{
             $(".nuevo_documento").prop("disabled", true);
@@ -7398,8 +7400,8 @@
         $(function() {
 
             fn_grilla_por_recibir();
-            fn_grilla_recibidos();
-            fn_grilla_despachados();
+            //fn_grilla_recibidos();
+            //fn_grilla_despachados();
             $('#gr_buscar_tipo_doc').multiselect({includeSelectAllOption: true,maxHeight: 400});
             $('#gr_buscar_tipo_doc').multiselect('selectAll', true);
 
