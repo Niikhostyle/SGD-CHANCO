@@ -103,7 +103,7 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="input_cargo">Usuario Titular (para firma):</label>
-                        <select name="titular" id="form_titular" class="form-control" style="text-align:left !important">                            
+                        <select name="titular" id="form_titular" class="form-control" style="text-align:left !important" >                            
                         </select>
                     </div>
                 </div>                                  
@@ -125,6 +125,25 @@
                     </div>                   
                 </div>
                 
+            </div>
+            <div class="row">
+                <div class="col-md-7"> </div>
+                <div class="col-md-5">
+                    <input type="checkbox" name="restringir" id="restringir" value="1"  /> <b>Restringir subrogante a:</b>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-7"> </div>
+                <div class="col-md-5">
+                    <select name="subrogante" id="form_subrogante" class="form-control" style="text-align:left !important"> 
+                        <option  value='' >Seleccione</option>                        
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p>&nbsp;</p>
+                </div>
             </div>
             <div class="row">
                 <div class="col-md-8"> </div>
@@ -234,44 +253,58 @@
     }
 
     //seleccion de usuarios asignados en select
-    function dlb_repopulate (asignados, modificados, firmaTitular) 
+    function dlb_repopulate (asignados, modificados, firmaTitular,firmaSubrogante) 
     {
         $('[name=duallistbox] option').prop('selected', false);
         $('[name=duallistbox] option').prop('disabled', false);
 
         itemTitular = "";
+        itemSubrogante = "";
         asignados.forEach(function(option, index) {
-
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
-
             if (firmaTitular[index] == 1)
                 itemTitular = option;
-           // if(modificados[index] == 0)
-           //     $('[name=duallistbox] option[value="'+option+'"]').prop('disabled', true);
+            
+            if (firmaSubrogante == option)
+                itemSubrogante = option;
         });
 
         $('[name=duallistbox]').bootstrapDualListbox('refresh', true);
 
         $('#form_titular').empty();
+        $('#form_subrogante').empty();
+        //$('#form_subrogante').append("<option selected value='' >Seleccione</option>");
+        
+        //llenar listbox titular
         duallist.find(":selected").each(function(ind,sel)
         {         
             var $this = $(this);
             var selText = $this.text();
             var selValue = $this.val();
 
-            if (selValue == itemTitular) 
+            if (selValue == itemTitular){
                 $('#form_titular').append("<option selected value='"+selValue+"' >"+selText+"</option>");
-            else
-                $('#form_titular').append("<option value='"+selValue+"' >"+selText+"</option>");
+            }
+            else{
+                if(selValue == itemSubrogante){
+                    $('#form_subrogante').append("<option selected value='"+selValue+"' >"+selText+"</option>");
+                }
+                else{
+                    $('#form_titular').append("<option value='"+selValue+"' >"+selText+"</option>");
+                    $('#form_subrogante').append("<option value='"+selValue+"' >"+selText+"</option>");
+                }
+            }
 
         })
+
     }
 
     duallist.on('change',function(){
         let val = $(this).val();
         
         $('#form_titular').empty();
-        
+        $('#form_subrogante').empty();
+        $('#form_subrogante').append("<option selected value='' >Seleccione</option>");
         duallist.find(":selected").each(function(ind,sel)
         {         
            var $this = $(this);
@@ -279,8 +312,38 @@
            var selValue = $this.val();
 
            $('#form_titular').append("<option value='"+selValue+"' >"+selText+"</option>");
+           $('#form_subrogante').append("<option value='"+selValue+"' >"+selText+"</option>");
+           $("#form_subrogante option[value="+$('#form_titular').find(":selected").val()+"]").remove();
         })
     })
+
+    // function limpiarSubrogante(){
+    //     $("#form_subrogante option:selected").prop("selected", false);
+    // }
+
+    $("#form_titular").change(function(){
+        $('#form_subrogante').empty();
+        $('#form_subrogante').append("<option selected value='' >Seleccione</option>");
+        duallist.find(":selected").each(function(ind,sel)
+        {         
+           var $this = $(this);
+           var selText = $this.text();
+           var selValue = $this.val();
+           $('#form_subrogante').append("<option value='"+selValue+"' >"+selText+"</option>");
+           $("#form_subrogante option[value="+$('#form_titular').find(":selected").val()+"]").remove();
+        })
+    });
+
+    $('#restringir').change(function(){
+        if($("#restringir").is(":checked")){
+            $('#form_subrogante').prop('disabled', false);
+            
+        }
+        else{
+            $('#form_subrogante').prop('disabled', true);
+            $('#form_subrogante').removeAttr('selected'); 
+        }
+    });
 
     function ver_buzon(id,op)
     { 
@@ -325,20 +388,36 @@
                             var aUsuarios = [];
                             var aUsuariosModificar = [];
                             var aUsuariosFirma = [];
-
+                            var aUsuarioSubrogante = 0;
+                            let asignado = 0;
                             $.each(data.data.usuarios_asignados, function(key, item) 
                             {
                                 aUsuarios.push(item.id_usuario);
                                 aUsuariosModificar.push(item.permite_modificar);
                                 aUsuariosFirma.push(item.id_tipo_firma);
-
+                                
                                 if(item.id_tipo_firma == 1)
-                                    $("select[name='titular']").val(item.id_usuario);    
+                                    $("select[name='titular']").val(item.id_usuario);   
+                                
+                                if(item.id_usuario_sr !== null && asignado == 0){
+                                    aUsuarioSubrogante = item.id_usuario_sr;
+                                    $("select[name='subrogante']").val(item.id_usuario_sr);
+                                    asignado++;
+                                }
+
+                                if(item.restringir_sr !== null && item.restringir_sr !== 0){
+                                    $('#restringir').prop('checked', true);
+                                }
+                                else{
+                                    $('#form_subrogante').prop('disabled', true);
+                                    $('#form_subrogante').removeAttr('selected'); 
+                                }
+
+
                             });                            
 
                             //seleccionar los usuarios asignados
-                            //dlb_repopulate(['3', '1']);
-                            dlb_repopulate(aUsuarios, aUsuariosModificar, aUsuariosFirma);
+                            dlb_repopulate(aUsuarios, aUsuariosModificar, aUsuariosFirma, aUsuarioSubrogante);
                         } 
                     } 
                     $('.btn-submit').prop("disabled", false); 
@@ -407,6 +486,7 @@
         $(".print-error-msg").hide();
         $('#form_buzon_crear_editar').trigger("reset");
         $('#form_titular').empty();
+        $('#form_subrogante').empty();
         $('#titulo_buzon_crear_editar').html('Nuevo Buzón');
         $('#card_buzon_crear_editar').show();
         $('.form-control').prop("disabled", false);
@@ -424,6 +504,7 @@
         $('#card_buzon_crear_editar').hide();
         $('#form_buzon_crear_editar').trigger("reset");
         $('#form_titular').empty();
+        $('#form_subrogante').empty();
         $(".print-error-msg").hide();
         $('#form_buzon_crear_editar').removeClass("was-validated");
     });
@@ -452,6 +533,11 @@
         var hiddBuzon = $("input[name='hiddBuzon']").val();
         var titular_firma = $("select[name='titular']").val();
         var usuarios_asignados = $('[name="duallistbox"]').val();
+        var subrogante = $("select[name='subrogante']").val();
+        var restringir = 0;
+        if($("#restringir").is(":checked")){
+            restringir =1;
+        }
 
         if (hiddBuzon == '') //crear
         {
@@ -464,41 +550,47 @@
             var typeAccion = 'PUT';
            
         }    
-        
-        $.ajax({
-            url: urlAccion,
-            type: typeAccion,
-            data: { 
-                    _token:_token, nombre:nombre, nombre_corto:nombre_corto, usuarios_asignados:usuarios_asignados, hiddBuzon:hiddBuzon, cargo_firma:cargo_firma, titular_firma:titular_firma                       
-                  },
-            success: function(data) 
-            {
-                if(data.status == '200')
+        if($("#restringir").is(":checked") && subrogante ==""){
+            let mensaje = ['Debe seleccionar un subrogante']
+            printErrorMsg(mensaje);
+            $('.btn-submit').html( 'Guardar' );
+        }
+        else{
+            $.ajax({
+                url: urlAccion,
+                type: typeAccion,
+                data: { 
+                        _token:_token, nombre:nombre, nombre_corto:nombre_corto, usuarios_asignados:usuarios_asignados, hiddBuzon:hiddBuzon, cargo_firma:cargo_firma, titular_firma:titular_firma, restringir:restringir, subrogante:subrogante                       
+                    },
+                success: function(data) 
                 {
-                    toastr.success("Buzón actualizado","Aviso!");
-                    autoRefresh();
-                }
-                else if(data.status == '201')
-                {
-                    toastr.success("Buzón creado","Aviso!");                  
-                    autoRefresh();
-                }
-                else
-                {
-                    toastr.error(data.data.comentario,"Aviso!");                    
-                }
+                    if(data.status == '200')
+                    {
+                        toastr.success("Buzón actualizado","Aviso!");
+                        autoRefresh();
+                    }
+                    else if(data.status == '201')
+                    {
+                        toastr.success("Buzón creado","Aviso!");                  
+                        autoRefresh();
+                    }
+                    else
+                    {
+                        toastr.error(data.data.comentario,"Aviso!");                    
+                    }
 
-                $('.btn-submit').html( 'Guardar' );
-            },
-            error: function (e) {
-                data = e.responseJSON;
-                if (typeof data.errors !== 'undefined') {
-                    printErrorMsg(data.errors);
-                }
+                    $('.btn-submit').html( 'Guardar' );
+                },
+                error: function (e) {
+                    data = e.responseJSON;
+                    if (typeof data.errors !== 'undefined') {
+                        printErrorMsg(data.errors);
+                    }
 
-                $('.btn-submit').html( 'Guardar' );
-            }
-        });             
+                    $('.btn-submit').html( 'Guardar' );
+                }
+            });       
+        }      
     });
 
     function printErrorMsg(msg) {

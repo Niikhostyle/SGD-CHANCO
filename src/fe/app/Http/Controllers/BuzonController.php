@@ -122,7 +122,9 @@ class BuzonController extends Controller
             'tipo_buzon'=>'2',
             'usuarios_asignados'=> $aUsuarios,
             'titular'=> $request->titular_firma,            
-            'cargo_firma'=>$request->cargo_firma
+            'cargo_firma'=>$request->cargo_firma,
+            'restringir_sr' =>$request->restringir,
+            'id_usuario_sr' => $request->subrogante
         ]);
 
         return $accionBuzon->json();
@@ -170,7 +172,6 @@ class BuzonController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $aUsuarios = [];
-
         if (isset($request->usuarios_asignados))
         {
             foreach ($request->usuarios_asignados as $usuario)
@@ -186,7 +187,9 @@ class BuzonController extends Controller
             'tipo_buzon'=>'2',
             'usuarios_asignados'=> $aUsuarios,
             'titular'=> $request->titular_firma,            
-            'cargo_firma'=>$request->cargo_firma
+            'cargo_firma'=>$request->cargo_firma,
+            'restringir_sr' =>$request->restringir,
+            'id_usuario_sr' => $request->subrogante
         ]);
 
         return $accionBuzon->json();

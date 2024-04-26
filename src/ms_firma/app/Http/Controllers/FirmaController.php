@@ -36,7 +36,7 @@ class FirmaController extends Controller
 
                 $datos = $request->json()->all();                
                 //GENERACIÓN IMAGEN PARA FIRMA
-                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea']);
+                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea','id']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
                 $sNombreImgAnexo = $aInfoUsuarios['run'] . date('dmYHis') . '_a.png';
@@ -46,7 +46,7 @@ class FirmaController extends Controller
                             ->join('tipo_firma', 'buzon_usuario.id_tipo_firma','=', 'tipo_firma.id_tipo_firma')
                             ->where('buzon.id_buzon','=', $datos['id_buzon'])
                             ->where('buzon_usuario.id_usuario','=', $datos['id_usuario'])
-                            ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla')
+                            ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla','restringir_sr','id_usuario_sr')
                             ->first();
 
                 if (!isset($DatosFirma['cargo_firma']))  
@@ -56,6 +56,15 @@ class FirmaController extends Controller
                     //return $this->respondFail($comentario);
                 }
 
+                //verificar restrinccion firma subrogante
+                if(isset($DatosFirma['id_usuario_sr']) && $DatosFirma['id_usuario_sr'] !== 0 && $DatosFirma['restringir_sr'] == 1){
+                    if($DatosFirma['id_usuario_sr'] != $aInfoUsuarios['id']){
+                        $comentario = "No está autorizado como subrogante.";
+                        throw new Exception($comentario);
+                    }
+                }
+
+                
                 if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
                 {
                     $comentario = "No existe imagen para firma asociada al usuario.";
@@ -287,8 +296,8 @@ class FirmaController extends Controller
                     //$pdf->footer_txt = "Para verificar este documento, use el siguiente identificador: " . $aInfoDocumento['hash_validacion'];}
                     $pdf->footer_txt = $html;//"Para verificar este documento haga clic en ".$url." o use el siguiente QR:";
                     $pdf->footer_qr = $codigoQR;
-                    //$pdf->footer_id_txt = "ID: " . $aInfoDocumento['identificador'] . " | ";
-                    //$pdf->footer_link = $aInfoDocumento['hash_validacion'];//env('PLCSGD_LINKVALIDADOR');
+                    $pdf->url_qr = $url;
+                    //$pdf->Image($codigoQR,140,325,0,0,'PNG',$url);
                     $pdf->PageFirma = $nPaginasPdf;                    
 
                     for ($i=1; $i <= $pageCount; $i++) { 
