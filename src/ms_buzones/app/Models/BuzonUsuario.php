@@ -9,7 +9,7 @@ class BuzonUsuario extends Model{
     protected $primaryKey = 'id_buzon_usuario';
 
     protected $fillable = [
-        'id_buzon', 'id_usuario', 'id_tipo_firma'
+        'id_buzon', 'id_usuario', 'id_tipo_firma','id_usuario_sr','restringir_sr'
     ];
 
     public function buzon()

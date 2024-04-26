@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
+use App\Models\DocumentoBuzonBitacora;
 use Illuminate\Http\Request;
 use App\Providers\AppServiceProvider;
 use Illuminate\Cache\NullStore;
@@ -13,11 +14,12 @@ use Illuminate\Support\Facades\Http;
 use PDF;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 
 class DocumentoValidadorController extends Controller
 {
-    public function index()
+    public function index() 
     {
         $lista_documentos=['data'=>[
             0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'', 'version'=>'']
@@ -99,10 +101,21 @@ class DocumentoValidadorController extends Controller
 
             }
         }
+        $visadores = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
+                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->where('id_accion',6)
+                    ->orderBy('documento_buzon_bitacora.fecha','ASC')
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->get();
         
+        $firmantes = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
+                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->where('id_accion',7)
+                    ->orderBy('documento_buzon_bitacora.fecha','ASC')
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->get();                    
         
-        
-        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos, 'status'=>$status]);
+        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'status'=>$status]);
         
     }
 

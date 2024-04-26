@@ -1264,7 +1264,7 @@ class DocumentoController extends Controller{
                 $codigo = $datosRequest['hash_validacion'];
 
                 $validator = $this->validator->validateFieldUser($datosRequest);
-
+                
                 //if ($validator->fails())
                   //  return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
                 return datatables(
@@ -1281,7 +1281,9 @@ class DocumentoController extends Controller{
                         'documento.materia as materia',
                         'documento.folio as folio',
                         'documento.hash_validacion as hash_validacion',
-                        'documento_buzon_archivo.version as version'
+                        'documento_buzon_archivo.version as version',
+                        'documento_buzon_archivo.nombre_archivo_codificado as nombre_archivo_codificado',
+                        'documento_buzon_archivo.id_documento_buzon as id_documento_buzon'
                         
                         
                         )

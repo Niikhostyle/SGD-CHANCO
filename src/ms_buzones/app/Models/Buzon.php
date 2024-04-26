@@ -18,7 +18,7 @@ class Buzon extends Model{
 
     public function usuarios_asignados()
     {
-        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon')->select(['id_usuario','id_tipo_firma']);
+        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon')->select(['id_usuario','id_tipo_firma','restringir_sr','id_usuario_sr']);
     } 
 
     public function documentos_buzon()
