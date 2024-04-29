@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FavoritoController;
 use App\Http\Controllers\DocumentoValidadorController;
 use App\Http\Controllers\BuzonUsuarioExternoController;
-use App\Http\Controllers\DescargaPdfController;
+//use App\Http\Controllers\DescargaPdfController;
 use App\Http\Controllers\DescargaController;
 use App\Http\Controllers\PLCController;
 use App\Http\Controllers\PanelController;
@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorCo
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[BuscadorController::class,'documentoBuzonArchivo'])->name('buscador.documentoBuzonArchivo');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscar_categorias',[BuscadorController::class,'buscar'])->name('buscador.categorias');
+Route::middleware(['auth:sanctum', 'verified'])->get('eliminar_documento',[BuzonController::class,'eliminar_documento_enviado'])->name('buzones.eliminar_documento_enviado');
 
 //version 2 - buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador2',[BuscadorController::class,'index2'])->name('buscador.index2');

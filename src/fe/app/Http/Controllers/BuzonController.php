@@ -122,7 +122,9 @@ class BuzonController extends Controller
             'tipo_buzon'=>'2',
             'usuarios_asignados'=> $aUsuarios,
             'titular'=> $request->titular_firma,            
-            'cargo_firma'=>$request->cargo_firma
+            'cargo_firma'=>$request->cargo_firma,
+            'restringir_sr' =>$request->restringir,
+            'id_usuario_sr' => $request->subrogante
         ]);
 
         return $accionBuzon->json();
@@ -186,7 +188,9 @@ class BuzonController extends Controller
             'tipo_buzon'=>'2',
             'usuarios_asignados'=> $aUsuarios,
             'titular'=> $request->titular_firma,            
-            'cargo_firma'=>$request->cargo_firma
+            'cargo_firma'=>$request->cargo_firma,
+            'restringir_sr' =>$request->restringir,
+            'id_usuario_sr' => $request->subrogante
         ]);
 
         return $accionBuzon->json();
@@ -592,7 +596,7 @@ class BuzonController extends Controller
         $sesion_key = AppServiceProvider::session_key_general();
         
         $datosArchivo = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
-        ->timeout(100)        
+        ->timeout(200)        
         ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
             'id_documento'=>$request->idDocumento,
             'id_documento_buzon'=>$request->idDocumentoBuzon,
@@ -679,7 +683,8 @@ class BuzonController extends Controller
         //Se elimina registro temporal
         $registro = DocumentoTmp::find($nID);
         $registro->delete();
-
+        set_time_limit(300);
+        
         $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
                 
         return $pdf->stream('vista_previa.pdf');

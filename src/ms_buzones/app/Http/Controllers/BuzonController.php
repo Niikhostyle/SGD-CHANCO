@@ -237,14 +237,21 @@ class BuzonController extends Controller{
                     $nTipoFirma = 2;
                     if ($datos['id_usuario'] == $datosRequest['titular'])
                         $nTipoFirma = 1;
-                                
+                    
+                    $id_usuario_sr =   $datosRequest['id_usuario_sr'];
+                    if($datosRequest['restringir_sr'] == 0){
+                        $id_usuario_sr = 0;
+                    }
+                    
                     $buzonUsuario = BuzonUsuario::updateOrCreate([
                         'id_buzon' => $datoBuzon->id_buzon,
                         'id_usuario' => $datos['id_usuario']
                     ],[
                         'id_buzon' => $datoBuzon->id_buzon,
                         'id_usuario' => $datos['id_usuario'],
-                        'id_tipo_firma' => $nTipoFirma
+                        'id_tipo_firma' => $nTipoFirma,
+                        'restringir_sr' =>$datosRequest['restringir_sr'],
+                        'id_usuario_sr' => $id_usuario_sr
                     ]);
 
                 }
