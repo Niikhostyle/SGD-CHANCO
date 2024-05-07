@@ -58,6 +58,10 @@ class FirmaController extends Controller
 
                 //verificar restrinccion firma subrogante
                 if(isset($DatosFirma['id_usuario_sr']) && $DatosFirma['id_usuario_sr'] !== 0 && $DatosFirma['restringir_sr'] == 1){
+                    if($DatosFirma['id_usuario_sr'] == 10000){
+                        $comentario = "No existe subrogante definido.";
+                        throw new Exception($comentario);
+                    }
                     if($DatosFirma['id_usuario_sr'] != $aInfoUsuarios['id']){
                         $comentario = "No está autorizado como subrogante.";
                         throw new Exception($comentario);
