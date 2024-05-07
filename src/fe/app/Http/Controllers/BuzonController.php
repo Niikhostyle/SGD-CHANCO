@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
 use App\Jobs\Firma;
+use App\Jobs\FirmarDerivar;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
@@ -546,7 +547,34 @@ class BuzonController extends Controller
         foreach($request->firmas as $idDoc)
         {
             $aValores = explode("-", $idDoc);
-            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            $derivarPrimera = 0;
+            $derivarUltima  = 0;
+            $datosDocumento = Documento::findOrFail($aValores[0]);
+            $datosDocumento->rel_tipo_documento;
+
+            $nroFirmas = $datosDocumento->rel_tipo_documento->numero_firmas;
+            $derivarPrimera = intval($datosDocumento->rel_tipo_documento->derivar_primera_firma);
+            $derivarUltima = intval($datosDocumento->rel_tipo_documento->derivar_ultima_firma);
+            $buzonPrimera = intval($datosDocumento->rel_tipo_documento->buzon_primera_firma);
+            $buzonUltima = intval($datosDocumento->rel_tipo_documento->buzon_ultima_firma);
+
+            $firmasRealizadas = DocumentoBuzonBitacora::where('id_documento_buzon',$aValores[1])->where('id_accion',7)->count();
+
+            if(($derivarPrimera == 1 && $firmasRealizadas == 0)){
+                FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id);     
+                //Firma::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id); 
+            }
+            else {
+                if($derivarUltima == 1 && $firmasRealizadas == ($nroFirmas - 1)) {
+                    FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id);        
+                    //Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id); 
+                }
+                else{
+                    Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+                }
+            }
+
+            //Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);    
             DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
         }
 

@@ -330,14 +330,14 @@ class FirmaController extends Controller
                 $fileSize = filesize($sArchivo);
                 $fileSize_mb = round($fileSize / 1048576, 0, PHP_ROUND_HALF_UP);
                 $nfh = 0;
-                Log::error('FIRMA - peso archivo '.$fileSize_mb); 
+                //Log::error('FIRMA - peso archivo '.$fileSize_mb); 
 
                 if ($fileSize_mb >= 5) //firma hash  
                 {              
                     $aRespuestaFirma = $this->callHash($sArchivo, $layout, '', $nNombreArchivoCargar, $nRutFirma);
                     $nfh = 1;
 
-                Log::error('FIRMA - hash '); 
+                //Log::error('FIRMA - hash '); 
 
                 }
                 else //firma tradicional
@@ -346,7 +346,7 @@ class FirmaController extends Controller
                                                   ->addPDF($sArchivo, $sDescipcion, $layout)
                                                   ->sign();   
                                                   
-                    Log::error('FIRMA - tradicional '); 
+                    //Log::error('FIRMA - tradicional '); 
                                                   
                 }                                                 
                 
@@ -446,6 +446,7 @@ class FirmaController extends Controller
                             //elimina imagen de firma 
                             $this->deleteImg($sNombreImg); 
 
+                            
                             return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
                                 
                         }
@@ -457,7 +458,7 @@ class FirmaController extends Controller
                     else
                     {
                         $comentario = "No se pudo procesar la respuesta.";
-                        Log::error("Dump Respuesta: " . $aRespuestaFirma); 
+                        //Log::error("Dump Respuesta: " . $aRespuestaFirma); 
                         throw new Exception($comentario);
                     }
                 }

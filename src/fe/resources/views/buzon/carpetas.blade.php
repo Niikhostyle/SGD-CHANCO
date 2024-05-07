@@ -316,7 +316,7 @@
                             <div class="col-md-3 mb-3">
                                 <label for="inputState">Efectos sobre terceros</label>
                                 <select id="form_efectos_terceros" name="efectos_terceros" class="form-control">
-                                    <option selected>Seleccionar</option>
+                                    <option  value="">Seleccionar</option>
                                     <option value="true">Si</option>
                                     <option value="false">No</option>
                                 </select>
@@ -496,6 +496,12 @@
                                     <input type="hidden" name="hiddFirmaAnexo" id="hiddFirmaAnexo" value="">                                    
                                     <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
                                     <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
+                                    <input type="hidden" name="hiddPrimeraFirma" id="hiddPrimeraFirma" value="0">
+                                    <input type="hidden" name="hiddUltimaFirma" id="hiddUltimaFirma" value="0">
+                                    <input type="hidden" name="hiddBuzonPrimera" id="hiddBuzonPrimera" value="0">
+                                    <input type="hidden" name="hiddBuzonUltima" id="hiddBuzonUltima" value="0">
+                                    <input type="hidden" name="hiddNroFirmas" id="hiddNroFirmas" value="0">
+                                    
                                     
                                 </div>                          
                         </div>
@@ -1387,7 +1393,9 @@
         var materia = $("input[name='materia']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
-        console.log(tipo_documento);
+        var efectos_terceros =  $("select[name='efectos_terceros']").val();
+
+
         var errores = "";
         if(materia.length == 0 || materia.length > 500){
             errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
@@ -1397,6 +1405,9 @@
         }
         if(nivel_acceso == ""){
             errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+        if(efectos_terceros == ""){
+            errores = errores + "Seleccione un efecto sobre terceros.<br>";
         }
 
         if(errores != ""){
@@ -1439,7 +1450,8 @@
         var materia = $("input[name='materia']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
-        console.log(tipo_documento);
+        var efectos_terceros =  $("select[name='efectos_terceros']").val();
+
         var errores = "";
         if(materia.length == 0 || materia.length > 500){
             errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
@@ -1449,6 +1461,10 @@
         }
         if(nivel_acceso == ""){
             errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+
+        if(efectos_terceros == ""){
+            errores = errores + "Seleccione un efecto sobre terceros.<br>";
         }
 
         if(errores != ""){
@@ -1492,7 +1508,8 @@
         var materia = $("input[name='materia']").val();
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
-        console.log(tipo_documento);
+        var efectos_terceros =  $("select[name='efectos_terceros']").val();
+
         var errores = "";
         if(materia.length == 0 || materia.length > 500){
             errores = errores + "La materia debe tener entre 1 y 500 caracteres.<br>";
@@ -1502,6 +1519,9 @@
         }
         if(nivel_acceso == ""){
             errores = errores + "Seleccione un nivel de acceso.<br>";
+        }
+        if(efectos_terceros == ""){
+            errores = errores + "Seleccione un efecto sobre terceros.<br>";
         }
 
         if(errores != ""){
@@ -2433,7 +2453,6 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
-
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
 
@@ -2980,6 +2999,7 @@
         var hayAnexos = "";
         var firmaAnexo = $("input[name='hiddFirmaAnexo']").val();
 
+       
         $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function(){            
             if (this.checked) {
                 aParaFirma.push($(this).val());
@@ -2991,8 +3011,6 @@
         {
             hayAnexos = " y <b>anexos</b> seleccionados";
         }
-        console.log(aParaFirma);
-        console.log(hayAnexos);
 
         //y anexos seleccionados
         
@@ -3160,7 +3178,6 @@
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
         var responder = $('#form_respuesta_a').val();
 
-        console.log(_token+"--"+hiddIdBuzon+"--"+hiddIdDocumento+"--"+hiddIdDocumentoBuzon+"--"+destinatarioPrincipal+"--"+acciones_solicitadas+"--"+otrosDestinatarios+"--"+tipoDestino+"--"+responder);
                 
         if(destinatarioPrincipal !== undefined && acciones_solicitadas!= ""){    
             deshabilita_boton('btn-recibir-submit');
@@ -4202,7 +4219,36 @@
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];    
                         var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
                         var jsonDocResponder = data.data.rel_responder;
+
+
+                        $("input[name='hiddPrimeraFirma']").val(0);
+                        $("input[name='hiddUltimaFirma']").val(0);
+                        $("input[name='hiddBuzonPrimera']").val(0);
+                        $("input[name='hiddBuzonUltima']").val(0);
+                        $("input[name='hiddNroFirmas']").val(0);
+                        if (typeof json_tipo_doc['derivar_primera_firma'] !== 'undefined') {
+                            $("input[name='hiddPrimeraFirma']").val(json_tipo_doc['derivar_primera_firma']);
+                        }
+                        if (typeof json_tipo_doc['derivar_ultima_firma'] !== 'undefined') {
+                            $("input[name='hiddUltimaFirma']").val(json_tipo_doc['derivar_ultima_firma']);
+                        }
+                        if (typeof json_tipo_doc['buzon_primera_firma'] !== 'undefined') {
+                            $("input[name='hiddBuzonPrimera']").val(json_tipo_doc['buzon_primera_firma']);
+                        }
+                        if (typeof json_tipo_doc['buzon_ultima_firma'] !== 'undefined') {
+                            $("input[name='hiddBuzonUltima']").val(json_tipo_doc['buzon_ultima_firma']);
+                        }
                         
+                        if (typeof json_tipo_doc['numero_firmas'] !== 'undefined') {
+                            $("input[name='hiddNroFirmas']").val(json_tipo_doc['numero_firmas']);
+                        }
+                        //derivar despues de firmar
+                        var hiddPrimeraFirma = json_tipo_doc['derivar_primera_firma'];
+                        var hiddUltimaFirma = json_tipo_doc['derivar_ultima_firma'];
+                        var hiddBuzonPrimera = json_tipo_doc['buzon_primera_firma'];
+                        var hiddBuzonUltima = json_tipo_doc['buzon_ultima_firma'];
+                        var hiddNroFirmas = json_tipo_doc['numero_firmas'];
+
                         datoTipoJson = json_tipo_doc;
 
                         $("select[name='tipo_documento']").val(data.data.id_tipo_documento);
@@ -4280,14 +4326,16 @@
                         //acciones bitacora
                         var relDatosBitacora = data.data.rel_bitacora;
                         var htmlDatosbitacora = "";
-
+                        var firmasRealizadas = 0;
                         $.each(relDatosBitacora, function(i, item)
                         {                    
                             if (item.id_accion == 6)
                                 htmlDatosbitacora += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
                             
-                            if (item.id_accion == 7)
+                            if (item.id_accion == 7){
                                 htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                firmasRealizadas++;
+                            }
                             
                             if (item.id_accion == 7 || item.id_accion == 8)
                                 isDelete = false;
@@ -4592,20 +4640,6 @@
                                                     var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     //$('.btn-enviar-submit').show(); 
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success'); 
-                                                //     var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Guardar y Enviar....</button> ';
-                                                //     //$('#addButton').append(buttonDerivar);
-                                                // } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
                                                     var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
@@ -4625,6 +4659,10 @@
                                             $('#addButton').append(buttonDerivar);
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
+                                            console.log('ver-pendiente');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
+
+
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4652,6 +4690,9 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
+                                            console.log('ver-firmado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
+
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
@@ -4675,6 +4716,8 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
+                                            console.log('ver-visado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estaddo visado
                                     }//fin boton accion ver
                                     ///////////////////////////////
@@ -4709,19 +4752,6 @@
                                                     var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
                                                 } 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar-2 ">Guardar y Enviar</button> ';
-                                                //     //$('#addButton').append(buttonDerivar);
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success'); 
-                                                // } 
                                                 if (accionesSolicitadas[i]['id_accion'] == 10){ //finalizar                                                    
                                                     var buttonFinaliza = '<button onClick="finalizar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Finalizar</button> '; 
                                                     $('#addButton').append(buttonFinaliza); 
@@ -4730,6 +4760,8 @@
                                             
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                                 $('#addButton').append(buttonArchivar); 
+                                            console.log('editar-pendiente');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4758,6 +4790,8 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
+                                            console.log('editar-firmado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('.btn-guardar-submit').show();
@@ -4782,6 +4816,8 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
+                                            console.log('editar-visado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado visado
                                     }//fin boton accion editar
                                     ///////////////////////
@@ -4799,21 +4835,7 @@
                                             $('#addButton').append(buttonEditar);
                                             
                                             for (let i in accionesSolicitadas) { 
-                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success'); 
-                                                //     var buttonVisarDerivar = '<button onClick="guarda_destinatarios_documento(8)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-visar-derivar w-15">Visar y Enviar</button> '; 
-                                                //     $('#addButton').append(buttonVisarDerivar);
-                                                // } 
-                                                
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);                                                 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
                                                     var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
@@ -4838,6 +4860,8 @@
                                             $('#addButton').append(buttonVisarDerivar);
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
+                                            console.log('visar-pendiente');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4868,6 +4892,8 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
+                                            console.log('visar-firmado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
@@ -4877,19 +4903,6 @@
                                             
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
-                                                //     $('#addButton').append(buttonDerivar);
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success'); 
-                                                // }
                                             }
                                             $('#form_destinatario_principal').prop("disabled", false); 
                                             $('#form_acciones_solicitadas_el').multiselect('enable'); 
@@ -4902,6 +4915,8 @@
                                             $('#addButton').append(buttonDerivar);
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
+                                            console.log('visar-visado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado visado
                                     }//fin boton accion visar
                                     ///////////////////////
@@ -4919,21 +4934,7 @@
                                             $('#addButton').append(buttonEditar);
                                             
                                             for (let i in accionesSolicitadas) { 
-                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success');
-                                                //     var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-                                                //     $('#addButton').append(buttonFirmarDerivar); 
-                                                // } 
-                                                
+                                                $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']);                                                 
                                                 if (accionesSolicitadas[i]['id_accion'] == 7){ //Firmar                                                    
                                                     var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> '; 
                                                     $('#addButton').append(buttonFirmar); 
@@ -4959,6 +4960,10 @@
                                             $('#addButton').append(buttonVisar); 
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
+
+                                            console.log('firmar-pendiente');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
+
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4973,21 +4978,6 @@
                                             $('.btn-guardar-submit').show();
                                             for (let i in accionesSolicitadas) {
                                                 $('#form_acciones_solicitadas_el').multiselect('select', accionesSolicitadas[i]['id_accion']); 
-                                                // if(accionesSolicitadas[i]['id_accion'] == 11){ //derivar
-                                                //     $('#form_destinatario_principal').prop("disabled", false); 
-                                                //     $('#form_acciones_solicitadas_el').multiselect('enable'); 
-                                                //     $('#form_comentario_el').prop("disabled", false);         
-                                                //     $('#form_otros_destinatarios_el').prop("disabled", false); 
-                                                //     $('#form_comentario_otro_el').prop("disabled", false); 
-                                                //     $(".bootstrap-tagsinput-max").removeClass("disabled");
-                                                //     $(".bootstrap-tagsinput").removeClass("disabled"); 
-                                                //     var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-derivar ">Enviar </button> ';
-                                                //     $('#addButton').append(buttonDerivar); 
-                                                //     $('.btn-guardar-submit').hide();
-                                                //     $('.btn-guardar-submit').hide();
-                                                //     $('#submit-enviar').removeClass('btn-primary'); 
-                                                //     $('#submit-enviar').addClass('btn-success'); 
-                                                // }
                                             }
                                             $('#form_destinatario_principal').prop("disabled", false); 
                                             $('#form_acciones_solicitadas_el').multiselect('enable'); 
@@ -5002,6 +4992,8 @@
                                             $('.btn-guardar-submit').hide();
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
+                                            console.log('firmar-firmado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
@@ -5025,7 +5017,9 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                        }//fin estado visado
+                                            console.log('firmar-visado');
+                                            firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
+                                        }//fin estado visado                                        
                                     }//fin boton accion firmar
                                     if(accion == 44){ //accion derivar
                                         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true); 
@@ -5235,6 +5229,10 @@
                         if (carpeta == 3)
                             $('#card_desplegar_versiones').hide();                        
 
+
+                        
+                        
+
                     }
                 }
             },
@@ -5265,6 +5263,29 @@
                     $(this).prop("checked", true);
                 }
             }); 
+        }
+     }
+
+     function firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,bloquear){
+        if(hiddPrimeraFirma == 1 && firmasRealizadas == 0){ //derivar en la primera firma
+            $(".btn-firmar").hide();
+            $("#form_destinatario_principal").val(hiddBuzonPrimera);
+            $("#form_destinatario_principal").trigger('change');  
+            if(bloquear == 1){
+                $("#form_destinatario_principal").prop("disabled",true);
+            }
+            var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+            $('#addButton').append(buttonFirmarDerivar); 
+        }
+        if(hiddUltimaFirma == 1 && firmasRealizadas == (hiddNroFirmas - 1)){ //derivar en la primera firma
+            $(".btn-firmar").hide();
+            $("#form_destinatario_principal").val(hiddBuzonUltima);
+            $("#form_destinatario_principal").trigger('change');  
+            if(bloquear == 1){
+                $("#form_destinatario_principal").prop("disabled",true);
+            }
+            var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+            $('#addButton').append(buttonFirmarDerivar); 
         }
      }
 

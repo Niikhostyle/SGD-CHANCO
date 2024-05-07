@@ -166,7 +166,7 @@
                 <div class="col-md-2">
                     <div class="form-group">
                         <label for="input_fe">Número de Firmas:</label>
-                        <select class="form-control" id="form_numero_firmas" name="numero_firmas" >
+                        <select class="form-control" id="form_numero_firmas" name="numero_firmas" onchange="muestra_opciones(this.value)">
                             <option value="">Seleccionar</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -179,6 +179,48 @@
                 </div>              
                 
             </div>  
+            <div class="row" id="opDerivacion" style="display: none;">
+                <div class="col-md-6">
+                    &nbsp;
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <b>Opciones de derivación automática luego de cada firma.</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-m1-1">
+                            <input type="checkbox" id="chkPrimera" name="chkPrimera" />
+                        </div>
+                        <div class="col-md-5">
+                            Derivar luego de la <b>primera firma</b>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" id="selectPrimera" name="selectPrimera" style="width:100% !important">
+                                @foreach($listado_buzones as $buzonp)
+                                    <option value="{{$buzonp['id_buzon']}}">{{$buzonp['nombre']}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="sdaDerivacion">
+                        <div class="col-m1-1">
+                            <input type="checkbox" id="chkSegunda" name="chkSegunda" />
+                        </div>
+                        <div class="col-md-5">
+                            Derivar luego de la <b>última firma</b>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" id="selectSegunda" name="selectSegunda"  style="width:100% !important">
+                                @foreach($listado_buzones as $buzonu)
+                                    <option value="{{$buzonu['id_buzon']}}">{{$buzonu['nombre']}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="row bloque_flujo_interno">
                 <div class="col-md-12">
@@ -278,6 +320,7 @@
 
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
+<script src="/js/bootstrap-multiselect.js"></script>
 
 
 <script>
@@ -410,6 +453,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
             $('#titulo_crear_editar').html('Editar Tipo de Documento'); 
             $('.form-control').prop("disabled", false);
             $('.btn-submit').show();
+            $('#selectPrimera').select2({ width: 'resolve'});
+            $('#selectSegunda').select2({ width: 'resolve'});
         }            
         else
         {
@@ -432,7 +477,6 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                     }
                     else { 
                         if(data.status=='200' || data.status=='201'){ 
-
                             $("input[name='nombre']").val(data.data.nombre);
                             $("input[name='nombre_corto']").val(data.data.nombre_corto);
                             $("input[name='descripcion']").val(data.data.descripcion);
@@ -442,6 +486,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             $("select[name='tipo_avance']").val(data.data.id_tipo_avance);
                             $("select[name='tipo_asignacion_folio']").val(data.data.id_tipo_asignacion_folio);
                             $("select[name='fe']").val(""+data.data.requiere_fe+"");
+                            $("select[name='selectPrimera']").val(""+data.data.buzon_primera_firma+"").trigger('change');;
+                            $("select[name='selectSegunda']").val(""+data.data.buzon_ultima_firma+"").trigger('change');;
                             
                             editor_encabezado.setData(data.data.plantilla_encabezado);   
                             editor_cuerpo.setData(data.data.plantilla_cuerpo);   
@@ -466,6 +512,19 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                                     }
                                 }
                                 $('#form_numero_firmas').val(data.data.numero_firmas);
+
+                                if(""+data.data.requiere_fe+"" == "true"){
+                                    $('#opDerivacion').show();
+                                    $("select[name='selectPrimera']").val(""+data.data.buzon_primera_firma+"").trigger('change');
+                                    $("select[name='selectSegunda']").val(""+data.data.buzon_ultima_firma+"").trigger('change');
+                                    if(""+data.data.derivar_primera_firma+"" == 1){
+                                        $('#chkPrimera').prop('checked', true);
+                                    }
+                                    if(""+data.data.derivar_ultima_firma+"" == 1){
+                                        $('#chkSegunda').prop('checked', true);
+                                    }
+                                      
+                                }
                             },1000);   
                             
                            
@@ -495,6 +554,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         editor_cuerpo.setData();   
         editor_encabezado.setReadOnly(false);
         editor_cuerpo.setReadOnly(false);
+        $('#selectPrimera').select2({ width: 'resolve'});
+        $('#selectSegunda').select2({ width: 'resolve'});
 
         $('#form_crear_editar').removeClass("was-validated");
 
@@ -796,7 +857,54 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         var plantilla_cuerpo = editor_cuerpo.getData();
         var plantilla_distribucion = editor_distribucion.getData();
         var hiddTipoDocumento = $("input[name='hiddTipoDocumento']").val();
- 
+        var derivarPrimera = 0;
+        if($('#chkPrimera').is(":checked")){
+            derivarPrimera = 1;
+        }
+        
+        var derivarUltima = 0;
+        if($('#chkSegunda').is(":checked")){
+            derivarUltima = 1;
+        }
+
+        var buzonPrimera = $("select[name='selectPrimera']").val();
+        var buzonUltima = $("select[name='selectSegunda']").val();
+        var errores = 0;
+        var msg_derivar = [];
+
+        if(parseInt(derivarPrimera) == 0){
+            if(buzonPrimera !== null && buzonPrimera != "null"){
+                errores++;
+                msg_derivar.push("Debe marcar la opción primera firma");
+            }
+        }
+        else{
+            if(buzonPrimera === null || buzonPrimera == "null"){
+                errores++;
+                msg_derivar.push("Debe seleccionar un buzón para la primera firma");
+            }
+        }
+
+        if(parseInt(derivarUltima) == 0){
+            if(buzonUltima !== null && buzonUltima !== "null"){
+                errores++;
+                msg_derivar.push("Debe marcar la opción última firma");
+            }
+        }
+        else{
+            if(buzonUltima === null || buzonUltima === "null"){
+                errores++;
+                msg_derivar.push("Debe seleccionar un buzón para la última firma");
+            }
+        }
+
+        if(errores > 0){
+            $(".print-error-msg").show();
+            printErrorMsg(msg_derivar);
+            $('.btn-submit').html( 'Guardar' );
+        }
+
+
         var datosBuzonFlujo = [];
 
         if (tipo_flujo == 2 || tipo_flujo == 3)
@@ -856,7 +964,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
             var urlAccion = "{{route('tipos_documentos.update')}}";
             var typeAccion = 'PUT';
         }    
-        if(requiere_fe == "false"){
+        if(requiere_fe == "false" && errores == 0){
             $('.btn-submit').prop("disabled", true);
             $('.btn_cerrar_guardar').prop("disabled", true);
             $.ajax({
@@ -879,7 +987,12 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                     plantilla_encabezado:plantilla_encabezado,
                     plantilla_cuerpo:plantilla_cuerpo,
                     plantilla_distribucion:plantilla_distribucion,
-                    hiddTipoDocumento:hiddTipoDocumento
+                    hiddTipoDocumento:hiddTipoDocumento,
+                    derivarPrimera:derivarPrimera,
+                    derivarUltima:derivarUltima,
+                    buzonPrimera:buzonPrimera,
+                    buzonUltima:buzonUltima
+
                 },
                 success: function(data) 
                 {
@@ -900,6 +1013,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                     }
                     else
                     {
+                        console.log(data.data);
                         toastr.error(data.data.comentario,"¡Aviso!"); 
                         $('.btn-submit').prop("disabled", false);
                         $('.btn_cerrar_guardar').prop("disabled", false);                   
@@ -908,7 +1022,9 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                     $('.btn-submit').html( 'Guardar' );
                 },
                 error: function (e) {
+                    console.log(e);
                     data = e.responseJSON;
+                    console.log(data);
                     if (typeof data.errors !== 'undefined') {
                         printErrorMsg(data.errors);
                     }
@@ -921,7 +1037,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
             });  
         }
         else{
-            if(requiere_fe == "true"){
+            if(requiere_fe == "true" && errores == 0){
                 if(parseInt(numero_firmas) > 0){
                     $('.btn-submit').prop("disabled", true);
                     $('.btn_cerrar_guardar').prop("disabled", true);
@@ -945,7 +1061,11 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                                 plantilla_encabezado:plantilla_encabezado,
                                 plantilla_cuerpo:plantilla_cuerpo,
                                 plantilla_distribucion:plantilla_distribucion,
-                                hiddTipoDocumento:hiddTipoDocumento
+                                hiddTipoDocumento:hiddTipoDocumento,
+                                derivarPrimera:derivarPrimera,
+                                derivarUltima:derivarUltima,
+                                buzonPrimera:buzonPrimera,
+                                buzonUltima:buzonUltima
                             },
                             success: function(data) 
                             {
@@ -966,6 +1086,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                                 }
                                 else
                                 {
+                                    console.log(1089);
+                                    console.log(data.data);
                                     toastr.error(data.data.comentario,"¡Aviso!");  
                                     $('.btn-submit').prop("disabled", false);
                                     $('.btn_cerrar_guardar').prop("disabled", false);                  
@@ -974,7 +1096,11 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                                 $('.btn-submit').html( 'Guardar' );
                             },
                             error: function (e) {
+                                console.log(1099);
+                                console.log(e);
                                 data = e.responseJSON;
+                                console.log(1102);
+                                console.log(data);
                                 if (typeof data.errors !== 'undefined') {
                                     printErrorMsg(data.errors);
                                 }
@@ -1013,10 +1139,27 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
     function activa_firmas(re){
         if(re == "true"){
             $('#form_numero_firmas').prop('disabled', false);
+            $('#opDerivacion').show();
         }
         else{
             $('#form_numero_firmas').prop('disabled', true);
             $('#form_numero_firmas').val('');
+            $('#opDerivacion').hide();
+            $("#form_crear_editar option[value="+$('#selectPrimera').find(":selected").val()+"]").remove();
+            $("#form_crear_editar option[value="+$('#selectSegunda').find(":selected").val()+"]").remove();
+            $('#chkPrimera').prop('checked', false);
+            $('#chkSegunda').prop('checked', false);
+        }
+    }
+
+    function muestra_opciones(nValor){
+        if(nValor > 1){
+            $('#sdaDerivacion').show();
+        }
+        else{
+            $('#sdaDerivacion').hide();
+            $("#form_crear_editar option[value="+$('#selectSegunda').find(":selected").val()+"]").remove();
+            $('#chkSegunda').prop('checked', false);
         }
     }
 

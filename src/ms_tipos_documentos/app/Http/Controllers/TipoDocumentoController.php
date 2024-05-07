@@ -85,14 +85,15 @@ class TipoDocumentoController extends Controller{
                 DB::beginTransaction();
 
                 $datosdatosTipoDoc = $request->json()->all();  
-
+                
                 $validator = $this->validator->validateInsert();
+                
 
                 if ($validator->fails())
                     return $this->respondFail('No es posible crear el tipo documento: revisar datos de entrada');
 
                 $tipo_documento = TipoDocumento::create($datosdatosTipoDoc);                 
-                
+
                 $datosBuzonesFlujo = $datosdatosTipoDoc['buzones_flujo']; 
                 
                 if ($datosBuzonesFlujo != null) //agregar a ms
