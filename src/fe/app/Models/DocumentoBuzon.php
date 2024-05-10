@@ -9,9 +9,21 @@ class DocumentoBuzon extends Model{
     protected $primaryKey = 'id_documento_buzon';
 
     protected $fillable = [
-        'id_documento_buzon', 'id_buzon',
+        'id_documento',
+        'id_buzon',
+        'id_carpeta',
         'id_estado_documento',
-
+        'id_tipo_destino',
+        'id_documento_buzon_padre',
+        'json_acciones',
+        'fecha',
+        'anterior',
+        'comentario_principal',
+        'comentario_secundario',
+        'notificado',
+        'recibido',
+        'contestar_hasta',
+        'favorito'
     ];
 
     public function buzon()

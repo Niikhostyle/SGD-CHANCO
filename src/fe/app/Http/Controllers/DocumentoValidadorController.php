@@ -95,6 +95,7 @@ class DocumentoValidadorController extends Controller
         }
 
         $status = 1;
+        //dd($lista_documentos->json());
         foreach($lista_documentos['data'] as $list){
             if ($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3 || $list['id_nivel_acceso']==1){
                 $status = 0;
@@ -102,14 +103,18 @@ class DocumentoValidadorController extends Controller
             }
         }
         $visadores = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
-                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->join('documento_buzon','documento_buzon.id_documento_buzon','documento_buzon_bitacora.id_documento_buzon')
+                    ->join('documento','documento.id_documento','documento_buzon.id_documento')
+                    ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',6)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
                     ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
                     ->get();
         
         $firmantes = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
-                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->join('documento_buzon','documento_buzon.id_documento_buzon','documento_buzon_bitacora.id_documento_buzon')
+                    ->join('documento','documento.id_documento','documento_buzon.id_documento')
+                    ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',7)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
                     ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))

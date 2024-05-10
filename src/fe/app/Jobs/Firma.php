@@ -60,6 +60,33 @@ class Firma implements ShouldQueue
             'id_buzon'=>$this->buzon
         ]);
 
+        $jsonAcciones = array();                        
+        $jsonAcciones[] = array("id_accion" => 7);
+
+        $datosFD = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [
+            "nombre_buzon"=>"buzon publico",
+            "nombre_corto_buzon"=>"bp",
+            "tipo_buzon"=>"2",
+            "usuarios_asignados"=> null,
+            "id_documento"=>415,
+            "id_documento_buzon"=>1011,
+            "id_buzon"=>3,
+            "id_usuario"=>1,
+            "destinatarioPrincipal"=>1,
+            "acciones_solicitadas"=>null,
+            "destinatarioOtros"=>null,
+            "json_respuesta_a"=>null,
+            "id_tipo_destino"=>1,
+            "carpeta"=>2,
+            "titular"=> null,            
+            "cargo_firma"=>"bpublico",
+            "restringir_sr" =>0,
+            "id_usuario_sr" => 0,
+            "contestar_hasta"=>null
+        ]); 
+
+
         if ($datosFea->failed()) {
             dump($datosFea->json()); 
             //si no se procesa el documento, se debe dejar en estado pendiente

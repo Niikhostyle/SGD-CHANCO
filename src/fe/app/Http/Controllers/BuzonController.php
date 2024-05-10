@@ -547,34 +547,32 @@ class BuzonController extends Controller
         foreach($request->firmas as $idDoc)
         {
             $aValores = explode("-", $idDoc);
-            $derivarPrimera = 0;
-            $derivarUltima  = 0;
-            $datosDocumento = Documento::findOrFail($aValores[0]);
-            $datosDocumento->rel_tipo_documento;
+            // $derivarPrimera = 0;
+            // $derivarUltima  = 0;
+            // $datosDocumento = Documento::findOrFail($aValores[0]);
+            // $datosDocumento->rel_tipo_documento;
 
-            $nroFirmas = $datosDocumento->rel_tipo_documento->numero_firmas;
-            $derivarPrimera = intval($datosDocumento->rel_tipo_documento->derivar_primera_firma);
-            $derivarUltima = intval($datosDocumento->rel_tipo_documento->derivar_ultima_firma);
-            $buzonPrimera = intval($datosDocumento->rel_tipo_documento->buzon_primera_firma);
-            $buzonUltima = intval($datosDocumento->rel_tipo_documento->buzon_ultima_firma);
+            // $nroFirmas = $datosDocumento->rel_tipo_documento->numero_firmas;
+            // $derivarPrimera = intval($datosDocumento->rel_tipo_documento->derivar_primera_firma);
+            // $derivarUltima = intval($datosDocumento->rel_tipo_documento->derivar_ultima_firma);
+            // $buzonPrimera = intval($datosDocumento->rel_tipo_documento->buzon_primera_firma);
+            // $buzonUltima = intval($datosDocumento->rel_tipo_documento->buzon_ultima_firma);
 
-            $firmasRealizadas = DocumentoBuzonBitacora::where('id_documento_buzon',$aValores[1])->where('id_accion',7)->count();
+            // $firmasRealizadas = DocumentoBuzonBitacora::where('id_documento_buzon',$aValores[1])->where('id_accion',7)->count();
 
-            if(($derivarPrimera == 1 && $firmasRealizadas == 0)){
-                FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id);     
-                //Firma::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id); 
-            }
-            else {
-                if($derivarUltima == 1 && $firmasRealizadas == ($nroFirmas - 1)) {
-                    FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id);        
-                    //Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id); 
-                }
-                else{
-                    Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
-                }
-            }
+            // if(($derivarPrimera == 1 && $firmasRealizadas == 0)){
+            //     FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id);     
+            // }
+            // else {
+            //     if($derivarUltima == 1 && $firmasRealizadas == ($nroFirmas - 1)) {
+            //         FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id);        
+            //     }
+            //     else{
+            //         Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            //     }
+            // }
 
-            //Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);    
+            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);    
             DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
         }
 
@@ -1112,5 +1110,31 @@ class BuzonController extends Controller
             return $this->respondError('Falla al eliminar documento:' . $e->getMessage(), 500); 	
         } 	
     } 
+
+    public function firmar_derivar($sesionKey,$nombreBuzon,$nombreCorto,$usuarios,$IDDocumento,$IDDocBuzon,$IDBuzon,$IDUsuario,$buzonDestino,$acciones,$jsonRespuesta,$cargo,$restringir,$IDUsuarioSub){
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesionKey,'Content-Type'=>'application/json'])
+        ->timeout(100)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [
+            'nombre_buzon'=>$nombreBuzon,
+            'nombre_corto_buzon'=>$nombreCorto,
+            'tipo_buzon'=>'2',
+            'usuarios_asignados'=> $usuarios,
+            'id_documento'=>$IDDocumento,
+            'id_documento_buzon'=>$$IDDocBuzon,
+            'id_buzon'=>$IDBuzon,
+            'id_usuario'=>$IDUsuario,
+            'destinatarioPrincipal'=>$buzonDestino,
+            'acciones_solicitadas'=>$acciones,
+            'destinatarioOtros'=>null,
+            'json_respuesta_a'=>$jsonRespuesta,
+            'id_tipo_destino'=>1,
+            'carpeta'=>2,
+            'titular'=> null,            
+            'cargo_firma'=>$cargo,
+            'restringir_sr' =>$restringir,
+            'id_usuario_sr' => $IDUsuarioSub
+      ]);
+    }
 
 }

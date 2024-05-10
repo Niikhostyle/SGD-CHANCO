@@ -892,8 +892,8 @@
 
     function archivosCargados() 
     {
-        console.log('archivos cargados:'+numArchivosPorCargar);
-        console.log('total archivos:'+totalArchivosCargados);
+        // console.log('archivos cargados:'+numArchivosPorCargar);
+        // console.log('total archivos:'+totalArchivosCargados);
 
         if (totalArchivosCargados == numArchivosPorCargar) {
             numArchivosFinalizados = 1;
@@ -1658,7 +1658,7 @@
                         {                          
                             varTermina = valida_carga();
                             if (varTermina == 1) {                          
-                                console.log('completado');
+                                //console.log('completado');
                                 clearInterval (intervalCarga);
                                 iniQueueComplete();
 
@@ -1703,7 +1703,7 @@
                         {                          
                             varTermina = valida_carga();
                             if (varTermina == 1) {                          
-                                console.log('completado');
+                                //console.log('completado');
                                 clearInterval (intervalCarga);
                                 iniQueueComplete();
 
@@ -1778,7 +1778,7 @@
                     recarga_grilla_despachados();
                     setTimeout(function() {
                         auto_guardado();
-                        console.log('despues de creado');
+                        //console.log('despues de creado');
                     },2000);     
 
                 }
@@ -2034,7 +2034,7 @@
                     {                          
                         varTermina = valida_carga();
                         if (varTermina == 1) {                          
-                            console.log('completado');
+                            //console.log('completado');
                             clearInterval (intervalCarga);
                             iniQueueComplete();
 
@@ -2229,7 +2229,7 @@
                         habilita_boton('btn-derivar');
                         setTimeout(function() {
                             auto_guardado();
-                            console.log('en accion_auto_guardar');
+                            //console.log('en accion_auto_guardar');
                         },2000);
                     }, 5000);
                 }
@@ -2367,7 +2367,7 @@
                     {                          
                         varTermina = valida_carga();
                         if (varTermina == 1) {                          
-                            console.log('completado');
+                            //console.log('completado');
                             clearInterval (intervalCarga);
                             iniQueueComplete();
 
@@ -2750,7 +2750,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                 if (result.value==true) 
                 {
                     $.ajax({
@@ -2812,7 +2812,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                 if (result.value==true) {
                     $('.btn-visar-derivar').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Visando y derivando')
                     $.ajax({
@@ -2957,7 +2957,7 @@
                             },
                             error: function (e) {
                                 data = e.responseJSON;
-                                console.log(data);
+                                //console.log(data);
                                 if (data.data.comentario != "" && data.data.comentario != null)
                                     toastr.error(data.data.comentario,"¡Aviso!");
                                 else
@@ -3027,7 +3027,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                 if (result.value==true) 
                 {  
                     $('.btn-firmar').html(
@@ -3108,7 +3108,7 @@
                         error: function (data,jqXHR, textStatus, errorThrown) {
                             //data = e.responseJSON;
                             
-                            console.log(data);
+                            //console.log(data);
                             //if (data.data.comentario != "" && data.data.comentario != null){
                             if (data.comentario != "" && data.comentario != null){
 
@@ -3204,7 +3204,7 @@
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Aceptar'
                     }).then((result) => {
-                        console.log(result);
+                        //console.log(result);
                     if (result.value==true) 
                     {  
                         $('.btn-firmar-derivar').html(
@@ -3306,10 +3306,10 @@
                                                             $('.btn-enviar-submit').html( 'Enviar' );
                                                         },
                                                         error: function (data,jqXHR, textStatus, errorThrown) {
-                                                            console.log(data);
-                                                            console.log('despues data');
-                                                            console.log(jqXHR);
-                                                            console.log(textStatus+"-"+errorThrown);
+                                                            // console.log(data);
+                                                            // console.log('despues data');
+                                                            // console.log(jqXHR);
+                                                            // console.log(textStatus+"-"+errorThrown);
                                                             toastr.error("Falla en la derivación del documento","¡Aviso!");
                                                             habilita_boton('btn-recibir-submit');
                                                             habilita_boton('btn_cerrar_guardar');
@@ -3362,7 +3362,7 @@
                             },
                             error: function (e) {
                                 data = e.responseJSON;
-                                console.log(data);
+                                //console.log(data);
                                 if (data.data.comentario != "" && data.data.comentario != null){
                                     toastr.error(data.data.comentario,"¡Aviso!");
                                     habilita_boton('btn-recibir-submit');
@@ -3445,7 +3445,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                 if (result.value==true) 
                 {
         
@@ -3507,7 +3507,7 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-                console.log(result);
+                //console.log(result);
             if (result.value==true) 
             {
                 $.ajax({
@@ -3587,7 +3587,7 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-                console.log(result);
+                //console.log(result);
             if (result.value==true) 
             {
                 $.ajax({
@@ -3719,7 +3719,7 @@
             cancelButtonColor: '#d33',
             confirmButtonText: 'Aceptar'
             }).then((result) => {
-                console.log(result);
+                //console.log(result);
             if (result.value) 
             {
                 let comentario_archivo = $('.swal2-textarea').val();
@@ -4659,7 +4659,7 @@
                                             $('#addButton').append(buttonDerivar);
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
-                                            console.log('ver-pendiente');
+                                            //console.log('ver-pendiente');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
 
 
@@ -4690,7 +4690,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('ver-firmado');
+                                            //console.log('ver-firmado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
 
                                         }//fin estado firmado
@@ -4716,7 +4716,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('ver-visado');
+                                            //console.log('ver-visado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estaddo visado
                                     }//fin boton accion ver
@@ -4760,7 +4760,7 @@
                                             
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                                 $('#addButton').append(buttonArchivar); 
-                                            console.log('editar-pendiente');
+                                            //console.log('editar-pendiente');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
@@ -4790,7 +4790,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('editar-firmado');
+                                            //console.log('editar-firmado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
@@ -4816,7 +4816,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('editar-visado');
+                                            //console.log('editar-visado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado visado
                                     }//fin boton accion editar
@@ -4860,7 +4860,7 @@
                                             $('#addButton').append(buttonVisarDerivar);
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
-                                            console.log('visar-pendiente');
+                                            //console.log('visar-pendiente');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado documento pendiente
                                         if(item.id_estado_documento == 6){ //documento archivado
@@ -4892,7 +4892,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('visar-firmado');
+                                            //console.log('visar-firmado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
@@ -4915,7 +4915,7 @@
                                             $('#addButton').append(buttonDerivar);
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
-                                            console.log('visar-visado');
+                                            //console.log('visar-visado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,0);
                                         }//fin estado visado
                                     }//fin boton accion visar
@@ -4961,7 +4961,7 @@
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar); 
 
-                                            console.log('firmar-pendiente');
+                                            //console.log('firmar-pendiente');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
 
                                         }//fin estado documento pendiente
@@ -4992,7 +4992,7 @@
                                             $('.btn-guardar-submit').hide();
                                             $('#submit-enviar').removeClass('btn-primary'); 
                                             $('#submit-enviar').addClass('btn-success'); 
-                                            console.log('firmar-firmado');
+                                            //console.log('firmar-firmado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado firmado
                                         if(item.id_estado_documento == 11){ //visado
@@ -5017,7 +5017,7 @@
                                                     $('#submit-enviar').addClass('btn-success'); 
                                                 }
                                             }
-                                            console.log('firmar-visado');
+                                            //console.log('firmar-visado');
                                             firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,1);
                                         }//fin estado visado                                        
                                     }//fin boton accion firmar
@@ -5052,7 +5052,7 @@
                         }
  
                         var relDocumentoBuzonArchivo = data.data.rel_archivos;
-                        console.log(relDocumentoBuzonArchivo);
+                        //console.log(relDocumentoBuzonArchivo);
                         let htmlFile = "";
                         let htmlFileAnexo = '<div class="col-md-12 group-button-alig file-container-all">';
                         let htmlFileOtros = '<div class="col-md-12 group-button-align file-container-all">';
@@ -5268,24 +5268,28 @@
 
      function firmar_derivar_automatico(hiddPrimeraFirma,hiddUltimaFirma,hiddBuzonPrimera,hiddBuzonUltima,firmasRealizadas,hiddNroFirmas,bloquear){
         if(hiddPrimeraFirma == 1 && firmasRealizadas == 0){ //derivar en la primera firma
-            $(".btn-firmar").hide();
+            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonPrimera);
             $("#form_destinatario_principal").trigger('change');  
             if(bloquear == 1){
                 $("#form_destinatario_principal").prop("disabled",true);
             }
-            var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            $('#addButton').append(buttonFirmarDerivar); 
+            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+            //$('#addButton').append(buttonFirmarDerivar); 
+            $('.btn-firmar-derivar').remove()
+            $(".btn-firmar").html("Firmar y Enviar");
         }
         if(hiddUltimaFirma == 1 && firmasRealizadas == (hiddNroFirmas - 1)){ //derivar en la primera firma
-            $(".btn-firmar").hide();
+            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonUltima);
             $("#form_destinatario_principal").trigger('change');  
             if(bloquear == 1){
                 $("#form_destinatario_principal").prop("disabled",true);
             }
-            var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            $('#addButton').append(buttonFirmarDerivar); 
+            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
+            //$('#addButton').append(buttonFirmarDerivar); 
+            $('.btn-firmar-derivar').remove()
+            $(".btn-firmar").html("Firmar y Enviar");
         }
      }
 
@@ -5342,7 +5346,7 @@
         if(ag > 0){
             setTimeout(function() {
                 auto_guardado();
-                console.log('despues editar_despachados');
+                //console.log('despues editar_despachados');
             },2000);  
         }
     }
@@ -6711,7 +6715,7 @@
         timeoutId = setTimeout(function() {
             if($('#hiddIdDocumento').val() != ""){
                 accion_auto_guardar(3);
-                console.log('ppal');
+                //console.log('ppal');
             }
         }, 180000);   
     }
@@ -6733,7 +6737,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                 if (result.value==true) 
                 {
                     var promiseArray = [];
@@ -6755,7 +6759,7 @@
                                             },
                                             success: function(data)
                                             {
-                                                console.log("success",data)
+                                                //console.log("success",data)
                                                 if(data.status == '200'){ 
                                                     return resolve();
                                                     
@@ -6832,7 +6836,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
                 }).then((result) => {
-                    console.log(result);
+                    //console.log(result);
                     if (result.value){//==true || result.value.length > 0) {
                         var promiseArray = [];
                         let comentario_archivo = $('.swal2-textarea').val();
