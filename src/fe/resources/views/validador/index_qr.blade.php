@@ -106,7 +106,7 @@
                                         <td colspan="2">
                                             @if(count($visadores) > 0)
                                                 @foreach($visadores as $v)
-                                                    {{$v->id_usuario}}. {{$v->usuario}}
+                                                    {{$v->id_usuario}}. {{$v->usuario}} <br/>
                                                 @endforeach
                                             @else
                                                 No aplica
@@ -117,7 +117,7 @@
                                         <th scope="row">Firmas</th>
                                         <td colspan="2">
                                             @foreach($firmantes as $f)
-                                                {{$f->id_usuario}}. {{$f->usuario}}
+                                                {{$f->id_usuario}}. {{$f->usuario}} <br/>
                                             @endforeach
                                         </td>
                                     </tr>
