@@ -384,8 +384,14 @@ class BuzonController extends Controller
 
         $log_firma = FirmaLog::whereIn('id_documento',$doctoPendiente)->get();
         $msjFirma = "Errores en la última firma:<br />";
+        $nFilasError = 0;
         foreach ($log_firma as $lf) {
+            $nFilasError++;
             $msjFirma  .= $lf->mensaje."<br>";
+        }
+
+        if($nFilasError == 0){
+            $msjFirma = "";
         }
 
         /* NUEVO-DOCUMENTOS */
