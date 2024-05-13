@@ -36,6 +36,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Mail\MailController;
 use App\Models\DocumentoTmp;
+use App\Models\FirmaLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 //use Barryvdh\DomPDF\Facade\Pdf;
@@ -369,14 +370,23 @@ class BuzonController extends Controller
         }else{
 
             $aDocumentos = array(); 
+            $doctoPendiente = array();
             foreach ($listado_pendientes['data'] as $dato)
             {
                 $datosJsonTipoDocumento = json_decode($dato['json_tipo_documento'],true);
                 
-                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1){
                     $aDocumentos[] = array("value" => $dato['id_documento'], "label" => $dato['identificador'], "title" => $dato['identificador'] . " - " . $dato['materia']);
+                    $doctoPendiente[] = $dato['id_documento'];
+                }
             }
         }        
+
+        $log_firma = FirmaLog::whereIn('id_documento',$doctoPendiente)->get();
+        $msjFirma = "Errores en la última firma:<br />";
+        foreach ($log_firma as $lf) {
+            $msjFirma  .= $lf->mensaje."<br>";
+        }
 
         /* NUEVO-DOCUMENTOS */
 
@@ -399,7 +409,8 @@ class BuzonController extends Controller
             'allBuzonesT2'=>$aAllBuzonesT2,
             'listDocPendientesBuzon' => $aDocumentos,
             'listado_parametros'=>$listado_parametros['data'],
-            'aplicaFrm'=>$aplicaFrm
+            'aplicaFrm'=>$aplicaFrm,
+            'log_firma' => $msjFirma
         ]);
 
     }

@@ -19,6 +19,7 @@ use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzonArchivo;
 use setasign\Fpdi\Fpdi;
 use App\Libraries\PDF;
+use App\Models\FirmaLog;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -30,11 +31,15 @@ class FirmaController extends Controller
     {
         if ($request->isJson())
         {
+            //eliminar log de firmas con errores
+            $datos = $request->json()->all();    
+            $logs = FirmaLog::where('id_documento',$datos['id_documento'])->delete();
+
             try 
             {
                 DB::beginTransaction();                
 
-                $datos = $request->json()->all();                
+                //$datos = $request->json()->all();                
 
                 //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea','id']);
@@ -457,28 +462,22 @@ class FirmaController extends Controller
 
                             $firmasRealizadas = count($datosBitacora);
                             $salida = "200";
-                            Log::error("Antes derivar auto: "); 
+
                             if(($derivarPrimera == 1 && $firmasRealizadas == 0)){
-                                Log::error("Derivar en primera firma"); 
                                 $salida = $this->derivar_auto($buzonPrimera,$request->header('key'),$datos['id_documento'],$datos['id_documento_buzon'],$datos['id_usuario'],$datos['id_buzon']);
-                                Log::error("Despues derivar en primera firma"); 
                             }
                             else {
                                 if($derivarUltima == 1 && $firmasRealizadas == ($nNroFirmas - 1)) {
-                                    Log::error("Derivar en ultima firma"); 
                                     $salida = $this->derivar_auto($buzonUltima,$request->header('key'),$datos['id_documento'],$datos['id_documento_buzon'],$datos['id_usuario'],$datos['id_buzon']);
-                                    Log::error("Despues derivar en última firma"); 
                                 }
                             }
-                            //throw new Exception($salida);
+
                             if($salida != "200"){
-                                $comentario = "No se pudo derivar automáticamente el documento despues de firmar.".$salida ;
+                                $comentario = "No se pudo derivar automáticamente el documento despues de firmar.";
                                 //Log::error("Dump Respuesta: " . $aRespuestaFirma); 
                                 throw new Exception($comentario);
                             }
-                            Log::error("antes commit ".$salida); 
                             DB::commit();  
-                            Log::error("despues commit ".$salida); 
                             
                             //elimina imagen de firma 
                             $this->deleteImg($sNombreImg); 
@@ -511,6 +510,7 @@ class FirmaController extends Controller
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'],$msgError,13);
                 $this->deleteImg($sNombreImg);                
                 $this->deleteImg($sNombreImgAnexo);//elimina imagen anexo de firma
+                $this->saveLog($datos['id_documento'],$e->getMessage());
 
                 Log::error("Error al generar la Firma Electrónica(1): " . $e->getMessage()); 
 
@@ -532,6 +532,14 @@ class FirmaController extends Controller
             'fecha' => $fecha,
             'id_usuario' => $usuario,
             'mensaje_respuesta' => $comentario
+        ]);  
+    }
+
+    public function saveLog($documento,$comentario)
+    {
+        $documentoLog = FirmaLog::create([
+            'id_documento' => $documento,
+            'mensaje' => $comentario
         ]);  
     }
 

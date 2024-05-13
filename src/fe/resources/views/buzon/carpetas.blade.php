@@ -1,5 +1,4 @@
 @extends('adminlte::page')
-
 @section('title', 'Panel')
 
 @section('content_header')
@@ -7417,9 +7416,13 @@
     }
 
     $(document).ready(function () {
+        
         $(".nuevo_documento").prop("disabled", true);
         $('#fDerivarMasivaDestPpal').select2(); 
-        
+        if("{{$log_firma}}" != ""){
+            toastr.error("{!!$log_firma!!}","¡Aviso!");
+        }
+
         timeoutId = "";
 
         $(function() {
