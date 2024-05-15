@@ -454,11 +454,21 @@ class FirmaController extends Controller
                             /****** derivar luego de la primera y/o ultima firma */
                             $derivarPrimera = 0;
                             $derivarUltima  = 0;
+                            $buzonPrimera = 0;
+                            $buzonUltima = 0;
 
-                            $derivarPrimera = intval($datosJsonTipoDocumento['derivar_primera_firma']);
-                            $derivarUltima = intval($datosJsonTipoDocumento['derivar_ultima_firma']);
-                            $buzonPrimera = intval($datosJsonTipoDocumento['buzon_primera_firma']);
-                            $buzonUltima = intval($datosJsonTipoDocumento['buzon_ultima_firma']);
+                            if(isset($datosJsonTipoDocumento['derivar_primera_firma'])){
+                                $derivarPrimera = intval($datosJsonTipoDocumento['derivar_primera_firma']);
+                            }
+                            if(isset($datosJsonTipoDocumento['derivar_ultima_firma'])){
+                                $derivarUltima = intval($datosJsonTipoDocumento['derivar_ultima_firma']);
+                            }
+                            if(isset($datosJsonTipoDocumento['buzon_primera_firma'])){
+                                $buzonPrimera = intval($datosJsonTipoDocumento['buzon_primera_firma']);
+                            }
+                            if(isset($datosJsonTipoDocumento['buzon_ultima_firma'])){
+                                $buzonUltima = intval($datosJsonTipoDocumento['buzon_ultima_firma']);
+                            }
 
                             $firmasRealizadas = count($datosBitacora);
                             $salida = "200";
