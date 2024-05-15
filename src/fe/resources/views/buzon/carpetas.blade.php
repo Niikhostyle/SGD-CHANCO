@@ -3825,10 +3825,14 @@
         $('#boton_carpetas_texto').html('Carpetas - <i><b>'+texto+'</b></i>');
         if(texto=='Recibidos'){
             fn_grilla_recibidos();
+            let estadosr=$('#gr_buscar_estado').val().join("|");
+            grilla_recibidos.columns(4).search(""+estadosr+"",true,false).draw();
             //$('#grilla_recibidos').DataTable().draw();
         }
         if(texto=='Despachados'){
             fn_grilla_despachados();
+            let estadosd=$('#gd_buscar_estado').val().join("|");
+            grilla_despachados.columns(1).search(""+estadosd+"",true,false).draw();
             //$('#grilla_despachados').DataTable().draw();
             $(".nuevo_documento").removeAttr('disabled');
         }else{
