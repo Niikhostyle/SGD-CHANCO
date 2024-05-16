@@ -90,6 +90,10 @@
                                         <td class="valido">Código de documento válido</td>
                                     </tr>
                                     <tr>
+                                        <th scope="row">Tipo</th>
+                                        <td>{{$list['tipo_documento']}}</td>
+                                    </tr>
+                                    <tr>
                                         <th scope="row">Folio</th>
                                         <td>{{$list['folio']}}</td>
                                     </tr>
@@ -102,11 +106,33 @@
                                         <td colspan="2">{{$list['materia']}}</td>
                                     </tr>
                                     <tr>
+                                        <th scope="row">Confidencialidad</th>
+                                        <td>{{$list['nivel_acceso']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" scope="row">Firmas Digitales</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Entidad certificadora</th>
+                                        <td>Secretaría General de la Presidencia</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Firmas</th>
+                                        <td>
+                                            @foreach($firmantes as $f)
+                                                {{$f->id_usuario}}. <b>{{$f->usuario}}</b> {{$f->fecha}} <br/>
+                                            @endforeach
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" scope="row">Vistos Buenos</th>
+                                    </tr>
+                                    <tr>
                                         <th scope="row">Visadores</th>
                                         <td colspan="2">
                                             @if(count($visadores) > 0)
                                                 @foreach($visadores as $v)
-                                                    {{$v->id_usuario}}. {{$v->usuario}} <br/>
+                                                    {{$v->id_usuario}}. <b>{{$v->usuario}}</b> {{$v->fecha}}<br/>
                                                 @endforeach
                                             @else
                                                 No aplica
@@ -114,11 +140,19 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th scope="row">Firmas</th>
+                                        <th colspan="2" scope="row">Anexos</th>
+                                    </tr>
+                                    <tr>
                                         <td colspan="2">
-                                            @foreach($firmantes as $f)
-                                                {{$f->id_usuario}}. {{$f->usuario}} <br/>
-                                            @endforeach
+                                            @if(count($anexos) > 0)
+                                                <ul>
+                                                @foreach($anexos as $a)
+                                                    <li><b>{{$a->nombre_archivo_original}}</b> <a href="/files/{{$a->nombre_archivo_codificado}}" target="_blank">Descargar</a></li>
+                                                @endforeach
+                                                </ul>
+                                            @else
+                                                No aplica
+                                            @endif
                                         </td>
                                     </tr>
                                 @elseif($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3)
@@ -145,7 +179,7 @@
                         <div class="col-md-12">
                             @if($list['id_nivel_acceso']==1)
                                 <!-- p><a class="btn btn-success"   href="/files/{{$list['hash_validacion']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a></p -->
-                                <p><a class="btn btn-success"   href="/files/{{$list['nombre_archivo_codificado']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a></p>
+                                <p><a class="btn btn-success"   href="/files/{{$list['nombre_archivo_codificado']}}"><i class="fas fa-download"></i> Descargar</a></p>
                             @endif
                         </div>
                     </div>

@@ -1271,8 +1271,8 @@ class DocumentoController extends Controller{
                     DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
-                    
-                    
+                    ->join('tipo_documento as td', 'td.id_tipo_documento', '=', 'documento.id_tipo_documento')
+                    ->join('nivel_acceso as na','na.id_nivel_acceso', '=', 'documento.id_nivel_acceso')
                     ->select(
                         'documento.id_documento as id_documento',
                         'documento.id_nivel_acceso as id_nivel_acceso',
@@ -1283,9 +1283,9 @@ class DocumentoController extends Controller{
                         'documento.hash_validacion as hash_validacion',
                         'documento_buzon_archivo.version as version',
                         'documento_buzon_archivo.nombre_archivo_codificado as nombre_archivo_codificado',
-                        'documento_buzon_archivo.id_documento_buzon as id_documento_buzon'
-                        
-                        
+                        'documento_buzon_archivo.id_documento_buzon as id_documento_buzon',
+                        'na.nombre as nivel_acceso',
+                        'td.nombre as tipo_documento'
                         )
                     ->where('documento.hash_validacion','=',$datosRequest['hash_validacion'])
                     ->where('documento_buzon_archivo.version','=', 1)

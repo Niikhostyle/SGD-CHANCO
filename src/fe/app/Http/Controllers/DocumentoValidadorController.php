@@ -102,13 +102,14 @@ class DocumentoValidadorController extends Controller
 
             }
         }
+        
         $visadores = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
                     ->join('documento_buzon','documento_buzon.id_documento_buzon','documento_buzon_bitacora.id_documento_buzon')
                     ->join('documento','documento.id_documento','documento_buzon.id_documento')
                     ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',6)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
-                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
                     ->get();
         
         $firmantes = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
@@ -117,10 +118,16 @@ class DocumentoValidadorController extends Controller
                     ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',7)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
-                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
-                    ->get();                    
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),"documento_buzon_bitacora.fecha",DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->get();   
         
-        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'status'=>$status]);
+        $anexos = DocumentoBuzonArchivo::join('documento_buzon as db','db.id_documento_buzon','documento_buzon_archivo.id_documento_buzon')
+                    ->where('db.id_documento',$list['id_documento'])
+                    ->where('documento_buzon_archivo.id_tipo_archivo',2)
+                    ->select('documento_buzon_archivo.nombre_archivo_original','documento_buzon_archivo.nombre_archivo_codificado')
+                    ->get();
+        
+        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'anexos'=>$anexos, 'status'=>$status]);
         
     }
 
