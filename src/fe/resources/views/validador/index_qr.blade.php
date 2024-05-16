@@ -86,8 +86,10 @@
                             <table id="tabla_documento" class="table table-bordered">
                                 @if($list['id_nivel_acceso']==1)
                                     <tr>
-                                        <th scope="row">Resultado</th>
-                                        <td class="valido">Código de documento válido</td>
+                                        <th colspan="2" scope="row"><i>Resultado</i></th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="valido">Código de documento válido</td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Tipo</th>
@@ -110,7 +112,7 @@
                                         <td>{{$list['nivel_acceso']}}</td>
                                     </tr>
                                     <tr>
-                                        <th colspan="2" scope="row">Firmas Digitales</th>
+                                        <th colspan="2" scope="row"><i>Firmas Digitales</i></th>
                                     </tr>
                                     <tr>
                                         <th scope="row">Entidad certificadora</th>
@@ -125,7 +127,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th colspan="2" scope="row">Vistos Buenos</th>
+                                        <th colspan="2" scope="row"><i>Vistos Buenos</i></th>
                                     </tr>
                                     <tr>
                                         <th scope="row">Visadores</th>
@@ -140,7 +142,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th colspan="2" scope="row">Anexos</th>
+                                        <th colspan="2" scope="row"><i>Anexos</i></th>
                                     </tr>
                                     <tr>
                                         <td colspan="2">
