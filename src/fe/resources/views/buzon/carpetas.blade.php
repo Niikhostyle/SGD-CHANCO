@@ -366,13 +366,13 @@
                                 </label>  
                                 <br><br>                              
                                 <!-- <textarea class="form-control tiny" id="form_cuerpo" name="cuerpo"></textarea> -->
-                                <div class="form-control tiny" id="form_cuerpo" name="cuerpo"></div>
+                                <div class="" id="form_cuerpo" name="cuerpo"></div>
                                 <input type="hidden" id="form_encabezado" name="encabezado"> 
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="view-txt-row" for="distribucion">Distribución:</label>                              
                                 <!-- <textarea class="form-control tiny" id="form_distribucion" name="distribucion"></textarea> -->
-                                <div class="form-control tiny" id="form_distribucion" name="distribucion"></div>
+                                <div class="" id="form_distribucion" name="distribucion"></div>
                             </div>
                         
                         </div>
