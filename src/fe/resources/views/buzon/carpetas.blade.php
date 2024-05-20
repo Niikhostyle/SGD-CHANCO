@@ -365,12 +365,15 @@
                                     </button>      
                                 </label>  
                                 <br><br>                              
-                                <textarea class="form-control tiny" id="form_cuerpo" name="cuerpo"></textarea>
+                                <!-- <textarea class="form-control tiny" id="form_cuerpo" name="cuerpo"></textarea> -->
+                                <div class="form-control tiny" id="form_cuerpo" name="cuerpo"></div>
                                 <input type="hidden" id="form_encabezado" name="encabezado"> 
+                                <div id="test" name="test">test</div>
                             </div>
                             <div class="col-md-12 mb-3">
                                 <label class="view-txt-row" for="distribucion">Distribución:</label>                              
-                                <textarea class="form-control tiny" id="form_distribucion" name="distribucion"></textarea>
+                                <!-- <textarea class="form-control tiny" id="form_distribucion" name="distribucion"></textarea> -->
+                                <div class="form-control tiny" id="form_distribucion" name="distribucion"></div>
                             </div>
                         
                         </div>
@@ -688,15 +691,50 @@
         .tox-statusbar__branding{
             display: none;
         }
+        :root {
+            --tbw-cell-vertical-padding: 4px;
+            --tbw-cell-horizontal-padding: 8px;
+            --tbw-cell-line-height: 1.5em;
+        }
+
+        table {
+            margin-bottom: var(--tbw-cell-line-height);
+        }
+
+        th,
+        td {
+            height: calc(var(--tbw-cell-vertical-padding) * 2 + var(--tbw-cell-line-height));
+            min-width: calc(var(--tbw-cell-horizontal-padding) * 2);
+            padding: var(--tbw-cell-vertical-padding) var(--tbw-cell-horizontal-padding);
+            border: 1px solid #e7eaec;
+        }
         
      </style>
 
     <link rel="stylesheet" href="/css/admin_custom.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/ui/trumbowyg.min.css" type="text/css"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/table/ui/trumbowyg.table.min.css">
 @stop
 
 @section('js')
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/trumbowyg.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/trumbowyg.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/table/trumbowyg.table.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/fontfamily/trumbowyg.fontfamily.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/fontsize/trumbowyg.fontsize.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/colors/trumbowyg.colors.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/langs/es.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/cleanpaste/trumbowyg.cleanpaste.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/pasteimage/trumbowyg.pasteimage.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/pasteembed/trumbowyg.pasteembed.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/upload/trumbowyg.upload.min.js"></script>
+<script src="//rawcdn.githack.com/RickStrahl/jquery-resizable/0.35/dist/jquery-resizable.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.27.3/plugins/resizimg/trumbowyg.resizimg.min.js"></script>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
@@ -1103,21 +1141,21 @@
 
     /* **DOCUMENTOS** SCRIPT */
 
-    const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
+    // const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {  
              
-        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
-        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
-        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
-    }); 
+    //     filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+    //     filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+    //     filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    // }); 
 
-    const editor_distribucion = CKEDITOR.replace('form_distribucion', {        
-        filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
-        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
-        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
-        height: 100
-    }); 
+    // const editor_distribucion = CKEDITOR.replace('form_distribucion', {        
+    //     filebrowserBrowseUrl     : "{{ route('ckfinder_browser') }}",
+    //     filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+    //     filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    //     height: 100
+    // }); 
 
-    CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
+    // CKFinder.config( { connectorPath: '/ckfinder/connector' } );   
 
     $(".nuevo_documento").click(function(e)
     {
@@ -1133,8 +1171,10 @@
         deshabilita_campos();
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.setReadOnly(false);
-        editor_distribucion.setReadOnly(false);
+        //editor_cuerpo.setReadOnly(false);
+        $('.trumbowyg-editor').attr('contenteditable',true);
+        //editor_distribucion.setReadOnly(false);
+
         // tinymce.get("form_cuerpo").mode.set("design");
         // tinymce.get("form_distribucion").mode.set("design");
 
@@ -1181,8 +1221,9 @@
     {
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
-        editor_cuerpo.setReadOnly(true);
-        editor_distribucion.setReadOnly(true);
+        //editor_cuerpo.setReadOnly(true);
+        $('.trumbowyg-editor').attr('contenteditable',false);
+        //editor_distribucion.setReadOnly(true);
         // tinymce.get("form_cuerpo").mode.set("readonly");
         // tinymce.get("form_distribucion").mode.set("readonly");
         $('#form_destinatario_principal').prop("disabled", true);
@@ -1209,8 +1250,9 @@
     {
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.setReadOnly(false);
-        editor_distribucion.setReadOnly(false);
+        //editor_cuerpo.setReadOnly(false);
+        $('.trumbowyg-editor').attr('contenteditable',true);
+        //editor_distribucion.setReadOnly(false);
         // tinymce.get("form_cuerpo").mode.set("design");
         // tinymce.get("form_distribucion").mode.set("design");
         $('#form_destinatario_principal').prop("disabled", false);
@@ -1239,8 +1281,8 @@
 
         $('#form_crear_editar').trigger("reset");
         $("input[name='encabezado']").val('');
-        editor_cuerpo.setData('');
-        editor_distribucion.setData('');
+        //editor_cuerpo.setData('');
+        //editor_distribucion.setData('');
         // tinymce.get("form_cuerpo").setContent('');
         // tinymce.get("form_distribucion").setContent('');
         $("textarea[id='form_comentario_el']").val('');
@@ -1335,7 +1377,8 @@
 
                             idTipoFlujo = data.data.id_tipo_flujo;
 
-                            editor_cuerpo.setData(data.data.plantilla_cuerpo);
+                            //editor_cuerpo.setData(data.data.plantilla_cuerpo);
+                            $('#form_cuerpo').html(data.data.plantilla_cuerpo);
                             // if(data.data.plantilla_cuerpo !== null){
                             //     tinymce.get("form_cuerpo").setContent(data.data.plantilla_cuerpo);
                             // }
@@ -1343,7 +1386,8 @@
                             //     tinymce.get("form_cuerpo").setContent('&nbsp;');
                             // }
 
-                            editor_distribucion.setData(data.data.plantilla_distribucion);
+                            //editor_distribucion.setData(data.data.plantilla_distribucion);
+                            $('#form_distribucion').html(data.data.plantilla_distribucion);
                             // if(data.data.plantilla_distribucion !== null){
                             //     tinymce.get("form_distribucion").setContent(data.data.plantilla_distribucion);
                             // }
@@ -1574,12 +1618,13 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        // var cuerpo = editor_cuerpo.getData();
+        //var distribucion = editor_distribucion.getData();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
+        var cuerpo = $('#form_cuerpo').html();
+        var distribucion = $('#form_distribucion').html();
         var responder = $('#form_respuesta_a').val();
-
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -1844,8 +1889,10 @@
         var comentarioPrincipal = $('#form_comentario_el').val();
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        var cuerpo = $('#form_cuerpo').html();
+        //var distribucion = editor_distribucion.getData();
+        var distribucion = ('#form_distribucion').html();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
 
@@ -1954,8 +2001,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        var cuerpo = $('#form_cuerpo').html();
+        var distribucion = $('#form_distribucion').html();
+        //var distribucion = editor_distribucion.getData();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -2134,8 +2183,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        var cuerpo = $('#form_cuerpo').html();
+        var distribucion = $('#form_distribucion').html();
+//        var distribucion = editor_distribucion.getData();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -2287,8 +2338,10 @@
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        var cuerpo = $('#form_cuerpo').html();
+        var distribucion = $('#form_distribucion').html();
+        //var distribucion = editor_distribucion.getData();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
@@ -4009,8 +4062,10 @@
         var tipo_documento = $("select[name='tipo_documento']").val();
         var materia = $("input[name='materia']").val();
         var encabezado = $("input[name='encabezado']").val();
-        var cuerpo = editor_cuerpo.getData();
-        var distribucion = editor_distribucion.getData();
+        //var cuerpo = editor_cuerpo.getData();
+        var cuerpo = $('#form_cuerpo').html();
+        //var distribucion = editor_distribucion.getData();
+        var distribucion = $('#form_distribucion').html();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
         urlAccion = "{{route('documentos.vista_previa_sg')}}";
@@ -4200,6 +4255,7 @@
             data: {
                     hiddIdDocumentoBuzon:docBuzon
                   },
+            
             success: function(data) {
                 if(data.status=='400') {
                     toastr.error(data.data.comentario,"¡Aviso!");
@@ -4264,9 +4320,16 @@
 
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);                        
-                        editor_cuerpo.setData(data.data.cuerpo);
+                        //editor_cuerpo.setData(data.data.cuerpo);
+                        if(data.data.cuerpo !== null){
+                            $('#form_cuerpo').html(data.data.cuerpo);
+                        }
+                        else{
+                            $('#form_cuerpo').html('&nbsp;');
+                        }
+                        //$('#test').html(data.data.cuerpo);
                         //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
-                        editor_distribucion.setData(data.data.distribucion);
+                        //editor_distribucion.setData(data.data.distribucion);
                         // if(data.data.cuerpo !== null){
                         //     tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         // }
@@ -4274,13 +4337,13 @@
                         //     tinymce.get("form_cuerpo").setContent('&nbsp;');
                         // }
 
-                        // //editor_distribucion.setData(data.data.plantilla_distribucion);
-                        // if(data.data.distribucion !== null){
-                        //     tinymce.get("form_distribucion").setContent(data.data.distribucion);
-                        // }
-                        // else{
-                        //     tinymce.get("form_distribucion").setContent('&nbsp;');
-                        // }
+                        //editor_distribucion.setData(data.data.plantilla_distribucion);
+                        if(data.data.distribucion !== null){
+                            $('#form_distribucion').html(data.data.distribucion);
+                        }
+                        else{
+                            $('#form_distribucion').html('&nbsp;');
+                        }
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
@@ -7238,8 +7301,9 @@
     function activar_editar(nBotones){
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", false); 
-        editor_cuerpo.setReadOnly(false); 
-        editor_distribucion.setReadOnly(false);
+       //editor_cuerpo.setReadOnly(false); 
+       $('.trumbowyg-editor').attr('contenteditable',true);
+       //editor_distribucion.setReadOnly(false);
         // tinymce.get("form_cuerpo").mode.set("design");
         // tinymce.get("form_distribucion").mode.set("design");
         $('#dropzone-principal').prop("disabled", false); 
@@ -7451,7 +7515,143 @@
 
         });
 
+        $('#form_cuerpo').trumbowyg({
+            lang: 'es',
+            btns: [
+                ['table', 'tableCellBackgroundColor', 'tableBorderColor'],
+                ['fontfamily'],
+                ['fontsize'],
+                ['foreColor', 'backColor'],
+                ['copy','paste'],
+                ['viewHTML'],
+                ['undo', 'redo'], // Only supported in Blink browsers
+                ['formatting'],
+                ['strong', 'em', 'del'],
+                ['superscript', 'subscript'],
+                ['link'],
+                ['insertImage'],
+                //['upload'],
+                ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+                ['unorderedList', 'orderedList'],
+                ['horizontalRule'],
+                ['removeformat'],
+                ['fullscreen']
+            ],
+            plugins: {
+                table: {
+                    // Some table plugin options, see details below
+                },
+                // allowTagsFromPaste: {
+                //     allowedTags: ['h4', 'p', 'br']
+                // },
+                fontfamily: {
+                    fontList: [
+                        {name: 'Arial', family: 'Arial, Helvetica, sans-serif'},
+                        {name: 'Arial Black', family: 'Arial Black, Gadget, sans-serif'},
+                        {name: 'Comic Sans', family: 'Comic Sans MS, Textile, cursive, sans-serif'},
+                        {name: 'Courier New', family: 'Courier New, Courier, monospace'},
+                        {name: 'Georgia', family: 'Georgia, serif'},
+                        {name: 'Impact', family: 'Impact, Charcoal, sans-serif'},
+                        {name: 'Lucida Console', family: 'Lucida Console, Monaco, monospace'},
+                        {name: 'Lucida Sans', family: 'Lucida Sans Uncide, Lucida Grande, sans-serif'},
+                        {name: 'Palatino', family: 'Palatino Linotype, Book Antiqua, Palatino, serif'},
+                        {name: 'Tahoma', family: 'Tahoma, Geneva, sans-serif'},
+                        {name: 'Times New Roman', family: 'Times New Roman, Times, serif'},
+                        {name: 'Trebuchet', family: 'Trebuchet MS, Helvetica, sans-serif'},
+                        {name: 'Verdana', family: 'Verdana, Geneva, sans-serif'}
+                    ]
+                },
+                fontsize:{
 
+                },
+                colors: {
+                    colorList: [
+                        'ffffff', '000000', 'eeece1', '1f497d', '4f81bd', 'c0504d', '9bbb59', '8064a2', '4bacc6', 'f79646', 'ffff00',
+                        'f2f2f2', '7f7f7f', 'ddd9c3', 'c6d9f0', 'dbe5f1', 'f2dcdb', 'ebf1dd', 'e5e0ec', 'dbeef3', 'fdeada', 'fff2ca',
+                        'd8d8d8', '595959', 'c4bd97', '8db3e2', 'b8cce4', 'e5b9b7', 'd7e3bc', 'ccc1d9', 'b7dde8', 'fbd5b5', 'ffe694',
+                        'bfbfbf', '3f3f3f', '938953', '548dd4', '95b3d7', 'd99694', 'c3d69b', 'b2a2c7', 'b7dde8', 'fac08f', 'f2c314',
+                        'a5a5a5', '262626', '494429', '17365d', '366092', '953734', '76923c', '5f497a', '92cddc', 'e36c09', 'c09100',
+                        '7f7f7f', '0c0c0c', '1d1b10', '0f243e', '244061', '632423', '4f6128', '3f3151', '31859b', '974806', '7f6000'
+                    ],
+                },
+                upload: {
+                    // Some upload plugin options, see details below
+                },
+                resizimg: {
+                    minSize: 64,
+                    step: 16,
+                }
+            }
+        });
+
+        $('#form_distribucion').trumbowyg({
+            lang: 'es',
+            btns: [
+                ['table', 'tableCellBackgroundColor', 'tableBorderColor'],
+                ['fontfamily'],
+                ['fontsize'],
+                ['foreColor', 'backColor'],
+                ['copy','paste'],
+                ['viewHTML'],
+                ['undo', 'redo'], // Only supported in Blink browsers
+                ['formatting'],
+                ['strong', 'em', 'del'],
+                ['superscript', 'subscript'],
+                ['link'],
+                ['insertImage'],
+                //['upload'],
+                ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
+                ['unorderedList', 'orderedList'],
+                ['horizontalRule'],
+                ['removeformat'],
+                ['fullscreen']
+            ],
+            plugins: {
+                table: {
+                    // Some table plugin options, see details below
+                },
+                // allowTagsFromPaste: {
+                //     allowedTags: ['h4', 'p', 'br']
+                // },
+                fontfamily: {
+                    fontList: [
+                        {name: 'Arial', family: 'Arial, Helvetica, sans-serif'},
+                        {name: 'Arial Black', family: 'Arial Black, Gadget, sans-serif'},
+                        {name: 'Comic Sans', family: 'Comic Sans MS, Textile, cursive, sans-serif'},
+                        {name: 'Courier New', family: 'Courier New, Courier, monospace'},
+                        {name: 'Georgia', family: 'Georgia, serif'},
+                        {name: 'Impact', family: 'Impact, Charcoal, sans-serif'},
+                        {name: 'Lucida Console', family: 'Lucida Console, Monaco, monospace'},
+                        {name: 'Lucida Sans', family: 'Lucida Sans Uncide, Lucida Grande, sans-serif'},
+                        {name: 'Palatino', family: 'Palatino Linotype, Book Antiqua, Palatino, serif'},
+                        {name: 'Tahoma', family: 'Tahoma, Geneva, sans-serif'},
+                        {name: 'Times New Roman', family: 'Times New Roman, Times, serif'},
+                        {name: 'Trebuchet', family: 'Trebuchet MS, Helvetica, sans-serif'},
+                        {name: 'Verdana', family: 'Verdana, Geneva, sans-serif'}
+                    ]
+                },
+                fontsize:{
+
+                },
+                colors: {
+                    colorList: [
+                        'ffffff', '000000', 'eeece1', '1f497d', '4f81bd', 'c0504d', '9bbb59', '8064a2', '4bacc6', 'f79646', 'ffff00',
+                        'f2f2f2', '7f7f7f', 'ddd9c3', 'c6d9f0', 'dbe5f1', 'f2dcdb', 'ebf1dd', 'e5e0ec', 'dbeef3', 'fdeada', 'fff2ca',
+                        'd8d8d8', '595959', 'c4bd97', '8db3e2', 'b8cce4', 'e5b9b7', 'd7e3bc', 'ccc1d9', 'b7dde8', 'fbd5b5', 'ffe694',
+                        'bfbfbf', '3f3f3f', '938953', '548dd4', '95b3d7', 'd99694', 'c3d69b', 'b2a2c7', 'b7dde8', 'fac08f', 'f2c314',
+                        'a5a5a5', '262626', '494429', '17365d', '366092', '953734', '76923c', '5f497a', '92cddc', 'e36c09', 'c09100',
+                        '7f7f7f', '0c0c0c', '1d1b10', '0f243e', '244061', '632423', '4f6128', '3f3151', '31859b', '974806', '7f6000'
+                    ],
+                },
+                upload: {
+                    // Some upload plugin options, see details below
+                },
+                resizimg: {
+                    minSize: 64,
+                    step: 16,
+                }
+            }
+        });
        
 
     });
