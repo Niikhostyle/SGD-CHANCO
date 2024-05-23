@@ -409,6 +409,38 @@ class DocumentoBuzonArchivoController extends Controller
         return View::make('pruebaPublica');
     }
 
+    public function download_publico_anexo(Request $request){
+        $nDocumento =  $request->idDocumento;
+
+        $archivo = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
+                                        ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
+                                        ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
+                                        ->join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
+                                        ->join('tipo_documento', 'tipo_documento.id_tipo_documento', '=', 'documento.id_tipo_documento')
+                                        //->where('documento_buzon.id_documento', $nDocumento)
+                                        ->where('documento_buzon_archivo.id_documento_buzon_archivo',$nDocumento)
+                                        ->where('id_tipo_archivo', 2)
+                                        ->select(
+                                            'nombre_archivo_codificado',
+                                            'id_documento_buzon_archivo',
+                                            'documento.folio',
+                                            'tipo_documento.nombre_corto'
+                                        )
+                                        ->groupBy('documento_buzon_archivo.id_documento_buzon_archivo')
+                                        ->groupBy('documento.folio')
+                                        ->groupBy('tipo_documento.nombre_corto')
+                                        ->get();   
+                                     
+        $dFechaCreacion = date('Y-m-d H:i:s'); 
+        foreach ($archivo as $file)
+            $nombre = $file->nombre_archivo_codificado; 
+            $ruta = storage_path('app/public/files/'.$nombre);
+            $headers = array(
+                'Content-Type: application/pdf',
+              );
+              return response()->download($ruta, $file->nombre_corto.'_'.$file->folio.'.pdf',$headers);
+    }
+
     public function download_publico(Request $request){
         $nDocumento =  $request->idDocumento;
 
@@ -419,7 +451,7 @@ class DocumentoBuzonArchivoController extends Controller
                                         ->join('tipo_documento', 'tipo_documento.id_tipo_documento', '=', 'documento.id_tipo_documento')
                                         ->where('documento_buzon.id_documento', $nDocumento)
                                         ->where('id_tipo_archivo', 1)
-                                        ->where('version', 1)
+                                        ->where('version',1)
                                         ->select(
                                             'nombre_archivo_codificado',
                                             'id_documento_buzon_archivo',

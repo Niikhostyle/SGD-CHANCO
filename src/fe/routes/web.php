@@ -167,6 +167,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaContro
 //Route::middleware(['auth:sanctum', 'verified'])->get('descargar_docto',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
 Route::get('descargar_docto',[DocumentoBuzonArchivoController::class,'getDoc'])->name('buscador.descargar_plc');
 Route::get('download_publico',[DocumentoBuzonArchivoController::class,'download_publico'])->name('buscador.download_publico');
+Route::get('download_publico_anexo',[DocumentoBuzonArchivoController::class,'download_publico'])->name('buscador.download_publico_anexo');
+
 
 
 //auditoria de folios

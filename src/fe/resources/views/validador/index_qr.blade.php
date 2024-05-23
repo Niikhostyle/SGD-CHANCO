@@ -149,7 +149,7 @@
                                             @if(count($anexos) > 0)
                                                 <ul>
                                                 @foreach($anexos as $a)
-                                                    <li><b>{{$a->nombre_archivo_original}}</b> <a href="/download_publico?idDocumento={{$a->id_documento}}" target="_blank">Descargar</a></li>
+                                                    <li><b>{{$a->nombre_archivo_original}}</b> <a href="/download_publico_anexo?idDocumento={{$a->id_documento_buzon_archivo}}" target="_blank">Descargar</a></li>
                                                 @endforeach
                                                 </ul>
                                             @else
