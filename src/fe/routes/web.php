@@ -62,7 +62,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar2/',[Buscado
 
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
-Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
+//Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
+Route::get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
 //Route::middleware(['auth:sanctum', 'verified'])->post('files',[DocumentoBuzonArchivoController::class,'store'])->name('files.store');
 
 //Route::middleware(['auth:sanctum', 'verified'])->get('files/{filename}', [DocumentoBuzonArchivoController::class,'show'])->name('files.show');
@@ -116,7 +117,7 @@ Route::middleware(['auth:sanctum', 'verified'])->put('favoritos/{id}',[FavoritoC
 //validador
 Route::get('validador',[DocumentoValidadorController::class,'index'])->name('validador.index');
 Route::post('validadorCodigo',[DocumentoValidadorController::class,'store'])->name('validador.store');
-Route::get('validador_qr/{id}',[DocumentoValidadorController::class,'validar_qr'])->name('validador.validar_qr');
+Route::get('validador_qr/{id}',[DocumentoValidadorController::class,'validar_qr'])->name('validador.validar_qr'); 
 //Route::middleware(['auth:sanctum', 'verified'])->get('pdf',[DocumentoValidadorController::class,'download'])->name('validador.download');
 
 //buscador
@@ -163,7 +164,10 @@ Route::get('Firma', [DescargaPdfController::class,'descarga']);
 
 Route::middleware(['auth:sanctum', 'verified'])->get('descargas',[DescargaController::class,'index'])->name('descargas.index');
 
-Route::middleware(['auth:sanctum', 'verified'])->get('descargar_docto',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
+//Route::middleware(['auth:sanctum', 'verified'])->get('descargar_docto',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
+Route::get('descargar_docto',[DocumentoBuzonArchivoController::class,'getDoc'])->name('buscador.descargar_plc');
+Route::get('download_publico',[DocumentoBuzonArchivoController::class,'download_publico'])->name('buscador.download_publico');
+
 
 //auditoria de folios
 Route::middleware(['auth:sanctum', 'verified'])->get('auditoria_folios',[AuditoriaFoliosController::class,'index'])->name('auditoria_folios.index');

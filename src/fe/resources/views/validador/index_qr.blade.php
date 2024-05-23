@@ -76,8 +76,8 @@
         <h1>Validación de Documentos</h1>
     </div>
         @if($status==0)
+        
         @foreach($lista_documentos['data'] as $list)    
-            
             <div class="row">
                 <div class="col-md-6 col-xs-12">
                     <div class="linea_content_header mt-0" ></div>
@@ -149,7 +149,7 @@
                                             @if(count($anexos) > 0)
                                                 <ul>
                                                 @foreach($anexos as $a)
-                                                    <li><b>{{$a->nombre_archivo_original}}</b> <a href="/files/{{$a->nombre_archivo_codificado}}" target="_blank">Descargar</a></li>
+                                                    <li><b>{{$a->nombre_archivo_original}}</b> <a href="/download_publico?idDocumento={{$a->id_documento}}" target="_blank">Descargar</a></li>
                                                 @endforeach
                                                 </ul>
                                             @else
@@ -180,14 +180,15 @@
                     <div class="row mt-5">
                         <div class="col-md-12">
                             @if($list['id_nivel_acceso']==1)
-                                <!-- p><a class="btn btn-success"   href="/files/{{$list['hash_validacion']}}"><i class="fas fa-download fa-icon1"></i> Descargar</a></p -->
-                                <p><a class="btn btn-success"   href="/files/{{$list['nombre_archivo_codificado']}}"><i class="fas fa-download"></i> Descargar</a></p>
+                                <p><a class="btn btn-success"   href="/download_publico?idDocumento={{$list['id_documento']}}" target="_blank" class="fas fa-download"></i> Descargar</a></p>
                             @endif
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-xs-12 border">
-                <embed class="pdf" src="/files/{{$list['nombre_archivo_codificado']}}" width="100%" height="1000px">
+                @if($list['id_nivel_acceso']==1)
+                    <embed class="pdf" src="/descargar_docto?idDocumento={{$list['id_documento']}}" width="100%" height="1000px">
+                @endif
                 </div>
             </div>
            

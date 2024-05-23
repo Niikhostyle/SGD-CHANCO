@@ -124,7 +124,7 @@ class DocumentoValidadorController extends Controller
         $anexos = DocumentoBuzonArchivo::join('documento_buzon as db','db.id_documento_buzon','documento_buzon_archivo.id_documento_buzon')
                     ->where('db.id_documento',$list['id_documento'])
                     ->where('documento_buzon_archivo.id_tipo_archivo',2)
-                    ->select('documento_buzon_archivo.nombre_archivo_original','documento_buzon_archivo.nombre_archivo_codificado')
+                    ->select('documento_buzon_archivo.nombre_archivo_original','documento_buzon_archivo.nombre_archivo_codificado','db.id_documento')
                     ->get();
         
         return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'anexos'=>$anexos, 'status'=>$status]);
