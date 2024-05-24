@@ -1154,4 +1154,8 @@ class BuzonController extends Controller
       ]);
     }
 
+    public function editor(){
+        return View::make('buzon.editor',[]);
+    }
+
 }

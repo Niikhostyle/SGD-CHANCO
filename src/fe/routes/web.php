@@ -93,6 +93,9 @@ Route::middleware(['auth:sanctum', 'verified'])->put('firma_masiva',[BuzonContro
 Route::middleware(['auth:sanctum', 'verified'])->delete('documento',[BuzonController::class,'delete_documento'])->name('buzones.delete_documento');
 Route::middleware(['auth:sanctum', 'verified'])->get('eliminar_documento',[BuzonController::class,'eliminar_documento_enviado'])->name('buzones.eliminar_documento_enviado');
 
+//eiminar solo de prueba
+Route::middleware(['auth:sanctum', 'verified'])->get('editor',[BuzonController::class,'editor'])->name('buzones.editor');
+
 
 Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
 Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
