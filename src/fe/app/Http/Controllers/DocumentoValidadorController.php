@@ -19,7 +19,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Pdf\Dompdf;
 
 class DocumentoValidadorController extends Controller
 {
-    public function index() 
+    public function index()
     {
         $lista_documentos=['data'=>[
             0=>['hash_validacion'=>'','folio'=>'','fecha_documento'=>'','materia'=>'', 'id_documento'=>'', 'id_nivel_acceso'=>'', 'version'=>'']
@@ -95,27 +95,39 @@ class DocumentoValidadorController extends Controller
         }
 
         $status = 1;
+        //dd($lista_documentos->json());
         foreach($lista_documentos['data'] as $list){
             if ($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3 || $list['id_nivel_acceso']==1){
                 $status = 0;
 
             }
         }
+        
         $visadores = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
-                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->join('documento_buzon','documento_buzon.id_documento_buzon','documento_buzon_bitacora.id_documento_buzon')
+                    ->join('documento','documento.id_documento','documento_buzon.id_documento')
+                    ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',6)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
-                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha"),DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
                     ->get();
         
         $firmantes = DocumentoBuzonBitacora::join('users','documento_buzon_bitacora.id_usuario','users.id')
-                    ->where('id_documento_buzon',$list['id_documento_buzon'])
+                    ->join('documento_buzon','documento_buzon.id_documento_buzon','documento_buzon_bitacora.id_documento_buzon')
+                    ->join('documento','documento.id_documento','documento_buzon.id_documento')
+                    ->where('documento.id_documento',$list['id_documento'])
                     ->where('id_accion',7)
                     ->orderBy('documento_buzon_bitacora.fecha','ASC')
-                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
-                    ->get();                    
+                    ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),"documento_buzon_bitacora.fecha",DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
+                    ->get();   
         
-        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'status'=>$status]);
+        $anexos = DocumentoBuzonArchivo::join('documento_buzon as db','db.id_documento_buzon','documento_buzon_archivo.id_documento_buzon')
+                    ->where('db.id_documento',$list['id_documento'])
+                    ->where('documento_buzon_archivo.id_tipo_archivo',2)
+                    ->select('documento_buzon_archivo.nombre_archivo_original','documento_buzon_archivo.nombre_archivo_codificado','db.id_documento','documento_buzon_archivo.id_documento_buzon_archivo')
+                    ->get();
+        
+        return View::make('validador.index_qr',['lista_documentos'=>$lista_documentos,'visadores' => $visadores,'firmantes' => $firmantes, 'anexos'=>$anexos, 'status'=>$status]);
         
     }
 
