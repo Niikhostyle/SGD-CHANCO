@@ -1264,15 +1264,15 @@ class DocumentoController extends Controller{
                 $codigo = $datosRequest['hash_validacion'];
 
                 $validator = $this->validator->validateFieldUser($datosRequest);
-                
+
                 //if ($validator->fails())
                   //  return $this->respondFail('Falla al listar los documentos: revisar datos de entrada');
                 return datatables(
                     DB::table('documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
                     ->join('documento_buzon_archivo', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
-                    
-                    
+                    ->join('tipo_documento as td', 'td.id_tipo_documento', '=', 'documento.id_tipo_documento')
+                    ->join('nivel_acceso as na','na.id_nivel_acceso', '=', 'documento.id_nivel_acceso')
                     ->select(
                         'documento.id_documento as id_documento',
                         'documento.id_nivel_acceso as id_nivel_acceso',
@@ -1283,9 +1283,9 @@ class DocumentoController extends Controller{
                         'documento.hash_validacion as hash_validacion',
                         'documento_buzon_archivo.version as version',
                         'documento_buzon_archivo.nombre_archivo_codificado as nombre_archivo_codificado',
-                        'documento_buzon_archivo.id_documento_buzon as id_documento_buzon'
-                        
-                        
+                        'documento_buzon_archivo.id_documento_buzon as id_documento_buzon',
+                        'na.nombre as nivel_acceso',
+                        'td.nombre as tipo_documento'
                         )
                     ->where('documento.hash_validacion','=',$datosRequest['hash_validacion'])
                     ->where('documento_buzon_archivo.version','=', 1)
@@ -1335,6 +1335,201 @@ class DocumentoController extends Controller{
         else
             return $this->respondError('Json inválido', 406);
 
+    }
+
+    public function firmar_derivar(Request $request){
+        if ($request->isJson())
+        {
+            try 
+            {
+                DB::beginTransaction();
+
+                $datosRequest = $request->json()->all();   
+                
+                $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                $dFechaCreacion = date('Y-m-d H:i:s');
+                $opGuardar = 1;
+                $nCarpeta = 2;
+
+                if ($datosDocumento->id_documento != '')
+                {   
+                    
+                    //si viene destinatario principal se agrega un registro
+                    
+                    // $jsonAcciones = array();                    
+                    
+                    // if ($datosRequest['acciones_solicitadas'] != "" || $datosRequest['acciones_solicitadas'] != null)
+                    // {    
+                    //     foreach($datosRequest['acciones_solicitadas'] as $accion)
+                    //         $jsonAcciones[] = array("id_accion" => $accion);
+                    // }
+                    $jsonAcciones = array();                        
+                    $jsonAcciones[] = array("id_accion" => 7);
+                    if ($datosRequest['destinatarioPrincipal'] != "")
+                    {
+                        //verificar si se crea o actualiza   
+                        if ($datosRequest['carpeta'] == 2) //recibidos
+                        {
+                            $documentoBuzon = DocumentoBuzon::updateOrCreate([
+                                'id_documento' => $datosRequest['id_documento'],
+                                'id_tipo_destino' => 1,
+                                'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
+                                'id_carpeta' => 1,
+                                'id_estado_documento' => 4
+                            ],[
+                                'id_buzon' => $datosRequest['destinatarioPrincipal'],                                
+                                'id_estado_documento' => 4,
+                                'fecha' => $dFechaCreacion,
+                                'json_acciones'=> json_encode($jsonAcciones),
+                                'comentario_principal' => null, 
+                                'contestar_hasta' => $datosRequest['contestar_hasta'],
+                                'notificado' => false,
+                                'recibido' => false,
+                                'favorito' => false    
+                            ]);
+
+                           
+                        }
+
+                        //pendiente - crear orden 0 en flujo controlado/mixto
+                    }
+
+                    //si viene destinatario secundario se agrega registro
+
+                    $aOtrosDestinatarios = explode (',', $datosRequest['destinatarioOtros']);
+
+                    if ($nCarpeta == 2) //recibidos
+                    {                        
+                        //eliminar segun criterios y crear nuevamente
+                        DocumentoBuzon::where([
+                            'id_documento' => $datosRequest['id_documento'],
+                            'id_tipo_destino' => 2,
+                            'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],                                
+                            'id_estado_documento' => 4,
+                            'id_carpeta' => 1
+                        ])->delete();
+
+                        if ($datosRequest['destinatarioOtros'] != "")
+                        {
+                            foreach ($aOtrosDestinatarios as $destinatario)
+                            {
+                                $documentoBuzon = DocumentoBuzon::create([
+                                    'id_documento' => $datosRequest['id_documento'],
+                                    'id_buzon' => $destinatario,
+                                    'id_carpeta' => 1,
+                                    'id_estado_documento' => 4,
+                                    'id_tipo_destino' => 2,
+                                    'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
+                                    'json_acciones'=> json_encode($jsonAcciones),
+                                    'comentario_secundario' => null, 
+                                    'fecha' => $dFechaCreacion,
+                                    'contestar_hasta' => $datosRequest['contestar_hasta'],
+                                    'notificado' => false,
+                                    'recibido' => false,
+                                    'favorito' => false
+                                ]);
+                            } 
+                        }
+                    }
+                    //derivar
+                    //actualizar en documento el campo flujo_actual al valor siguiente en flujo controlado/mixto
+                    // y en buzones_flujo dejar en true en buzon ya procesado (recien enviado)
+
+                    $datosFlujoJson = Documento::findOrFail($datosRequest['id_documento']);
+
+                    $datosJsonTipoDocumento = json_decode($datosFlujoJson['json_tipo_documento'],true);
+                    $nFlujoActual = $datosJsonTipoDocumento['flujo_actual'];
+                    
+                    $nNuevoFlujoActual = $nFlujoActual + 1;
+
+                    //ver segun tipo de flujo como será la derivación
+                    $nTipoFlujo = $datosJsonTipoDocumento['id_tipo_flujo'];
+                    
+                    foreach ($datosJsonTipoDocumento['buzones_flujo'] as $key => $valor)
+                    {                    
+                        //buzon siguiente en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == ($nFlujoActual + 1)) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == false)
+                        {}
+
+                        //buzon reinicio en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == 1) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == true)
+                        {
+                            $nNuevoFlujoActual = 1;
+                        }
+                        
+                        //buzon anterior en el flujo
+                        if (($nTipoFlujo == 2) && ($valor['orden'] == ($nFlujoActual - 1)) && ($datosRequest['destinatarioPrincipal'] == $valor['id_buzon']))// && ($valor['procesado'] == false)
+                        {
+                            $nNuevoFlujoActual = $nFlujoActual - 1;
+                        }
+
+                        if ($valor['orden'] == $nFlujoActual)
+                        {
+                            $valor['procesado'] = true;
+                            $datosJsonTipoDocumento['buzones_flujo'][$key] = $valor;
+                        }
+                    }
+
+                    //actualiza el flujo actual
+                    $datosJsonTipoDocumento['flujo_actual'] = $nNuevoFlujoActual;
+                    
+                    $datosFlujoJson->update(['json_tipo_documento' => json_encode($datosJsonTipoDocumento)]);                     
+                    
+                    //agregar si estado actual es 11 dejar final como 12 y estado 9 dejar como 10
+                    //$estadoDocumentoFinal = 7;        
+                    $estadoDocumentoActual = array('4','9','11'); //"4,9,11"; deberia ir con whereIn  
+                    
+                    $datosUpdate = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
+                        
+                    switch ($datosUpdate->id_estado_documento)
+                    {                       
+                        case (4):
+                            $estadoDocumentoFinal = 7;
+                            break;
+                        case (9):
+                            $estadoDocumentoFinal = 10;
+                            break;                        
+                        case (11):
+                            $estadoDocumentoFinal = 12;
+                            break;
+                        default:
+                            $estadoDocumentoFinal = 7;
+                    }
+
+                    $datosUpdate->id_estado_documento = $estadoDocumentoFinal;
+                    $datosUpdate->save();
+
+                        $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                                        ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
+                                        ->where('id_tipo_destino', '1')
+                                        ->whereIn('id_estado_documento', $estadoDocumentoActual)
+                                        ->where('id_buzon', $datosRequest['destinatarioPrincipal'])
+                                        ->select('id_documento_buzon')                                
+                                        ->first();
+                        $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
+        
+                        $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
+                                            'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
+                                            'id_accion' => 2,
+                                            'fecha' => $dFechaCreacion,
+                                            'id_usuario' => $datosRequest['id_usuario']
+                        ]);   
+
+                    DB::commit();
+
+                    return "200";
+
+                }
+                else
+                {
+                    return "500";
+                }
+            } catch (ModelNotFoundException $e) {
+                DB::rollBack();
+
+                return "501";
+            }
+        }
     }
 
 
