@@ -84,7 +84,7 @@ class FirmaController extends Controller
                 $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImg));  
 
                 //INICIO PROCESO FIRMA
-                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador', 'json_tipo_documento']);                
+                $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador', 'json_tipo_documento','distribucion']);                
 
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
@@ -172,9 +172,12 @@ class FirmaController extends Controller
                 //plantilla distribución
 
                 $nEspacioDistribucion = 0;
-                if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
+
+                //if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
+                if (isset($aInfoDocumento['distribucion']))
                 {
-                    $tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
+                    //$tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
+                    $tPlantillaDistribucion = $aInfoDocumento['distribucion'];
                     $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
 
                     $nEspacioDistribucion = $numLineasDistribucion * 20;
@@ -193,7 +196,7 @@ class FirmaController extends Controller
                     $comentario = "Excede el máximo de firmas electrónicas posibles.";
                     throw new Exception($comentario);
                 }
-
+                
                 $aUbicacionesFirma = array(
                     array(300, 240, 555, 325), 
                     array(30, 240, 285, 325),
