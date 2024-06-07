@@ -520,6 +520,7 @@
                                 }
 
                             }
+                            muestra_opciones(data.data.numero_firmas)
                         }, 1000);
 
 
