@@ -6,7 +6,7 @@
     <style>       
             footer { 
                 position: fixed; 
-                bottom: 40px;              
+                bottom: 60px;              
             }
             footer .pagenum:before 
             {
