@@ -85,7 +85,7 @@ class FirmaController extends Controller
 
                 //INICIO PROCESO FIRMA
                 $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador', 'json_tipo_documento','distribucion']);                
-
+                
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
                     $comentario = "Usuario no tiene permiso para realizar firma electrónica.";
@@ -261,8 +261,8 @@ class FirmaController extends Controller
                 }
                 
                 $pdf = new PDF();
-                $pageCount = $pdf->setSourceFile($sArchivo);  
-
+                $pageCount = $pdf->setSourceFile($sArchivo); 
+                 
                 $nPaginasPdf = $aDocumentoBuzon['paginas_archivo'];
                 if ($aDocumentoBuzon['paginas_archivo'] == '' || $aDocumentoBuzon['paginas_archivo'] == null)
                     $nPaginasPdf = $pageCount;
@@ -284,8 +284,9 @@ class FirmaController extends Controller
                     'urx'      => $n_urx_anexo, 
                     'ury'      => $n_ury_anexo  
                 );
-               
+                
                 $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']); 
+               
                 //agrega Hash de validación
                 if (count($datosBitacora) == 0)
                 {                            
@@ -300,16 +301,19 @@ class FirmaController extends Controller
                     $pdf->footer_txt = $html;//"Para verificar este documento haga clic en ".$url." o use el siguiente QR:";
                     $pdf->footer_qr = $codigoQR;
                     $pdf->url_qr = $url;
+                    $pdf->tipo_origen = $datosJsonTipoDocumento['id_tipo_origen'];
                     //$pdf->Image($codigoQR,140,325,0,0,'PNG',$url);
                     $pdf->PageFirma = $nPaginasPdf;                    
+                    $pageSize = $pdf->GetPageWidth();
 
                     for ($i=1; $i <= $pageCount; $i++) { 
                         //import a page then get the id and will be used in the template
                         $tplId = $pdf->importPage($i);
 
-                        $size = $pdf->getTemplateSize($tplId);
-                        $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
+                        $size = $pdf->getTemplateSize($tplId);                        
 
+                        $pdf->AddPage($size['orientation'], array($size['width'], $size['height']));
+                        $pdf->alto = $pdf->GetPageHeight();
                         //use the template of the imporated page
                         $pdf->useTemplate($tplId);                    
                     }
@@ -318,7 +322,7 @@ class FirmaController extends Controller
                     $pdf->Output($sArchivo, 'F');                   
                     
                 }
-                
+
                 //obtiene el peso del archivo para firma
 
                 $fileSize = filesize($sArchivo);
