@@ -13,14 +13,26 @@ class PDF extends FPDI
         $this->SetFont('Arial','',8);
         $this->Cell(0,10,$this->PageNo().'/{nb}',0,0,'R');        
         
+        $pageWidth = $this->GetPageWidth();
+        $this->SetAutoPageBreak(false);
+
         //if ($this->PageFirma == $this->PageNo())
         //{
             $this->SetY(-20);
             $this->SetFont('Arial','',8);
-            //$this->Cell(0,0,$this->footer_txt,0,0,'C');
-            $this->WriteHTML($this->footer_txt);
-            //$this->Image($this->footer_qr,140,325,0,0,'PNG',);
-            $this->Image($this->footer_qr,140,325,0,0,'PNG',$this->url_qr);
+            $this->WriteHTML($this->footer_txt);            
+
+            if ($this->tipo_origen == 2)       
+            {
+                //solo si es documento externo
+                $distanceFromBottom = 30; // Píxeles desde el borde inferior
+                $imageY = $this->alto - $distanceFromBottom;
+
+                $this->Image($this->footer_qr,140,$imageY,0,0,'PNG',$this->url_qr);
+            }
+            else
+                $this->Image($this->footer_qr,140,325,0,0,'PNG',$this->url_qr);
+
             $this->SetY(-15);
 
             //$ancho = $this->ancho;
