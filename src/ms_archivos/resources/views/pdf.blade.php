@@ -34,7 +34,8 @@
     {!! $cuerpo !!}    
 </div>
 <div class="page pie">
-    <footer>    
+    <footer>  
+    {!! $visadores !!}  
     {!! $distribucion !!}
     </footer>
 </div>
