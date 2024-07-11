@@ -28,6 +28,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->put('/api/sgd-documentos/generar_archivo', 'DocumentoController@generar_archivo');
     $router->get('/api/sgd-documentos/verPendientesBuzon', 'DocumentoController@verPendientesBuzon');
     $router->delete('/api/sgd-documentos/eliminar', 'DocumentoController@eliminar');
+    $router->put('/api/sgd-documentos/firmar_derivar', 'DocumentoController@firmar_derivar');
 });
 
 $router->get('/api/sgd-documentos/verificaDocumento', 'DocumentoController@verificaDocumento');

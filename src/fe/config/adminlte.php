@@ -15,7 +15,7 @@ return [
     */
 
     'title' => '',
-    'title_prefix' => 'SGD-PLC | ',
+    'title_prefix' => 'SGD | ',
     'title_postfix' => '',
 
     /*
@@ -45,12 +45,12 @@ return [
     |
     */
 
-    'logo' => '<b>SGD</b>PLC',
-    'logo_img' => 'img/logo-min.png',
+    'logo' => '<b>SGD</b>',
+    'logo_img' => 'img/EscudoPurranque.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'SGDPLC',
+    'logo_img_alt' => 'SGD',
 
     /*
     |--------------------------------------------------------------------------

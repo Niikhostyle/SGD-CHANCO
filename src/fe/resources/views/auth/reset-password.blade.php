@@ -9,7 +9,7 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="shortcut icon" href="http://www.padrelascasas.cl/newplc/wp-content/themes/plc/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="https://www.purranque.cl/portal-municipal/images/logo1.png" type="image/x-icon">
 
 
 
@@ -127,14 +127,14 @@
                             <div class="box-body" style="padding: 2em;">
                                 <div class="row">
                                     <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
-                                        <img class="img mx-auto " src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_plc">
+                                        <img class="img mx-auto " src="{{ asset('img/LogoPurranque.png') }}" alt="" id="logo_purranque">
                                     </div>
                                     <div class="col-md-2 col-xs-2 col-lg-2">
                                         &nbsp;
                                     </div>
 
                                     <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
-                                        <img class="img mx-auto" src="{{ asset('img/logoSGD.png') }}" alt="" id="logo_sgd">
+                                        <img class="img mx-auto" src="{{ asset('img/EscudoPurranque.png') }}" alt="" id="escudo_purranque">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -181,11 +181,11 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div class="row pt-5">
+                                <!-- <div class="row pt-5">
                                     <div class="col-12">
                                     <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
                                     </div>
-                                </div>
+                                </div> -->
                                 </div>
                             </div>
                     </div>
@@ -196,7 +196,7 @@
             <div class="row">
                 <div class="col-md-12">
                 <span class="help-block m-r-20 m-l-20 text-center">
-                    2021 © Padre Las casas Maquehue 1441 - 45 2 590 000
+                    2023 © MUNICIPALIDAD DE PURRANQUE<br/>Av. Pedro Montt 249, Purranque - Décima Region de Los Lagos, Teléfono (64-2) 35 11 35
                 </span>
                 </div>
             </div>

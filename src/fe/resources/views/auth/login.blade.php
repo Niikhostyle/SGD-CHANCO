@@ -46,14 +46,14 @@
                     <div class="box-body" style="padding: 2em;">
                         <div class="row">
                             <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
-                                <img class="img mx-auto " src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_plc">
+                                <img class="img mx-auto " src="{{ asset('img/LogoPurranque.png') }}" alt="" id="logo_purranque">
                             </div>
                             <div class="col-md-2 col-xs-2 col-lg-2">
                                 &nbsp;
                             </div>
 
                             <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
-                                <img class="img mx-auto" src="{{ asset('img/logoSGD.png') }}" alt="" id="logo_sgd">
+                                <img class="img mx-auto" src="{{ asset('img/EscudoPurranque.png') }}" alt="" id="escudo_purranque">
                             </div>
                         </div>
                         <div class="row">
@@ -106,8 +106,10 @@
                             </form>
                         </div>
                         <div class="row pt-5">
-                            <div class="col-12">
-                            <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
+                            <div class="col-12 text-center text-base text-bold">
+                                Software gentileza de <a href="https://www.padrelascasas.cl/" target="_blank">Municipalidad de Padre las Casas</a>, Convenio de Colaboración
+                            
+                                <img class="img mx-auto d-block" src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_calidad" style="max-width: 15%;">
                             </div>
                         </div>
                      </div>

@@ -123,6 +123,9 @@ class ArchivoController extends Controller{
                         $nFolio = $this->obtenerFolio($request->header('key'), $anio, $idTipoDocumento, $idTipoFolio, $datosRequest['id_buzon']); 
                         //fin nueva forma de obtener folio 
 
+                        $nFolio = $this->obtenerFolio($request->header('key'), $anio, $idTipoDocumento, $idTipoFolio, $datosRequest['id_buzon']);
+                        //fin nueva forma de obtener folio
+                        
                         if (isset($nFolio))
                         {
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]); 
@@ -156,7 +159,7 @@ class ArchivoController extends Controller{
                     $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);                        
                 }            
                
-                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
                 $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
@@ -450,12 +453,16 @@ class ArchivoController extends Controller{
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
 
+                $sCuerpo = $datosDocumentos['cuerpo'];
+                $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);//$datosDocumentos['folio']
+                $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+                $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+
                 //reemplazar path imagenes antes de generar pdf
                 //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
                 
-                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+                $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
                 $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-
                // dd($datosDocumentosencabezado);
                 
                 $dataPdf = array('materia'=>$datosDocumentos['materia'], 'encabezado'=>$sEncabezado, 'cuerpo'=>$datosDocumentosCuerpo  );//  $datosDocumentos['cuerpo']            
@@ -486,7 +493,8 @@ class ArchivoController extends Controller{
         $dFechaCreacion = date('Ymd');
         $txtTipoDoc = $datosJsonTipoDocumento['nombre_corto'];
         
-        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
+        //$nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
+        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio;
 
         return $nombreFinal;
     }
@@ -517,7 +525,6 @@ class ArchivoController extends Controller{
                 DB::statement('update tipo_documento_buzon_folio set valor = '.$nFolio.', updated_at = now() where id_tipo_documento= '.$tipo_documento.' and anio = '.$anio.' ');
             }
         }
-
         //Por tipo de documento, buzón y año
         if($tipo_folio == 2){
             $dFolio = DB::table('tipo_documento_buzon_folio')
@@ -538,7 +545,6 @@ class ArchivoController extends Controller{
             else{
                 DB::statement('update tipo_documento_buzon_folio set valor = '.$nFolio.', updated_at = now() where id_tipo_documento= '.$tipo_documento.' and anio = '.$anio.' and id_buzon = '.$buzon);
             }
-
         }
 
         //sin folio
@@ -590,7 +596,7 @@ class ArchivoController extends Controller{
     } 
  
     public function estado_folio($folio,$estado,$tipo_folio,$buzon,$tipo_documento,$reversado)
-    { 
+    {  
         if($estado == 1){ 
             db::statement("insert into bloqueo_folio (folio,estado,tipo_folio,buzon,tipo_documento,reversado) values (".$folio.",1,".$tipo_folio.",".$buzon.",".$tipo_documento.",".$reversado.")"); 
         } 

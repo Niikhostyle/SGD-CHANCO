@@ -1,7 +1,7 @@
 <?php   
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model; 
 
 class TipoDocumento extends Model{
 
@@ -11,7 +11,7 @@ class TipoDocumento extends Model{
     protected $hidden = ['created_at', 'updated_at','id_tipo_documento_buzon'];
 
     protected $fillable = [
-        'nombre', 'nombre_corto', 'descripcion', 'id_tipo_origen', "id_tipo_flujo", "id_tipo_folio", "id_tipo_avance", "id_tipo_asignacion_folio", "requiere_fe", "plantilla_encabezado", "plantilla_cuerpo","numero_firmas","plantilla_distribucion","nombre_corto_firma"
+        'nombre', 'nombre_corto', 'descripcion', 'id_tipo_origen', 'id_tipo_flujo', 'id_tipo_folio', 'id_tipo_avance', 'id_tipo_asignacion_folio', 'requiere_fe', 'plantilla_encabezado', 'plantilla_cuerpo','numero_firmas','plantilla_distribucion','derivar_primera_firma','derivar_ultima_firma','buzon_primera_firma','buzon_ultima_firma','nombre_corto_firma'
     ];
 
     public function buzones_flujo()

@@ -117,7 +117,7 @@ class TipoDocumentoController extends Controller
 
         return View::make('tipo_documento.index', [
             'listado_tiposdoc'=>$datosTipoDoc,
-            'listado_buzones'=>$aBuzones,
+            'listado_buzones'=>$aBuzones, 
             'datosFlujo'=>$datosFlujo,
             'datosOrigen'=>$datosOrigen,
             'aOrigen'=>$aOrigen,
@@ -151,7 +151,11 @@ class TipoDocumentoController extends Controller
             'plantilla_distribucion'=>$request->plantilla_distribucion,
             'plantilla_encabezado'=>$request->plantilla_encabezado,
             'plantilla_cuerpo'=>$request->plantilla_cuerpo,
-            'buzones_flujo'=>$request->bzs_flujo       
+            'buzones_flujo'=>$request->bzs_flujo,
+            'derivar_primera_firma' =>$request->derivarPrimera,       
+            'derivar_ultima_firma' =>$request->derivarUltima,       
+            'buzon_primera_firma' =>$request->buzonPrimera,       
+            'buzon_ultima_firma' =>$request->buzonUltima    
             
         ]);
 
@@ -194,7 +198,11 @@ class TipoDocumentoController extends Controller
             'plantilla_distribucion'=>$request->plantilla_distribucion,
             'plantilla_encabezado'=>$request->plantilla_encabezado,
             'plantilla_cuerpo'=>$request->plantilla_cuerpo,
-            'buzones_flujo'=>$request->bzs_flujo       
+            'buzones_flujo'=>$request->bzs_flujo,
+            'derivar_primera_firma' =>$request->derivarPrimera,       
+            'derivar_ultima_firma' =>$request->derivarUltima,       
+            'buzon_primera_firma' =>$request->buzonPrimera,       
+            'buzon_ultima_firma' =>$request->buzonUltima       
             
         ]);
 

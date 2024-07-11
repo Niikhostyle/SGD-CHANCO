@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DataTables\UsersDataTable;
 use App\Jobs\Firma;
+use App\Jobs\FirmarDerivar;
 use App\Models\Documento;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
@@ -35,6 +36,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Mail\MailController;
 use App\Models\DocumentoTmp;
+use App\Models\FirmaLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 //use Barryvdh\DomPDF\Facade\Pdf;
@@ -366,14 +368,29 @@ class BuzonController extends Controller
         }else{
 
             $aDocumentos = array(); 
+            $doctoPendiente = array();
             foreach ($listado_pendientes['data'] as $dato)
             {
                 $datosJsonTipoDocumento = json_decode($dato['json_tipo_documento'],true);
                 
-                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1)
+                if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1){
                     $aDocumentos[] = array("value" => $dato['id_documento'], "label" => $dato['identificador'], "title" => $dato['identificador'] . " - " . $dato['materia']);
+                    $doctoPendiente[] = $dato['id_documento'];
+                }
             }
         }        
+
+        $log_firma = FirmaLog::whereIn('id_documento',$doctoPendiente)->get();
+        $msjFirma = "Errores en la última firma:<br />";
+        $nFilasError = 0;
+        foreach ($log_firma as $lf) {
+            $nFilasError++;
+            $msjFirma  .= $lf->mensaje."<br>";
+        }
+
+        if($nFilasError == 0){
+            $msjFirma = "";
+        }
 
         /* NUEVO-DOCUMENTOS */
 
@@ -396,7 +413,8 @@ class BuzonController extends Controller
             'allBuzonesT2'=>$aAllBuzonesT2,
             'listDocPendientesBuzon' => $aDocumentos,
             'listado_parametros'=>$listado_parametros['data'],
-            'aplicaFrm'=>$aplicaFrm
+            'aplicaFrm'=>$aplicaFrm,
+            'log_firma' => $msjFirma
         ]);
 
     }
@@ -544,7 +562,32 @@ class BuzonController extends Controller
         foreach($request->firmas as $idDoc)
         {
             $aValores = explode("-", $idDoc);
-            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            // $derivarPrimera = 0;
+            // $derivarUltima  = 0;
+            // $datosDocumento = Documento::findOrFail($aValores[0]);
+            // $datosDocumento->rel_tipo_documento;
+
+            // $nroFirmas = $datosDocumento->rel_tipo_documento->numero_firmas;
+            // $derivarPrimera = intval($datosDocumento->rel_tipo_documento->derivar_primera_firma);
+            // $derivarUltima = intval($datosDocumento->rel_tipo_documento->derivar_ultima_firma);
+            // $buzonPrimera = intval($datosDocumento->rel_tipo_documento->buzon_primera_firma);
+            // $buzonUltima = intval($datosDocumento->rel_tipo_documento->buzon_ultima_firma);
+
+            // $firmasRealizadas = DocumentoBuzonBitacora::where('id_documento_buzon',$aValores[1])->where('id_accion',7)->count();
+
+            // if(($derivarPrimera == 1 && $firmasRealizadas == 0)){
+            //     FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1],$buzonPrimera, $sesion_key, Auth::user()->id);     
+            // }
+            // else {
+            //     if($derivarUltima == 1 && $firmasRealizadas == ($nroFirmas - 1)) {
+            //         FirmarDerivar::dispatch($request->buzon, $aValores[0], $aValores[1], $buzonUltima, $sesion_key, Auth::user()->id);        
+            //     }
+            //     else{
+            //         Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
+            //     }
+            // }
+
+            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);    
             DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
         }
 
@@ -1092,5 +1135,35 @@ class BuzonController extends Controller
             return $this->respondError('Falla al eliminar documento:' . $e->getMessage(), 500); 	
         } 	
     } 
+
+    public function firmar_derivar($sesionKey,$nombreBuzon,$nombreCorto,$usuarios,$IDDocumento,$IDDocBuzon,$IDBuzon,$IDUsuario,$buzonDestino,$acciones,$jsonRespuesta,$cargo,$restringir,$IDUsuarioSub){
+
+        $accionDocumento = Http::withHeaders(['key'=>$sesionKey,'Content-Type'=>'application/json'])
+        ->timeout(100)
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [
+            'nombre_buzon'=>$nombreBuzon,
+            'nombre_corto_buzon'=>$nombreCorto,
+            'tipo_buzon'=>'2',
+            'usuarios_asignados'=> $usuarios,
+            'id_documento'=>$IDDocumento,
+            'id_documento_buzon'=>$$IDDocBuzon,
+            'id_buzon'=>$IDBuzon,
+            'id_usuario'=>$IDUsuario,
+            'destinatarioPrincipal'=>$buzonDestino,
+            'acciones_solicitadas'=>$acciones,
+            'destinatarioOtros'=>null,
+            'json_respuesta_a'=>$jsonRespuesta,
+            'id_tipo_destino'=>1,
+            'carpeta'=>2,
+            'titular'=> null,            
+            'cargo_firma'=>$cargo,
+            'restringir_sr' =>$restringir,
+            'id_usuario_sr' => $IDUsuarioSub
+      ]);
+    }
+
+    public function editor(){
+        return View::make('buzon.editor',[]);
+    }
 
 }

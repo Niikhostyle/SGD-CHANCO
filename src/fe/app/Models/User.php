@@ -38,6 +38,8 @@ class User extends Authenticatable
         'hash_recuperacion',
         'hash_recuperacion_fecha',
         'remember_token',
+        'numero_contacto',
+        'cargo'
     ];
 
     /**

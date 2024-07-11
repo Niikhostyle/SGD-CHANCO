@@ -63,7 +63,6 @@ class Firma implements ShouldQueue
         if ($datosFea->failed()) {
             dump($datosFea->json()); 
             //si no se procesa el documento, se debe dejar en estado pendiente
-            
             DocumentoBuzon::find($this->documento_buzon)->update(['id_estado_documento' => 4]);
 
         }

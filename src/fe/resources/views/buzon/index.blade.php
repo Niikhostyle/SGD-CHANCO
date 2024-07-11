@@ -136,7 +136,7 @@
                 <div class="col-md-7"> </div>
                 <div class="col-md-5">
                     <select name="subrogante" id="form_subrogante" class="form-control" style="text-align:left !important"> 
-                        <option  value='' >Seleccione</option>                        
+                        <option  value='10000' >Ninguno</option>                        
                     </select>
                 </div>
             </div>
@@ -273,7 +273,7 @@
 
         $('#form_titular').empty();
         $('#form_subrogante').empty();
-        //$('#form_subrogante').append("<option selected value='' >Seleccione</option>");
+        $('#form_subrogante').append("<option selected value='10000' >Ninguno</option>");
         
         //llenar listbox titular
         duallist.find(":selected").each(function(ind,sel)
@@ -304,7 +304,7 @@
         
         $('#form_titular').empty();
         $('#form_subrogante').empty();
-        $('#form_subrogante').append("<option selected value='' >Seleccione</option>");
+        $('#form_subrogante').append("<option selected value='10000' >Ninguno</option>");
         duallist.find(":selected").each(function(ind,sel)
         {         
            var $this = $(this);
@@ -323,7 +323,7 @@
 
     $("#form_titular").change(function(){
         $('#form_subrogante').empty();
-        $('#form_subrogante').append("<option selected value='' >Seleccione</option>");
+        $('#form_subrogante').append("<option selected value='10000' >Ninguno</option>");
         duallist.find(":selected").each(function(ind,sel)
         {         
            var $this = $(this);
