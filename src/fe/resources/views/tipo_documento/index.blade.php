@@ -131,7 +131,7 @@
             </div>            
 
             <div class="row">
-            <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="input_tipo_folio">Tipo Folio:</label>
                         <select class="form-control" id="form_tipo_folio" name="tipo_folio" required>
@@ -142,7 +142,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="form-group">
                         <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
                         <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
@@ -177,7 +177,12 @@
                         </select>
                     </div>
                 </div>              
-                
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="input_ff">Nombre Firma Folio:</label>
+                        <input type="text" class="form-control " id="form_nombre_ff" aria-describedby="nombre_ff_error" placeholder="" value="" name="nombre_ff">
+                    </div>
+                </div>
             </div>  
             
             <div class="row bloque_flujo_interno">
@@ -435,6 +440,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
 
                             $("input[name='nombre']").val(data.data.nombre);
                             $("input[name='nombre_corto']").val(data.data.nombre_corto);
+                            $("input[name='nombre_ff']").val(data.data.nombre_corto_firma);
                             $("input[name='descripcion']").val(data.data.descripcion);
                             $("select[name='tipo_origen']").val(data.data.id_tipo_origen);
                             $("select[name='tipo_flujo']").val(data.data.id_tipo_flujo);
@@ -490,6 +496,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $('.btn-submit').show();
 
         $('#form_crear_editar').trigger("reset");
+        $('#hiddTipoDocumento').val('');
         $("#form_crear_editar :input").prop("disabled", false);
         editor_encabezado.setData();   
         editor_cuerpo.setData();   
@@ -783,6 +790,7 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
         $(".print-error-msg").hide();
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
+        var nombre_ff = $("input[name='nombre_ff']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
         var descripcion = $("input[name='descripcion']").val();
         var tipo_origen = $("select[name='tipo_origen']").val();
@@ -865,7 +873,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                 dataType: 'json',
                 data: { 
                     _token:_token, 
-                    nombre:nombre, 
+                    nombre:nombre,
+                    nombre_corto_firma:nombre_ff, 
                     nombre_corto:nombre_corto, 
                     descripcion:descripcion,
                     tipo_origen:tipo_origen,
@@ -932,7 +941,8 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
                             data: { 
                                 _token:_token, 
                                 nombre:nombre, 
-                                nombre_corto:nombre_corto, 
+                                nombre_corto:nombre_corto,
+                                nombre_corto_firma:nombre_ff, 
                                 descripcion:descripcion,
                                 tipo_origen:tipo_origen,
                                 tipo_flujo:tipo_flujo,
@@ -1013,10 +1023,12 @@ $("#tabla_grilla_buzones").on( 'row-reorder', function ( e, diff, edit ) {
     function activa_firmas(re){
         if(re == "true"){
             $('#form_numero_firmas').prop('disabled', false);
+            $('#form_nombre_ff').prop('disabled', false);
         }
         else{
             $('#form_numero_firmas').prop('disabled', true);
             $('#form_numero_firmas').val('');
+            $('#form_nombre_ff').prop('disabled', true);
         }
     }
 

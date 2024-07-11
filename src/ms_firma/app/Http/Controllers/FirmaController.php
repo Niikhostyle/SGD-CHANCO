@@ -34,12 +34,14 @@ class FirmaController extends Controller
             {
                 DB::beginTransaction();                
 
-                $datos = $request->json()->all();                
+                $datos = $request->json()->all();   
+
                 //GENERACIÓN IMAGEN PARA FIRMA
                 $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run','nombres', 'primer_apellido','segundo_apellido','img_firma','aplica_fea','id']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
                 $sNombreImgAnexo = $aInfoUsuarios['run'] . date('dmYHis') . '_a.png';
+                $sNombreImgFolio = $aInfoUsuarios['run'] . date('dmYHis') . '_f.png'; 
                 $dFechaCreacion = date('Y-m-d H:i:s');
         
                 $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon','=','buzon.id_buzon')
@@ -53,7 +55,6 @@ class FirmaController extends Controller
                 { 
                     $comentario = "No existe cargo asociado al buzón.";
                     throw new Exception($comentario);
-                    //return $this->respondFail($comentario);
                 }
 
                 //verificar restrinccion firma subrogante
@@ -63,13 +64,11 @@ class FirmaController extends Controller
                         throw new Exception($comentario);
                     }
                 }
-
                 
                 if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) 
                 {
                     $comentario = "No existe imagen para firma asociada al usuario.";
                     throw new Exception($comentario);
-                   //return $this->respondFail($comentario);
                 }   
                 
                 $img = Image::make(storage_path('app/public/files/imagen_firma/'.$aInfoUsuarios['img_firma']));
@@ -85,13 +84,27 @@ class FirmaController extends Controller
 
                 //INICIO PROCESO FIRMA
                 $aInfoDocumento = Documento::where('id_documento', $datos['id_documento'])->first(['hash_validacion', 'identificador', 'json_tipo_documento','distribucion']);                
+
+                //obtener máximo de firmas 
+                $datosJsonTipoDocumento = json_decode($aInfoDocumento['json_tipo_documento'],true); 
+                $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio']; 
+                
+                if (isset($datosJsonTipoDocumento['numero_firmas'])) 
+                    $nNroFirmas = $datosJsonTipoDocumento['numero_firmas']; 
+                else  
+                    $nNroFirmas = 4;   
                 
                 if (!$aInfoUsuarios['aplica_fea'])
                 {
                     $comentario = "Usuario no tiene permiso para realizar firma electrónica.";
                     throw new Exception($comentario);
-                    //return $this->respondFail($comentario);
-                }                    
+                }  
+                
+                //acciones de firma en bitacora 
+                $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon') 
+                ->where('documento_buzon.id_documento', $datos['id_documento']) 
+                ->where('documento_buzon_bitacora.id_accion', 7) 
+                ->get();      
                 
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
                                                         ->join('documento', 'documento_buzon.id_documento','=','documento.id_documento')
@@ -102,20 +115,62 @@ class FirmaController extends Controller
                                                         ->select('nombre_archivo_codificado','paginas_archivo','id_tipo_archivo','folio')
                                                         ->first();
                 
-                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
+                //if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
+                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']) || !isset($aDocumentoBuzon['folio']))//si no hay archivo o folio en ultima firma 
                 {
-                    
+                   
                     $comentario = "No existe archivo para realizar firma electrónica.";
                     
-                    //generar pdf                    
-                    $datosArchivo = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
-                    ->timeout(30)        
-                    ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
-                        'id_documento'=>$datos['id_documento'],
-                        'id_documento_buzon'=>$datos['id_documento_buzon'],
-                        'id_usuario'=>$datos['id_usuario'],
-                        'id_buzon'=>$datos['id_buzon']
-                    ]);
+                    $nGeneraFolio = 0; 
+                    $nGeneraArchivo = 0; 
+                                                                
+                    if (($idTipoAsigFolio == 2 || $idTipoAsigFolio == 4) && count($datosBitacora) == 0) //primera firma 
+                    { 
+                        $nGeneraFolio = 1; 
+                        $nGeneraArchivo = 1; 
+                    } 
+ 
+                    if ($idTipoAsigFolio == 5 && (count($datosBitacora) == ($nNroFirmas - 1))) //ultima firma 
+                    { 
+                        $nGeneraFolio = 1; 
+                    }     
+ 
+                    if ((($idTipoAsigFolio == 5 || $idTipoAsigFolio == 1) && count($datosBitacora) == 0)) 
+                    { 
+                        $nGeneraFolio = 0; 
+                        if (!isset($aDocumentoBuzon['nombre_archivo_codificado']))
+                            $nGeneraArchivo = 1; 
+                    } 
+ 
+                    if ($nGeneraArchivo == 1)   
+                    {   
+                       //generar pdf                    
+                        $datosArchivo = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) //
+                        ->timeout(30)        
+                        ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [            
+                            'id_documento'=>$datos['id_documento'],
+                            'id_documento_buzon'=>$datos['id_documento_buzon'],
+                            'id_usuario'=>$datos['id_usuario'],
+                            'id_buzon'=>$datos['id_buzon'],
+                            'generaFolio'=>$nGeneraFolio 
+                        ]);
+                    }
+
+                    if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) 
+                    {                        
+                         
+                        //generar folio 
+                        $datosArchivo = Http::withHeaders(['key'=>$request->header('key'),'Content-Type'=>'application/json']) 
+                        ->timeout(30)         
+                        ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [             
+                            'id_documento'=>$datos['id_documento'], 
+                            'id_documento_buzon'=>$datos['id_documento_buzon'], 
+                            'id_usuario'=>$datos['id_usuario'], 
+                            'id_buzon'=>$datos['id_buzon'], 
+                            'generaFolio'=>$nGeneraFolio 
+                        ]);  
+                         
+                    } 
 
                     if (isset($datosArchivo['status']) && $datosArchivo['status'] == '400')
                     {
@@ -153,30 +208,20 @@ class FirmaController extends Controller
                 $id_documento_buzon = $datos['id_documento_buzon'];
                 $imagen_firma = storage_path('app/public/files/imagen_firma/'.$sNombreImg); 
                 $imagen_firma_anexo = storage_path('app/public/files/imagen_firma/'.$sNombreImgAnexo);
+                $imagen_firma_folio = storage_path('app/public/files/imagen_firma/'.$sNombreImgFolio);  
 
                 if ( !file_exists($imagen_firma) )
                 {
                     $comentario = "Existe un problema con la imagen relacionada a la firma electrónica.";
                     throw new Exception($comentario);
-                }
+                }                
                 
-                //acciones de firma en bitacora
-                $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                ->where('documento_buzon.id_documento', $datos['id_documento'])
-                ->where('documento_buzon_bitacora.id_accion', 7)
-                ->get();
-                
-                //obtener máximo de firmas
-                $datosJsonTipoDocumento = json_decode($aInfoDocumento['json_tipo_documento'],true);
-
                 //plantilla distribución
 
                 $nEspacioDistribucion = 0;
 
-                //if (isset($datosJsonTipoDocumento['plantilla_distribucion']))
                 if (isset($aInfoDocumento['distribucion']))
                 {
-                    //$tPlantillaDistribucion = $datosJsonTipoDocumento['plantilla_distribucion'];
                     $tPlantillaDistribucion = $aInfoDocumento['distribucion'];
                     $numLineasDistribucion = substr_count($tPlantillaDistribucion, "\n");
 
@@ -185,17 +230,22 @@ class FirmaController extends Controller
                 else{
                     $nEspacioDistribucion = 50;
                 }
-
-                if (isset($datosJsonTipoDocumento['numero_firmas']))
-                    $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-                else 
-                    $nNroFirmas = 4;  
-
+                
                 if (count($datosBitacora) >= $nNroFirmas)
                 {
                     $comentario = "Excede el máximo de firmas electrónicas posibles.";
                     throw new Exception($comentario);
                 }
+
+                //alto visadores
+                $datosVisar = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon','=','documento_buzon.id_documento_buzon') 
+                ->where('documento_buzon.id_documento', $datos['id_documento']) 
+                ->where('documento_buzon_bitacora.id_accion', 6) 
+                ->get();
+                
+                $nEspacioVisadores = 20; 
+                if (count($datosVisar) > 0)
+                    $nEspacioVisadores = 40; 
                 
                 $aUbicacionesFirma = array(
                     array(300, 240, 555, 325), 
@@ -205,15 +255,6 @@ class FirmaController extends Controller
                     array(300, 40, 555, 125),
                     array(30, 40, 285, 125)
                 );
-
-/*                $aUbicacionesFirma = array(
-                    array(300, 280, 555, 365), 
-                    array(30, 280, 285, 365),
-                    array(300, 180, 555, 265),
-                    array(30, 180, 285, 265),
-                    array(300, 80, 555, 165),
-                    array(30, 80, 285, 165)
-                );*/
 
                 //posiciones desde donde comenzar a utilizar las ubicaciones del array anterior
                 $aFirmaPosicion = array(
@@ -233,9 +274,9 @@ class FirmaController extends Controller
                 $nPosCant = $aFirmaPosicion[$nNroFirmas][$nPosFirma];
                 
                 $n_llx = $aUbicacionesFirma[$nPosCant][0];
-                $n_lly = $aUbicacionesFirma[$nPosCant][1] + $nEspacioDistribucion;
+                $n_lly = $aUbicacionesFirma[$nPosCant][1] + $nEspacioDistribucion + $nEspacioVisadores;
                 $n_urx = $aUbicacionesFirma[$nPosCant][2];
-                $n_ury = $aUbicacionesFirma[$nPosCant][3] + $nEspacioDistribucion; 
+                $n_ury = $aUbicacionesFirma[$nPosCant][3] + $nEspacioDistribucion + $nEspacioVisadores; 
                 
                 //por defecto anexo
                 $n_llx_anexo = 300;
@@ -284,6 +325,15 @@ class FirmaController extends Controller
                     'urx'      => $n_urx_anexo, 
                     'ury'      => $n_ury_anexo  
                 );
+
+                $layoutFolio = array( 
+                    'filename' => $imagen_firma_folio, 
+                    'page'     => 1, 
+                    'llx'      => 180,  
+                    'lly'      => 880,  
+                    'urx'      => 580,  
+                    'ury'      => 980    
+                ); 
                 
                 $nNombreArchivoCargar = $this->getNombreDocumento($datos['id_documento']); 
                
@@ -335,11 +385,10 @@ class FirmaController extends Controller
                     $nfh = 1; 
                 }
                 else //firma tradicional
-                {
+                {                    
                     $aRespuestaFirma = $classFirma->setRUN($nRutFirma)                        
                                                   ->addPDF($sArchivo, $sDescipcion, $layout)
-                                                  ->sign(); 
-                                                  
+                                                  ->sign();                                                   
                 }                                                 
                 
                 if (isset($aRespuestaFirma['status'])) 
@@ -355,7 +404,7 @@ class FirmaController extends Controller
                         $responseFile = $aRespuestaFirma['files'][0];            
                         if($responseFile['status'] == 'OK') 
                         {
-                            if ($nfh == 0)
+                            if ($nfh == 0) //firma tradicional
                             {
                                 $encondedFile = $responseFile['content'];  
                                 
@@ -395,8 +444,9 @@ class FirmaController extends Controller
                                     $nSalida = $archFile->version + 1;
                                     DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
                                 }
-
-                                DocumentoBuzonArchivo::create([
+                                
+                                $documentoBuzonArchivo = DocumentoBuzonArchivo::create([ 
+                                //DocumentoBuzonArchivo::create([
                                     'id_documento_buzon' => $id_documento_buzon,
                                     'id_tipo_archivo' => 1,
                                     'nombre_archivo_original' => $sNombreArchivo, 
@@ -418,6 +468,40 @@ class FirmaController extends Controller
 
                                 //registrar accion de cambio de archivo ppal en bitacora
                                 $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.",5);                            
+
+                                //firma archivo nuevamente si folio en ultima firma 
+                                if (($idTipoAsigFolio == 5) && count($datosBitacora) == ($nNroFirmas - 1)) 
+                                { 
+                                    //Generación imagen de firma 
+ 
+                                    $datosDocumentos = Documento::findOrFail($datos['id_documento']);  
+                                    $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true); 
+                                    $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° '.$datosDocumentos['folio'].' / '. date('Y'); 
+ 
+                                    $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");   
+                                    $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']); 
+                                    $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d')." de ".$aMeses[$fecha->format('n')-1]. " del ".$fecha->format('Y');   
+  
+                                    $img = Image::canvas(600, 100, '#FFFFFF');   
+                                    $img->text($sPrefijoFolio, 20, 45, function ($font) { $font->file(storage_path('../public/timesb.ttf')); $font->size(34); $font->align('left');});  
+                                    $img->text($sfechaFolio, 20, 90, function ($font) { $font->file(storage_path('../public/timesb.ttf')); $font->size(20); $font->align('left');});  
+
+                                    $img->save(storage_path('app/public/files/imagen_firma/'.$sNombreImgFolio));                          
+ 
+                                    $nNombreArchivoCargarNew = $this->getNombreDocumento($datos['id_documento']); 
+                                                                         
+                                    $aRespuestaFirma = $this->callHash(storage_path('app/public/files/'.$nNombreArchivoCargar), $layoutFolio, 1, $nNombreArchivoCargarNew, $nRutFirma);                                       
+                                    
+                                    if (isset($aRespuestaFirma['status']))  
+                                    { 
+                                        $comentario = $aRespuestaFirma['error']; 
+                                        throw new Exception($comentario); 
+                                    } 
+                                     
+                                    //actualizar registro de archivo 
+                                    DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]); 
+ 
+                                } 
                             } 
                             
                             //firma anexos
@@ -436,7 +520,9 @@ class FirmaController extends Controller
                             DB::commit();  
                             
                             //elimina imagen de firma 
-                            $this->deleteImg($sNombreImg); 
+ 
+                            $this->deleteImg($sNombreImg);//elimina imagen de firma   
+                            $this->deleteImg($sNombreImgFolio);//imagen folio   
 
                             return $this->respondSuccess("Archivo firmado almacenado exitosamente.", 200);
                                 
@@ -476,6 +562,32 @@ class FirmaController extends Controller
                 
 
     }
+
+    public function derivar_auto($buzonDestino,$sesionKey,$IDDocumento,$IDDocBuzon,$IDUsuario,$IDBuzon){ 
+        return Http::withHeaders(['key'=>$sesionKey,'Content-Type'=>'application/json']) 
+        ->timeout(30)     
+        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [ 
+            "nombre_buzon"=>"buzon publico", 
+            "nombre_corto_buzon"=>"bp", 
+            "tipo_buzon"=>"2", 
+            "usuarios_asignados"=> null, 
+            "id_documento"=>$IDDocumento, 
+            "id_documento_buzon"=>$IDDocBuzon, 
+            "id_buzon"=>$IDBuzon, 
+            "id_usuario"=>$IDUsuario, 
+            "destinatarioPrincipal"=>$buzonDestino, 
+            "acciones_solicitadas"=>null, 
+            "destinatarioOtros"=>null, 
+            "json_respuesta_a"=>null, 
+            "id_tipo_destino"=>1, 
+            "carpeta"=>2, 
+            "titular"=> null,             
+            "cargo_firma"=>"bpublico", 
+            "restringir_sr" =>0, 
+            "id_usuario_sr" => 0, 
+            "contestar_hasta"=>null 
+        ]); 
+    }    
 
     public function saveBitacora($docbuzon,$fecha,$usuario,$comentario,$accion)
     {
