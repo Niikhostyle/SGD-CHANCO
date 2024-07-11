@@ -139,6 +139,7 @@ class TipoDocumentoController extends Controller
         ->post('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/crear', [
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
+            'nombre_corto_firma'=>$request->nombre_corto_firma,
             'descripcion'=>$request->descripcion,
             'id_tipo_origen'=>$request->tipo_origen,
             'id_tipo_flujo'=>$request->tipo_flujo,
@@ -181,6 +182,7 @@ class TipoDocumentoController extends Controller
             'id_tipo_documento'=>$request->hiddTipoDocumento,
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
+            'nombre_corto_firma'=>$request->nombre_corto_firma,
             'descripcion'=>$request->descripcion,
             'id_tipo_origen'=>$request->tipo_origen,
             'id_tipo_flujo'=>$request->tipo_flujo,

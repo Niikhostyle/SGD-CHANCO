@@ -476,11 +476,11 @@ class FirmaController extends Controller
  
                                     $datosDocumentos = Documento::findOrFail($datos['id_documento']);  
                                     $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'],true); 
-                                    $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto'] . ' N° '.$datosDocumentos['folio'].' / '. date('Y'); 
+                                    $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° '.$datosDocumentos['folio'].' / '. date('Y'); 
  
                                     $aMeses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");   
                                     $fecha = date_create_from_format('Y-m-d H:i:s',$datosDocumentos['fecha']); 
-                                    $sfechaFolio = 'Padre Las Casas, ' . $fecha->format('d')." de ".$aMeses[$fecha->format('n')-1]. " del ".$fecha->format('Y');   
+                                    $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d')." de ".$aMeses[$fecha->format('n')-1]. " del ".$fecha->format('Y');   
   
                                     $img = Image::canvas(600, 100, '#FFFFFF');   
                                     $img->text($sPrefijoFolio, 20, 45, function ($font) { $font->file(storage_path('../public/timesb.ttf')); $font->size(34); $font->align('left');});  
