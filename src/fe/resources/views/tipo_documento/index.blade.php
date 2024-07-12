@@ -129,28 +129,26 @@
                     </div>
 
                 </div>
-                
-            </div>            
 
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="input_tipo_folio">Tipo Folio:</label>
-                        <select class="form-control" id="form_tipo_folio" name="tipo_folio" required>
-                            <option value="">Seleccionar</option>
-                            @foreach($datosFolio as $dato)
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="input_tipo_folio">Tipo Folio:</label>
+                            <select class="form-control" id="form_tipo_folio" name="tipo_folio" required>
+                                <option value="">Seleccionar</option>
+                                @foreach($datosFolio as $dato)
                                 <option value="{{$dato['id_tipo_folio']}}">{{$dato['nombre']}}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
-                        <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
-                            <option value="">Seleccionar</option>
-                            @foreach($datosAsignacionFolio as $dato)
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
+                            <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
+                                <option value="">Seleccionar</option>
+                                @foreach($datosAsignacionFolio as $dato)
                                 <option value="{{$dato['id_tipo_asignacion_folio']}}">{{$dato['nombre']}}</option>
                                 @endforeach
                             </select>
@@ -181,11 +179,11 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="input_ff">Nombre Firma Folio:</label>
-                        <input type="text" class="form-control " id="form_nombre_ff" aria-describedby="nombre_ff_error" placeholder="" value="" name="nombre_ff">
+                        <div class="form-group">
+                            <label for="input_ff">Nombre Firma Folio:</label>
+                            <input type="text" class="form-control " id="form_nombre_ff" aria-describedby="nombre_ff_error" placeholder="" value="" name="nombre_ff">
+                        </div>
                     </div>
-                </div>
 
                 </div>
                 <div class="row" id="opDerivacion" style="display: none;">
@@ -961,7 +959,7 @@
                     _token: _token,
                     nombre: nombre,
                     nombre_corto: nombre_corto,
-                    nombre_corto_firma:nombre_ff, 
+                    nombre_corto_firma: nombre_ff,
                     descripcion: descripcion,
                     tipo_origen: tipo_origen,
                     tipo_flujo: tipo_flujo,
@@ -1029,7 +1027,7 @@
                             _token: _token,
                             nombre: nombre,
                             nombre_corto: nombre_corto,
-                            nombre_corto_firma:nombre_ff,
+                            nombre_corto_firma: nombre_ff,
                             descripcion: descripcion,
                             tipo_origen: tipo_origen,
                             tipo_flujo: tipo_flujo,
