@@ -147,13 +147,19 @@ class ArchivoController extends Controller
                 $sfecha = $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
 
             $sEncabezado = $datosDocumentos['encabezado'];
+            $sCuerpo = $datosDocumentos['cuerpo'];
+
             if ($datosRequest['generaFolio'] == 1) {
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
                 $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
                 $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
+                
+                $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);
+                $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+                $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
             }
 
-            $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $datosDocumentos['cuerpo']);
+            $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
             $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
             $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
 
