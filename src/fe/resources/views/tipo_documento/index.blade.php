@@ -146,7 +146,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
-                            <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
+                            <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" onchange="valida_nfirma(this.value)" required>
                                 <option value="">Seleccionar</option>
                                 @foreach($datosAsignacionFolio as $dato)
                                 <option value="{{$dato['id_tipo_asignacion_folio']}}">{{$dato['nombre']}}</option>
@@ -887,12 +887,19 @@
             }
         }
 
+        //validar nro de firmas en última firma
+
+        if ($('#form_tipo_asignacion_folio').val() == 5 && $('#form_numero_firmas').val() == 1)
+        {
+            errores++;
+            msg_derivar.push("Según Asignación Folio y Fecha, debe agregar más de 1 firma");
+        }
+                
         if (errores > 0) {
             $(".print-error-msg").show();
             printErrorMsg(msg_derivar);
             $('.btn-submit').html('Guardar');
         }
-
 
         var datosBuzonFlujo = [];
 
@@ -1129,10 +1136,26 @@
         if (nValor > 1) {
             $('#sdaDerivacion').show();
         } else {
+            if (nValor == 1 && $('#form_tipo_asignacion_folio').val() == 5)
+            {
+                toastr.error("Según Asignación Folio y Fecha, debe agregar más de 1 firma", "¡Aviso!");
+                $('#form_numero_firmas').val('');
+            }                
+            
             $('#sdaDerivacion').hide();
             $('#selectSegunda').val(null).trigger('change');
             $('#chkSegunda').prop('checked', false);
         }
+    }
+
+    function valida_nfirma(nValor)
+    {
+        if (nValor == 5 && $('#form_numero_firmas').val() == 1) //ultima firma
+        {
+            toastr.error("Según Asignación Folio y Fecha, debe agregar más de 1 firma", "¡Aviso!");
+            $('#form_numero_firmas').val('');
+        }
+
     }
 </script>
 @stop
