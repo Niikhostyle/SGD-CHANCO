@@ -123,9 +123,6 @@ class ArchivoController extends Controller
                     $nFolio = $this->obtenerFolio($request->header('key'), $anio, $idTipoDocumento, $idTipoFolio, $datosRequest['id_buzon']);
                     //fin nueva forma de obtener folio 
 
-                    $nFolio = $this->obtenerFolio($request->header('key'), $anio, $idTipoDocumento, $idTipoFolio, $datosRequest['id_buzon']);
-                    //fin nueva forma de obtener folio
-
                     if (isset($nFolio)) {
                         Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]);
                         Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha->format('Y-m-d H:i:s')]);
