@@ -545,10 +545,14 @@ class FirmaController extends Controller
                             $salida = "200";
 
                             if (($derivarPrimera == 1 && $firmasRealizadas == 0)) {
-                                $salida = $this->derivar_auto($buzonPrimera, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon']);
+                                if ($nNroFirmas > 1) {
+                                    $salida = $this->derivar_auto($buzonPrimera, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon'], 0);
+                                } else {   
+                                    $salida = $this->derivar_auto($buzonPrimera, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon'], 1);
+                                }
                             } else {
                                 if ($derivarUltima == 1 && $firmasRealizadas == ($nNroFirmas - 1)) {
-                                    $salida = $this->derivar_auto($buzonUltima, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon']);
+                                    $salida = $this->derivar_auto($buzonUltima, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon'], 1);
                                 }
                             }
 
@@ -767,31 +771,8 @@ class FirmaController extends Controller
         return $aSalida;
     }
 
-    public function derivar_auto($buzonDestino, $sesionKey, $IDDocumento, $IDDocBuzon, $IDUsuario, $IDBuzon)
+    public function derivar_auto($buzonDestino, $sesionKey, $IDDocumento, $IDDocBuzon, $IDUsuario, $IDBuzon, $nUltima = 0)
     {
-        // return Http::withHeaders(['key'=>$sesionKey,'Content-Type'=>'application/json'])
-        // ->timeout(300)    
-        // ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [
-        //     "nombre_buzon"=>"buzon publico",
-        //     "nombre_corto_buzon"=>"bp",
-        //     "tipo_buzon"=>"2",
-        //     "usuarios_asignados"=> null,
-        //     "id_documento"=>$IDDocumento,
-        //     "id_documento_buzon"=>$IDDocBuzon,
-        //     "id_buzon"=>$IDBuzon,
-        //     "id_usuario"=>$IDUsuario,
-        //     "destinatarioPrincipal"=>$buzonDestino,
-        //     "acciones_solicitadas"=>null,
-        //     "destinatarioOtros"=>null,
-        //     "json_respuesta_a"=>null,
-        //     "id_tipo_destino"=>1,
-        //     "carpeta"=>2,
-        //     "titular"=> null,            
-        //     "cargo_firma"=>"bpublico",
-        //     "restringir_sr" =>0,
-        //     "id_usuario_sr" => 0,
-        //     "contestar_hasta"=>null
-        // ]); 
         try {
 
             DB::beginTransaction();
@@ -806,7 +787,11 @@ class FirmaController extends Controller
 
                 //si viene destinatario principal se agrega un registro
                 $jsonAcciones = array();
-                $jsonAcciones[] = array("id_accion" => 7);
+                if ($nUltima == 1) {
+                    $jsonAcciones[] = array("id_accion" => 11);
+                } else {
+                    $jsonAcciones[] = array("id_accion" => 7);
+                }
 
                 if ($buzonDestino != "") {
                     //verificar si se crea o actualiza   
@@ -915,8 +900,12 @@ class FirmaController extends Controller
             if (($buzonDestino != "" || $buzonDestino != null)) {
                 //valida acciones
                 $jsonAcciones = array();
-                $jsonAcciones[] = array("id_accion" => 7);
 
+                if ($nUltima == 1) {
+                    $jsonAcciones[] = array("id_accion" => 11);
+                } else {
+                    $jsonAcciones[] = array("id_accion" => 7);
+                }
 
                 $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $IDDocumento)
                     ->where('id_documento_buzon_padre', $IDDocBuzon)
