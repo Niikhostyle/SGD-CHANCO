@@ -384,141 +384,141 @@
 
                     </div>
 
-            <div style="display:none">
-                <div class="col-md-12">
-                    <form> </form>
-                </div>
-            </div>
-
-            <div class="form-group row_arch_ppal">
-                <label for="exampleFormControlTextarea1">Archivo Principal</label>
-
-                <div class="card-body card-archivos" id="cargar_principal">
-                    <div id="dropzone-principal-view" class="dropzone-view"></div>
-                    <div id="dropzone-principal" class="dropzone dropzone-files"></div>
-
-                    <div id="card_desplegar_versiones" class="bl1 header1">
-                        <label class="">Versiones</label>
-                        <button type="button" class="btn text-nowrap btn-min-w  boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
-                            <i class="fas fa-angle-double-right fa-3x"></i>
-                        </button>
-                    </div>
-                    <div class="bl2" id="card_ocultar_versiones" style="display:none">
-                        <div class="header1">
-                            <label class="">Versiones</label>
-                            <button type="button" class="btn text-nowrap btn-min-w  boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
-                                <i class="fas fa-angle-double-left fa-3x"></i>
-                            </button>
-                        </div>
-                        <div class="display_va">
-                            <div id="versiones_anteriores"></div>
+                    <div style="display:none">
+                        <div class="col-md-12">
+                            <form> </form>
                         </div>
                     </div>
-                </div>
 
+                    <div class="form-group row_arch_ppal">
+                        <label for="exampleFormControlTextarea1">Archivo Principal</label>
+
+                        <div class="card-body card-archivos" id="cargar_principal">
+                            <div id="dropzone-principal-view" class="dropzone-view"></div>
+                            <div id="dropzone-principal" class="dropzone dropzone-files"></div>
+
+                            <div id="card_desplegar_versiones" class="bl1 header1">
+                                <label class="">Versiones</label>
+                                <button type="button" class="btn text-nowrap btn-min-w  boton_desplegar_versiones_anteriores" style="padding: 49px 15px;">
+                                    <i class="fas fa-angle-double-right fa-3x"></i>
+                                </button>
+                            </div>
+                            <div class="bl2" id="card_ocultar_versiones" style="display:none">
+                                <div class="header1">
+                                    <label class="">Versiones</label>
+                                    <button type="button" class="btn text-nowrap btn-min-w  boton_ocultar_versiones_anteriores" style="padding: 48px 15px;">
+                                        <i class="fas fa-angle-double-left fa-3x"></i>
+                                    </button>
+                                </div>
+                                <div class="display_va">
+                                    <div id="versiones_anteriores"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row_anexo">
+                        <label for="exampleFormControlTextarea1">Anexos: <span class="nota_destacada">(NOTA: MARQUE LOS ANEXOS QUE REQUIEREN FIRMA)</span></label>
+
+                        <div class="card-body card-archivos" id="cargar_anexo">
+                            <div id="dropzone-anexo-view" class="dropzone-view"></div>
+                            <div id="dropzone-anexo" class="dropzone dropzone-files"></div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Otros Archivos</label>
+
+                        <div class="card-body card-archivos" id="cargar_otros">
+                            <div id="dropzone-otros-view" class="dropzone-view"></div>
+                            <div id="dropzone-otros" class="dropzone dropzone-files"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-8 mb-3">
+                            <label for="inputState">Destinatario Principal:</label><br>
+                            <select class="form-control" style="width: 100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="inputState">Acciones Solicitadas:</label><br>
+                            <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" style="text-align:left !important" disabled="false">
+                                @foreach($listadoAcciones as $accion)
+                                @if($accion['id_tipo_accion'] == 1)
+                                <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12 mb-3">
+                            <label for="floatingTextarea">Comentario a Destinatario Principal:<i onclick="vernotas(1)" title="ver mensajes anteriores" class="fa fa-sticky-note btn btn-sm btn-light"></i></label>
+                            <textarea class="form-control" id="form_comentario_el" disabled="false"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12 mb-3">
+                            <label for="inputState">Otro(s) Destinatario(s):</label>
+                            <input type="text" class="form-control" id="form_otros_destinatarios_el" data-role="tagsinput" disabled="false">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-12 mb-3">
+                            <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s): <i onclick="vernotas(2)" title="ver mensajes anteriores" class="fa fa-sticky-note btn btn-sm btn-light"></i></label>
+                            <textarea class="form-control" id="form_comentario_otro_el" disabled="false"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row row_archivar">
+                        <div class="col-md-12 mb-3">
+                            <label for="floatingTextarea">Ingrese fundamentación para archivar/desarchivar</label>
+                            <textarea class="form-control" id="form_comentario_archivar"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row row_txt_firmar" style="display:none">
+                        <div class="col-md-12 mb-3">
+                            <label for="floatingTextarea">Visaciones y Firmantes</label>
+                            <div id="datos_bitacora_simple"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-12 group-button-align">
+                            <button type="button" class="btn text-nowrap btn-min-w  btn-secondary  btn_cerrar_guardar">Cerrar</button>
+                            <button type="button" id="submit-edit" class="btn text-nowrap btn-min-w  btn-light btn-guardar-submit-edit ">Guardar</button>
+                            <button type="button" id="submit-all" class="btn text-nowrap btn-min-w  btn-success btn-guardar-submit">Guardar y Cerrar</button>
+                            <button type="button" id="submit-enviar" class="btn text-nowrap btn-min-w  btn-primary btn-enviar-submit " style="display:none">Enviar</button>
+                            <span class="" id="addButton"></span>
+                            <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
+                            <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
+                            <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
+                            <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
+                            <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
+                            <input type="hidden" name="hiddFirmaAnexo" id="hiddFirmaAnexo" value="">
+                            <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
+                            <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
+                            <input type="hidden" name="hiddPrimeraFirma" id="hiddPrimeraFirma" value="0">
+                            <input type="hidden" name="hiddUltimaFirma" id="hiddUltimaFirma" value="0">
+                            <input type="hidden" name="hiddBuzonPrimera" id="hiddBuzonPrimera" value="0">
+                            <input type="hidden" name="hiddBuzonUltima" id="hiddBuzonUltima" value="0">
+                            <input type="hidden" name="hiddNroFirmas" id="hiddNroFirmas" value="0">
+
+
+                        </div>
+                    </div>
+                </form>
             </div>
 
-            <div class="form-group row_anexo">
-                <label for="exampleFormControlTextarea1">Anexos: <span class="nota_destacada">(NOTA: MARQUE LOS ANEXOS QUE REQUIEREN FIRMA)</span></label>
-
-                <div class="card-body card-archivos" id="cargar_anexo">
-                    <div id="dropzone-anexo-view" class="dropzone-view"></div>
-                    <div id="dropzone-anexo" class="dropzone dropzone-files"></div>
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-                <label for="exampleFormControlTextarea1">Otros Archivos</label>
-
-                <div class="card-body card-archivos" id="cargar_otros">
-                    <div id="dropzone-otros-view" class="dropzone-view"></div>
-                    <div id="dropzone-otros" class="dropzone dropzone-files"></div>
-                </div>
-
-            </div>
-
-            <div class="form-row">
-                <div class="col-md-8 mb-3">
-                    <label for="inputState">Destinatario Principal:</label><br>
-                    <select class="form-control" style="width: 100%" id="form_destinatario_principal" name="form_destinatario_principal" multiple="multiple">
-                    </select>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <label for="inputState">Acciones Solicitadas:</label><br>
-                    <select id="form_acciones_solicitadas_el" class="form-control" multiple="multiple" style="text-align:left !important" disabled="false">
-                        @foreach($listadoAcciones as $accion)
-                        @if($accion['id_tipo_accion'] == 1)
-                        <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
-                        @endif
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="col-md-12 mb-3">
-                    <label for="floatingTextarea">Comentario a Destinatario Principal:<i onclick="vernotas(1)" title="ver mensajes anteriores" class="fa fa-sticky-note btn btn-sm btn-light"></i></label>
-                    <textarea class="form-control" id="form_comentario_el" disabled="false"></textarea>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="col-md-12 mb-3">
-                    <label for="inputState">Otro(s) Destinatario(s):</label>
-                    <input type="text" class="form-control" id="form_otros_destinatarios_el" data-role="tagsinput" disabled="false">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="col-md-12 mb-3">
-                    <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s): <i onclick="vernotas(2)" title="ver mensajes anteriores" class="fa fa-sticky-note btn btn-sm btn-light"></i></label>
-                    <textarea class="form-control" id="form_comentario_otro_el" disabled="false"></textarea>
-                </div>
-            </div>
-            <div class="form-row row_archivar">
-                <div class="col-md-12 mb-3">
-                    <label for="floatingTextarea">Ingrese fundamentación para archivar/desarchivar</label>
-                    <textarea class="form-control" id="form_comentario_archivar"></textarea>
-                </div>
-            </div>
-
-            <div class="form-row row_txt_firmar" style="display:none">
-                <div class="col-md-12 mb-3">
-                    <label for="floatingTextarea">Visaciones y Firmantes</label>
-                    <div id="datos_bitacora_simple"></div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="col-md-12 group-button-align">
-                    <button type="button" class="btn text-nowrap btn-min-w  btn-secondary  btn_cerrar_guardar">Cerrar</button>
-                    <button type="button" id="submit-edit" class="btn text-nowrap btn-min-w  btn-light btn-guardar-submit-edit ">Guardar</button>
-                    <button type="button" id="submit-all" class="btn text-nowrap btn-min-w  btn-success btn-guardar-submit">Guardar y Cerrar</button>
-                    <button type="button" id="submit-enviar" class="btn text-nowrap btn-min-w  btn-primary btn-enviar-submit " style="display:none">Enviar</button>
-                    <span class="" id="addButton"></span>
-                    <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">
-                    <input type="hidden" name="hiddIdDocumentoBuzon" id="hiddIdDocumentoBuzon" value="">
-                    <input type="hidden" name="hiddIdBuzon" id="hiddIdBuzon" value="{{$id_buzon}}">
-                    <input type="hidden" name="hiddIdOrigen" id="hiddIdOrigen" value="">
-                    <input type="hidden" name="hiddIdFileDelete" id="hiddIdFileDelete" value="">
-                    <input type="hidden" name="hiddFirmaAnexo" id="hiddFirmaAnexo" value="">
-                    <input type="hidden" name="hiddIdResponder" id="hiddIdResponder" value="">
-                    <input type="hidden" name="hiddIdTipoDestino" id="hiddIdTipoDestino" value="">
-                    <input type="hidden" name="hiddPrimeraFirma" id="hiddPrimeraFirma" value="0">
-                    <input type="hidden" name="hiddUltimaFirma" id="hiddUltimaFirma" value="0">
-                    <input type="hidden" name="hiddBuzonPrimera" id="hiddBuzonPrimera" value="0">
-                    <input type="hidden" name="hiddBuzonUltima" id="hiddBuzonUltima" value="0">
-                    <input type="hidden" name="hiddNroFirmas" id="hiddNroFirmas" value="0">
-
-
-                </div>
-            </div>
-            </form>
         </div>
 
     </div>
-
-</div>
 </div>
 <!-- **DOCUMENTOS** GRILLA CREAR DOCUMENTOS -->
 
@@ -4473,7 +4473,6 @@
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
                                             //console.log('ver-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
 
 
                                         } //fin estado documento pendiente
@@ -4503,8 +4502,6 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('ver-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
 
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
@@ -4529,9 +4526,8 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('ver-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estaddo visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion ver
                                     ///////////////////////////////
                                     if (accion == 1) { //seleccion boton editar
@@ -4573,8 +4569,6 @@
 
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
-                                            //console.log('editar-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado documento pendiente
                                         if (item.id_estado_documento == 6) { //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4603,8 +4597,6 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('editar-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
                                             $('.btn-guardar-submit').show();
@@ -4629,9 +4621,8 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('editar-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion editar
                                     ///////////////////////
                                     if (accion == 22) { //seleccion boton visar
@@ -4674,7 +4665,6 @@
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
                                             //console.log('visar-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado documento pendiente
                                         if (item.id_estado_documento == 6) { //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -4706,7 +4696,6 @@
                                                 }
                                             }
                                             //console.log('visar-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
@@ -4729,8 +4718,8 @@
                                             $('#submit-enviar').removeClass('btn-primary');
                                             $('#submit-enviar').addClass('btn-success');
                                             //console.log('visar-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion visar
                                     ///////////////////////
                                     if (accion == 33) { //seleccion boton firmar
@@ -5067,26 +5056,23 @@
 
     function firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, bloquear) {
         if (hiddPrimeraFirma == 1 && firmasRealizadas == 0) { //derivar en la primera firma
-            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonPrimera);
             $("#form_destinatario_principal").trigger('change');
             if (bloquear == 1) {
                 $("#form_destinatario_principal").prop("disabled", true);
             }
-            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            //$('#addButton').append(buttonFirmarDerivar); 
             $('.btn-firmar-derivar').remove()
             $(".btn-firmar").html("Firmar y Enviar");
         }
         if (hiddUltimaFirma == 1 && firmasRealizadas == (hiddNroFirmas - 1)) { //derivar en la primera firma
-            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonUltima);
             $("#form_destinatario_principal").trigger('change');
             if (bloquear == 1) {
                 $("#form_destinatario_principal").prop("disabled", true);
+                $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                $('#form_acciones_solicitadas_el').multiselect('select', '11');
+                $('#form_acciones_solicitadas_el').multiselect('rebuild');
             }
-            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            //$('#addButton').append(buttonFirmarDerivar); 
             $('.btn-firmar-derivar').remove()
             $(".btn-firmar").html("Firmar y Enviar");
         }

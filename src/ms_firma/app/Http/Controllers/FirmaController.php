@@ -547,7 +547,7 @@ class FirmaController extends Controller
                             if (($derivarPrimera == 1 && $firmasRealizadas == 0)) {
                                 if ($nNroFirmas > 1) {
                                     $salida = $this->derivar_auto($buzonPrimera, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon'], 0);
-                                } else {   
+                                } else {
                                     $salida = $this->derivar_auto($buzonPrimera, $request->header('key'), $datos['id_documento'], $datos['id_documento_buzon'], $datos['id_usuario'], $datos['id_buzon'], 1);
                                 }
                             } else {
@@ -795,7 +795,7 @@ class FirmaController extends Controller
 
                 if ($buzonDestino != "") {
                     //verificar si se crea o actualiza   
-                    if ($nCarpeta == 2) //recibidos
+                    if ($nCarpeta == 2) //recibidos 
                     {
 
                         $documentoBuzon = DocumentoBuzon::updateOrCreate([
