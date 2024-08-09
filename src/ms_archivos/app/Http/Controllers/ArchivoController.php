@@ -543,9 +543,8 @@ class ArchivoController extends Controller
                 'documento_buzon_bitacora.id_usuario',
                 'users.nombres',
                 'users.primer_apellido',
-                'users.segundo_apellido'
-            )
-            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora')
+                'users.segundo_apellido'            )
+            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'desc')
             ->get();
 
         $txtVisadores = "";
