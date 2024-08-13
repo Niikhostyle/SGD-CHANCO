@@ -74,7 +74,8 @@ class FirmaController extends Controller
                 if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) {
                     $comentario = "No existe imagen para firma asociada al usuario.";
                     throw new Exception($comentario);
-                }
+                }               
+
 
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
@@ -337,8 +338,8 @@ class FirmaController extends Controller
                     'filename' => $imagen_firma_folio,
                     'page'     => 1,
                     'llx'      => 180,
-                    'lly'      => 880,
-                    'urx'      => 580,
+                    'lly'      => 900,
+                    'urx'      => 480,
                     'ury'      => 980
                 );
 
@@ -483,15 +484,15 @@ class FirmaController extends Controller
                                     $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
                                     $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
 
-                                    $img = Image::canvas(600, 100, '#FFFFFF');
-                                    $img->text($sPrefijoFolio, 20, 45, function ($font) {
+                                    $img = Image::canvas(500, 100, '#FFFFFF');
+                                    $img->text($sPrefijoFolio, 10, 45, function ($font) {
                                         $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(34);
+                                        $font->size(30);
                                         $font->align('left');
                                     });
-                                    $img->text($sfechaFolio, 20, 90, function ($font) {
+                                    $img->text($sfechaFolio, 10, 85, function ($font) {
                                         $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(20);
+                                        $font->size(18);
                                         $font->align('left');
                                     });
 
@@ -638,7 +639,7 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
 
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-
+        
         exec($cmd, $output, $estado);
 
         if ($estado == 0) //firma ok

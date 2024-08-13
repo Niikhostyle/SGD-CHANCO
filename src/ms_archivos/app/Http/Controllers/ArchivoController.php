@@ -467,8 +467,8 @@ class ArchivoController extends Controller
         $dFechaCreacion = date('Ymd');
         $txtTipoDoc = $datosJsonTipoDocumento['nombre_corto'];
 
-        //$nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
-        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio;
+        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
+        //$nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio;
 
         return $nombreFinal;
     }
