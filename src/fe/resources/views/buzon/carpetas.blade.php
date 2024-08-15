@@ -4150,19 +4150,45 @@
                         var relDatosBitacora = data.data.rel_bitacora;
                         var htmlDatosbitacora = "";
                         var firmasRealizadas = 0;
+                        var htmlDatosVisadores = "";
+                        var htmlDatosVisadoresPrev = "";
+                        var htmlDatosFirmantes = "";
+                        var txtDatosPrev = "";
+
                         $.each(relDatosBitacora, function(i, item) {
                             if (item.id_accion == 6)
-                                htmlDatosbitacora += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                            {
+                                txtDatos = item.id_buzon + item.id_usuario;
+                                if (txtDatos != txtDatosPrev)
+                                {
+                                    htmlDatosVisadores += htmlDatosVisadoresPrev;
+                                    htmlDatosVisadoresPrev = "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                    txtDatosPrev = item.id_buzon + item.id_usuario;
+                                }
+                                else
+                                {
+                                    htmlDatosVisadores += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                }                                
+                            }
 
                             if (item.id_accion == 7) {
-                                htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                htmlDatosFirmantes += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
                                 firmasRealizadas++;
                             }
 
+                            if (item.id_accion == 4)
+                            {
+                                txtDatosPrev = "";
+                                htmlDatosVisadores = "";
+                                htmlDatosVisadoresPrev = "";
+                            }
+                                
                             if (item.id_accion == 7 || item.id_accion == 8)
                                 isDelete = false;
 
                         });
+
+                        htmlDatosbitacora = htmlDatosVisadores + htmlDatosFirmantes;
 
                         $('#datos_bitacora_simple').html(htmlDatosbitacora);
 

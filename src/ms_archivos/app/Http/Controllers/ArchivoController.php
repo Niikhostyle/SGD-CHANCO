@@ -43,7 +43,7 @@ class ArchivoController extends Controller
 
             $nDocumento = $datosRequest['id_documento'];
             $idDocumentoBuzon = $datosRequest['id_documento_buzon'];
-
+            
             $nNombreArchivoCargar = $this->getNombreDocumento($nDocumento);
 
             $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
@@ -536,9 +536,10 @@ class ArchivoController extends Controller
             ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
             ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
             ->where('documento.id_documento', $idDocumento)
-            ->whereIn('documento_buzon_bitacora.id_accion', array('1', '6'))
+            ->whereIn('documento_buzon_bitacora.id_accion', array('1', '4', '6'))
             ->select(
                 'documento_buzon_bitacora.id_accion',
+                'documento_buzon.id_buzon',
                 'accion.nombre',
                 'documento_buzon_bitacora.id_usuario',
                 'users.nombres',
@@ -548,16 +549,30 @@ class ArchivoController extends Controller
             ->get();
 
         $txtVisadores = "";
+        $txtVisadoresCrea = "";
+        $txtUserBuzonPrev = "";
+        $nTerminaCiclo = 0;
+
         foreach ($datosVisarFirmar as $value) {
             if ($value['id_accion'] == 1)
                 $txtVisadoresCrea = strtolower(substr($value['nombres'], 0, 1) . substr($value['primer_apellido'], 0, 1) . substr($value['segundo_apellido'], 0, 1));
 
-            if ($value['id_accion'] == 6)
-                $txtVisadores .= strtoupper(substr($value['nombres'], 0, 1) . substr($value['primer_apellido'], 0, 1) . substr($value['segundo_apellido'], 0, 1)) . "/";
+            if ($value['id_accion'] == 6 && $nTerminaCiclo != 1)
+            {
+                $txtUserBuzon = $value['id_buzon'].$value['id_usuario'];
+                if ($txtUserBuzonPrev != $txtUserBuzon)
+                {
+                    $txtUserBuzonPrev = $value['id_buzon'].$value['id_usuario'];                
+                    $txtVisadores .= strtoupper(substr($value['nombres'], 0, 1) . substr($value['primer_apellido'], 0, 1) . substr($value['segundo_apellido'], 0, 1)) . "/";
+                }  
+            }    
+            if ($value['id_accion'] == 4)       
+                $nTerminaCiclo = 1;    
         };
 
         if ($txtVisadores != "")
             $txtVisadores .= $txtVisadoresCrea;
+
 
         return $txtVisadores;
     }
