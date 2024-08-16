@@ -4158,17 +4158,22 @@
                         $.each(relDatosBitacora, function(i, item) {
                             if (item.id_accion == 6)
                             {
+                                let patron = /\[.+?\]/g;
+                                
                                 txtDatos = item.id_buzon + item.id_usuario;
                                 if (txtDatos != txtDatosPrev)
-                                {
-                                    htmlDatosVisadores += htmlDatosVisadoresPrev;
-                                    htmlDatosVisadoresPrev = "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
-                                    txtDatosPrev = item.id_buzon + item.id_usuario;
+                                {                                                                       
+                                    htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, ''); 
+                                    htmlDatosVisadores += "[<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>]';
                                 }
                                 else
                                 {
-                                    htmlDatosVisadores += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
-                                }                                
+                                    htmlDatosVisadoresNew = "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                    htmlDatosVisadores = htmlDatosVisadores.replace(patron, htmlDatosVisadoresNew);
+                                }
+
+                                txtDatosPrev = item.id_buzon + item.id_usuario;
+                            
                             }
 
                             if (item.id_accion == 7) {
@@ -4187,6 +4192,8 @@
                                 isDelete = false;
 
                         });
+
+                        htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, '');
 
                         htmlDatosbitacora = htmlDatosVisadores + htmlDatosFirmantes;
 
