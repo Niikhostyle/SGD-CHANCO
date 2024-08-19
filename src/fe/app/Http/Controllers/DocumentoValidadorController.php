@@ -164,6 +164,8 @@ class DocumentoValidadorController extends Controller
             if ($value['id_accion'] == 4) {
                 //$nTerminaCiclo = 1;
                 $txtVisadores = "";
+                $nContador = 0;
+                $txtUserBuzonPrev = "";
             }
         };
 
