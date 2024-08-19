@@ -115,7 +115,7 @@ class DocumentoValidadorController extends Controller
             ->where('documento.id_documento', $list['id_documento'])
             ->where('id_accion', 7)
             ->orderBy('documento_buzon_bitacora.fecha', 'ASC')
-            ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"), "documento_buzon_bitacora.fecha", DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
+            ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"), DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha"), DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
             ->get();
 
         $anexos = DocumentoBuzonArchivo::join('documento_buzon as db', 'db.id_documento_buzon', 'documento_buzon_archivo.id_documento_buzon')
@@ -163,7 +163,7 @@ class DocumentoValidadorController extends Controller
                 if ($txtUserBuzonPrev != $txtUserBuzon) {
                     $txtUserBuzonPrev = $value['id_buzon'] . $value['id_usuario'];
                     $nContador++;
-                    $txtVisadores .= $nContador . ". <b>" . $value['usuario'] . "</b>" . $value['fecha'] . "<br />";
+                    $txtVisadores .= $nContador . ". <b>" . $value['usuario'] . "</b> " . $value['fecha'] . "<br />";
                 }
             }
             if ($value['id_accion'] == 4) {
