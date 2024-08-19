@@ -143,7 +143,7 @@ class DocumentoValidadorController extends Controller
                 DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),
                 DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha")
             )
-            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'desc')
+            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'asc')
             ->get();
         //dd(DB::getQueryLog());
         $txtVisadores = "";
