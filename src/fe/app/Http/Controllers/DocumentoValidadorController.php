@@ -143,7 +143,7 @@ class DocumentoValidadorController extends Controller
                 DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),
                 DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha")
             )
-            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'asc')
+            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'desc')
             ->get();
         //dd(DB::getQueryLog());
         $txtVisadores = "";
@@ -153,11 +153,6 @@ class DocumentoValidadorController extends Controller
         $nContador = 0;
 
         foreach ($datosVisarFirmar as $value) {
-            // if ($value['id_accion'] == 1) {
-            //     $nContador++;
-            //     $txtVisadoresCrea = $nContador . ". <b> " . $value['usuario'] . "</b>" . $value['fecha'] . "<br />";
-            // }
-
             if ($value['id_accion'] == 6 && $nTerminaCiclo != 1) {
                 $txtUserBuzon = $value['id_buzon'] . $value['id_usuario'];
                 if ($txtUserBuzonPrev != $txtUserBuzon) {
