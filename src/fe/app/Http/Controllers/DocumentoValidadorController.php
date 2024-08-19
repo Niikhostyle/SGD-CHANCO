@@ -124,14 +124,14 @@ class DocumentoValidadorController extends Controller
             ->select('documento_buzon_archivo.nombre_archivo_original', 'documento_buzon_archivo.nombre_archivo_codificado', 'db.id_documento', 'documento_buzon_archivo.id_documento_buzon_archivo')
             ->get();
 
-        DB::enableQueryLog();
+
         $datosVisarFirmar = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
             ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
             ->join('accion', 'accion.id_accion', '=', 'documento_buzon_bitacora.id_accion')
             ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
             ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
             ->where('documento.id_documento', $list['id_documento'])
-            ->whereIn('documento_buzon_bitacora.id_accion', array('1', '4', '6'))
+            ->whereIn('documento_buzon_bitacora.id_accion', array('4', '6'))
             ->select(
                 'documento_buzon_bitacora.id_accion',
                 'documento_buzon.id_buzon',
@@ -143,9 +143,9 @@ class DocumentoValidadorController extends Controller
                 DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"),
                 DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha")
             )
-            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'desc')
+            ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'asc')
             ->get();
-        //dd(DB::getQueryLog());
+
         $txtVisadores = "";
         $txtVisadoresCrea = "";
         $txtUserBuzonPrev = "";
@@ -162,7 +162,8 @@ class DocumentoValidadorController extends Controller
                 }
             }
             if ($value['id_accion'] == 4) {
-                $nTerminaCiclo = 1;
+                //$nTerminaCiclo = 1;
+                $txtVisadores = "";
             }
         };
 
