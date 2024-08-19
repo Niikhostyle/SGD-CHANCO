@@ -153,10 +153,10 @@ class DocumentoValidadorController extends Controller
         $nContador = 0;
 
         foreach ($datosVisarFirmar as $value) {
-            if ($value['id_accion'] == 1) {
-                $nContador++;
-                $txtVisadoresCrea = $nContador . ". <b> " . $value['usuario'] . "</b>" . $value['fecha'] . "<br />";
-            }
+            // if ($value['id_accion'] == 1) {
+            //     $nContador++;
+            //     $txtVisadoresCrea = $nContador . ". <b> " . $value['usuario'] . "</b>" . $value['fecha'] . "<br />";
+            // }
 
             if ($value['id_accion'] == 6 && $nTerminaCiclo != 1) {
                 $txtUserBuzon = $value['id_buzon'] . $value['id_usuario'];
@@ -171,8 +171,8 @@ class DocumentoValidadorController extends Controller
             }
         };
 
-        if ($txtVisadores != "")
-            $txtVisadores .= $txtVisadoresCrea;
+        if ($txtVisadores == "")
+            $txtVisadores = "No aplica";
 
         //dd($txtVisadores);
         return View::make('validador.index_qr', ['lista_documentos' => $lista_documentos, 'visadores' => $visadores, 'firmantes' => $firmantes, 'anexos' => $anexos, 'status' => $status, 'txtVisadores' => $txtVisadores]);

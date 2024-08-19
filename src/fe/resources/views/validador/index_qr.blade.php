@@ -136,14 +136,6 @@
                             <th scope="row">Visadores</th>
                             <td colspan="2">
                                 {!! $txtVisadores !!}
-                                <----->
-                                    @if(count($visadores) > 0)
-                                    @foreach($visadores as $v)
-                                    {{$v->id_usuario}}. <b>{{$v->usuario}}</b> {{$v->fecha}}<br />
-                                    @endforeach
-                                    @else
-                                    No aplica
-                                    @endif
                             </td>
                         </tr>
                         <tr>
