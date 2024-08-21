@@ -202,9 +202,9 @@
             </div>
             <div class="card" id="card-logo">
                 <div class="card-body">
-                    <div class="row text-right" id="Purranque">
+                    <div class="row text-right" id="logo2">
                         <div class="col-12">
-                            <img src="/img/EscudoPurranque.png" width="20%" style="margin-top:15%" />
+                            <img class="logo_panel" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" />
                         </div>
                     </div>
                 </div>
