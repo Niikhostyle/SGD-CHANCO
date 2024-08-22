@@ -202,9 +202,9 @@
             </div>
             <div class="card" id="card-logo">
                 <div class="card-body">
-                    <div class="row text-right" id="logo2">
+                    <div class="row text-right" id="logo4_panel">
                         <div class="col-12">
-                            <img class="logo_panel" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" />
+                            <img class="logo_panel" src="{{ asset(env('CODIGO_SGD').'/img/logo4.png') }}" />
                         </div>
                     </div>
                 </div>
