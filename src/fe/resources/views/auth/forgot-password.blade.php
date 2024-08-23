@@ -72,11 +72,11 @@
                                 </x-jet-button>
                             </div>
                         </div>
-                        <!-- <div class="row pt-5">
+                        <div class="row pt-5">
                             <div class="col-12">
-                            <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
+                            <img class="img mx-auto d-block wm-img" src="{{ asset(env('CODIGO_SGD').'/img/logo5.png') }}" alt="" id="logo5_home">
                             </div>
-                        </div> -->
+                        </div> 
                      </div>
                  </div>
             </div>

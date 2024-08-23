@@ -2,9 +2,17 @@
     background-image: url("../img/fondoP.jpg") !important;
 }
 .wm-img {
-    max-width: 15%;
+    max-width: 30%;
 }
 .logo_panel {
     width: 20%;
-    margin-top:15%;
+    margin-top:30%;
+}
+#logo_home, #logo
+{
+    padding-bottom: 30px !important;
+    max-width: 80% !important;
+}
+.box {
+    opacity: unset !important;
 }
