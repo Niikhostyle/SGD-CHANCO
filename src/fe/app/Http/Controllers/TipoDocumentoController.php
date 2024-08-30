@@ -47,6 +47,21 @@ class TipoDocumentoController extends Controller
             $datosFolio = $listado_parametros['data']['tipo_folio'];
             $datosAsignacionFolio = $listado_parametros['data']['tipo_asignacion_folio'];
             
+            //ordenar por 1-2-5-3, según ticket 14 que agrega obtener folio en primera firma o ultima firma en el tipo de documentos. 
+            //Con eso el tipo=2 evento recepción se cambia texto por primera firma y se agrega el tipo 5= ultima firma
+            $ordenIds = array(1, 2, 5, 3);
+
+            // Obtener un arreglo con los IDs en el orden deseado
+            $idsOrdenados = array_flip($ordenIds);
+
+            // Obtener un arreglo que contenga los IDs de los elementos en $datos
+            $ids = array_column($datosAsignacionFolio, 'id_tipo_asignacion_folio');
+
+            // Ordenar $datos según el orden de $ordenIds
+            array_multisort(array_map(function($id) use ($idsOrdenados) {
+                return $idsOrdenados[$id];
+            }, $ids), $datosAsignacionFolio);
+
             $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
             $datosAccion = $listado_parametros['data']['accion'];
         }
@@ -139,6 +154,7 @@ class TipoDocumentoController extends Controller
         ->post('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/crear', [
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
+            'nombre_corto_firma'=>$request->nombre_corto_firma,
             'descripcion'=>$request->descripcion,
             'id_tipo_origen'=>$request->tipo_origen,
             'id_tipo_flujo'=>$request->tipo_flujo,
@@ -185,6 +201,7 @@ class TipoDocumentoController extends Controller
             'id_tipo_documento'=>$request->hiddTipoDocumento,
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
+            'nombre_corto_firma'=>$request->nombre_corto_firma,
             'descripcion'=>$request->descripcion,
             'id_tipo_origen'=>$request->tipo_origen,
             'id_tipo_flujo'=>$request->tipo_flujo,

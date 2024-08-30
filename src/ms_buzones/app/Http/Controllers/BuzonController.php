@@ -38,8 +38,8 @@ class BuzonController extends Controller{
                     return $this->respondFail('Falla al obtener buzón: revisar datos de entrada');
 
                 $datosBuzon = Buzon::findOrFail($datosRequest['id_buzon'],['id_buzon','nombre','nombre_corto','cargo_firma','id_tipo_buzon'], 'No existe buzón');
-                $datosBuzon->usuarios_asignados;
 
+                $datosBuzon->usuarios_asignados;
                 //se agrega un item junto a usuario para que no se permita modificar desde el front, ya que el buzón al que pertenece está asignado en documentos_buzon
                 $bExisteDocBuzon = count($datosBuzon->documentos_buzon);
                 foreach ($datosBuzon->usuarios_asignados as $datoUsuario)
@@ -52,7 +52,6 @@ class BuzonController extends Controller{
 
 
                 unset($datosBuzon['documentos_buzon']);
-
                 return $this->respondSuccess($datosBuzon, 200);
             }
             catch (ModelNotFoundException $e)
@@ -186,7 +185,6 @@ class BuzonController extends Controller{
     }
 
     public function actualizar(Request $request){
-
         if ($request->isJson())
         {
             try {

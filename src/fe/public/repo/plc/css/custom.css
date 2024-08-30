@@ -1,0 +1,10 @@
+.bg {
+    background-image: url("../img/fondoP.jpg") !important;
+}
+.wm-img {
+    max-width: 15%;
+}
+.logo_panel {
+    width: 20%;
+    margin-top:15%;
+}

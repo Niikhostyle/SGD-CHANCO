@@ -9,7 +9,7 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="shortcut icon" href="https://www.purranque.cl/portal-municipal/images/logo1.png" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ env('ICON_NAV_TXT') }}" type="image/x-icon">
 
 
 
@@ -18,6 +18,7 @@
 
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+        <link rel="stylesheet" href="{{ env('CODIGO_SGD').'/css/custom.css' }}">
         <!-- Bootstrap 3.4.1 -->
         <link rel="stylesheet" href="css/inicio/bootstrap.min.css">
         <link rel="stylesheet" href="css/inicio/font-awesome.min.css">
@@ -34,10 +35,7 @@
 
 
     </head>
-    <body class="row hold-transition skin-blue ">
-        <!-- <header class="main-header-guest">
-                <span class="logo-lg">SISTEMA DE GESTIÓN DOCUMENTAL - PADRE LAS CASAS</span>
-        </header> -->
+    <body class="row hold-transition skin-blue ">        
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
@@ -47,7 +45,7 @@
             <div class="row">
                 <div class="col-md-12  text-center">
                   <span class="help-block m-r-20 m-l-20">
-                      2023 © MUNICIPALIDAD DE PURRANQUE<br/>Av. Pedro Montt 249, Purranque - Décima Region de Los Lagos, Teléfono (64-2) 35 11 35
+                  {!! env('FOOTER_TXT') !!}
                   </span>
                 </div>
             </div>

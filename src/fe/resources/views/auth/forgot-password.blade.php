@@ -26,14 +26,14 @@
                     <div class="box-body" style="padding: 2em;">
                         <div class="row">
                             <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
-                                <img class="img mx-auto " src="{{ asset('img/LogoPurranque.png') }}" alt="" id="logo_purranque">
+                                <img class="img mx-auto " src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo">
                             </div>
                             <div class="col-md-2 col-xs-2 col-lg-2">
                                 &nbsp;
                             </div>
 
                             <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
-                                <img class="img mx-auto" src="{{ asset('img/EscudoPurranque.png') }}" alt="" id="escudo_purranque">
+                                <img class="img mx-auto" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2">
                             </div>
                         </div>
                         <div class="row">

@@ -130,8 +130,9 @@
 
                 </div>
 
+
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="input_tipo_folio">Tipo Folio:</label>
                             <select class="form-control" id="form_tipo_folio" name="tipo_folio" required>
@@ -142,10 +143,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="input_tipo_asignacion_folio">Asignación Folio y Fecha:</label>
-                            <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" required>
+                            <select class="form-control" id="form_tipo_asignacion_folio" name="tipo_asignacion_folio" onchange="valida_nfirma(this.value)" required>
                                 <option value="">Seleccionar</option>
                                 @foreach($datosAsignacionFolio as $dato)
                                 <option value="{{$dato['id_tipo_asignacion_folio']}}">{{$dato['nombre']}}</option>
@@ -175,6 +176,12 @@
                                 <option value="5">5</option>
                                 <option value="6">6</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="input_ff">Nombre Firma Folio:</label>
+                            <input type="text" class="form-control " id="form_nombre_ff" aria-describedby="nombre_ff_error" placeholder="" value="" name="nombre_ff">
                         </div>
                     </div>
 
@@ -1457,6 +1464,7 @@
                     if (data.status == '200' || data.status == '201') {
                         $("input[name='nombre']").val(data.data.nombre);
                         $("input[name='nombre_corto']").val(data.data.nombre_corto);
+                        $("input[name='nombre_ff']").val(data.data.nombre_corto_firma);
                         $("input[name='descripcion']").val(data.data.descripcion);
                         $("select[name='tipo_origen']").val(data.data.id_tipo_origen);
                         $("select[name='tipo_flujo']").val(data.data.id_tipo_flujo);
@@ -1530,6 +1538,7 @@
         $('.btn-submit').show();
 
         $('#form_crear_editar').trigger("reset");
+        $('#hiddTipoDocumento').val('');
         $("#form_crear_editar :input").prop("disabled", false);
         editor_encabezado.setData();
         editor_cuerpo.setData();
@@ -1815,6 +1824,7 @@
         $(".print-error-msg").hide();
         var _token = $("input[name='_token']").val();
         var nombre = $("input[name='nombre']").val();
+        var nombre_ff = $("input[name='nombre_ff']").val();
         var nombre_corto = $("input[name='nombre_corto']").val();
         var descripcion = $("input[name='descripcion']").val();
         var tipo_origen = $("select[name='tipo_origen']").val();
@@ -1867,12 +1877,19 @@
             }
         }
 
+        //validar nro de firmas en última firma
+
+        if ($('#form_tipo_asignacion_folio').val() == 5 && $('#form_numero_firmas').val() == 1)
+        {
+            errores++;
+            msg_derivar.push("Según Asignación Folio y Fecha, debe agregar más de 1 firma");
+        }
+                
         if (errores > 0) {
             $(".print-error-msg").show();
             printErrorMsg(msg_derivar);
             $('.btn-submit').html('Guardar');
         }
-
 
         var datosBuzonFlujo = [];
 
@@ -1939,6 +1956,7 @@
                     _token: _token,
                     nombre: nombre,
                     nombre_corto: nombre_corto,
+                    nombre_corto_firma: nombre_ff,
                     descripcion: descripcion,
                     tipo_origen: tipo_origen,
                     tipo_flujo: tipo_flujo,
@@ -2006,6 +2024,7 @@
                             _token: _token,
                             nombre: nombre,
                             nombre_corto: nombre_corto,
+                            nombre_corto_firma: nombre_ff,
                             descripcion: descripcion,
                             tipo_origen: tipo_origen,
                             tipo_flujo: tipo_flujo,
@@ -2089,6 +2108,7 @@
     function activa_firmas(re) {
         if (re == "true") {
             $('#form_numero_firmas').prop('disabled', false);
+            $('#form_nombre_ff').prop('disabled', false);
             $('#opDerivacion').show();
         } else {
             $('#form_numero_firmas').prop('disabled', true);
@@ -2098,6 +2118,7 @@
             $('#selectSegunda').val(null).trigger('change');
             $('#chkPrimera').prop('checked', false);
             $('#chkSegunda').prop('checked', false);
+            $('#form_nombre_ff').prop('disabled', true);
         }
     }
 
@@ -2105,10 +2126,26 @@
         if (nValor > 1) {
             $('#sdaDerivacion').show();
         } else {
+            if (nValor == 1 && $('#form_tipo_asignacion_folio').val() == 5)
+            {
+                toastr.error("Según Asignación Folio y Fecha, debe agregar más de 1 firma", "¡Aviso!");
+                $('#form_numero_firmas').val('');
+            }                
+            
             $('#sdaDerivacion').hide();
             $('#selectSegunda').val(null).trigger('change');
             $('#chkSegunda').prop('checked', false);
         }
+    }
+
+    function valida_nfirma(nValor)
+    {
+        if (nValor == 5 && $('#form_numero_firmas').val() == 1) //ultima firma
+        {
+            toastr.error("Según Asignación Folio y Fecha, debe agregar más de 1 firma", "¡Aviso!");
+            $('#form_numero_firmas').val('');
+        }
+
     }
 </script>
 @stop

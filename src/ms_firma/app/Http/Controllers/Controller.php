@@ -42,7 +42,7 @@ class Controller extends BaseController
         $txtTipoDoc = $datosJsonTipoDocumento['nombre_corto'];
         
         //$nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio . '.pdf';
-        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio ;
+        $nombreFinal = $txtTipoDoc . '-' . $idDoc . '-' . $dFechaCreacion . '-' . $nAleatorio  . '.pdf';;
 
         return $nombreFinal;
     }

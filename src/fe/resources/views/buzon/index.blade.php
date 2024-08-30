@@ -103,7 +103,7 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="input_cargo">Usuario Titular (para firma):</label>
-                        <select name="titular" id="form_titular" class="form-control" style="text-align:left !important">                            
+                        <select name="titular" id="form_titular" class="form-control" style="text-align:left !important" >                            
                         </select>
                     </div>
                 </div>                                  
@@ -261,9 +261,7 @@
         itemTitular = "";
         itemSubrogante = "";
         asignados.forEach(function(option, index) {
-
             $('[name=duallistbox] option[value="'+option+'"]').prop('selected', true);
-
             if (firmaTitular[index] == 1)
                 itemTitular = option;
             
@@ -298,6 +296,7 @@
             }
 
         })
+
     }
 
     duallist.on('change',function(){

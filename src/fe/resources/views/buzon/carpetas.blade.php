@@ -137,7 +137,8 @@
                                     <div class="col-lg-3 col-md-12 col-sm-12">
                                         Tipo Documento:<br /><select id="gr_buscar_tipo_doc" style="display:grid;" name="gr_buscar_tipo_doc" class="form-control " multiple="multiple">
                                             @foreach($listado_tiposdoc as $list)
-                                            <option value="{{$list['nombre']}}">{{$list['nombre']}}</option>
+                                            <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                                            <!-- <option value="{{$list['nombre']}}">{{$list['nombre']}}</option> -->
                                             @endforeach
                                         </select>
                                     </div>
@@ -196,6 +197,7 @@
                                             <th data-priority="2">Contestar Hasta</th>
                                             <th data-priority="0">Folio</th>
                                             <th data-priority="1">Acciones</th>
+                                            <th data-priority="1">TIPO DOCUMENTO</th>
 
                                         </tr>
                                     </thead>
@@ -629,6 +631,16 @@
     }
 
 
+    .item a,
+    a:hover {
+        text-decoration: underline !important;
+    }
+
+    .tox-statusbar__branding {
+        display: none;
+    }
+
+
     .label-info {
         background-color: #5bc0de
     }
@@ -708,9 +720,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js" integrity="sha512-oQq8uth41D+gIH/NJvSJvVB85MFk1eWpMK6glnkg6I7EdMqC1XVkW7RxLheXwmFdG03qScCM7gKS/Cx3FYt7Tg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
+
+<!-- script src="https://cdn.tiny.cloud/1/vrmhk77mujotoyysy5q37jmn5r0kodurg8u7vcs6b5hmzco8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script -->
 
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 <script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
@@ -719,8 +735,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
 
-<script src="//cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
-<script src="//cdn.ckeditor.com/ckeditor5/41.4.2/classic/translations/es.js"></script>
+<!-- <script src="//cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+<script src="//cdn.ckeditor.com/ckeditor5/41.4.2/classic/translations/es.js"></script> -->
 
 
 
@@ -1058,676 +1074,27 @@
         });
     });
 
+    /* **DOCUMENTOS** SCRIPT */
 
-    let editor_distribucion;
-    CKEDITOR.ClassicEditor.create(document.getElementById("form_distribucion"), {
-            toolbar: {
-                items: [
-                    'heading', '|',
-                    'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', 'removeFormat', '|',
-                    'bulletedList', 'numberedList', 'todoList', '|',
-                    'outdent', 'indent', '|',
-                    'undo', 'redo',
-                    '-',
-                    'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
-                    'alignment', '|',
-                    'link', 'uploadImage', 'blockQuote', 'insertTable', '|',
-                    'horizontalLine', '|',
-                    'sourceEditing'
-                ],
-                shouldNotGroupWhenFull: true
-            },
-            language: 'es',
-            list: {
-                properties: {
-                    styles: true,
-                    startIndex: true,
-                    reversed: true
-                }
-            },
-            heading: {
-                options: [{
-                        model: 'paragraph',
-                        title: 'Párrafo',
-                        class: 'ck-heading_paragraph'
-                    },
-                    {
-                        model: 'heading1',
-                        view: 'h1',
-                        title: 'Encabezado 1',
-                        class: 'ck-heading_heading1'
-                    },
-                    {
-                        model: 'heading2',
-                        view: 'h2',
-                        title: 'Encabezado 2',
-                        class: 'ck-heading_heading2'
-                    },
-                    {
-                        model: 'heading3',
-                        view: 'h3',
-                        title: 'Encabezado 3',
-                        class: 'ck-heading_heading3'
-                    },
-                    {
-                        model: 'heading4',
-                        view: 'h4',
-                        title: 'Encabezado 4',
-                        class: 'ck-heading_heading4'
-                    },
-                    {
-                        model: 'heading5',
-                        view: 'h5',
-                        title: 'Encabezado 5',
-                        class: 'ck-heading_heading5'
-                    },
-                    {
-                        model: 'heading6',
-                        view: 'h6',
-                        title: 'Encabezado 6',
-                        class: 'ck-heading_heading6'
-                    }
-                ]
-            },
-            placeholder: '',
-            fontFamily: {
-                options: [
-                    'default',
-                    'Arial, Helvetica, sans-serif',
-                    'Courier New, Courier, monospace',
-                    'Georgia, serif',
-                    'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                    'Tahoma, Geneva, sans-serif',
-                    'Times New Roman, Times, serif',
-                    'Trebuchet MS, Helvetica, sans-serif',
-                    'Verdana, Geneva, sans-serif'
-                ],
-                supportAllValues: true
-            },
-            fontSize: {
-                options: [10, 12, 14, 'default', 18, 20, 22],
-                supportAllValues: true
-            },
-            fontColor: {
-                colors: [{
-                        label: 'White',
-                        color: '#FFFFFF',
-                        hasBorder: true
-                    },
-                    {
-                        label: 'Silver',
-                        color: '#C0C0C0'
-                    },
-                    {
-                        label: 'Gray',
-                        color: '#808080'
-                    },
-                    {
-                        label: 'Black',
-                        color: '#000000'
-                    },
-                    {
-                        label: 'Red',
-                        color: '#FF0000'
-                    },
-                    {
-                        label: 'Maroon',
-                        color: '#800000'
-                    },
-                    {
-                        label: 'Yellow',
-                        color: '#FFFF00'
-                    },
-                    {
-                        label: 'Olive',
-                        color: '#808000'
-                    },
-                    {
-                        label: 'Lime',
-                        color: '#00FF00'
-                    },
-                    {
-                        label: 'Green',
-                        color: '#008000'
-                    },
-                    {
-                        label: 'Aqua',
-                        color: '#00FFFF'
-                    },
-                    {
-                        label: 'Teal',
-                        color: '#008080'
-                    },
-                    {
-                        label: 'Blue',
-                        color: '#0000FF'
-                    },
-                    {
-                        label: 'Navy',
-                        color: '#000080'
-                    },
-                    {
-                        label: 'Fuchsia',
-                        color: '#FF00FF'
-                    },
-                    {
-                        label: 'Purple',
-                        color: '#800080'
-                    }
-                ]
-            },
-            fontBackgroundColor: {
-                colors: [{
-                        label: 'White',
-                        color: '#FFFFFF',
-                        hasBorder: true
-                    },
-                    {
-                        label: 'Silver',
-                        color: '#C0C0C0'
-                    },
-                    {
-                        label: 'Gray',
-                        color: '#808080'
-                    },
-                    {
-                        label: 'Black',
-                        color: '#000000'
-                    },
-                    {
-                        label: 'Red',
-                        color: '#FF0000'
-                    },
-                    {
-                        label: 'Maroon',
-                        color: '#800000'
-                    },
-                    {
-                        label: 'Yellow',
-                        color: '#FFFF00'
-                    },
-                    {
-                        label: 'Olive',
-                        color: '#808000'
-                    },
-                    {
-                        label: 'Lime',
-                        color: '#00FF00'
-                    },
-                    {
-                        label: 'Green',
-                        color: '#008000'
-                    },
-                    {
-                        label: 'Aqua',
-                        color: '#00FFFF'
-                    },
-                    {
-                        label: 'Teal',
-                        color: '#008080'
-                    },
-                    {
-                        label: 'Blue',
-                        color: '#0000FF'
-                    },
-                    {
-                        label: 'Navy',
-                        color: '#000080'
-                    },
-                    {
-                        label: 'Fuchsia',
-                        color: '#FF00FF'
-                    },
-                    {
-                        label: 'Purple',
-                        color: '#800080'
-                    }
-                ]
-            },
-            htmlSupport: {
-                allow: [{
-                    name: /.*/,
-                    attributes: true,
-                    classes: true,
-                    styles: true
-                }]
-            },
-            htmlEmbed: {
-                showPreviews: true
-            },
-            link: {
-                decorators: {
-                    addTargetToExternalLinks: true,
-                    defaultProtocol: 'https://',
-                    toggleDownloadable: {
-                        mode: 'manual',
-                        label: 'Downloadable',
-                        attributes: {
-                            download: 'file'
-                        }
-                    }
-                }
-            },
-            mention: {
-                feeds: [{
-                    marker: '@',
-                    feed: [
-                        '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
-                        '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
-                        '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
-                        '@sugar', '@sweet', '@topping', '@wafer'
-                    ],
-                    minimumCharacters: 1
-                }]
-            },
-            removePlugins: [
-                'AIAssistant',
-                'CKBox',
-                'CKFinder',
-                'EasyImage',
-                'MultiLevelList',
-                'RealTimeCollaborativeComments',
-                'RealTimeCollaborativeTrackChanges',
-                'RealTimeCollaborativeRevisionHistory',
-                'PresenceList',
-                'Comments',
-                'TrackChanges',
-                'TrackChangesData',
-                'RevisionHistory',
-                'Pagination',
-                'WProofreader',
-                'MathType',
-                'SlashCommand',
-                'Template',
-                'DocumentOutline',
-                'FormatPainter',
-                'TableOfContents',
-                'PasteFromOfficeEnhanced',
-                'CaseChange'
-            ]
-        })
-        .then(nuevo_ed => {
-            editor_distribucion = nuevo_ed;
-        });
-    const customColorPalette = [{
-            label: 'White',
-            color: '#FFFFFF',
-            hasBorder: true
-        },
-        {
-            label: 'Silver',
-            color: '#C0C0C0'
-        },
-        {
-            label: 'Gray',
-            color: '#808080'
-        },
-        {
-            label: 'Black',
-            color: '#000000'
-        },
-        {
-            label: 'Red',
-            color: '#FF0000'
-        },
-        {
-            label: 'Maroon',
-            color: '#800000'
-        },
-        {
-            label: 'Yellow',
-            color: '#FFFF00'
-        },
-        {
-            label: 'Olive',
-            color: '#808000'
-        },
-        {
-            label: 'Lime',
-            color: '#00FF00'
-        },
-        {
-            label: 'Green',
-            color: '#008000'
-        },
-        {
-            label: 'Aqua',
-            color: '#00FFFF'
-        },
-        {
-            label: 'Teal',
-            color: '#008080'
-        },
-        {
-            label: 'Blue',
-            color: '#0000FF'
-        },
-        {
-            label: 'Navy',
-            color: '#000080'
-        },
-        {
-            label: 'Fuchsia',
-            color: '#FF00FF'
-        },
-        {
-            label: 'Purple',
-            color: '#800080'
-        }
-    ]
-    let editor_cuerpo;
-    CKEDITOR.ClassicEditor.create(document.getElementById("form_cuerpo"), {
-            toolbar: {
-                items: [
-                    'heading', '|',
-                    'bold', 'italic', 'strikethrough', 'underline', 'code', 'subscript', 'superscript', 'removeFormat', '|',
-                    'bulletedList', 'numberedList', 'todoList', '|',
-                    'outdent', 'indent', '|',
-                    'undo', 'redo',
-                    '-',
-                    'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
-                    'alignment', '|',
-                    'link', 'uploadImage', 'blockQuote', 'insertTable', '|',
-                    'horizontalLine', '|',
-                    'sourceEditing'
-                ],
-                shouldNotGroupWhenFull: true
-            },
-            language: 'es',
-            list: {
-                properties: {
-                    styles: true,
-                    startIndex: true,
-                    reversed: true
-                }
-            },
-            heading: {
-                options: [{
-                        model: 'paragraph',
-                        title: 'Párrafo',
-                        class: 'ck-heading_paragraph'
-                    },
-                    {
-                        model: 'heading1',
-                        view: 'h1',
-                        title: 'Encabezado 1',
-                        class: 'ck-heading_heading1'
-                    },
-                    {
-                        model: 'heading2',
-                        view: 'h2',
-                        title: 'Encabezado 2',
-                        class: 'ck-heading_heading2'
-                    },
-                    {
-                        model: 'heading3',
-                        view: 'h3',
-                        title: 'Encabezado 3',
-                        class: 'ck-heading_heading3'
-                    },
-                    {
-                        model: 'heading4',
-                        view: 'h4',
-                        title: 'Encabezado 4',
-                        class: 'ck-heading_heading4'
-                    },
-                    {
-                        model: 'heading5',
-                        view: 'h5',
-                        title: 'Encabezado 5',
-                        class: 'ck-heading_heading5'
-                    },
-                    {
-                        model: 'heading6',
-                        view: 'h6',
-                        title: 'Encabezado 6',
-                        class: 'ck-heading_heading6'
-                    }
-                ]
-            },
-            placeholder: '',
-            fontFamily: {
-                options: [
-                    'default',
-                    'Arial, Helvetica, sans-serif',
-                    'Courier New, Courier, monospace',
-                    'Georgia, serif',
-                    'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                    'Tahoma, Geneva, sans-serif',
-                    'Times New Roman, Times, serif',
-                    'Trebuchet MS, Helvetica, sans-serif',
-                    'Verdana, Geneva, sans-serif'
-                ],
-                supportAllValues: true
-            },
-            fontSize: {
-                options: [10, 12, 14, 'default', 18, 20, 22],
-                supportAllValues: true
-            },
-            fontColor: {
-                colors: [{
-                        label: 'White',
-                        color: '#FFFFFF',
-                        hasBorder: true
-                    },
-                    {
-                        label: 'Silver',
-                        color: '#C0C0C0'
-                    },
-                    {
-                        label: 'Gray',
-                        color: '#808080'
-                    },
-                    {
-                        label: 'Black',
-                        color: '#000000'
-                    },
-                    {
-                        label: 'Red',
-                        color: '#FF0000'
-                    },
-                    {
-                        label: 'Maroon',
-                        color: '#800000'
-                    },
-                    {
-                        label: 'Yellow',
-                        color: '#FFFF00'
-                    },
-                    {
-                        label: 'Olive',
-                        color: '#808000'
-                    },
-                    {
-                        label: 'Lime',
-                        color: '#00FF00'
-                    },
-                    {
-                        label: 'Green',
-                        color: '#008000'
-                    },
-                    {
-                        label: 'Aqua',
-                        color: '#00FFFF'
-                    },
-                    {
-                        label: 'Teal',
-                        color: '#008080'
-                    },
-                    {
-                        label: 'Blue',
-                        color: '#0000FF'
-                    },
-                    {
-                        label: 'Navy',
-                        color: '#000080'
-                    },
-                    {
-                        label: 'Fuchsia',
-                        color: '#FF00FF'
-                    },
-                    {
-                        label: 'Purple',
-                        color: '#800080'
-                    }
-                ]
-            },
-            fontBackgroundColor: {
-                colors: [{
-                        label: 'White',
-                        color: '#FFFFFF',
-                        hasBorder: true
-                    },
-                    {
-                        label: 'Silver',
-                        color: '#C0C0C0'
-                    },
-                    {
-                        label: 'Gray',
-                        color: '#808080'
-                    },
-                    {
-                        label: 'Black',
-                        color: '#000000'
-                    },
-                    {
-                        label: 'Red',
-                        color: '#FF0000'
-                    },
-                    {
-                        label: 'Maroon',
-                        color: '#800000'
-                    },
-                    {
-                        label: 'Yellow',
-                        color: '#FFFF00'
-                    },
-                    {
-                        label: 'Olive',
-                        color: '#808000'
-                    },
-                    {
-                        label: 'Lime',
-                        color: '#00FF00'
-                    },
-                    {
-                        label: 'Green',
-                        color: '#008000'
-                    },
-                    {
-                        label: 'Aqua',
-                        color: '#00FFFF'
-                    },
-                    {
-                        label: 'Teal',
-                        color: '#008080'
-                    },
-                    {
-                        label: 'Blue',
-                        color: '#0000FF'
-                    },
-                    {
-                        label: 'Navy',
-                        color: '#000080'
-                    },
-                    {
-                        label: 'Fuchsia',
-                        color: '#FF00FF'
-                    },
-                    {
-                        label: 'Purple',
-                        color: '#800080'
-                    }
-                ]
-            },
-            htmlSupport: {
-                allow: [{
-                    name: /.*/,
-                    attributes: true,
-                    classes: true,
-                    styles: true
-                }]
-            },
-            htmlEmbed: {
-                showPreviews: true
-            },
-            link: {
-                decorators: {
-                    addTargetToExternalLinks: true,
-                    defaultProtocol: 'https://',
-                    toggleDownloadable: {
-                        mode: 'manual',
-                        label: 'Downloadable',
-                        attributes: {
-                            download: 'file'
-                        }
-                    }
-                }
-            },
-            mention: {
-                feeds: [{
-                    marker: '@',
-                    feed: [
-                        '@apple', '@bears', '@brownie', '@cake', '@cake', '@candy', '@canes', '@chocolate', '@cookie', '@cotton', '@cream',
-                        '@cupcake', '@danish', '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
-                        '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding', '@sesame', '@snaps', '@soufflé',
-                        '@sugar', '@sweet', '@topping', '@wafer'
-                    ],
-                    minimumCharacters: 1
-                }]
-            },
-            removePlugins: [
-                'AIAssistant',
-                'CKBox',
-                'CKFinder',
-                'EasyImage',
-                'MultiLevelList',
-                'RealTimeCollaborativeComments',
-                'RealTimeCollaborativeTrackChanges',
-                'RealTimeCollaborativeRevisionHistory',
-                'PresenceList',
-                'Comments',
-                'TrackChanges',
-                'TrackChangesData',
-                'RevisionHistory',
-                'Pagination',
-                'WProofreader',
-                'MathType',
-                'SlashCommand',
-                'Template',
-                'DocumentOutline',
-                'FormatPainter',
-                'TableOfContents',
-                'PasteFromOfficeEnhanced',
-                'CaseChange'
-            ],
-            table: {
-                contentToolbar: [
-                    'tableColumn', 'tableRow', 'mergeTableCells',
-                    'tableProperties', 'tableCellProperties'
-                ],
+    const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {
 
-                // Set the palettes for tables.
-                tableProperties: {
-                    borderColors: customColorPalette,
-                    backgroundColors: customColorPalette
-                },
+        filebrowserBrowseUrl: "{{ route('ckfinder_browser') }}",
+        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+    });
 
-                // Set the palettes for table cells.
-                tableCellProperties: {
-                    borderColors: customColorPalette,
-                    backgroundColors: customColorPalette
-                }
-            }
-        })
-        .then(nuevo_ec => {
-            editor_cuerpo = nuevo_ec;
-        });
+    const editor_distribucion = CKEDITOR.replace('form_distribucion', {
+        filebrowserBrowseUrl: "{{ route('ckfinder_browser') }}",
+        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
+        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+        height: 100
+    });
 
+    CKFinder.config({
+        connectorPath: '/ckfinder/connector'
+    });
 
     $(".nuevo_documento").click(function(e) {
-
-
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
         $('#card_crear_documento').show();
@@ -1738,8 +1105,10 @@
         deshabilita_campos();
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.disableReadOnlyMode('ec');
-        editor_distribucion.disableReadOnlyMode('ed');
+        editor_cuerpo.setReadOnly(false);
+        editor_distribucion.setReadOnly(false);
+        // tinymce.get("form_cuerpo").mode.set("design");
+        // tinymce.get("form_distribucion").mode.set("design");
 
         $('.btn-guardar-submit').show();
         habilita_boton('btn-guardar-submit');
@@ -1780,8 +1149,10 @@
     function deshabilita_campos() {
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", true);
-        editor_cuerpo.enableReadOnlyMode('ec');
-        editor_distribucion.enableReadOnlyMode('ed');
+        editor_cuerpo.setReadOnly(true);
+        editor_distribucion.setReadOnly(true);
+        // tinymce.get("form_cuerpo").mode.set("readonly");
+        // tinymce.get("form_distribucion").mode.set("readonly");
         $('#form_destinatario_principal').prop("disabled", true);
         $('#form_comentario_el').prop("disabled", true);
         $('#form_otros_destinatarios_el').prop("disabled", true);
@@ -1805,8 +1176,10 @@
     function habilita_campos() {
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
-        editor_cuerpo.disableReadOnlyMode('ec');
-        editor_distribucion.disableReadOnlyMode('ed');
+        editor_cuerpo.setReadOnly(false);
+        editor_distribucion.setReadOnly(false);
+        // tinymce.get("form_cuerpo").mode.set("design");
+        // tinymce.get("form_distribucion").mode.set("design");
         $('#form_destinatario_principal').prop("disabled", false);
         $('#form_acciones_solicitadas_el').multiselect('enable');
         $('#form_comentario_el').prop("disabled", false);
@@ -1834,7 +1207,8 @@
         $("input[name='encabezado']").val('');
         editor_cuerpo.setData('');
         editor_distribucion.setData('');
-
+        //tinymce.get("form_cuerpo").setContent('');
+        //tinymce.get("form_distribucion").setContent('');
         $("textarea[id='form_comentario_el']").val('');
         $("textarea[id='form_comentario_otro_el']").val('');
 
@@ -2158,7 +1532,6 @@
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
         var responder = $('#form_respuesta_a').val();
-
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2232,7 +1605,7 @@
                         intervalCarga = setInterval(function() {
                             varTermina = valida_carga();
                             if (varTermina == 1) {
-                                //console.log('completado');
+                                // console.log('completado');
                                 clearInterval(intervalCarga);
                                 iniQueueComplete();
 
@@ -2366,7 +1739,6 @@
                     } else {
                         $('.btn-guardar-submit').html('Guardar');
                     }
-
                 }
 
             },
@@ -2410,6 +1782,9 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var cuerpo = editor_cuerpo.getData();
         var distribucion = editor_distribucion.getData();
+        // var cuerpo = tinymce.get("form_cuerpo").getContent();
+        // var distribucion = tinymce.get("form_distribucion").getContent();
+
         var tipo_documento = $("select[name='tipo_documento']").val();
         var nivel_acceso = $("select[name='nivel_acceso']").val();
         var efectos_terceros = $("select[name='efectos_terceros']").val();
@@ -2512,6 +1887,8 @@
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
         var distribucion = editor_distribucion.getData();
+        // var cuerpo = tinymce.get("form_cuerpo").getContent();
+        // var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -2684,6 +2061,8 @@
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
         var distribucion = editor_distribucion.getData();
+        // var cuerpo = tinymce.get("form_cuerpo").getContent();
+        // var distribucion = tinymce.get("form_distribucion").getContent();
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -3458,7 +2837,7 @@
                         },
                         error: function(e) {
                             data = e.responseJSON;
-                            //console.log(data);
+                            console.log(data);
                             if (data.data.comentario != "" && data.data.comentario != null)
                                 toastr.error(data.data.comentario, "¡Aviso!");
                             else
@@ -3666,7 +3045,6 @@
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
         var responder = $('#form_respuesta_a').val();
-
 
         if (destinatarioPrincipal !== undefined && acciones_solicitadas != "") {
             deshabilita_boton('btn-recibir-submit');
@@ -4623,6 +4001,10 @@
         return typeof string === 'string' && string.length === 0;
     }
 
+    function isEmpty(string) {
+        return typeof string === 'string' && string.length === 0;
+    }
+
     function cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, carpeta, accion) {
         clear_form();
         $("#collapseOne").collapse('hide');
@@ -4701,9 +4083,11 @@
 
                         $("input[name='encabezado']").val(json_tipo_doc['plantilla_encabezado']);
                         $("input[name='hiddIdOrigen']").val(json_tipo_doc['id_tipo_origen']);
+
                         editor_cuerpo.setData(data.data.cuerpo);
                         //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         editor_distribucion.setData(data.data.distribucion);
+                        //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         // if(data.data.cuerpo !== null){
                         //     tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         // }
@@ -4711,7 +4095,7 @@
                         //     tinymce.get("form_cuerpo").setContent('&nbsp;');
                         // }
 
-                        // //editor_distribucion.setData(data.data.plantilla_distribucion);
+                        //editor_distribucion.setData(data.data.plantilla_distribucion);
                         // if(data.data.distribucion !== null){
                         //     tinymce.get("form_distribucion").setContent(data.data.distribucion);
                         // }
@@ -4766,19 +4150,52 @@
                         var relDatosBitacora = data.data.rel_bitacora;
                         var htmlDatosbitacora = "";
                         var firmasRealizadas = 0;
+                        var htmlDatosVisadores = "";
+                        var htmlDatosVisadoresPrev = "";
+                        var htmlDatosFirmantes = "";
+                        var txtDatosPrev = "";
+
                         $.each(relDatosBitacora, function(i, item) {
                             if (item.id_accion == 6)
-                                htmlDatosbitacora += "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                            {
+                                let patron = /\[.+?\]/g;
+                                
+                                txtDatos = item.id_buzon + item.id_usuario;
+                                if (txtDatos != txtDatosPrev)
+                                {                                                                       
+                                    htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, ''); 
+                                    htmlDatosVisadores += "[<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>]';
+                                }
+                                else
+                                {
+                                    htmlDatosVisadoresNew = "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                    htmlDatosVisadores = htmlDatosVisadores.replace(patron, htmlDatosVisadoresNew);
+                                }
+
+                                txtDatosPrev = item.id_buzon + item.id_usuario;
+                            
+                            }
 
                             if (item.id_accion == 7) {
-                                htmlDatosbitacora += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
+                                htmlDatosFirmantes += "<div><b>Firmado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
                                 firmasRealizadas++;
                             }
 
+                            if (item.id_accion == 4)
+                            {
+                                txtDatosPrev = "";
+                                htmlDatosVisadores = "";
+                                htmlDatosVisadoresPrev = "";
+                            }
+                                
                             if (item.id_accion == 7 || item.id_accion == 8)
                                 isDelete = false;
 
                         });
+
+                        htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, '');
+
+                        htmlDatosbitacora = htmlDatosVisadores + htmlDatosFirmantes;
 
                         $('#datos_bitacora_simple').html(htmlDatosbitacora);
 
@@ -5089,7 +4506,6 @@
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
                                             //console.log('ver-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
 
 
                                         } //fin estado documento pendiente
@@ -5119,8 +4535,6 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('ver-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
 
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
@@ -5145,9 +4559,8 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('ver-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estaddo visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion ver
                                     ///////////////////////////////
                                     if (accion == 1) { //seleccion boton editar
@@ -5189,8 +4602,6 @@
 
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
-                                            //console.log('editar-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado documento pendiente
                                         if (item.id_estado_documento == 6) { //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -5219,8 +4630,6 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('editar-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
                                             $('.btn-guardar-submit').show();
@@ -5245,9 +4654,8 @@
                                                     $('#submit-enviar').addClass('btn-success');
                                                 }
                                             }
-                                            //console.log('editar-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion editar
                                     ///////////////////////
                                     if (accion == 22) { //seleccion boton visar
@@ -5290,7 +4698,6 @@
                                             var buttonArchivar = '<button onClick="archivar_documento_botonera(0)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Archivar</button> ';
                                             $('#addButton').append(buttonArchivar);
                                             //console.log('visar-pendiente');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado documento pendiente
                                         if (item.id_estado_documento == 6) { //documento archivado
                                             var buttonDesarchivar = '<button onClick="archivar_documento(1)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-archivar ">Desarchivar</button> ';
@@ -5322,7 +4729,6 @@
                                                 }
                                             }
                                             //console.log('visar-firmado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 1);
                                         } //fin estado firmado
                                         if (item.id_estado_documento == 11) { //visado
                                             $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
@@ -5345,8 +4751,8 @@
                                             $('#submit-enviar').removeClass('btn-primary');
                                             $('#submit-enviar').addClass('btn-success');
                                             //console.log('visar-visado');
-                                            firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, 0);
                                         } //fin estado visado
+                                        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
                                     } //fin boton accion visar
                                     ///////////////////////
                                     if (accion == 33) { //seleccion boton firmar
@@ -5444,6 +4850,10 @@
                                                     $('#addButton').append(buttonDerivar);
                                                     $('#submit-enviar').removeClass('btn-primary');
                                                     $('#submit-enviar').addClass('btn-success');
+                                                }
+                                                if (accionesSolicitadas[i]['id_accion'] == 7) { //Firmar                                                    
+                                                    var buttonFirmar = '<button onClick="firmar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar ">Firmar</button> ';
+                                                    $('#addButton').append(buttonFirmar);
                                                 }
                                             }
                                             //console.log('firmar-visado');
@@ -5679,26 +5089,23 @@
 
     function firmar_derivar_automatico(hiddPrimeraFirma, hiddUltimaFirma, hiddBuzonPrimera, hiddBuzonUltima, firmasRealizadas, hiddNroFirmas, bloquear) {
         if (hiddPrimeraFirma == 1 && firmasRealizadas == 0) { //derivar en la primera firma
-            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonPrimera);
             $("#form_destinatario_principal").trigger('change');
             if (bloquear == 1) {
                 $("#form_destinatario_principal").prop("disabled", true);
             }
-            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            //$('#addButton').append(buttonFirmarDerivar); 
             $('.btn-firmar-derivar').remove()
             $(".btn-firmar").html("Firmar y Enviar");
         }
         if (hiddUltimaFirma == 1 && firmasRealizadas == (hiddNroFirmas - 1)) { //derivar en la primera firma
-            //$(".btn-firmar").hide();
             $("#form_destinatario_principal").val(hiddBuzonUltima);
             $("#form_destinatario_principal").trigger('change');
             if (bloquear == 1) {
                 $("#form_destinatario_principal").prop("disabled", true);
+                $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+                $('#form_acciones_solicitadas_el').multiselect('select', '11');
+                $('#form_acciones_solicitadas_el').multiselect('rebuild');
             }
-            //var buttonFirmarDerivar = '<button onClick="firmar_derivar_documento()" type="button" class="btn text-nowrap btn-min-w  btn-success btn-firmar-derivar w-15">Firmar y Enviar</button> '; 
-            //$('#addButton').append(buttonFirmarDerivar); 
             $('.btn-firmar-derivar').remove()
             $(".btn-firmar").html("Firmar y Enviar");
         }
@@ -5856,6 +5263,48 @@
                 $.ajax({
                     url: "/documento/",
                     type: 'delete',
+                    dataType: 'json',
+                    data: {
+                        _token: _token,
+                        idDocumento: id_documento,
+                        idDocumentoBuzon: id_documento_buzon
+                    },
+                    success: function(data) {
+                        if (data.status == '200') {
+                            toastr.success(data.data, "¡Aviso!");
+                            fn_grilla_despachados();
+                            $('#card_crear_documento').hide();
+                            $("#collapseOne").collapse('show');
+                        } else {
+                            toastr.error(data.data.comentario, "¡Aviso!");
+                        }
+                    },
+                    error: function(data, jqXHR, textStatus, errorThrown) {
+                        toastr.error("Falla en la eliminación del documento", "¡Aviso!");
+                    }
+                });
+            }
+        })
+
+
+    }
+
+    function eliminar_enviado(id_documento, id_documento_buzon) {
+        var _token = $("input[name='_token']").val();
+
+        Swal.fire({
+            title: 'Eliminar Envío',
+            html: "Se eliminarán los envíos del documento<br>",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar'
+        }).then((result) => {
+            if (result.value == true) {
+                $.ajax({
+                    url: "/eliminar_documento",
+                    type: 'GET',
                     dataType: 'json',
                     data: {
                         _token: _token,
@@ -6389,6 +5838,10 @@
                         }
                         return '';
                     }
+                },
+                {
+                    data: 'id_tipo_documento',
+                    name: 'tipo_documento.id_tipo_documento'
                 }
             ],
 
@@ -6413,7 +5866,7 @@
                         grilla_recibidos.columns(4).search("" + estados + "", true, false).draw();
                         grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                         grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();
-                        grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false).draw();
+                        grilla_recibidos.columns(14).search($('#gr_buscar_tipo_doc').val().join("|"), true, false).draw();
                     })
 
                 $('#botones_grilla_recibidos').html('');
@@ -6715,7 +6168,12 @@
                         }
                         return '';
                     }
+                },
+                {
+                    data: 'id_tipo_documento',
+                    name: 'tipo_documento.id_tipo_documento'
                 }
+
             ],
 
             initComplete: function() {
@@ -6736,10 +6194,14 @@
                     .text('Buscar')
                     .click(function() {
                         let estados = $('#gr_buscar_estado').val().join("|");
+                        var tipos = $('#gr_buscar_tipo_doc').val();
+
+
                         grilla_recibidos.columns(4).search("" + estados + "", true, false).draw();
                         grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
                         grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();
-                        grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false).draw();
+                        //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
+                        grilla_recibidos.columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true).draw();
                     })
 
                 $('#botones_grilla_recibidos').html('');
@@ -6759,6 +6221,7 @@
                 grilla_recibidos.column(0).visible(false);
                 grilla_recibidos.column(1).visible(false);
                 grilla_recibidos.column(2).visible(false);
+                grilla_recibidos.column(14).visible(false);
             }
 
         });
@@ -7194,7 +6657,7 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
             }).then((result) => {
-                //console.log(result);
+                console.log(result);
                 if (result.value == true) {
                     var promiseArray = [];
                     $.each(rows_selected, function(index, obj) {
@@ -7668,13 +7131,10 @@
     function activar_editar(nBotones) {
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", false);
-        // editor_cuerpo.setReadOnly(false);
-        // editor_distribucion.setReadOnly(false);
+        editor_cuerpo.setReadOnly(false);
+        editor_distribucion.setReadOnly(false);
         // tinymce.get("form_cuerpo").mode.set("design");
         // tinymce.get("form_distribucion").mode.set("design");
-        editor_cuerpo.disableReadOnlyMode('ec');
-        editor_distribucion.disableReadOnlyMode('ed');
-
         $('#dropzone-principal').prop("disabled", false);
         $('#dropzone-anexo').prop("disabled", false);
         $('#dropzone-otros').prop("disabled", false);

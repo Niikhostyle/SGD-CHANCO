@@ -6,7 +6,7 @@
     <style>       
             footer { 
                 position: fixed; 
-                bottom: 40px;              
+                bottom: 60px;              
             }
             footer .pagenum:before 
             {
@@ -34,7 +34,8 @@
     {!! $cuerpo !!}    
 </div>
 <div class="page pie">
-    <footer>    
+    <footer>  
+    {!! $visadores !!}  
     {!! $distribucion !!}
     </footer>
 </div>
