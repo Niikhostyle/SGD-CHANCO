@@ -22,10 +22,7 @@ use Barryvdh\DomPDF\Options;
 use App\Models\TipoDocumentoBuzonFolio;
 use Illuminate\Support\Facades\Log;
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 1c9302180b7c047ded39bcc82ef8f11f1e20d1f3
 class ArchivoController extends Controller
 {
 
@@ -487,6 +484,7 @@ class ArchivoController extends Controller
                 ->select('valor')
                 ->get();
 
+
             if (count($dFolio) > 0) {
                 $nFolio = $dFolio[0]->valor;
             }
@@ -506,6 +504,7 @@ class ArchivoController extends Controller
                 ->where('id_buzon', $buzon)
                 ->where('anio', $anio)
                 ->get();
+
 
             if (count($dFolio) > 0) {
                 $nFolio = $dFolio[0]->valor;
