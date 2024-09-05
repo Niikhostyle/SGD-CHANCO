@@ -174,6 +174,7 @@ class FirmaController extends Controller
                     if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) {
 
                         //generar folio 
+                        
                         $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
                             ->timeout(30)
                             ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [
@@ -183,6 +184,7 @@ class FirmaController extends Controller
                                 'id_buzon' => $datos['id_buzon'],
                                 'generaFolio' => $nGeneraFolio
                             ]);
+                        
                     }
 
                     if (isset($datosArchivo['status']) && $datosArchivo['status'] == '400') {
@@ -472,43 +474,53 @@ class FirmaController extends Controller
                                 //registrar accion de cambio de archivo ppal en bitacora
                                 $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.", 5);
 
-                                //firma archivo nuevamente si folio en ultima firma 
-                                if (($idTipoAsigFolio == 5) && count($datosBitacora) == ($nNroFirmas - 1)) {
-                                    //Generación imagen de firma 
+                                //firma archivo nuevamente si folio en ultima firma                                 
 
+                                if (($idTipoAsigFolio == 5) && count($datosBitacora) == ($nNroFirmas - 1)) 
+                                {
                                     $datosDocumentos = Documento::findOrFail($datos['id_documento']);
-                                    $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'], true);
-                                    $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° ' . $datosDocumentos['folio'] . ' / ' . date('Y');
+                                    
+                                    if (isset($datosDocumentos['folio']) && $datosDocumentos['folio'] != "")
+                                    {
+                                        //Generación imagen de firma 
+                                        
+                                        $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'], true);
+                                        $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° ' . $datosDocumentos['folio'] . ' / ' . date('Y');
 
-                                    $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
-                                    $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
-                                    $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
+                                        $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+                                        $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
+                                        $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
 
-                                    $img = Image::canvas(500, 100, '#FFFFFF');
-                                    $img->text($sPrefijoFolio, 10, 45, function ($font) {
-                                        $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(30);
-                                        $font->align('left');
-                                    });
-                                    $img->text($sfechaFolio, 10, 85, function ($font) {
-                                        $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(18);
-                                        $font->align('left');
-                                    });
+                                        $img = Image::canvas(500, 100, '#FFFFFF');
+                                        $img->text($sPrefijoFolio, 10, 45, function ($font) {
+                                            $font->file(storage_path('../public/timesb.ttf'));
+                                            $font->size(30);
+                                            $font->align('left');
+                                        });
+                                        $img->text($sfechaFolio, 10, 85, function ($font) {
+                                            $font->file(storage_path('../public/timesb.ttf'));
+                                            $font->size(18);
+                                            $font->align('left');
+                                        });
 
-                                    $img->save(storage_path('app/public/files/imagen_firma/' . $sNombreImgFolio));
+                                        $img->save(storage_path('app/public/files/imagen_firma/' . $sNombreImgFolio));
 
-                                    $nNombreArchivoCargarNew = $this->getNombreDocumento($datos['id_documento']);
+                                        $nNombreArchivoCargarNew = $this->getNombreDocumento($datos['id_documento']);
 
-                                    $aRespuestaFirma = $this->callHash(storage_path('app/public/files/' . $nNombreArchivoCargar), $layoutFolio, 1, $nNombreArchivoCargarNew, $nRutFirma);
+                                        $aRespuestaFirma = $this->callHash(storage_path('app/public/files/' . $nNombreArchivoCargar), $layoutFolio, 1, $nNombreArchivoCargarNew, $nRutFirma);
 
-                                    if (isset($aRespuestaFirma['status'])) {
-                                        $comentario = $aRespuestaFirma['error'];
+                                        if (isset($aRespuestaFirma['status'])) {
+                                            $comentario = $aRespuestaFirma['error'];
+                                            throw new Exception($comentario);
+                                        }
+
+                                        //actualizar registro de archivo 
+                                        DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]);
+                                    }
+                                    else {
+                                        $comentario = "No fue posible generar el folio.";
                                         throw new Exception($comentario);
                                     }
-
-                                    //actualizar registro de archivo 
-                                    DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]);
                                 }
                             }
 
@@ -600,6 +612,7 @@ class FirmaController extends Controller
         } else
             return $this->respondError('Json inválido', 406);
     }
+
     public function saveBitacora($docbuzon, $fecha, $usuario, $comentario, $accion)
     {
         //registrar accion en bitacora
