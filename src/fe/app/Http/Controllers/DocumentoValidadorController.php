@@ -131,7 +131,7 @@ class DocumentoValidadorController extends Controller
             ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
             ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
             ->where('documento.id_documento', $list['id_documento'])
-            ->whereIn('documento_buzon_bitacora.id_accion', array('4', '6'))
+            ->whereIn('documento_buzon_bitacora.id_accion', array('4', '6', '7'))
             ->select(
                 'documento_buzon_bitacora.id_accion',
                 'documento_buzon.id_buzon',
@@ -153,19 +153,24 @@ class DocumentoValidadorController extends Controller
         $nContador = 0;
 
         foreach ($datosVisarFirmar as $value) {
-            if ($value['id_accion'] == 6 && $nTerminaCiclo != 1) {
-                $txtUserBuzon = $value['id_buzon'] . $value['id_usuario'];
-                if ($txtUserBuzonPrev != $txtUserBuzon) {
-                    $txtUserBuzonPrev = $value['id_buzon'] . $value['id_usuario'];
-                    $nContador++;
-                    $txtVisadores .= $nContador . ". <b>" . $value['usuario'] . "</b> " . $value['fecha'] . "<br />";
+            if ($nTerminaCiclo == 0) {
+                if ($value['id_accion'] == 6 && $nTerminaCiclo != 1) {
+                    $txtUserBuzon = $value['id_buzon'] . $value['id_usuario'];
+                    if ($txtUserBuzonPrev != $txtUserBuzon) {
+                        $txtUserBuzonPrev = $value['id_buzon'] . $value['id_usuario'];
+                        $nContador++;
+                        $txtVisadores .= $nContador . ". <b>" . $value['usuario'] . "</b> " . $value['fecha'] . "<br />";
+                    }
                 }
-            }
-            if ($value['id_accion'] == 4) {
-                //$nTerminaCiclo = 1;
-                $txtVisadores = "";
-                $nContador = 0;
-                $txtUserBuzonPrev = "";
+                if ($value['id_accion'] == 4) {
+                    //$nTerminaCiclo = 1;
+                    $txtVisadores = "";
+                    $nContador = 0;
+                    $txtUserBuzonPrev = "";
+                }
+                if ($value['id_accion'] == 7) {
+                    $nTerminaCiclo = 1;
+                }
             }
         };
 
