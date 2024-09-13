@@ -74,7 +74,7 @@ class FirmaController extends Controller
                 if ($aInfoUsuarios['img_firma'] == '' || $aInfoUsuarios['img_firma'] == null) {
                     $comentario = "No existe imagen para firma asociada al usuario.";
                     throw new Exception($comentario);
-                }               
+                }
 
 
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
@@ -174,6 +174,7 @@ class FirmaController extends Controller
                     if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) {
 
                         //generar folio 
+
                         $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
                             ->timeout(30)
                             ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [
@@ -185,7 +186,7 @@ class FirmaController extends Controller
                             ]);
                     }
 
-                    if (isset($datosArchivo['status']) && $datosArchivo['status'] == '400') {
+                    if (isset($datosArchivo['status']) && ($datosArchivo['status'] == '400' || $datosArchivo['status'] == '500')) {
                         throw new Exception($datosArchivo['data']['comentario']);
                     }
 
@@ -472,43 +473,50 @@ class FirmaController extends Controller
                                 //registrar accion de cambio de archivo ppal en bitacora
                                 $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.", 5);
 
-                                //firma archivo nuevamente si folio en ultima firma 
+                                //firma archivo nuevamente si folio en ultima firma                                 
+
                                 if (($idTipoAsigFolio == 5) && count($datosBitacora) == ($nNroFirmas - 1)) {
-                                    //Generación imagen de firma 
-
                                     $datosDocumentos = Documento::findOrFail($datos['id_documento']);
-                                    $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'], true);
-                                    $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° ' . $datosDocumentos['folio'] . ' / ' . date('Y');
 
-                                    $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
-                                    $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
-                                    $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
+                                    if (isset($datosDocumentos['folio']) && $datosDocumentos['folio'] != "") {
+                                        //Generación imagen de firma 
 
-                                    $img = Image::canvas(500, 100, '#FFFFFF');
-                                    $img->text($sPrefijoFolio, 10, 45, function ($font) {
-                                        $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(30);
-                                        $font->align('left');
-                                    });
-                                    $img->text($sfechaFolio, 10, 85, function ($font) {
-                                        $font->file(storage_path('../public/timesb.ttf'));
-                                        $font->size(18);
-                                        $font->align('left');
-                                    });
+                                        $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'], true);
+                                        $sPrefijoFolio = $datosJsonTipoDocumento['nombre_corto_firma'] . ' N° ' . $datosDocumentos['folio'] . ' / ' . date('Y');
 
-                                    $img->save(storage_path('app/public/files/imagen_firma/' . $sNombreImgFolio));
+                                        $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+                                        $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
+                                        $sfechaFolio = env('PLCSGD_FECHA_FOLIO_TXT') . ', ' . $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
 
-                                    $nNombreArchivoCargarNew = $this->getNombreDocumento($datos['id_documento']);
+                                        $img = Image::canvas(500, 100, '#FFFFFF');
+                                        $img->text($sPrefijoFolio, 10, 45, function ($font) {
+                                            $font->file(storage_path('../public/timesb.ttf'));
+                                            $font->size(30);
+                                            $font->align('left');
+                                        });
+                                        $img->text($sfechaFolio, 10, 85, function ($font) {
+                                            $font->file(storage_path('../public/timesb.ttf'));
+                                            $font->size(18);
+                                            $font->align('left');
+                                        });
 
-                                    $aRespuestaFirma = $this->callHash(storage_path('app/public/files/' . $nNombreArchivoCargar), $layoutFolio, 1, $nNombreArchivoCargarNew, $nRutFirma);
+                                        $img->save(storage_path('app/public/files/imagen_firma/' . $sNombreImgFolio));
 
-                                    if (isset($aRespuestaFirma['status'])) {
-                                        $comentario = $aRespuestaFirma['error'];
+                                        $nNombreArchivoCargarNew = $this->getNombreDocumento($datos['id_documento']);
+
+                                        $aRespuestaFirma = $this->callHash(storage_path('app/public/files/' . $nNombreArchivoCargar), $layoutFolio, 1, $nNombreArchivoCargarNew, $nRutFirma);
+
+                                        if (isset($aRespuestaFirma['status'])) {
+                                            $comentario = $aRespuestaFirma['error'];
+                                            throw new Exception($comentario);
+                                        }
+
+                                        //actualizar registro de archivo 
+                                        DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]);
+                                    } else {
+                                        $comentario = "No fue posible generar el folio.";
                                         throw new Exception($comentario);
                                     }
-
-                                    //actualizar registro de archivo 
-                                    DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]);
                                 }
                             }
 
@@ -600,6 +608,7 @@ class FirmaController extends Controller
         } else
             return $this->respondError('Json inválido', 406);
     }
+
     public function saveBitacora($docbuzon, $fecha, $usuario, $comentario, $accion)
     {
         //registrar accion en bitacora
@@ -639,7 +648,7 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
 
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-        
+        Log::error("Comando " . $cmd);
         exec($cmd, $output, $estado);
 
         if ($estado == 0) //firma ok

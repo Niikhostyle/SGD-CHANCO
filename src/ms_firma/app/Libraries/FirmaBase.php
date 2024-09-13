@@ -16,7 +16,6 @@ class FirmaBase //extends FirmaDigitalBase
     public function __construct($config)
     {
         if (is_array($config)) {
-            Log::error($config); 
             foreach ($config as $param => $value) {
                 if (empty($value)) {
                     Log::error('No se encontro el parámetro '.$param.' en la configuración'); 
