@@ -28,14 +28,8 @@ config.colorButton_colors =
 		{ name: 'tools', items: [ 'Maximize' ] },
 		{ name: 'basicstyles', items: [ 'Bold', 'Italic', 'Strike','Underline', '-', 'RemoveFormat' ] },
 		{ name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'] },
-<<<<<<< HEAD
-		{ name: 'styles', items: [ 'Styles', 'Format' ] },
-                { name: 'source', items: ['Source']}
-
-=======
 		{ name: 'styles', items: [ 'Styles', 'Format','TextColor', 'BGColor' ] },
 		{ name: 'Source', items: [ 'Source' ] }
->>>>>>> 73f33b10516ace556605b911cc8d15106f3f8297
 	];
 
 };
