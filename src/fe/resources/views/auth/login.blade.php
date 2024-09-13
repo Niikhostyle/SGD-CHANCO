@@ -45,15 +45,16 @@
                     @endif
                     <div class="box-body" style="padding: 2em;">
                         <div class="row">
-                            <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
-                                <img class="img mx-auto " src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_plc">
+                            <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">                                
+                                <img class="img mx-auto " src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo_home">
+
                             </div>
                             <div class="col-md-2 col-xs-2 col-lg-2">
                                 &nbsp;
                             </div>
 
                             <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
-                                <img class="img mx-auto" src="{{ asset('img/logoSGD.png') }}" alt="" id="logo_sgd">
+                                <img class="img mx-auto" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2_home">
                             </div>
                         </div>
                         <div class="row">
@@ -106,8 +107,9 @@
                             </form>
                         </div>
                         <div class="row pt-5">
-                            <div class="col-12">
-                            <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
+                            <div class="col-12 text-center text-base text-bold">
+                                {!! env('GENTILEZA_TXT') !!}                            
+                                <img class="img mx-auto d-block wm-img" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
                             </div>
                         </div>
                      </div>

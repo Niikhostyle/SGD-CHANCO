@@ -978,10 +978,11 @@ class DocumentoController extends Controller{
                                                             ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
                                                             ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
                                                             ->where('documento.id_documento', $datosRequest['id_documento'])
-                                                            ->whereIn('documento_buzon_bitacora.id_accion', array('6','7'))
+                                                            ->whereIn('documento_buzon_bitacora.id_accion', array('4','6','7'))
                                                             ->select(
                                                                 'documento_buzon_bitacora.id_accion', 
                                                                 'accion.nombre', 
+                                                                'documento_buzon.id_buzon',
                                                                 'documento_buzon_bitacora.id_usuario', 
                                                                 'documento_buzon.id_tipo_destino',
                                                                 'users.nombres', 

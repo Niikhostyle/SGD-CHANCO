@@ -1,4 +1,4 @@
 <?php
 use App\Http\Controllers\PLCController;
 
-Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_docto',[PLCController::class,'getDoc'])->name('buscador.descargar_plc');

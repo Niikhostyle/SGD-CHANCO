@@ -202,9 +202,10 @@
             </div>
             <div class="card" id="card-logo">
                 <div class="card-body">
-                    <div class="row text-right" id="logoPLC">
+                    <div class="row text-right" id="logo4_panel">
                         <div class="col-12">
-                            <img src="/img/logoCalidad.png" width="20%" style="margin-top:30%" />
+                            <img class="logo_panel" src="{{ asset(env('CODIGO_SGD').'/img/logo4.png') }}" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -692,8 +693,16 @@
                 columns: [
                         { data: 'identificador', name: 'identificador' },
                         { data: 'tipo_documento', name: 'tipo_documento' },
-                        { data: 'materia', name: 'documento.materia'},
-                        
+                        { data: 'materia', name: 'documento.materia',render: function(data, type, row)
+                            {
+                                if(data.length > 50){
+                                    return data.substring(0,50)+"...";
+                                }
+                                else{
+                                    return data;
+                                }
+                            },
+                        },
                         { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
                                 {
                                     if(data == null)
@@ -730,7 +739,7 @@
                             render:function(data, type, row){
 
                                 if(row.id_nivel_acceso == 1){
-                                    return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                                    return "<a href='descargar_docto?idDocumento="+data+"' target='_blank'>Descargar</a>";
                                 }
                                 else{
                                     return '';
@@ -931,7 +940,12 @@
             success: function(data){  
                 let nTotalRegistros = data.length;
                 let nRegistrosPorTabla = Math.round(nTotalRegistros/3);
-                $("#grilla_categorias"+idTabla).find("tr:gt(0)").remove();
+                if(nTotalRegistros >= 4){
+                    $("#grilla_categorias"+idTabla).find("tr:gt(0)").remove();
+                }
+                else{
+                    $("#grilla_categorias2").find("tr:gt(0)").remove();
+                }
                 let nroFila = 0;
                 if(data.length > 0){
                     $.each(data, function(i, val) {

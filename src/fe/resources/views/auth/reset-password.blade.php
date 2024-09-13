@@ -9,7 +9,7 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="shortcut icon" href="http://www.padrelascasas.cl/newplc/wp-content/themes/plc/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ env('ICON_NAV_TXT') }}" type="image/x-icon">
 
 
 
@@ -48,6 +48,7 @@
             }
         </style>
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+        <link rel="stylesheet" href="{{ env('CODIGO_SGD').'/css/custom.css' }}">
         <!-- Bootstrap 3.4.1 -->
         <link rel="stylesheet" href="../css/inicio/bootstrap.min.css">
         <link rel="stylesheet" href="../css/inicio/font-awesome.min.css">
@@ -110,10 +111,7 @@
 
 
     </head>
-    <body class="row hold-transition skin-blue ">
-        <!-- <header class="main-header-guest">
-                <span class="logo-lg">SISTEMA DE GESTIÓN DOCUMENTAL - PADRE LAS CASAS</span>
-        </header> -->
+    <body class="row hold-transition skin-blue ">        
         <div class="font-sans text-gray-900 antialiased">
             <section class="content bg">
                 <div class="container">
@@ -127,14 +125,14 @@
                             <div class="box-body" style="padding: 2em;">
                                 <div class="row">
                                     <div class="col-md-5 col-xs-5 col-lg-5 p-4 d-none d-lg-block">
-                                        <img class="img mx-auto " src="{{ asset('img/logoPLC.png') }}" alt="" id="logo_plc">
+                                        <img class="img mx-auto " src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo">
                                     </div>
                                     <div class="col-md-2 col-xs-2 col-lg-2">
                                         &nbsp;
                                     </div>
 
                                     <div class="col-md-5 col-xs-5 col-lg-5 pb-4 d-none d-lg-block">
-                                        <img class="img mx-auto" src="{{ asset('img/logoSGD.png') }}" alt="" id="logo_sgd">
+                                        <img class="img mx-auto" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -181,11 +179,11 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div class="row pt-5">
+                                <!-- <div class="row pt-5">
                                     <div class="col-12">
                                     <img class="img mx-auto d-block" src="{{ asset('img/logoCalidad.png') }}" alt="" id="logo_calidad" style="max-width: 30%;">
                                     </div>
-                                </div>
+                                </div> -->
                                 </div>
                             </div>
                     </div>
@@ -196,7 +194,7 @@
             <div class="row">
                 <div class="col-md-12">
                 <span class="help-block m-r-20 m-l-20 text-center">
-                    2021 © Padre Las casas Maquehue 1441 - 45 2 590 000
+                    {!! env('FOOTER_TXT') !!}
                 </span>
                 </div>
             </div>

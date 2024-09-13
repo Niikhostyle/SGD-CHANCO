@@ -193,6 +193,7 @@
                                                 <th data-priority="0">ID</th>
                                                 <th>TD</th>
                                                 <th data-priority="1">Materia</th>
+                                                <th data-priority="1">Materia</th>
                                                 <th data-priority="2">Fecha DOC</th>
                                                 <th data-priority="1">Folio</th>
                                                 <th data-priority="1">Fecha creación</th>
@@ -610,13 +611,14 @@
                         {
                             extend:"excel",
                             exportOptions: { 
-                                columns: function(column, data, node) {
+                                // columns: function(column, data, node) {
                                     
-                                    if (column > 10) {
-                                        return false;
-                                    }
-                                    return true;
-                                }
+                                //     if (column > 10) {
+                                //         return false;
+                                //     }
+                                //     return true;
+                                // }
+                                columns: [0,1,3,4,5,6,7,8,9,10,11 ]
                              },
                             text:'Descargar busqueda',
                             className: 'btn btn-success',
@@ -635,7 +637,22 @@
             columns: [
                     { data: 'identificador', name: 'identificador' },
                     { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'materia', name: 'documento.materia' },
+                    { data: 'materia', name: 'documento.materia',render: function(data, type, row)
+                            {
+                                if(data.length > 50){
+                                    return data.substring(0,50)+"...";
+                                }
+                                else{
+                                    return data;
+                                }                               
+                            }
+                    },
+                    { data: 'materia', name: 'documento.materia',render: function(data, type, row)
+                            {
+                               
+                                    return data;
+                            }
+                    },
                     
                     { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
                             {
@@ -675,8 +692,8 @@
                     { data: 'id_documento', name: 'descarga',
                         render:function(data, type, row){
                             //console.log(row);
-                            if(row.id_nivel_acceso == 1){
-                                return "<a href='descargar_documento_plc?idDocumento="+data+"' target='_blank'>Descargar</a>";
+                            if(row.id_nivel_acceso == 1 && parseInt(row.folio) > 0){
+                                return "<a href='descargar_docto?idDocumento="+data+"' target='_blank'>Descargar</a>";
                             }
                             else{
                                 return '';
@@ -765,6 +782,8 @@
         var table = $('#grilla_recibidos').DataTable();
         var column = table.column(8);
         column.visible(false);
+        var columnm2 = table.column(3);
+        columnm2.visible(false);
     });
       
     function activa_fechas(valor){
@@ -962,8 +981,7 @@
             $('#form_destinatario_principal_el').prop("disabled", true);
             $('#form_otros_destinatarios_el').prop("disabled", true);
             $(".bootstrap-tagsinput-max").addClass("disabled");
-            $(".bootstrap-tagsinput").addClass("disabled");  
-
+            $(".bootstrap-tagsinput").addClass("disabled"); 
             cargar_datos_grilla(id_documento);
             cargar_datos_bitacora(id_documento);
 
