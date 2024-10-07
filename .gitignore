@@ -8,7 +8,7 @@
 .env
 
 #custom
-/configs/customize/*
+
 
 # data
 /data/bd
