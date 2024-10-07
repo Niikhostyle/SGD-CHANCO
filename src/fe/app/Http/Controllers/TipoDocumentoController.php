@@ -49,7 +49,7 @@ class TipoDocumentoController extends Controller
             
             //ordenar por 1-2-5-3, según ticket 14 que agrega obtener folio en primera firma o ultima firma en el tipo de documentos. 
             //Con eso el tipo=2 evento recepción se cambia texto por primera firma y se agrega el tipo 5= ultima firma
-            $ordenIds = array(1, 2, 5, 3);
+            $ordenIds = array(1, 2, 5, 3,4);
 
             // Obtener un arreglo con los IDs en el orden deseado
             $idsOrdenados = array_flip($ordenIds);
@@ -132,7 +132,7 @@ class TipoDocumentoController extends Controller
 
         return View::make('tipo_documento.index', [
             'listado_tiposdoc'=>$datosTipoDoc,
-            'listado_buzones'=>$aBuzones, 
+            'listado_buzones'=>$aBuzones ?? [], 
             'datosFlujo'=>$datosFlujo,
             'datosOrigen'=>$datosOrigen,
             'aOrigen'=>$aOrigen,

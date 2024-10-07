@@ -1,0 +1,12 @@
+.bg {
+    background-image: url(/img/fondo_login.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.box {
+    opacity: 1!important;
+}
+.logo_panel{
+    width:100px;
+}

@@ -109,7 +109,7 @@
                         <div class="row pt-5">
                             <div class="col-12 text-center text-base text-bold">
                                 {!! env('GENTILEZA_TXT') !!}                            
-                                <img class="img mx-auto d-block wm-img" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
+                                <img class="img mx-auto d-block wm-img w-48" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
                             </div>
                         </div>
                      </div>

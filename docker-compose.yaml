@@ -273,8 +273,16 @@ services:
     restart: always
     networks:
       sgd_net:
-          ipv4_address: 172.168.22.17
-
+          ipv4_address: 172.168.22.17     
+  sgd_ms_cert:
+    image: certbot/certbot:latest
+    container_name: sgd_ms_cert
+    
+    volumes:
+      - ./src/fe/public_html:/var/www/certbot
+      - ./configs/cert/:/etc/letsencrypt/:rw
+    links:
+      - sgd_fe
 
   #*********************************** SWAGGER **********************************#            
   sgd_sui:

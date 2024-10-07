@@ -16,8 +16,10 @@ class TipoAsignacionFolioSeeder extends Seeder
     {
         $records = [
             ['id_tipo_asignacion_folio' => '1', 'nombre' => 'Evento Creación', 'updated_at' => now(), 'created_at' => now()],
-            ['id_tipo_asignacion_folio' => '2', 'nombre' => 'Evento Recepción', 'updated_at' => now(), 'created_at' => now()],
-            ['id_tipo_asignacion_folio' => '3', 'nombre' => 'Sin Asignación', 'updated_at' => now(), 'created_at' => now()]
+            ['id_tipo_asignacion_folio' => '2', 'nombre' => 'Primera Firma', 'updated_at' => now(), 'created_at' => now()],
+            ['id_tipo_asignacion_folio' => '3', 'nombre' => 'Sin Asignación', 'updated_at' => now(), 'created_at' => now()],
+            ['id_tipo_asignacion_folio' => '4', 'nombre' => '-', 'updated_at' => now(), 'created_at' => now()],
+            ['id_tipo_asignacion_folio' => '5', 'nombre' => 'Última Firma', 'updated_at' => now(), 'created_at' => now()]
         ];
 
         DB::table('tipo_asignacion_folio')->insert($records);

@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
             AccionSeeder::class,
             TipoFlujoAccionSeeder::class,
             UsersSeeder::class,
-            TipoFirmaSeeder::class
+            TipoFirmaSeeder::class,
+            AnioSeeder::class
         ]);
 
     }
