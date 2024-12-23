@@ -117,6 +117,7 @@ class PLCController extends Controller
            "listado_tiposdoc"=>$datosTipoDoc
         ]);
     }
+    
     public function getItems(Request $request){
 
         $tipo = $request->get("tipo_documento",7);

@@ -277,7 +277,7 @@ services:
   sgd_ms_cert:
     image: certbot/certbot:latest
     container_name: sgd_ms_cert
-    
+    #restart: always
     volumes:
       - ./src/fe/public_html:/var/www/certbot
       - ./configs/cert/:/etc/letsencrypt/:rw

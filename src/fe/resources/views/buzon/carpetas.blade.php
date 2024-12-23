@@ -2,31 +2,32 @@
 @section('title', 'Panel')
 
 @section('content_header')
-<div class="row">
-    <div class="col-10">
-        <div class="row">
-            <div class="col-md-7">
+<div class="row d-sm-flex justify-content-sm-between">
+    <div class="">
+        <div class="">
+            <div class="">
                 <div class="form-group">
                     <h1>Buzón: {{$nombre_buzon}}</h1>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <input class="form-control" type="text" name="buscador_general" id="buscador_general" placeholder="Buscar por materia o ID" />&nbsp;
-                    <span id="resultadoBusquedaGral"></span>
-                </div>
-            </div>
-            <div class="col-md-1">
-                <div class="form-group">
-                    <button name="btnBuscadorGeneral" id="btnBuscadorGeneral" class="btn btn-success">Buscar</button>
-                </div>
-            </div>
         </div>
     </div>
-    <div class="col-2">
-        <button id="add_documento" type="button" class="btn text-nowrap btn-min-w  btn-success nuevo_documento">Nuevo Documento</button>
+    <div class="d-flex">
+        <div class=" d-flex justify-content-between">
+            <div class="px-1 ">
+                <input class="form-control" type="text" name="buscador_general" id="buscador_general" placeholder="Buscar por materia o ID" />
+                <span id="resultadoBusquedaGral"></span>
+            </div>
+            <div class="">       
+                    <button name="btnBuscadorGeneral" id="btnBuscadorGeneral" class="btn btn-success"><i class="fa fa-search d-block d-sm-none py-1"></i><span class="d-none d-sm-block">Buscar</span></button>
+                    <button id="add_documento" type="button" class="btn text-nowrap btn-min-w  btn-success nuevo_documento"><i class="fa fa-plus d-block d-sm-none py-1"></i><span class="d-none d-sm-block">Nuevo Documento</span></button>
+            </div>
+        </div>
+
     </div>
 </div>
+
+
 <div class="linea_content_header"></div>
 
 @stop
@@ -155,15 +156,15 @@
                                     <div class="col-lg-3 col-md-12 col-sm-12">
                                         Materia:<br /><input type="search" aria-controls="grilla_recibidos" class="form-control" id="gr_buscar_origen_materia" name="gr_buscar_origen_materia">
                                     </div>
-                                    <div class="col-lg-2 col-md-4 col-sm-12 pt-4" id="botones_grilla_recibidos">
+                                    <div class="col-lg-2 col-12 col-md-12 col-sm-12 pt-4 d-flex justify-content-end" id="botones_grilla_recibidos">
 
                                     </div>
                                 </div>
                                 <p>&nbsp;</p>
-                                <div class="row">
-                                    <div class="text-left" style="width: 78%;">
-                                        <label class="text-bold">Acciones Masivas</label>
-                                        <select class="form-control-sm" onchange="seleccionarAccionMasiva(this.value);" id="selAccion">
+                                <div class="d-flex justify-content-between row">
+                                    <div class="d-flex">
+                                        <label class="text-bold px-2">Acciones Masivas</label>
+                                        <select id="select-acciones-masivas" class="form-control-sm" onchange="seleccionarAccionMasiva(this.value);" id="selAccion">
                                             <option value="">Seleccione</option>
                                             <option value="1">Derivar</option>
                                             <option value="0">Archivar</option>
@@ -171,7 +172,7 @@
                                         </select>
                                         &nbsp;&nbsp;<button class="btn text-nowrap btn-min-w  btn-primary btn-aplicar" id="btnAplicar" style="display:none">Aplicar</button>
                                     </div>
-                                    <div class="text-right" style="width: 20%;">
+                                    <div class="">
                                         <select id='filtro-td' multiple>
                                             <option>Principal</option>
                                             <option>Secundario</option>
@@ -798,6 +799,7 @@
         queryTokenizer: Bloodhound.tokenizers.whitespace,
         local: allBuzonesT2
     });
+
     allBuzonesT2.initialize();
 
     $('#form_destinatario_principal').select2({
@@ -1077,7 +1079,7 @@
     /* **DOCUMENTOS** SCRIPT */
 
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {
-
+        "removePlugins": "exportpdf",
         filebrowserBrowseUrl: "{{ route('ckfinder_browser') }}",
         filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
         filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
@@ -1087,7 +1089,8 @@
         filebrowserBrowseUrl: "{{ route('ckfinder_browser') }}",
         filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
         filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
-        height: 100
+        height: 100,
+        "removePlugins": "exportpdf",
     });
 
     CKFinder.config({
@@ -3394,6 +3397,127 @@
 
     }
 
+
+    function devolver_documento(destino) {
+        var _token = $("input[name='_token']").val();
+        $('.btn-devolver-submit').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Devolviendo');
+        $('.btn-devolver-submit').attr('disabled','disabled');
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+        //setea_sesiones_recibidos();
+        //setea_sesiones_despachados();
+
+        //buscar datos bitacora
+        console.log(objDoc);
+        //console.log(listadoBuzones);
+
+
+        let IdDBpadre = objDoc.rel_documento_buzon_actual[0].id_documento_buzon_padre;
+        let objDevol = objDoc.rel_documento_buzon.find(e => e.id_documento_buzon ==IdDBpadre );
+
+        Swal.fire({
+            title: 'Devolver',
+            html: "Se Devolverá el documento: <br>" +
+                "<b>" + $("input[name='materia']").val() + "</b><br>" +
+                "<p>al Buzón <br/><b>"+listadoBuzones[objDevol.id_buzon]+"</b>" +
+                    "<form class='needs-validation text-left' id='formDevolverDoc' method='POST' action=''>" +
+                    "                        <div class='form-row'>" +
+                    "                            <div class='col-md-12 mb-3'>" +
+                    "                                <label for='floatingTextarea'>Comentario de devolución:</label>" +
+                    "                                <textarea class='form-control' autofocus id='fDevolverComentario' aria-describedby='fDevolverComentario-error' ></textarea>" +
+                    "                                <p id='fDevolverComentario-error' class='invalid-feedback' >Falta agregar comentario de devolución</p>" +
+                    "                            </div>" +
+                    "                        </div>" +
+                    "<div class=''>" +
+                    "                                <label for='inputState'>Acciones Solicitadas:</label><br>" +
+                    "                                <select id='fDevolverAcciones' aria-describedby='fDevolverAcciones-error' class='form-control w-100' multiple='multiple' style='text-align:left !important;width:100%'>                                    " +
+                    "                                    @foreach($listadoAcciones as $accion)" +
+                    "                                        @if($accion['id_tipo_accion'] == 1)" +
+                    "                                            <option value='{{$accion['id_accion']}}'>{{$accion['nombre']}}</option>" +
+                    "                                        @endif    " +
+                    "                                    @endforeach    " +
+                    "                                </select>" +
+                    "                                <p id='fDevolverAcciones-error' class='invalid-feedback' >Falta agregar acciones a la devolución</p>" +
+                    "                                </div>" +
+                    "                    </form>",
+            showCancelButton: true,
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Devolver',
+            width: '950px',
+            onBeforeOpen:function(){
+                $("#fDevolverAcciones").select2();
+                let acciones = JSON.parse(objDevol.json_acciones);
+                $.each(acciones, function(i, item) {
+                    $("#fDevolverAcciones").val(item.id_accion);
+                    $('#fDevolverAcciones').trigger('change');
+                }); 
+                $("#fDevolverComentario").focus();
+            },
+            preConfirm:function(){
+                $("#fDevolverComentario").removeClass("is-invalid");
+                $("#fDevolverAcciones").removeClass("is-invalid");
+
+                if($("#fDevolverComentario").val()==""){
+                    $("#fDevolverComentario").addClass("is-invalid");
+                    console.log("falta comentario");
+                    return false;
+                }
+                console.log($("#fDevolverAcciones").val());
+                if($("#fDevolverAcciones").val().length==0){
+                    // swal.fire("falta indicar acciones");
+                    $("#fDevolverAcciones").addClass("is-invalid");
+                    return false;
+                }
+               // return true;
+            }
+
+        }).then((result) => {
+            //console.log(result);
+            if (result.value == true) {
+                $.ajax({
+                    //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                    url:'{{ route('documentos.derivarOpcion1') }}',
+                    type: 'PUT',
+                    dataType: 'json',
+                    data: {
+                         //_token: _token,
+                         hiddIdDocumento: hiddIdDocumento,
+                        buzon:objDoc.rel_documento_buzon_actual[0].id_buzon,
+                        destinatarioPrincipal:objDevol.id_buzon,
+                        comentarioPrincipal:$("#fDevolverComentario").val(),
+                    
+                    },
+                    success: function(data) {
+                        if (data.status == '200') {
+                            toastr.success("Documento Devuelto", "¡Aviso!");
+                            $('.btn-devolver-submit').html('<i class="fa fa-reply mx-1"></i>Devolver</button>').removeAttr('disabled');
+                            $('#card_crear_documento').hide();
+                            clear_form();
+                            fn_grilla_recibidos();
+                            location.reload();
+                        } else {
+                            toastr.error(data.data.comentario, "¡Aviso!");
+                            $('.btn-devolver-submit').html('<i class="fa fa-reply mx-1"></i>Devolver</button>').removeAttr('disabled');
+                        }
+
+                        $('.btn-enviar-submit').html('Enviar');
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        toastr.error("Falla en la devolución del documento. "+jqXHR.responseJSON.message, "¡Aviso!");
+                        $('.btn-devolver-submit').html('<i class="fa fa-reply mx-1"></i>Devolver</button>').removeAttr('disabled');
+                    }
+                });
+            } else {
+                $('.btn-devolver-submit').html('<i class="fa fa-reply mx-1"></i>Devolver</button>').removeAttr('disabled');
+            }
+        })
+
+    }
+
+
     function archivar_documento(accion) {
         var _token = $("input[name='_token']").val();
 
@@ -3652,7 +3776,7 @@
         if (texto == 'Recibidos') {
             fn_grilla_recibidos();
             let estadosr = $('#gr_buscar_estado').val().join("|");
-            grilla_recibidos.columns(4).search("" + estadosr + "", true, false).draw();
+            //grilla_recibidos.columns(4).search("" + estadosr + "", true, false).draw();
             //$('#grilla_recibidos').DataTable().draw();
         }
         if (texto == 'Despachados') {
@@ -3675,7 +3799,7 @@
     }
 
     function ver_recibidos(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 11); //se incorpora accion 11 para identificar la acción de ver el documento 
@@ -3715,7 +3839,7 @@
     }
 
     function accion_visar(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Editar Documento');
+        $('#titulo_accion').html('Editar Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 22); //se incorpora accion 22   
@@ -3881,7 +4005,7 @@
     }
 
     function accion_firmar(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 33);
@@ -3902,7 +4026,7 @@
     }
 
     function accion_finalizar(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2);
@@ -3918,7 +4042,7 @@
     }
 
     function derivar_recibidos(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 1);
@@ -3934,13 +4058,15 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
 
+
         var buttonDerivar = '<button onClick="guarda_destinatarios_documento(2)" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Enviar</button> ';
         $('#addButton').append(buttonDerivar);
-
+        
+        
     }
 
     function accion_derivar_recibidos(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 44);
@@ -3963,7 +4089,7 @@
 
     function archivar_recibidos(id_documento, id_documento_buzon, id_documento_buzon_padre, accion) {
 
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2);
@@ -4156,24 +4282,20 @@
                         var txtDatosPrev = "";
 
                         $.each(relDatosBitacora, function(i, item) {
-                            if (item.id_accion == 6)
-                            {
+                            if (item.id_accion == 6) {
                                 let patron = /\[.+?\]/g;
-                                
+
                                 txtDatos = item.id_buzon + item.id_usuario;
-                                if (txtDatos != txtDatosPrev)
-                                {                                                                       
-                                    htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, ''); 
+                                if (txtDatos != txtDatosPrev) {
+                                    htmlDatosVisadores = htmlDatosVisadores.replace(/[\[\]]/g, '');
                                     htmlDatosVisadores += "[<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>]';
-                                }
-                                else
-                                {
+                                } else {
                                     htmlDatosVisadoresNew = "<div><b>Visado por: </b>" + item.nombres + ' ' + item.primer_apellido + ' - ' + item.nombre + ' - ' + moment(item.fecha).format('DD-MM-YYYY HH:mm') + '</div>';
                                     htmlDatosVisadores = htmlDatosVisadores.replace(patron, htmlDatosVisadoresNew);
                                 }
 
                                 txtDatosPrev = item.id_buzon + item.id_usuario;
-                            
+
                             }
 
                             if (item.id_accion == 7) {
@@ -4181,13 +4303,12 @@
                                 firmasRealizadas++;
                             }
 
-                            if (item.id_accion == 4)
-                            {
+                            if (item.id_accion == 4) {
                                 txtDatosPrev = "";
                                 htmlDatosVisadores = "";
                                 htmlDatosVisadoresPrev = "";
                             }
-                                
+
                             if (item.id_accion == 7 || item.id_accion == 8)
                                 isDelete = false;
 
@@ -5128,7 +5249,7 @@
     }
 
     function ver_despachados(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
         $('.row_cuerpo').show();
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 3, 0);
@@ -5142,7 +5263,7 @@
     }
 
     function editar_despachados(id_documento, id_documento_buzon, id_documento_buzon_padre, ag = 0) {
-        $('#titulo_accion').html('Editar Documento');
+        $('#titulo_accion').html('Editar Documento ID '+id_documento);
         $('.row_cuerpo').show();
         habilita_campos();
         isDelete = true;
@@ -5168,7 +5289,7 @@
     }
 
     function accion_editar(id_documento, id_documento_buzon, id_documento_buzon_padre) {
-        $('#titulo_accion').html('Editar Documento');
+        $('#titulo_accion').html('Editar Documento ID '+id_documento);
 
         habilita_campos();
         isDelete = true;
@@ -5233,17 +5354,25 @@
     }
 
     function visualizar_documento_por_recibir(id_documento, id_documento_buzon, id_documento_buzon_padre, destino) {
-        $('#titulo_accion').html('Ver Documento');
+        $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
         deshabilita_campos();
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 1, 0);
+
+        
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
+        console.log(id_documento_buzon_padre);
+        console.log(destino);
 
-        var buttonRecibir = '<button onClick="recibir_documento(' + destino + ')" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit ">Recibir</button>';
+        var buttonDevolver = '<button onClick="devolver_documento(' + id_documento_buzon_padre + ')" type="button" class="btn text-nowrap btn-min-w mx-1 btn-light btn-outline-secondary btn-devolver-submit "><i class="fa fa-reply mx-1"></i>Devolver</button>';
+        var buttonRecibir = '<button onClick="recibir_documento(' + destino + ')" type="button" class="btn text-nowrap btn-min-w  btn-success btn-recibir-submit "><i class="fa fa-chevron-right mx-1"></i>Recibir</button>';
+        if(destino==1)
+            $('#addButton').append(buttonDevolver);
+        
         $('#addButton').append(buttonRecibir);
     }
 
@@ -5570,6 +5699,7 @@
 
 
     function grillas_recibidos_texto(sTexto) {
+        console.log("grillas_recibidos_texto");
         $('#documento').hide();
         if ($.fn.DataTable.isDataTable('#grilla_recibidos')) {
             $('#grilla_recibidos').DataTable().destroy();
@@ -5863,10 +5993,12 @@
                     .text('Buscar')
                     .click(function() {
                         let estados = $('#gr_buscar_estado').val().join("|");
-                        grilla_recibidos.columns(4).search("" + estados + "", true, false).draw();
-                        grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
-                        grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();
-                        grilla_recibidos.columns(14).search($('#gr_buscar_tipo_doc').val().join("|"), true, false).draw();
+                        grilla_recibidos
+                            .columns(4).search("" + estados + "", true, false)
+                            .columns(5).search($('#gr_buscar_id_doc').val())
+                            .columns(7).search($('#gr_buscar_origen_materia').val())
+                            .columns(14).search($('#gr_buscar_tipo_doc').val().join("|"), true, false)
+                            .draw();
                     })
 
                 $('#botones_grilla_recibidos').html('');
@@ -5875,6 +6007,8 @@
 
                 if (aplicaFrm == 1)
                     $("div.addFrm").append("<input type='checkbox' name='chkFrm' id='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
+
+
 
                 //filtro por TD
                 $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
@@ -5895,344 +6029,363 @@
         $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
             console.log('Error DataTables: ', message);
         });
+
     }
 
 
     async function fn_grilla_recibidos() {
-
+        console.log("fn_grilla_recibidos");
         $('#documento').hide();
-        if ($.fn.DataTable.isDataTable('#grilla_recibidos')) {
-            $('#grilla_recibidos').DataTable().destroy();
-        }
-        $('#grilla_recibidos tbody').empty();
 
-        grilla_recibidos = $('#grilla_recibidos').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
-            type: 'json',
-            order: [
-                [5, 'desc']
-            ],
-            responsive: true,
-            language: lenguaje_datatable,
-            'columnDefs': [{
-                    'targets': 0,
-                    'checkboxes': {
-                        'selectRow': true
-                    }
-                },
-                {
-                    'targets': 1,
-                    'checkboxes': {
-                        'selectRow': true
-                    }
-                },
-                {
-                    'targets': 2,
-                    'checkboxes': {
-                        'selectRow': true
-                    }
-                }
-            ],
-            'select': {
-                'style': 'multi'
-            },
-            buttons: ['copy', 'excel', 'pdf'],
-            columns: [{
-                    data: 'id_documento',
-                    name: 'documento.id_documento',
-                    render: function(data, type, row) {
-                        if (row.id_estado_documento == 4) {
-                            return '<input type="checkbox" class="dt-checkboxes chkArchivar" name="chkArchivar" id="chkArchivar" value="' + row.id_documento + '" />';
-                        } else {
-                            return '';
+
+        // if ($.fn.DataTable.isDataTable('#grilla_recibidos')) {
+        //     $('#grilla_recibidos').DataTable().destroy();
+        // }
+
+        //$('#grilla_recibidos tbody').empty();
+
+        //console.log( $('#grilla_recibidos').DataTable() );
+
+
+        if (!$.fn.DataTable.isDataTable('#grilla_recibidos')) {
+            grilla_recibidos = $('#grilla_recibidos').DataTable({
+                processing: true,
+                serverSide: true,
+                "cache": true,
+                ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
+                type: 'json',
+                order: [
+                    [5, 'desc']
+                ],
+                responsive: true,
+                language: lenguaje_datatable,
+                'columnDefs': [{
+                        'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    },
+                    {
+                        'targets': 1,
+                        'checkboxes': {
+                            'selectRow': true
+                        }
+                    },
+                    {
+                        'targets': 2,
+                        'checkboxes': {
+                            'selectRow': true
                         }
                     }
+                ],
+                'select': {
+                    'style': 'multi'
                 },
-                {
-                    data: 'id_documento',
-                    name: 'documento.id_documento',
-                    render: function(data, type, row) {
-                        if (row.id_estado_documento == 4 || row.id_estado_documento == 9 || row.id_estado_documento == 11) {
-                            return '<input type="checkbox" class="dt-checkboxes chkDerivar" name="chkDerivar" id="chkDerivar" value="' + row.id_documento + '" />';
-                        } else {
-                            return '';
-                        }
-                    }
-                },
-                {
-                    data: 'estado_documento',
-                    name: 'estado_documento.nombre_corto',
-                    targets: 2,
-                    searchable: false,
-                    orderable: false,
-                    className: 'dt-body-center',
-                    render: function(data, type, row, full, meta) {
-                        if (type === 'display') {
-                            if (data == null) {
-                                return '';
+                buttons: ['copy', 'excel', 'pdf'],
+                columns: [{
+                        data: 'id_documento',
+                        name: 'documento.id_documento',
+                        render: function(data, type, row) {
+                            if (row.id_estado_documento == 4) {
+                                return '<input type="checkbox" class="dt-checkboxes chkArchivar" name="chkArchivar" id="chkArchivar" value="' + row.id_documento + '" />';
                             } else {
-                                if (row.id_tipo_destino == 1) //principal
-                                {
-                                    //agrega listado de acciones
-
-                                    if (row.id_estado_documento != 6 && row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13) {
-                                        if (row.json_acciones != null) {
-                                            var accionesSolicitadas = row.json_acciones
-
-                                            accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g, "\""));
-                                            jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g, "\""));
-
-                                            for (let i in accionesSolicitadas) {
-                                                if (accionesSolicitadas[i]['id_accion'] == 7 && row.id_estado_documento == 4) //Firmar                                                   
-                                                    return '<input class="dt-checkboxes" type="checkbox" name="checkFrm" value="' + row.id_documento + '-' + row.id_documento_buzon + '">';
-                                            }
-                                        }
-
-                                    }
-                                }
                                 return '';
                             }
                         }
-                        return '';
-                    }
-                },
-                {
-                    data: 'recibido',
-                    render: function(data, type) {
-                        if (type === 'display') {
-                            if (data == null) {
-                                return '<div id="addChkFrm"></div>';
+                    },
+                    {
+                        data: 'id_documento',
+                        name: 'documento.id_documento',
+                        render: function(data, type, row) {
+                            if (row.id_estado_documento == 4 || row.id_estado_documento == 9 || row.id_estado_documento == 11) {
+                                return '<input type="checkbox" class="dt-checkboxes chkDerivar" name="chkDerivar" id="chkDerivar" value="' + row.id_documento + '" />';
                             } else {
-                                if (data == true) {
-                                    return '<span class="fas fa-check text-green"></span><div id="addChkFrm"></div>';
-                                }
+                                return '';
                             }
                         }
-                        return '<div id="addChkFrm"></div>';
-                    }
-                },
-
-                {
-                    data: 'estado_documento',
-                    name: 'documento_buzon.id_estado_documento',
-                    render: function(data, type, row) {
-                        if (type === 'display') {
-                            let htmlColor = '<div class="fondo_estado" style=" background-color: ' + row.codigo_estado + ';">' + data + '</div>';
-
-                            return htmlColor;
-                        }
-                        return data;
-                    }
-                },
-                {
-                    data: 'id_documento',
-                    name: 'documento.id_documento',
-                    render: function(data, type, row) {
-                        return "<a href='javascript:ver_recibidos(" + row.id_documento + "," + row.id_documento_buzon + "," + row.id_documento_buzon_padre + ")'>" + data + "</a>";
-                    }
-                },
-
-                {
-                    data: 'fecha_envio_recepcion',
-                    render: function(data) {
-                        return moment(data).format('DD-MM-YYYY HH:mm');
-                    }
-                },
-                {
-                    data: 'materia',
-                    name: 'documento.materia',
-                    'width': 200,
-                    render: function(data) {
-                        if (data == null) {
-                            return '';
-                        }
-                        return data.length > 60 ? data.substr(0, 60) + '…' : data;
-                    }
-                },
-                {
-                    data: 'tipo_documento'
-                },
-                {
-                    data: 'tipo_envio',
-                    name: 'tipo_destino.nombre'
-                },
-                // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
-                {
-                    data: 'buzon_origen',
-                    render: function(data, type, row) {
-                        if (type === 'display') {
-                            if (data != null)
-                                return listadoBuzones[data];
-                            else
-                                return '';
-                        }
-                        return '';
-                    }
-                },
-                {
-                    data: 'contestas_hasta',
-                    name: 'documento_buzon.contestar_hasta',
-                    render: function(data) {
-                        if (data == null)
-                            return '';
-                        else
-                            return moment(data).format('DD-MM-YYYY');
-                    }
-                },
-                {
-                    data: 'folio',
-                    name: 'documento.folio'
-                },
-                {
-                    data: 'id_documento',
-                    name: 'documento.id_documento',
-                    render: function(data, type, row) {
-                        if (type === 'display') {
-                            if (data == null) {
-                                return '';
-                            } else {
-                                let botonera = '<div class="dropdown">';
-                                botonera += '<button class="btn text-nowrap btn-min-w  btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
-                                botonera += ' <i class="fas fa-bars"></i>';
-                                botonera += ' </button>';
-                                botonera += '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
-
-
-                                if (row.id_tipo_destino == 1) //principal
-                                {
-                                    //agrega listado de acciones                                            
-                                    if (row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13) {
-                                        if (row.json_acciones != null) {
-                                            var accionesSolicitadas = row.json_acciones
-
-                                            accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g, "\""));
-                                            jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g, "\""));
-
-                                            for (let i in accionesSolicitadas) {
-                                                if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
-                                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_editar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-edit text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
-                                                if (accionesSolicitadas[i]['id_accion'] == 6) //visar                                                   
-                                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_visar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-check-circle text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
-                                                if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
-                                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
-                                                if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
-                                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf(' + data + ',' + row.id_documento_buzon + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
-                                                if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
-                                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
-                                            }
-                                        }
-
-                                        if (jsonTipoDoc['id_tipo_flujo'] == 1)
-                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos(' + data + ')" href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
-
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="accion_derivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
-                                    }
-
-                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-
-                                    if (row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 13)
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
-
-                                    if (row.id_estado_documento == 6)
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
-
-                                    botonera += ' <a class="dropdown-item btn-menu-editar" onclick="bitacora(' + data + ')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                    },
+                    {
+                        data: 'estado_documento',
+                        name: 'estado_documento.nombre_corto',
+                        targets: 2,
+                        searchable: false,
+                        orderable: false,
+                        className: 'dt-body-center',
+                        render: function(data, type, row, full, meta) {
+                            if (type === 'display') {
+                                if (data == null) {
+                                    return '';
                                 } else {
-                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                    if (row.id_tipo_destino == 1) //principal
+                                    {
+                                        //agrega listado de acciones
 
-                                    if (row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+                                        if (row.id_estado_documento != 6 && row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13) {
+                                            if (row.json_acciones != null) {
+                                                var accionesSolicitadas = row.json_acciones
 
-                                    if (row.id_estado_documento != 6)
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+                                                accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g, "\""));
+                                                jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g, "\""));
 
-                                    if (row.id_estado_documento == 6)
-                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
+                                                for (let i in accionesSolicitadas) {
+                                                    if (accionesSolicitadas[i]['id_accion'] == 7 && row.id_estado_documento == 4) //Firmar                                                   
+                                                        return '<input class="dt-checkboxes" type="checkbox" name="checkFrm" value="' + row.id_documento + '-' + row.id_documento_buzon + '">';
+                                                }
+                                            }
 
-                                    botonera += ' <a class="dropdown-item btn-menu-editar" onclick="bitacora(' + data + ')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                        }
+                                    }
+                                    return '';
                                 }
-
-                                botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_clonar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',\'' + row.materia + '\')"  href="#"><i class="fas fa-clone text-blue"></i> Copiar Documento</a>';
-
-                                if (row.favorito == null)
-                                    botonera += '<a class="dropdown-item btn-menu-deshabilitar" onclick="add_favorito(' + data + ')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
-                                else
-                                    botonera += '<a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito(' + data + ')" href="#"><i class="fas fa-star text-green"></i> ( - ) Favoritos</a>';
-
-                                botonera += '</div>';
-                                botonera += '</div>';
-                                return botonera;
                             }
+                            return '';
                         }
-                        return '';
+                    },
+                    {
+                        data: 'recibido',
+                        render: function(data, type) {
+                            if (type === 'display') {
+                                if (data == null) {
+                                    return '<div id="addChkFrm"></div>';
+                                } else {
+                                    if (data == true) {
+                                        return '<span class="fas fa-check text-green"></span><div id="addChkFrm"></div>';
+                                    }
+                                }
+                            }
+                            return '<div id="addChkFrm"></div>';
+                        }
+                    },
+
+                    {
+                        data: 'estado_documento',
+                        name: 'documento_buzon.id_estado_documento',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                let htmlColor = '<div class="fondo_estado" style=" background-color: ' + row.codigo_estado + ';">' + data + '</div>';
+
+                                return htmlColor;
+                            }
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'id_documento',
+                        name: 'documento.id_documento',
+                        render: function(data, type, row) {
+                            return "<a href='javascript:ver_recibidos(" + row.id_documento + "," + row.id_documento_buzon + "," + row.id_documento_buzon_padre + ")'>" + data + "</a>";
+                        }
+                    },
+
+                    {
+                        data: 'fecha_envio_recepcion',
+                        render: function(data) {
+                            return moment(data).format('DD-MM-YYYY HH:mm');
+                        }
+                    },
+                    {
+                        data: 'materia',
+                        name: 'documento.materia',
+                        'width': 200,
+                        render: function(data) {
+                            if (data == null) {
+                                return '';
+                            }
+                            return data.length > 60 ? data.substr(0, 60) + '…' : data;
+                        }
+                    },
+                    {
+                        data: 'tipo_documento'
+                    },
+                    {
+                        data: 'tipo_envio',
+                        name: 'tipo_destino.nombre'
+                    },
+                    // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
+                    {
+                        data: 'buzon_origen',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                if (data != null)
+                                    return listadoBuzones[data];
+                                else
+                                    return '';
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        data: 'contestas_hasta',
+                        name: 'documento_buzon.contestar_hasta',
+                        render: function(data) {
+                            if (data == null)
+                                return '';
+                            else
+                                return moment(data).format('DD-MM-YYYY');
+                        }
+                    },
+                    {
+                        data: 'folio',
+                        name: 'documento.folio'
+                    },
+                    {
+                        data: 'id_documento',
+                        name: 'documento.id_documento',
+                        render: function(data, type, row) {
+                            if (type === 'display') {
+                                if (data == null) {
+                                    return '';
+                                } else {
+                                    let botonera = '<div class="dropdown">';
+                                    botonera += '<button class="btn text-nowrap btn-min-w  btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+                                    botonera += ' <i class="fas fa-bars"></i>';
+                                    botonera += ' </button>';
+                                    botonera += '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+
+                                    if (row.id_tipo_destino == 1) //principal
+                                    {
+                                        //agrega listado de acciones                                            
+                                        if (row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13) {
+                                            if (row.json_acciones != null) {
+                                                var accionesSolicitadas = row.json_acciones
+
+                                                accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g, "\""));
+                                                jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g, "\""));
+
+                                                for (let i in accionesSolicitadas) {
+                                                    if (accionesSolicitadas[i]['id_accion'] == 4) //editar  
+                                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_editar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-edit text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
+                                                    if (accionesSolicitadas[i]['id_accion'] == 6) //visar                                                   
+                                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_visar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-check-circle text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
+                                                    if (accionesSolicitadas[i]['id_accion'] == 7) //Firmar                                                   
+                                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_firmar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
+                                                    if (accionesSolicitadas[i]['id_accion'] == 8) //Generar pdf                                                   
+                                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_pdf(' + data + ',' + row.id_documento_buzon + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
+                                                    if (accionesSolicitadas[i]['id_accion'] == 10) //finalizar                                                   
+                                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_finalizar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-file text-blue"></i> ' + accionesFlujo1[accionesSolicitadas[i]['id_accion']] + '</a>';
+                                                }
+                                            }
+
+                                            if (jsonTipoDoc['id_tipo_flujo'] == 1)
+                                                botonera += ' <a class="dropdown-item btn-menu-editar" onclick="responder_recibidos(' + data + ')" href="#"><i class="fas fa-reply text-orange"></i> Responder</a>';
+
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="accion_derivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+                                        }
+
+                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+
+                                        if (row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 13)
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+
+                                        if (row.id_estado_documento == 6)
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
+
+                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="bitacora(' + data + ')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                    } else {
+                                        botonera += ' <a class="dropdown-item btn-menu-ver" onclick="ver_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+
+                                        if (row.id_estado_documento != 5 && row.id_estado_documento != 6 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13)
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="derivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ')"  href="#"><i class="fas fa-share text-green"></i> Derivar</a>';
+
+                                        if (row.id_estado_documento != 6)
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',0)"  href="#"><i class="fas fa-save text-blue"></i> Archivar</a>';
+
+                                        if (row.id_estado_documento == 6)
+                                            botonera += ' <a class="dropdown-item btn-menu-editar" onclick="archivar_recibidos(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',1)"  href="#"><i class="fas fa-save text-blue"></i> Desarchivar</a>';
+
+                                        botonera += ' <a class="dropdown-item btn-menu-editar" onclick="bitacora(' + data + ')"  href="#"><i class="fas fa-history text-blue"></i> Bitacora</a>';
+                                    }
+
+                                    botonera += ' <a class="dropdown-item btn-menu-ver" onclick="accion_clonar(' + data + ',' + row.id_documento_buzon + ',' + row.id_documento_buzon_padre + ',\'' + row.materia + '\')"  href="#"><i class="fas fa-clone text-blue"></i> Copiar Documento</a>';
+
+                                    if (row.favorito == null)
+                                        botonera += '<a class="dropdown-item btn-menu-deshabilitar" onclick="add_favorito(' + data + ')" href="#"><i class="far fa-star text-green"></i> ( + ) Favoritos</a>';
+                                    else
+                                        botonera += '<a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito(' + data + ')" href="#"><i class="fas fa-star text-green"></i> ( - ) Favoritos</a>';
+
+                                    botonera += '</div>';
+                                    botonera += '</div>';
+                                    return botonera;
+                                }
+                            }
+                            return '';
+                        }
+                    },
+                    {
+                        data: 'id_tipo_documento',
+                        name: 'tipo_documento.id_tipo_documento'
                     }
-                },
-                {
-                    data: 'id_tipo_documento',
-                    name: 'tipo_documento.id_tipo_documento'
+
+                ],
+
+                initComplete: function() {
+                    var input = $('#gr_buscar_origen_materia input').unbind(),
+                        self = this.api(),
+                        $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar mx-1">')
+                        .html("<i class='fa fa-eraser'></i>")
+                        .click(function() {
+                            $('#gr_buscar_origen_materia').val('');
+                            $('#gr_buscar_estado').multiselect('selectAll', true);
+                            $('#gr_buscar_estado').multiselect('deselect', ["6"]);
+
+
+                            $('#gr_buscar_id_doc').val('');
+                            $searchButton.click();
+                        }),
+                        $searchButton = $('<button class="btn text-nowrap btn-min-w  btn-success buscar_btn_buscar">')
+                        .html("<i class='fa fa-search'></i>")
+                        .click(function() {
+                            let estados = $('#gr_buscar_estado').val().join("|");
+                            var tipos = $('#gr_buscar_tipo_doc').val();
+
+
+                            grilla_recibidos
+                                .columns(4).search("" + estados + "", true, false)
+                                .columns(5).search($('#gr_buscar_id_doc').val())
+                                .columns(7).search($('#gr_buscar_origen_materia').val())
+                                .columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
+                                .draw();
+
+                            //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
+
+                        })
+
+                    $('#botones_grilla_recibidos').html('');
+                    $('#botones_grilla_recibidos').append($clearButton, $searchButton);
+                    $('#grilla_recibidos_filter').html('');
+
+                    if (aplicaFrm == 1)
+                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' id='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
+
+                    //filtro por TD
+                    $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
+                    $('#filtro-td').multiselect('select', 'Principal');
+                    $('#filtro-td').on("change", function() {
+                        grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"), true, false).draw();
+                    });
+                    $('#filtro-td').trigger("change");
+                    grilla_recibidos.column(0).visible(false);
+                    grilla_recibidos.column(1).visible(false);
+                    grilla_recibidos.column(2).visible(false);
+                    grilla_recibidos.column(14).visible(false);
                 }
 
-            ],
+            });
+        } else {
+            console.log("refresh recibidos table", grilla_recibidos);
+            grilla_recibidos.draw();
+        }
 
-            initComplete: function() {
-                var input = $('#gr_buscar_origen_materia input').unbind(),
-                    self = this.api(),
-                    $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar btn_busqueda">')
-                    .text('Limpiar')
-                    .click(function() {
-                        $('#gr_buscar_origen_materia').val('');
-                        $('#gr_buscar_estado').multiselect('selectAll', true);
-                        $('#gr_buscar_estado').multiselect('deselect', ["6"]);
-
-
-                        $('#gr_buscar_id_doc').val('');
-                        $searchButton.click();
-                    }),
-                    $searchButton = $('<button class="btn text-nowrap btn-min-w  btn-success buscar_btn_buscar">')
-                    .text('Buscar')
-                    .click(function() {
-                        let estados = $('#gr_buscar_estado').val().join("|");
-                        var tipos = $('#gr_buscar_tipo_doc').val();
-
-
-                        grilla_recibidos.columns(4).search("" + estados + "", true, false).draw();
-                        grilla_recibidos.columns(5).search($('#gr_buscar_id_doc').val()).draw();
-                        grilla_recibidos.columns(7).search($('#gr_buscar_origen_materia').val()).draw();
-                        //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
-                        grilla_recibidos.columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true).draw();
-                    })
-
-                $('#botones_grilla_recibidos').html('');
-                $('#botones_grilla_recibidos').append($clearButton, $searchButton);
-                $('#grilla_recibidos_filter').html('');
-
-                if (aplicaFrm == 1)
-                    $("div.addFrm").append("<input type='checkbox' name='chkFrm' id='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
-
-                //filtro por TD
-                $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
-                $('#filtro-td').multiselect('select', 'Principal');
-                $('#filtro-td').on("change", function() {
-                    grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"), true, false).draw();
-                });
-                $('#filtro-td').trigger("change");
-                grilla_recibidos.column(0).visible(false);
-                grilla_recibidos.column(1).visible(false);
-                grilla_recibidos.column(2).visible(false);
-                grilla_recibidos.column(14).visible(false);
-            }
-
-        });
-
-        var column = grilla_recibidos.column(2);
-        column.visible(!column.visible());
+        // var column = grilla_recibidos.column(2);
+        //column.visible(!column.visible());
         $('#grilla_recibidos').on('error.dt', function(e, settings, techNote, message) {
             console.log('Error DataTables: ', message);
         });
 
-        $('#grilla_recibidos .addFrm').append('<b>Custom tool bar! Text/images etc.</b>');
+        $('#grilla_recibidos .addFrm').append('<b>---</b>');
+
+
     }
 
     function grillas_despachados_texto(stexto) {
@@ -7090,6 +7243,7 @@
 
 
     function seleccionarAccionMasiva(nOpcion) {
+        console.log("seleccionarAccionMasiva", nOpcion);
         let opTotal = 3;
         let esVisible = "";
         if (nOpcion != "") {
@@ -7114,7 +7268,8 @@
     }
 
     $('.btn-aplicar').click(function() {
-        let accion = $('#selAccion').val();
+        let accion = $('#select-acciones-masivas').val();
+        console.log(".btn-aplicar", accion);
         switch (accion) {
             case "0":
                 archivar_masiva();
@@ -7196,14 +7351,16 @@
         sessionStorage.setItem('materia_recibidos', $('#gr_buscar_origen_materia').val());
     }
 
-
-
     function recarga_grilla_recibidos() {
+        console.log("recarga_grilla_recibidos");
         let estados_r = $('#gr_buscar_estado').val().join("|");
-        $('#grilla_recibidos').DataTable().columns(4).search("" + estados_r + "", true, false).draw();
-        $('#grilla_recibidos').DataTable().columns(5).search($('#gr_buscar_id_doc').val()).draw();
-        $('#grilla_recibidos').DataTable().columns(7).search($('#gr_buscar_origen_materia').val()).draw();
-        $('#grilla_recibidos').DataTable().columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false).draw();
+
+        $('#grilla_recibidos').DataTable()
+            .columns(4).search("" + estados_r + "", true, false)
+            .columns(5).search($('#gr_buscar_id_doc').val())
+            .columns(7).search($('#gr_buscar_origen_materia').val())
+            .columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false)
+            .draw();
 
     }
 
@@ -7288,8 +7445,8 @@
         if (materia_recibidos != "") {
             $("#gr_buscar_origen_materia").val(materia_recibidos);
         }
-
-        recarga_grilla_recibidos();
+        /* COMENTADO PORQUE CAUSABA LENTITUD*/
+        //recarga_grilla_recibidos();
         //fin sesiones para filtro gsrilla recibidos
         setTimeout(function() {
             if (sessionStorage.getItem('carpeta_seleccionada')) {
@@ -7357,6 +7514,9 @@
 
         });
 
+
+        // filtro acciones masivas
+        $('#select-acciones-masivas').multiselect('select', null);
 
 
 

@@ -97,7 +97,7 @@ class ArchivoController extends Controller
             );
 
             $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
-
+            $datosRequest['generaFolio'] = $request->json()->get('generaFolio',0);
             //si existe folio, saltar proceso de obtención de folio
             if ($nFolio == null && $datosRequest['generaFolio'] == 1) {
                 //if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
@@ -249,7 +249,6 @@ class ArchivoController extends Controller
 
                 return $this->respondError("No se encuentra el archivo generado.", 400);
             }
-
             $datosJsonTipoDocumento = json_decode($datosDocumentos['json_tipo_documento'], true);
             $datosJsonTipoDocumento['id_tipo_origen'] = 2;
             $datosDocumentos->update(['json_tipo_documento' => $datosJsonTipoDocumento]);
@@ -258,16 +257,11 @@ class ArchivoController extends Controller
             //db::statement("update bloqueo_folio set estado = 0 where folio = ".$aDocumentoBuzon['folio']." and tipo_folio = ".$datosJsonTipoDocumento['id_tipo_folio']); 
             if ($datosRequest['generaFolio'] == 1)
                 $this->estado_folio($nFolio, 0, $idTipoFolio, $datosRequest['id_buzon'], $idTipoDocumento, 0);
-
             DB::commit();
-
             return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
-        } catch (ModelNotFoundException $e) {
-
+        }catch (ModelNotFoundException $e) {
             db::statement("update bloqueo_folio set estado = 0, reversado = 1 where folio = " . $nFolio . " and tipo_folio = " . $idTipoFolio . " and buzon = " . $datosRequest['id_buzon'] . " and tipo_documento = " . $idTipoDocumento);
-
             DB::rollBack();
-
             //$this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,1); 
             return response()->json([
                 'status' => 500,
@@ -275,7 +269,23 @@ class ArchivoController extends Controller
                     'comentario' => 'Error al generar documento PDF.'
                 ]
             ], 500);
+        }catch (Exception $e) {
+            DB::rollBack();
+            //$this->estado_folio($nFolio,0,$idTipoFolio,$datosRequest['id_buzon'],$idTipoDocumento,1); 
+            return response()->json([
+                'status' => 500,
+                'data' => [
+                    'comentario' => 'Error al generar documento PDF. '.$e->getMessage()
+                ]
+            ], 500);
         }
+
+        return response()->json([
+            'status' => 500,
+            'data' => [
+                'comentario' => 'PDF NO Generado. error no encontrado'
+            ]
+        ], 500);
     }
 
     public function generar_folio(Request $request)

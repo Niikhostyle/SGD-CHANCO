@@ -184,3 +184,9 @@ Route::middleware(['auth:sanctum', 'verified'])->get('obtener_folios', [Auditori
 
 //perfil de usuario
 Route::middleware(['auth:sanctum', 'verified'])->get('perfil', [UsuarioController::class, 'perfil'])->name('usuario.perfil');
+
+//transparencia
+Route::middleware(['auth:sanctum', 'verified'])->get('transparencia', [PLCController::class, 'indexTransparencia'])->name('plc.transparenciaindex');
+Route::middleware(['auth:sanctum', 'verified'])->get('transparencia/getitems', [PLCController::class, 'getItems'])->name('plc.transparenciagetitems');
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc', [PLCController::class, 'getDoc'])->name('plc.transparenciagetDoc');
+Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc_anexo', [PLCController::class, 'getDocAnexo'])->name('plc.transparenciagetDocAnexo');

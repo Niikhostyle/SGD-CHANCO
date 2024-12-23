@@ -628,7 +628,7 @@
                         }
                     ]
                 },
-            processing: true,
+            processing: false,
             serverSide: true,
             "lengthMenu": [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
             ajax: '/buscadorListar?folio=0',
@@ -639,12 +639,16 @@
                     { data: 'tipo_documento', name: 'tipo_documento' },
                     { data: 'materia', name: 'documento.materia',render: function(data, type, row)
                             {
-                                if(data.length > 50){
-                                    return data.substring(0,50)+"...";
-                                }
-                                else{
+                                if(data!=null){
+                                    if(data.length > 50){
+                                        return data.substring(0,50)+"...";
+                                    }
+                                    else{
+                                        return data;
+                                    }     
+                                }else{
                                     return data;
-                                }                               
+                                }                     
                             }
                     },
                     { data: 'materia', name: 'documento.materia',render: function(data, type, row)

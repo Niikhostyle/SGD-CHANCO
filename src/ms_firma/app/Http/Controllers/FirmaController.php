@@ -601,7 +601,7 @@ class FirmaController extends Controller
                 $this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
                 $this->saveLog($datos['id_documento'], $e->getMessage());
 
-                Log::error("Error al generar la Firma Electrónica(1): " . $e->getMessage());
+                Log::error("IDDOC=".$datos['id_documento']." Error al generar la Firma Electrónica(1): " . $e->getMessage().$e->getFile()." ".$e->getLine());
 
                 return $this->respondFail("Error al generar la Firma Electrónica (2): " . $e->getMessage());
             }
