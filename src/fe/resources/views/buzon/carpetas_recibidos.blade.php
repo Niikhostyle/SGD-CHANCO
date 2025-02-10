@@ -89,9 +89,6 @@
 
 <script>
     var grilla_recibidos;
-    var allBuzones = @json($allBuzones);
-    var allBuzones2 = @json($allBuzones2);
-
     function addBtnFirma() {
         if ($('#chkFrm').prop("checked")) {
             $('#btnFirma').show();
@@ -434,7 +431,7 @@
                 $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
                 $('#filtro-td').multiselect('select', 'Principal');
                 $('#filtro-td').on("change", function() {
-                    grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"), true, false).draw();
+                    grilla_recibidos.columns(11).search($('#filtro-td').val().join("|"), true, false).draw();
                 });
                 $('#filtro-td').trigger("change");
                 grilla_recibidos.column(0).visible(false);
@@ -476,7 +473,6 @@
                         d.estados = $('#gr_buscar_estado').val().join("|");
                         d.id_buzon= {{$id_buzon}};
                         d.id_carpeta= 2;
-                        console.log("recarga con texto de busqueda superior",q);
                         if($("#buscador_general").val()!=""){
                             d.texto=$("#buscador_general").val();
                         }   
@@ -818,7 +814,7 @@
                     $('#filtro-td').on("change", function() {
                         grilla_recibidos.columns(11).search($('#filtro-td').val().join("|"), true, false).draw();
                     });
-                    //$('#filtro-td').trigger("change");
+                    $('#filtro-td').trigger("change");
                     grilla_recibidos.column(0).visible(false);
                     grilla_recibidos.column(1).visible(false);
                     grilla_recibidos.column(2).visible(false);
@@ -1327,58 +1323,7 @@ $('#gr_buscar_tipo_doc').multiselect({
 
 $(function() {
     
-        var allBuzones = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: allBuzones
-    });
-    allBuzones.initialize();
-
-    var allBuzonesT2 = new Bloodhound({
-        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        local: allBuzonesT2
-    });
-    allBuzonesT2.initialize();
-    $('#form_destinatario_principal').select2({
-        data: allBuzones2,
-        maximumSelectionLength: 1,
-        placeholder: '',
-        tags: false,
-        language: {
-            maximumSelected: function(args) {
-                var message = 'Sólo puede seleccionar ' + args.maximum + ' elemento';
-                if (args.maximum != 1) {
-                    message += 's';
-                }
-                return message;
-            },
-            noResults: function() {
-                return 'No se encontraron resultados';
-            }
-        }
-    }).on('select2:unselect', function(e) {
-        var data = e.params.data;
-        $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-    }).on('select2:select', function(e) {
-        if (form_acciones_solicitadas_el.disabled == true)
-            $('#form_acciones_solicitadas_el').multiselect('select', 6);
-        else
-            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-    });
-
-    $('#form_otros_destinatarios_el').tagsinput({
-        tagClass: function(item) {
-            return (item.tipo == 2 ? 'label label-info' : 'label label-warning');
-        },
-        itemValue: 'value',
-        itemText: 'text',
-        typeaheadjs: {
-            name: 'allBuzones',
-            displayKey: 'text',
-            source: allBuzones.ttAdapter()
-        }
-    });
+ 
 
      
 

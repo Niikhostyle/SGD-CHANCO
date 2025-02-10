@@ -970,7 +970,9 @@ class BuzonController extends Controller
                 'distribucion' => $DocumentoOriginal[0]->distribucion,
                 'fecha' => $dFechaCreacion,
                 'hash_validacion' => $sHash,
-                'folio' => $nFolio
+                'folio' => $nFolio,
+                'anio_tramitacion' =>date('Y'),
+                'estado_tramitacion' => 1,
             ]);
 
             $fContestarHasta =  $DocumentoBuzonOriginal[0]->contestar_hasta;

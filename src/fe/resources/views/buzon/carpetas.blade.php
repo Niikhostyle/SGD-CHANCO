@@ -589,7 +589,10 @@
 <!-- script src="https://cdn.tiny.cloud/1/vrmhk77mujotoyysy5q37jmn5r0kodurg8u7vcs6b5hmzco8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-<script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script>
+<script src="{{ asset('/vendor/tagsinput/bootstrap-tagsinput.min.js') }}"></script> 
+
+
+
 <script src="/js/bootstrap-multiselect.js"></script>
 <script src="/js/fglobales.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
@@ -614,6 +617,10 @@
     var objDoc = null;
 
     var allBuzonesT2 = @json($allBuzonesT2);
+    var allBuzones = @json($allBuzones);
+    var allBuzones2 = @json($allBuzones2);
+    var listadoDocPendientes = @json($listDocPendientesBuzon);
+    var idTipoFlujo = "";
     
 
     var listadoDocPendientes = @json($listDocPendientesBuzon);
@@ -625,6 +632,33 @@
 
     aplicaFrm = @json($aplicaFrm);
 
+
+
+    var allBuzones = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: allBuzones
+        });
+        allBuzones.initialize();
+
+        var allBuzonesT2 = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: allBuzonesT2
+        });
+        allBuzonesT2.initialize();
+    $('#form_otros_destinatarios_el').tagsinput({
+        tagClass: function(item) {
+            return (item.tipo == 2 ? 'label label-info' : 'label label-warning');
+        },
+        itemValue: 'value',
+        itemText: 'text',
+        typeaheadjs: {
+            name: 'allBuzones',
+            displayKey: 'text',
+            source: allBuzones.ttAdapter()
+        }
+    });
     //owl = $('.owl-carousel').owlCarousel(); 
 
     $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function(e) {
@@ -5264,7 +5298,51 @@
         //cargar los filtros previamente seleccionados
         cargar_filtros_guardados();
 
-         $("#referencia-resultados").DataTable({
+        //
+       
+        $('#form_destinatario_principal').select2({
+            data: allBuzones2,
+            maximumSelectionLength: 1,
+            placeholder: '',
+            tags: false,
+            language: {
+                maximumSelected: function(args) {
+                    var message = 'Sólo puede seleccionar ' + args.maximum + ' elemento';
+                    if (args.maximum != 1) {
+                        message += 's';
+                    }
+                    return message;
+                },
+                noResults: function() {
+                    return 'No se encontraron resultados';
+                }
+            }
+        }).on('select2:unselect', function(e) {
+            var data = e.params.data;
+            $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+        }).on('select2:select', function(e) {
+            if (form_acciones_solicitadas_el.disabled == true)
+                $('#form_acciones_solicitadas_el').multiselect('select', 6);
+            else
+                $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
+        });
+
+        $('#form_otros_destinatarios_el').tagsinput({
+            tagClass: function(item) {
+                return (item.tipo == 2 ? 'label label-info' : 'label label-warning');
+            },
+            itemValue: 'value',
+            itemText: 'text',
+            typeaheadjs: {
+                name: 'allBuzones',
+                displayKey: 'text',
+                source: allBuzones.ttAdapter()
+            }
+        });
+
+
+
+        $("#referencia-resultados").DataTable({
             processing: true,
             serverSide: true,
             paging: false,
@@ -5284,6 +5362,7 @@
                 {data: 'nombre_archivo_original'},
             ],
         });
+
     });
 
 </script>
