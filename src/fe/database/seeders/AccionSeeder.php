@@ -25,7 +25,7 @@ class AccionSeeder extends Seeder
             ['id_accion' => '8', 'id_tipo_accion' => '1', 'nombre' => 'Generar PDF', 'updated_at' => now(), 'created_at' => now()],
             ['id_accion' => '9', 'id_tipo_accion' => '1', 'nombre' => 'Asignar Folio y Fecha', 'updated_at' => now(), 'created_at' => now()],
             ['id_accion' => '10', 'id_tipo_accion' => '1', 'nombre' => 'Finalizar', 'updated_at' => now(), 'created_at' => now()],
-            ['id_accion' => '11', 'id_tipo_accion' => '1', 'nombre' => 'No corresponde, no aplica, revisar, reenviar', 'updated_at' => now(), 'created_at' => now()],            
+            ['id_accion' => '11', 'id_tipo_accion' => '1', 'nombre' => 'Derivar Documento', 'updated_at' => now(), 'created_at' => now()],            
             ['id_accion' => '12', 'id_tipo_accion' => '2', 'nombre' => 'Archivar', 'updated_at' => now(), 'created_at' => now()],
             ['id_accion' => '13', 'id_tipo_accion' => '2', 'nombre' => 'En proceso firma', 'updated_at' => now(), 'created_at' => now()],
             ['id_accion' => '14', 'id_tipo_accion' => '2', 'nombre' => 'Desarchivar', 'updated_at' => now(), 'created_at' => now()]            

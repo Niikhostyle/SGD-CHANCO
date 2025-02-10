@@ -12,6 +12,8 @@ use App\Models\DocumentoBuzonBitacora;
 use App\Models\DocumentoBuzon;
 use App\Models\TipoDocumento;
 use App\Providers\AppServiceProvider;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -40,7 +42,6 @@ class DocumentoBuzonArchivoController extends Controller
 
                 $dFechaCreacion = date('Y-m-d H:i:s');
                 $files = $request->file('file');
-
                 foreach($files as $file)
                 {
                     $fileName = $file->getClientOriginalName();
@@ -503,5 +504,30 @@ class DocumentoBuzonArchivoController extends Controller
                 'Content-Type: application/pdf',
               );
               return response()->download($ruta, $file->nombre_corto.'_'.$file->folio.'.pdf', [], 'inline');
+    }
+
+    function uploadReferenciaSGD(Request $request){
+        $validator = Validator::make($request->all(), [
+            //'hiddIdDocumento' => 'required',
+            'hiddIdDocumentoBuzon' => 'required',
+            'id_tipo_archivo' => 'required',
+            'name' => 'required',
+            'url' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()->all()]);
+        } else {
+            $data = $validator->validated();
+
+            $archivo = new DocumentoBuzonArchivo();
+            $archivo->id_documento_buzon = $data['hiddIdDocumentoBuzon'];
+            $archivo->id_tipo_archivo = $data['id_tipo_archivo'];
+            $archivo->nombre_archivo_original = $data['name'];
+            $archivo->nombre_archivo_codificado = $data['url'];
+            $archivo->fecha = date('Y-m-d H:i:s');
+            $archivo->save();
+            return response()->json(['status' => true, 'msg' => 'Archivo subido correctamente']);
+        }
     }
 }

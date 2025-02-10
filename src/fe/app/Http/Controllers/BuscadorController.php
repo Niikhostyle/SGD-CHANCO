@@ -296,7 +296,9 @@ class BuscadorController extends Controller
         }
         //else{
         if (!isset($request->buscar_fecha_ini) || !isset($request->buscar_fecha_fin)) {
-            $extraquery .= " and extract(year from d.created_at) = " . $year_actual;
+            //$extraquery .= " and extract(year from d.created_at) = " . $year_actual;
+            $extraquery .= " and d.anio_tramitacion = " . $year_actual;
+
         } else {
             $extraquery .= " and d.created_at between to_date('" . $request->buscar_fecha_ini . "','yyyy-mm-dd') and to_date('" . $request->buscar_fecha_fin . "','yyyy-mm-dd') + INTERVAL '1 day'";
         }
@@ -503,5 +505,40 @@ class BuscadorController extends Controller
 
         //return datatables( $datos )->toJson();
         return $datos;
+    }
+
+    public function buscarDocumentoReferencia(Request $request)
+    {
+        $q = $request->input('search',null);
+        
+        // limitar si no viene parametro de busqueda 
+        if($q['value'] == null){
+            return [];
+        }
+        $sql = "SELECT 
+            d.id_documento,
+            td.nombre_corto,
+            d.folio,
+            date_part('year',d.fecha) as anio,
+            dba.version,
+            d.materia,
+            dba.id_documento_buzon_archivo ,
+            dba.id_tipo_archivo ,
+            dba.nombre_archivo_original ,
+            dba.nombre_archivo_codificado
+        FROM public.documento_buzon_archivo dba
+        join documento_buzon db on db.id_documento_buzon = dba.id_documento_buzon 
+        join documento d on d.id_documento = db.id_documento 
+        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento ";
+
+        if (is_numeric($q['value'])) {
+            $sql .= " where d.id_documento = " . $q['value'];
+            $sql .= " or d.folio = " . $q['value'];
+        } else {
+            $sql .= " where d.materia like '%" . $q['value'] . "%'";
+        }
+        $res = DB::select($sql); 
+        return ['data'=>$res];
+
     }
 }

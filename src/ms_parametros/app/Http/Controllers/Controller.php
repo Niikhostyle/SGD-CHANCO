@@ -22,6 +22,7 @@ use App\Models\TipoFlujoAccion;
 use App\Models\TipoFolio;
 use App\Models\TipoOrigen;
 use App\Models\Anio;
+use App\Models\EstadoTramitacion;
 
 class Controller extends BaseController
 {
@@ -102,6 +103,9 @@ class Controller extends BaseController
 
                 $datosAnio = Anio::all('id_anio', 'descripcion','estado');
                 $aJsonSalida["anio"] = $datosAnio;
+
+                $datosEstadoTramitacion = EstadoTramitacion::all('id', 'nombre');
+                $aJsonSalida["estado_tramitacion"] = $datosEstadoTramitacion;
 
                 return $this->respondSuccess($aJsonSalida, 200);
             }  

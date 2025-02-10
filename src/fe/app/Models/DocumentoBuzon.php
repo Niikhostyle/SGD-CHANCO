@@ -25,9 +25,16 @@ class DocumentoBuzon extends Model{
         'contestar_hasta',
         'favorito'
     ];
-
     public function buzon()
     {
         return $this->belongsTo(Buzon::class, 'id_buzon', 'id_buzon');
     }
+    public function documento()
+    {
+        return $this->belongsTo(Documento::class, 'id_documento', 'id_documento');
+    }
+    public function bitacora(){
+        return $this->hasMany(DocumentoBuzonBitacora::class, 'id_documento_buzon', 'id_documento_buzon');
+    }
+
 }

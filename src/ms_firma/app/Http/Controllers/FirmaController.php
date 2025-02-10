@@ -161,29 +161,28 @@ class FirmaController extends Controller
                     if ($nGeneraArchivo == 1) {
                         //generar pdf                    
                         $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json']) //
-                            ->timeout(30)
+                            ->timeout(60)
                             ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [
                                 'id_documento' => $datos['id_documento'],
                                 'id_documento_buzon' => $datos['id_documento_buzon'],
                                 'id_usuario' => $datos['id_usuario'],
                                 'id_buzon' => $datos['id_buzon'],
                                 'generaFolio' => $nGeneraFolio
-                            ]);
+                            ])->throw();
                     }
 
                     if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) {
 
                         //generar folio 
-
-                        $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
-                            ->timeout(30)
-                            ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [
-                                'id_documento' => $datos['id_documento'],
-                                'id_documento_buzon' => $datos['id_documento_buzon'],
-                                'id_usuario' => $datos['id_usuario'],
-                                'id_buzon' => $datos['id_buzon'],
-                                'generaFolio' => $nGeneraFolio
-                            ]);
+                            $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
+                                ->timeout(60)
+                                ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [
+                                    'id_documento' => $datos['id_documento'],
+                                    'id_documento_buzon' => $datos['id_documento_buzon'],
+                                    'id_usuario' => $datos['id_usuario'],
+                                    'id_buzon' => $datos['id_buzon'],
+                                    'generaFolio' => $nGeneraFolio
+                                ])->throw();
                     }
 
                     if (isset($datosArchivo['status']) && ($datosArchivo['status'] == '400' || $datosArchivo['status'] == '500')) {
@@ -198,6 +197,12 @@ class FirmaController extends Controller
                         ->where('nombre_archivo_codificado', '!=', null)
                         ->select('nombre_archivo_codificado', 'paginas_archivo', 'id_tipo_archivo', 'folio')
                         ->first();
+                }
+
+                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
+                {
+                    $comentario = "No existe archivo PDF para realizar firma electrónica.";
+                    throw new Exception($comentario);
                 }
 
                 $firmaDigitalConfig = array(
@@ -459,8 +464,25 @@ class FirmaController extends Controller
                                     'version' => 1
                                 ]);
 
+                                //actualizar año tramitacion del archivo
+                                $datosDocumento = Documento::findOrFail($datos['id_documento']);
+                                $datosDocumento->anio_tramitacion = date('Y');
+                               
+
+                                 //actualiza estado de tramitacion
+                                 if(count($datosBitacora)==0){
+                                    //cambiar estado a en proceso de firma
+                                    $datosDocumento->estado_tramitacion = 3;
+                                 }elseif(count($datosBitacora)==($nNroFirmas-1)){
+                                    //ultima firma, pasar a finalizado
+                                    $datosDocumento->estado_tramitacion = 4;
+                                 }
+                                 $datosDocumento->save();
+
                                 //actualiza estado
                                 DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
+
+                               
 
                                 //registrar accion de firma en bitacora
                                 $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
@@ -510,6 +532,9 @@ class FirmaController extends Controller
                                             $comentario = $aRespuestaFirma['error'];
                                             throw new Exception($comentario);
                                         }
+                                        //actualizar año tramitacion del archivo
+                                        $datosDocumentos->anio_tramitacion = $fecha->format('Y');
+                                        $datosDocumentos->save();
 
                                         //actualizar registro de archivo 
                                         DocumentoBuzonArchivo::find($documentoBuzonArchivo->id_documento_buzon_archivo)->update(['nombre_archivo_codificado' => $nNombreArchivoCargarNew]);
@@ -648,7 +673,7 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
 
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-        Log::error("Comando " . $cmd);
+        //Log::error("Comando " . $cmd);
         exec($cmd, $output, $estado);
 
         if ($estado == 0) //firma ok
