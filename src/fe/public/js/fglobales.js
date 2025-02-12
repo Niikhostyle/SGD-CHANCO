@@ -341,7 +341,7 @@ function ver_archivo(file)
 
 function cargar_datos_bitacora(id_documento)
 {
-   
+   console.log("cargar_datos_bitacora",id_documento);
     //ocultar campo de busqueda por defecto 
 
     $('#tabla_bitacora_grilla_filter').hide();   
@@ -352,7 +352,7 @@ function cargar_datos_bitacora(id_documento)
 
     var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
 
-    $.getJSON('/buscador/'+id_documento, function(response) {
+    $.getJSON(route('buscador.show',{'id':id_documento}), function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
         bDestroy : true,
         processing: true,

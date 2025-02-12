@@ -43,5 +43,6 @@
         @stack('modals')
 
         @livewireScripts
+        @routes
     </body>
 </html>

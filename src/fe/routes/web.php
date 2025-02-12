@@ -87,44 +87,65 @@ Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':admin'
     Route::get('buzones/{id}', [BuzonController::class, 'show'])->name('buzones.show');
     Route::put('buzones', [BuzonController::class, 'update'])->name('buzones.update');
     Route::delete('buzones/{id}', [BuzonController::class, 'delete'])->name('buzones.delete');
-    Route::post('buscarDocumento', [BuzonController::class, 'buscar_documento_buzon'])->name('documentos.buscar_documento_buzon');
 });
 
-//documentos carpetas
-Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':buzoncarpeta'])->group(function () {
+//documentos carpetas  (por idbuzon)
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('buzonesCarpetas/{id}',[BuzonController::class,'carpetas'])->name('buzones.carpetas');
-    Route::post('buzonesCarpetas',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
-    Route::put('buzonesCarpetas',[BuzonController::class,'update_documento'])->name('buzones.update_documento');
-    Route::put('buzonesCarpetas/{id}',[BuzonController::class,'enviar_documento'])->name('buzones.enviar_documento');
-    Route::get('buzonesListar/',[BuzonController::class,'listar'])->name('buzones.listar');
-    Route::get('documentos/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
-    Route::put('actualizar_estado_documento/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
-    Route::put('firmar_documento/{id}',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
-    Route::put('firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
-    Route::delete('documento',[BuzonController::class,'delete_documento'])->name('buzones.delete_documento');
-    Route::get('eliminar_documento',[BuzonController::class,'eliminar_documento_enviado'])->name('buzones.eliminar_documento_enviado');
+    Route::get('buzonesListar/{id}',[BuzonController::class,'listar'])->name('buzones.listar');
+    Route::post('documentos/{id}',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
+    Route::post('documentos/{id}/buscarGlobal', [BuzonController::class, 'buscar_documento_buzon'])->name('buzones.buscar_global');
+    Route::put('documentos/{id}/firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
 });
 
-Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
-Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
-Route::middleware(['auth:sanctum', 'verified'])->put('devolver',[BuzonController::class,'devolver'])->name('documentos.devolver');
+//buzon documento
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
-Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
-Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
-Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
+    Route::get('documentos/{buzon}/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
+    Route::put('documentos/{buzon}/{id}',[BuzonController::class,'actualizar_estado_documento'])->name('documentos.actualizar_estado');
+    
+    Route::put('documentos/{buzon}/{id}/update',[BuzonController::class,'update_documento'])->name('documentos.update');  //
+    Route::put('documentos/{buzon}/{id}/editar',[BuzonController::class,'accion_editar_documento'])->name('buzones.editar');
+    Route::put('documentos/{buzon}/{id}/enviar',[BuzonController::class,'enviar_documento'])->name('documentos.enviar_documento');
+    Route::put('documentos/{buzon}/{id}/clonar',[BuzonController::class,'clonar'])->name('documentos.clonar');
+    Route::put('documentos/{buzon}/{id}/generar',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
+    Route::put('documentos/{buzon}/{id}/archivar',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
+    Route::put('documentos/{buzon}/{id}/devolver',[BuzonController::class,'devolver'])->name('documentos.devolver');
+
+    Route::get('documentos/{buzon}/{id}/vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
+    //Route::get('documentos/{buzon}/{id}/vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
+
+    Route::put('documentos/{buzon}/{id}/firmar',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
+    
+    Route::delete('documentos/{buzon}/{id}/eliminar',[BuzonController::class,'delete_documento'])->name('documentos.delete');
+    Route::get('documentos/{buzon}/{id}/eliminar_envio',[BuzonController::class,'eliminar_documento_enviado'])->name('documentos.eliminar_documento_enviado');
+
+    
+});
+
 Route::middleware(['auth:sanctum', 'verified'])->post('vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa_sg/{id}',[BuzonController::class,'vp_sg'])->name('documentos.vp_sg');
-Route::middleware(['auth:sanctum', 'verified'])->get('clonar',[BuzonController::class,'clonar'])->name('documentos.clonar');
+
+
+//Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
+
+Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
+//Route::middleware(['auth:sanctum', 'verified'])->put('devolver',[BuzonController::class,'devolver'])->name('documentos.devolver');
+//Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
+//Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
+//Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
+
+//Route::middleware(['auth:sanctum', 'verified'])->get('clonar',[BuzonController::class,'clonar'])->name('documentos.clonar');
 
 
 //tipos de documentos
-Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':buzoncarpeta'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('tipos_documentos', [TipoDocumentoController::class, 'index'])->name('tipos_documentos.index');
     Route::post('tipos_documentos', [TipoDocumentoController::class, 'store'])->name('tipos_documentos.store');
-    Route::put('tipos_documentos', [TipodocumentoController::class, 'update'])->name('tipos_documentos.update');
-    Route::get('tipos_documentos/{id}', [TipodocumentoController::class, 'show'])->name('tipos_documentos.show');
+    Route::put('tipos_documentos', [TipodocumentoController::class, 'update'])->name('tipos_documentos.update');    
     Route::delete('tipos_documentos/{id}', [TipodocumentoController::class, 'delete'])->name('tipos_documentos.delete');
 });
+Route::get('tipos_documentos/{id}', [TipodocumentoController::class, 'show'])->name('tipos_documentos.show');
 
 //favorito
 Route::middleware(['auth:sanctum', 'verified'])->get('favoritos', [FavoritoController::class, 'index'])->name('favoritos.index');

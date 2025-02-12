@@ -503,7 +503,7 @@ class BuzonController extends Controller
     }
 
 
-    public function ver_documento($id, Request $request)
+    public function ver_documento($buzon,$id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
@@ -511,7 +511,7 @@ class BuzonController extends Controller
             ->timeout(30)
             ->withBody(json_encode([
                 'id_documento' => $id,
-                'id_documento_buzon' => $request['hiddIdDocumentoBuzon']
+                'id_documento_buzon' => $buzon
             ]), 'json')
             ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver')->throw();
 
@@ -802,7 +802,7 @@ class BuzonController extends Controller
     public function listar(Request $request)
     {
         $year_actual = session('year');
-        // $nCarpeta = $request->id_carpeta;
+        $nCarpeta = $request->id_carpeta;
         // if ($request->id_carpeta == 3) {
         //     $sOpestado = '(1,2,7,10,12)';
         // }
@@ -884,6 +884,11 @@ class BuzonController extends Controller
         //filtrar por estados
         if ($request->estados != null)
             $datos->whereIn('documento_buzon.id_estado_documento', explode('|', $request->estados));
+
+        //filtrar por recibir (forzar a que sea solo los por recibir)
+        if($nCarpeta == 1){
+            $datos->where('documento_buzon.id_estado_documento','<>',1);
+        }
 
 
         //return $datos->toSql();
@@ -1058,20 +1063,12 @@ class BuzonController extends Controller
             ->whereRaw($extraquery)
             ->groupBy('documento_buzon.id_carpeta')
             ->get();
-        $salida = "";
-        foreach ($datos as $d) {
-            if ($salida == "") {
-                $salida .= $d->salida;
-            } else {
-                $salida .= ", " . $d->salida;
-            }
-        }
-        if ($salida == "") {
-            $salida = "<span style='color:red;'>No existen coincidencias para el criterio ingresado.</span>";
+
+        if ($datos->count() == 0) {
+            return $this->respondSuccess(["mensaje"=>"No existen coincidencias para el criterio ingresado."], 201);
         } else {
-            $salida = "Coincidencia/s en carpeta/s: <br/> <span style='color:green;'>&nbsp;&nbsp;" . $salida . ".</span>";
+            return $this->respondSuccess(["mensaje"=>"Coincidencia/s en carpeta/s:","carpetas"=>$datos->pluck('salida')], 200);
         }
-        return $salida;
     }
 
     public function eliminar_documento_enviado(Request $request)

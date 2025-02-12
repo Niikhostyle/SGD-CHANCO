@@ -698,31 +698,46 @@
     idDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
     $('#btnBuscadorGeneral').click(function(e) {
-        $('#resultadoBusquedaGral').html("Buscando...");
+        $('#resultadoBusquedaGral').html("Buscando...").removeClass('text-success').removeClass('text-danger');
         var _token = $("input[name='_token']").val();
         var texto = $("#buscador_general").val();
         var buzon = $("input[name='hiddIdBuzon']").val();
-        urlAccion = "{{route('documentos.buscar_documento_buzon')}}";
+        urlAccion = route('buzones.buscar_global',{'id':buzon});
         $.ajax({
             url: urlAccion,
             type: 'POST',
-            //dataType: 'json',
+            dataType: 'json',
             data: {
                 _token: _token,
                 texto: texto,
                 buzon: buzon,
-            },
-            success: function(data) {
-                $('#resultadoBusquedaGral').html(data);
-                grilla_por_recibir_texto(texto);
-                grillas_recibidos_texto(texto);
-                grillas_despachados_texto(texto);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                toastr.error("Falla en la búsqueda..", "¡Aviso!");
             }
+            })
+            .done(function(data, textStatus, jqXHR) {
+                console.log(data.data.mensaje);
+                if(jqXHR.status ==200){
+                    $('#resultadoBusquedaGral').html(data.data.mensaje).addClass('text-success');
+                    $('#resultadoBusquedaGral').append('</br>');
+                    data.data.carpetas.forEach((e) => $('#resultadoBusquedaGral')
+                        .append("<span style='cursor:pointer' class='pointer-event btn-link'>"+e+"</span>&nbsp;"))
+                    //$()
+                }else if(jqXHR.status ==201){
+                    $('#resultadoBusquedaGral').html(data.data.mensaje).addClass('text-danger');
+                }
+                /*
+                    console.log(status);
+                    console.log(jqXHR);
+                    //$('#resultadoBusquedaGral').html(data);
+                    grilla_por_recibir_texto(texto);
+                    grillas_recibidos_texto(texto);
+                    grillas_despachados_texto(texto);
+                    */
+                })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                $('#resultadoBusquedaGral').html("ERROR en la búsqueda").addClass('text-danger');
+                toastr.error("Falla en la búsqueda global.", "¡Aviso!");
+            });
 
-        });
     });
 
    //dropzone
@@ -730,7 +745,7 @@
         headers: {
             'X-CSRF-TOKEN': "{{csrf_token()}}"
         },
-        url: "{{route('files.store')}}",
+        url: route('files.store'),
         autoProcessQueue: false,
         uploadMultiple: true,
         maxFilesize: 50, //MB
@@ -780,7 +795,7 @@
         headers: {
             'X-CSRF-TOKEN': "{{csrf_token()}}"
         },
-        url: "{{route('files.store')}}",
+        url: route('files.store'),
         autoProcessQueue: false,
         uploadMultiple: true,
         maxFilesize: 20, //MB
@@ -838,7 +853,7 @@
         headers: {
             'X-CSRF-TOKEN': "{{csrf_token()}}"
         },
-        url: "{{route('files.store')}}",
+        url: route('files.store'),
         autoProcessQueue: false,
         uploadMultiple: true,
         maxFilesize: 50, //MB
@@ -903,9 +918,9 @@
     /* **DOCUMENTOS** SCRIPT */
     const editor_cuerpo = CKEDITOR.replace('form_cuerpo', {
         "removePlugins": "exportpdf",
-        filebrowserBrowseUrl: "{{ route('ckfinder_browser') }}",
-        filebrowserImageBrowseUrl: "{{ route('ckfinder_browser') }}?type=Images&token=123",
-        filebrowserImageUploadUrl: "{{ route('ckfinder_connector') }}?command=QuickUpload&type=Images",
+        filebrowserBrowseUrl: route('ckfinder_browser'),
+        filebrowserImageBrowseUrl: route('ckfinder_browser')+"?type=Images&token=123",
+        filebrowserImageUploadUrl: route('ckfinder_connector')+"?command=QuickUpload&type=Images",
     });
 
     const editor_distribucion = CKEDITOR.replace('form_distribucion', {
@@ -924,7 +939,6 @@
 
         //cambiar carpeta a despachados
         cambio_texto_boton_carpetas("Despachados");
-        $('#nav-despachados-tab').tab('show');
 
         $("#collapseOne").collapse('hide');
         $("#titulo_accion").html("Nuevo Documento");
@@ -1101,7 +1115,8 @@
 
     function datosTipoDoc(id) {
         $.ajax({
-            url: "../tipos_documentos/" + id,
+            //url: "../tipos_documentos/" + id,
+            url: route('tipos_documentos.show',{'id':id}), 
             type: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -1318,13 +1333,15 @@
 
         if (hiddIdDocumento == '') //crear
         {
-            var urlAccion = "{{route('buzones.store_documento')}}";
+            var urlAccion = route('buzones.store_documento',{'id':hiddIdBuzon});
             var typeAccion = 'POST';
         } else //editar
         {
-            var urlAccion = "{{route('buzones.update_documento')}}";
+            var urlAccion = route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento});
             var typeAccion = 'PUT';
         }
+
+        
 
         $.ajax({
             url: urlAccion,
@@ -1567,7 +1584,7 @@
 
 
         $.ajax({
-            url: "{{route('buzones.update_documento')}}",
+            url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
             type: 'PUT',
             dataType: 'json',
             data: {
@@ -1687,7 +1704,7 @@
         setea_sesiones_despachados();
 
         $.ajax({
-            url: "{{route('buzones.update_documento')}}",
+            url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
             type: 'PUT',
             dataType: 'json',
             data: {
@@ -1907,7 +1924,7 @@
         setea_sesiones_despachados();
 
         $.ajax({
-            url: "{{route('buzones.update_documento')}}",
+            url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
             type: 'PUT',
             dataType: 'json',
             data: {
@@ -2057,7 +2074,7 @@
         setea_sesiones_despachados();
         clearTimeout(timeoutId);
         $.ajax({
-            url: "{{route('buzones.update_documento')}}",
+            url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
             type: 'PUT',
             dataType: 'json',
             data: {
@@ -2195,12 +2212,12 @@
                     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando'
                 );
                 guarda_documento(2, function(data) {
-                    //continue your function here, inside of the callback
                     if (data.status == 200) {
                         deshabilita_boton('btn-guardar-submit');
                         deshabilita_boton('btn-guardar-submit-edit');
                         $.ajax({
-                            url: "../buzonesCarpetas/" + hiddIdDocumento,
+                            url: route('documentos.enviar_documento',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                            //url: "../buzonesCarpetas/" + hiddIdDocumento,
                             type: 'PUT',
                             dataType: 'json',
                             data: {
@@ -2357,7 +2374,8 @@
                     deshabilita_boton('btn-visar-derivar');
                     deshabilita_boton('btn-firmar-derivar');
                     $.ajax({
-                        url: "../buzonesCarpetas/" + hiddIdDocumento,
+                        //url: "../buzonesCarpetas/" + hiddIdDocumento,
+                        url: route('documentos.enviar_documento',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -2462,7 +2480,8 @@
             //console.log(result);
             if (result.value == true) {
                 $.ajax({
-                    url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.actualizar_estado',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                    //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -2519,7 +2538,8 @@
                 if (result.value == true) {
                     $('.btn-visar-derivar').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Visando y derivando')
                     $.ajax({
-                        url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                        url: route('documentos.actualizar_estado',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                        //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -2532,7 +2552,8 @@
                             if (data.status == '200') //documento visado
                             { //derivar                                
                                 $.ajax({
-                                    url: "../buzonesCarpetas/" + hiddIdDocumento,
+                                    //url: "../buzonesCarpetas/" + hiddIdDocumento,
+                                    url: route('documentos.enviar_documento',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                                     type: 'PUT',
                                     dataType: 'json',
                                     data: {
@@ -2588,86 +2609,6 @@
         } else {
             toastr.error("Falla en el documento: Debe seleccionar un destinatario principal y acciones", "¡Aviso!");
         }
-    }
-
-    function envioFrm() {
-        var _token = $("input[name='_token']").val();
-
-        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
-
-        var matches = [];
-        var checkedcollection = grilla_recibidos.$("input[name='checkFrm']:checked", {
-            "page": "all"
-        });
-        checkedcollection.each(function(index, elem) {
-            matches.push($(elem).val());
-
-        });
-        setea_sesiones_recibidos();
-        setea_sesiones_despachados();
-        if (matches.length > 0) {
-            $('.btn-aplicar').html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Firmando'
-            );
-            deshabilita_boton('btn-aplicar');
-            Swal.fire({
-                title: 'Firma electrónica masiva',
-                html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Aceptar'
-            }).then((result) => {
-                if (result.value == true) {
-                    $.ajax({
-                        url: "/firma_masiva/",
-                        type: 'PUT',
-                        dataType: 'json',
-                        data: {
-                            _token: _token,
-                            buzon: hiddIdBuzon,
-                            //docBuzon:matchesBuzon,
-                            firmas: matches,
-                            accion: 7
-                        },
-                        success: function(data) {
-                            if (data.status == '200') {
-                                toastr.success(data.data, "¡Aviso!");
-
-                                $('#card_crear_documento').hide();
-                                fn_grilla_recibidos();
-                                $("#collapseOne").collapse('show');
-                            } else {
-                                toastr.error(data.data.comentario, "¡Aviso!");
-                            }
-                            $('.btn-aplicar').html('Aplicar');
-                            habilita_boton('btn-aplicar');
-                            location.reload();
-
-                        },
-                        error: function(e) {
-                            data = e.responseJSON;
-                            console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null)
-                                toastr.error(data.data.comentario, "¡Aviso!");
-                            else
-                                toastr.error("Falla en el documento", "¡Aviso!");
-
-                            $('.btn-aplicar').html('Aplicar');
-                            habilita_boton('btn-aplicar');
-
-                        }
-                    });
-
-
-                } else {
-                    $('.btn-aplicar').html('Aplicar');
-                    habilita_boton('btn-aplicar');
-                }
-            })
-        } else
-            toastr.error("No hay documentos seleccionados para firmar.", "¡Aviso!");
     }
 
     function firmar_documento() {
@@ -2733,7 +2674,8 @@
                 deshabilita_boton('btn-derivar-2');
                 bloqueo_accion = true;
                 $.ajax({
-                    url: "/firmar_documento/" + hiddIdDocumentoBuzon,
+                    //url: "/firmar_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.firmar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -2888,7 +2830,8 @@
                     );
                     bloqueo_accion = true;
                     $.ajax({
-                        url: "/firmar_documento/" + hiddIdDocumentoBuzon,
+                        url: route('documentos.firmar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                        //url: "/firmar_documento/" + hiddIdDocumentoBuzon,
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -2900,7 +2843,7 @@
                         success: function(data) {
                             if (data.status == '200') { //// derivar
                                 $.ajax({
-                                    url: "{{route('buzones.update_documento')}}",
+                                    url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                                     type: 'PUT',
                                     dataType: 'json',
                                     data: {
@@ -2920,7 +2863,8 @@
                                     success: function(data) {
                                         if (data.status == '200') {
                                             $.ajax({
-                                                url: "../buzonesCarpetas/" + hiddIdDocumento,
+                                                url: route('documentos.enviar_documento',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                                                //url: "../buzonesCarpetas/" + hiddIdDocumento,
                                                 type: 'PUT',
                                                 dataType: 'json',
                                                 data: {
@@ -3111,7 +3055,8 @@
             if (result.value == true) {
 
                 $.ajax({
-                    url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.actualizar_estado',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                    //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -3178,7 +3123,8 @@
             //console.log(result);
             if (result.value == true) {
                 $.ajax({
-                    url: "/archivar_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.archivar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                    //url: "/archivar_documento/" + hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -3304,7 +3250,8 @@
             if (result.value) {
                 let comentario_archivo = $('.swal2-textarea').val();
                 $.ajax({
-                    url: "/archivar_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.archivar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                    //url: "/archivar_documento/" + hiddIdDocumentoBuzon,
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -3390,7 +3337,7 @@
 
     /* **DOCUMENTOS** SCRIPT */
 
-    function cambio_texto_boton_carpetas(texto) {
+    function cambio_texto_boton_carpetas(texto,busqueda) {
         $('#documento').hide();
         $('#card_crear_documento').hide();
         $('#card_bitacora').hide();
@@ -3399,13 +3346,16 @@
         }
         $('#boton_carpetas_texto').html('Carpetas - <i><b>' + texto + '</b></i>');
          if (texto == 'Por Recibir') {
-            fn_grilla_por_recibir();
+            fn_grilla_por_recibir(busqueda);
+            $('#nav-porrecibir-tab').tab('show');
         }
         if (texto == 'Recibidos') {
-            fn_grilla_recibidos();
+            fn_grilla_recibidos(busqueda);
+            $('#nav-recibidos-tab').tab('show');
         }
         if (texto == 'Despachados') {
-            fn_grilla_despachados();
+            fn_grilla_despachados(busqueda);
+            $('#nav-despachados-tab').tab('show');
         }
         sessionStorage.setItem('carpeta_seleccionada', texto);
 
@@ -3451,7 +3401,8 @@
         }).then((result) => {
             if (result.value == true) {
                 $.ajax({
-                    url: "/generar_archivo",
+                    url: route('documentos.generar',{'buzon':id_documento_buzon,'id':id_documento}),
+                    //url: "/generar_archivo",
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -3498,7 +3449,8 @@
         }).then((result) => {
             if (result.value == true) {
                 $.ajax({
-                    url: "/vista_previa",
+                    url: route('documentos.vista_previa',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                    //url: "/vista_previa",
                     type: 'GET',
                     dataType: 'binary',
                     data: {
@@ -3534,9 +3486,14 @@
         var encabezado = $("input[name='encabezado']").val();
         var cuerpo = editor_cuerpo.getData();
         var distribucion = editor_distribucion.getData();
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        
+        var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
+        var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
+
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
-        urlAccion = "{{route('documentos.vista_previa_sg')}}";
+        urlAccion = route('documentos.vista_previa_sg');
         $.ajax({
             url: urlAccion,
             type: 'POST',
@@ -3552,7 +3509,8 @@
             },
             success: function(data) {
                 Swal.close();
-                window.open('/vista_previa_sg/' + data.id_documento);
+                //window.open('/vista_previa_sg/' + data.id_documento);
+                window.open(route('documentos.vp_sg',{'id':data.id_documento}));
 
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -3706,10 +3664,6 @@
             swal.fire({html:html,width: '90%'});
     }
 
-    function isEmpty(string) {
-        return typeof string === 'string' && string.length === 0;
-    }
-
     function cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, carpeta, accion) {
         clear_form();
         console.log("cargar_datos_grilla");
@@ -3722,13 +3676,14 @@
         else
             var docBuzon = id_documento_buzon;
         $.ajax({
-            url: "/documentos/" + id_documento,
+           // url: "/documentos/" + id_documento,
+            url: route('documentos.ver',{'buzon':docBuzon,'id':id_documento}),
             type: 'GET',
             dataType: 'json',
             //async: false,
             data: {
                 hiddIdDocumentoBuzon: docBuzon
-            },
+            }, 
             success: function(data) {
                 if (data.status == '400') {
                     toastr.error(data.data.comentario, "¡Aviso!");
@@ -4909,7 +4864,8 @@
         }).then((result) => {
             if (result.value == true) {
                 $.ajax({
-                    url: "/clonar",
+                    url: route('documentos.clonar',{'buzon':id_documento_buzon,'id':id_documento}),
+                    //url: "/clonar",
                     type: 'GET',
                     dataType: 'json',
                     //dataType: 'binary',
@@ -4924,7 +4880,6 @@
                             toastr.success("Documento copiado exitosamente.", "¡Aviso!");
                             setTimeout(function() {
                                 cambio_texto_boton_carpetas('Despachados');
-                                $('#nav-despachados-tab').tab('show');
                                 editar_despachados(data.data.rel_documento_buzon[0].id_documento, data.data.rel_documento_buzon[0].id_documento_buzon, data.data.rel_documento_buzon[0].id_documento_buzon_padre);
                             }, 1000);
                             //location.reload();                              
@@ -4954,7 +4909,8 @@
         }).then((result) => {
             if (result.value == true) {
                 $.ajax({
-                    url: "/documento/",
+                    url: route('documentos.delete',{'buzon':id_documento_buzon,'id':id_documento}),
+                    //url: "/documento/",
                     type: 'delete',
                     dataType: 'json',
                     data: {
@@ -4996,49 +4952,8 @@
         }).then((result) => {
             if (result.value == true) {
                 $.ajax({
-                    url: "/eliminar_documento",
-                    type: 'GET',
-                    dataType: 'json',
-                    data: {
-                        _token: _token,
-                        idDocumento: id_documento,
-                        idDocumentoBuzon: id_documento_buzon
-                    },
-                    success: function(data) {
-                        if (data.status == '200') {
-                            toastr.success(data.data, "¡Aviso!");
-                            fn_grilla_despachados();
-                            $('#card_crear_documento').hide();
-                            $("#collapseOne").collapse('show');
-                        } else {
-                            toastr.error(data.data.comentario, "¡Aviso!");
-                        }
-                    },
-                    error: function(data, jqXHR, textStatus, errorThrown) {
-                        toastr.error("Falla en la eliminación del documento", "¡Aviso!");
-                    }
-                });
-            }
-        })
-
-
-    }
-
-    function eliminar_enviado(id_documento, id_documento_buzon) {
-        var _token = $("input[name='_token']").val();
-
-        Swal.fire({
-            title: 'Eliminar Envío',
-            html: "Se eliminarán los envíos del documento<br>",
-            showCancelButton: true,
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Aceptar'
-        }).then((result) => {
-            if (result.value == true) {
-                $.ajax({
-                    url: "/eliminar_documento",
+                    url: route('documentos.eliminar_documento_enviado',{'buzon':id_documento_buzon,'id':id_documento}),
+                    //url: "/eliminar_documento",
                     type: 'GET',
                     dataType: 'json',
                     data: {
@@ -5217,24 +5132,12 @@
             if (sessionStorage.getItem('carpeta_seleccionada')) {
                 const tCarpeta = sessionStorage.getItem('carpeta_seleccionada')
                 cambio_texto_boton_carpetas(tCarpeta);
-                switch (tCarpeta) {
-                    case 'Recibidos':
-                        $('#nav-recibidos-tab').tab('show');
-                        break;
-                    case 'Por Recibir':
-                        $('#nav-por-recibir-tab').tab('show');
-                        break;
-                    case 'Despachados':
-                        $('#nav-despachados-tab').tab('show');
-                        break;
-                }
                 //eliminar sesiones
                 eliminar_sesiones();
             }
         }, 1000);
     }
     
-
     //refrencia Documento SGD 
     function buscarDocumentoReferenciaSGD(){   
 /*

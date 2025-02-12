@@ -47,6 +47,7 @@
 @stop
 
 @section('adminlte_js')
+    @routes
     @stack('js')
     @yield('js')
 @stop

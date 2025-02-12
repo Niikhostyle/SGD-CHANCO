@@ -26,9 +26,6 @@
 
      var grilla_por_recibir;
 
-
-
-
     function recibir_documento(destino) {
         var _token = $("input[name='_token']").val();
         $('.btn-recibir-submit').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recibiendo');
@@ -50,7 +47,8 @@
             //console.log(result);
             if (result.value == true) {
                 $.ajax({
-                    url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                    //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
+                    url: route('documentos.actualizar_estado',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -88,6 +86,7 @@
         })
 
     }
+
     function devolver_documento(destino) {
         var _token = $("input[name='_token']").val();
         $('.btn-devolver-submit').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Devolviendo');
@@ -169,7 +168,7 @@
             if (result.value == true) {
                 $.ajax({
                     //url: "/actualizar_estado_documento/" + hiddIdDocumentoBuzon,
-                    url:'{{ route('documentos.devolver') }}',
+                    url:route('documentos.devolver',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
                     type: 'PUT',
                     dataType: 'json',
                     data: {
@@ -245,7 +244,7 @@ function grilla_por_recibir_texto(sTexto) {
             serverSide: true,
             pageLength: 25,
             ajax:{
-                url:'/buzonesListar',
+                url: route('buzones.listar',{'id': {{$id_buzon}} }) , //'/buzonesListar',
                 data: function(d,obj){
                     //d.estados = $('#gr_buscar_estado').val().join("|");
                     d.id_buzon= {{$id_buzon}};
@@ -342,6 +341,7 @@ function grilla_por_recibir_texto(sTexto) {
             console.log('Error DataTables: ', message);
         });
     }
+
     function recepcion_masiva() {
 
         var rows_selected = grilla_por_recibir.column(0).checkboxes.selected();
@@ -368,7 +368,7 @@ function grilla_por_recibir_texto(sTexto) {
                             if (data.id_documento == obj) {
                                 var p = new Promise(function(resolve, reject) {
                                     $.ajax({
-                                        url: "/actualizar_estado_documento/" + data.id_documento_buzon,
+                                        url: route('documentos.actualizar_estado',{'buzon':data.id_documento_buzon,'id':data.id_documento}),//"/actualizar_estado_documento/" + data.id_documento_buzon,
                                         type: 'PUT',
                                         dataType: 'json',
                                         data: {
@@ -412,6 +412,9 @@ function grilla_por_recibir_texto(sTexto) {
                         Swal.close();
                         toastr.success("Documentos Recepcionados", "¡Aviso!");
                         fn_grilla_por_recibir();
+                        habilita_boton('btn-recepcion-masiva');
+                        $('.btn-recepcion-masiva').html('Recibir Masivo');
+                        
                         location.reload();
                     });
                 } else {

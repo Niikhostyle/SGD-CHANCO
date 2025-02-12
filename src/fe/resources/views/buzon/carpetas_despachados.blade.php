@@ -1,7 +1,4 @@
 <div class="tab-pane fade" id="nav-despachados" role="tabpanel" aria-labelledby="nav-despachados-tab" style="width: 100%;">
-    
-    
-    
         <div class="row mb-4">
             <div class="col-lg-2 col-md-12 col-sm-12">
                 ID Doc:<br /><input class="form-control" type="text" id="gd_buscar_id_doc" name="gd_buscar_id_doc" onkeypress="javascript: if (event.key=='Enter') $('#gd_btn_buscar').trigger('click');">
@@ -41,15 +38,13 @@ var grilla_despachados;
 
 async function fn_grilla_despachados(q) {
     $('#documento').hide();
-    console.log("grilla_despachados",q);
     if (!$.fn.DataTable.isDataTable('#grilla_despachados')) {
-        console.log("grilla_despachados no inicializada");
         grilla_despachados = $('#grilla_despachados').DataTable({
             processing: true,
             serverSide: true,
             pageLength: 25,
             ajax:{
-                url:'/buzonesListar',
+                url:route('buzones.listar',{'id': {{$id_buzon}} }),
                 data: function(d,obj){
                         d.estados = $('#gd_buscar_estado').val().join("|");
                         d.id_buzon= {{$id_buzon}};
@@ -215,7 +210,6 @@ async function fn_grilla_despachados(q) {
                     }
                 }
             ],
-
             initComplete: function() {
                 var input = $('#gd_buscar_destino_materia input').unbind(),
                     self = this.api(),
@@ -249,8 +243,6 @@ async function fn_grilla_despachados(q) {
                 $('#botones_grilla_despachados').append($clearButton, $searchButton);
                 $('#grilla_despachados_filter').html('');
             }
-
-
         });
 
     }else {
