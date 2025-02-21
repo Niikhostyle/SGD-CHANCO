@@ -62,7 +62,7 @@ $().ready(function() {
         }
         var aTxtSalida = ['', 'Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
 
-        $.getJSON(route('buscador.show', { 'id': id_documento }), function (response) {
+        $.getJSON(route('buscador.bitacora', { 'id': id_documento }), function (response) {
             $("#textMateriaModal").html()
             TablaModalBitacora = $('#tabla_bitacora_modal').dataTable({
                 bDestroy: true,
