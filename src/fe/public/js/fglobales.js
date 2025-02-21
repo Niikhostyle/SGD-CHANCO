@@ -99,7 +99,9 @@ function cargar_datos_grilla(id_documento)
     owl.removeClass("owl-center owl-loaded owl-text-select-on");
 
     $.ajax({
-        url: "/documentos/"+id_documento,
+        //url: "/documentos/"+id_documento,
+        //buscador.show
+        url:route('buscador.show',{'id':id_documento}),
         type:'GET',
         dataType: 'json',
         success: function(data) {
@@ -352,7 +354,7 @@ function cargar_datos_bitacora(id_documento)
 
     var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
 
-    $.getJSON(route('buscador.show',{'id':id_documento}), function(response) {
+    $.getJSON(route('buscador.bitacora',{'id':id_documento}), function(response) {
     gridBitacora = $('#tabla_bitacora_grilla').dataTable({
         bDestroy : true,
         processing: true,

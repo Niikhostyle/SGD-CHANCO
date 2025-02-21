@@ -64,15 +64,16 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador2', [BuscadorContr
 Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar2/', [BuscadorController::class, 'listar2'])->name('buscador.listar2');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscarReferenciaSGD', [BuscadorController::class, 'buscarDocumentoReferencia'])->name('buscador.referenciasgd');
 
+Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}', [BuscadorController::class, 'show'])->name('buscador.show');
+Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}/bitacora', [BuscadorController::class, 'bitacora'])->name('buscador.bitacora');
 
+
+//contador de pendientes
 Route::middleware(['auth:sanctum', 'verified'])->get('getContadores',[BuzonController::class,'getContadores']);
 
 //files
-
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
-
 Route::middleware(['auth:sanctum', 'verified'])->post('filesSGD',[DocumentoBuzonArchivoController::class,'uploadReferenciaSGD'])->name('archivo.uploadreferenciasgd');
-
 
 
 //Route::middleware(['auth:sanctum', 'verified'])->get('files/{id}',[DocumentoBuzonArchivoController::class, 'ver'])->name('files.ver');
@@ -149,8 +150,7 @@ Route::post('validadorCodigo',[DocumentoValidadorController::class,'store'])->na
 Route::get('validador_qr/{id}',[DocumentoValidadorController::class,'validar_qr'])->name('validador.validar_qr'); 
 //Route::middleware(['auth:sanctum', 'verified'])->get('pdf',[DocumentoValidadorController::class,'download'])->name('validador.download');
 
-//buscador
-Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}', [BuscadorController::class, 'show'])->name('buscador.show');
+
 
 //documentos carpetas
 Route::middleware(['auth:sanctum', 'verified'])->get('externo', [BuzonUsuarioExternoController::class, 'index'])->name('externo.index');

@@ -308,7 +308,7 @@
     
                             </div>
     
-                            <div class="form-row">
+                            <div class="form-row d-none">
                                 <div class="col-md-8 mb-3">
                                     <label for="inputState">Destinatario Principal:</label>
                                     <input type="text" class="form-control form-disabled" id="form_destinatario_principal_el" data-role="tagsinput">
@@ -403,8 +403,7 @@
                             <th>Buzón Origen</th>
                             <th>Usuario </th>
                             <th>Acción </th>
-                            <th>Mensaje</th>
-                            
+                            <th>Mensaje</th> 
                         </tr>
 
                     </thead>                    

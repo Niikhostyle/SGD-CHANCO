@@ -1194,12 +1194,6 @@ class DocumentoController extends Controller
             return $this->respondError('Json inválido', 406);
     }
 
-
-
-
-
-
-
     public function verificaDocumento(Request $request)
     {
         if ($request->isJson()) {

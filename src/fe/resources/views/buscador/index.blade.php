@@ -368,7 +368,7 @@
                                 </div>
     
                             </div>
-    
+    <div class="d-none">
                             <div class="form-row">
                                 <div class="col-md-8 mb-3">
                                     <label for="inputState">Destinatario Principal:</label>
@@ -404,7 +404,7 @@
                                     <textarea class="form-control form-disabled" id="form_comentario_otro_el"></textarea>
                                 </div>
                             </div>
-                                                    
+                               </div>                     
                             <div class="form-row">                                
                                     <div class="col-md-12 group-button-align">
                                         <input type="hidden" name="hiddIdDocumento" id="hiddIdDocumento" value="">

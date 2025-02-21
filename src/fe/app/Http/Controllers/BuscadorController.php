@@ -204,20 +204,24 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_documento' => $id,
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora')->throw();
+            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver')->throw();
 
         if ($lista_bitacora->failed()) {
             $mensaje = $lista_bitacora->json()['data']['comentario'];
 
-            $lista_bitacora = ['data' => [
-                0 => ['accion' => '', 'fecha_documento' => '', 'buzon_origen' => '', 'nombre_accion' => '', 'mensaje_respuesta' => '', 'tipo_destino' => '', 'materia' => '',  'identificador' => '']
-            ]];
+            // $lista_bitacora = ['data' => [
+            //     0 => ['accion' => '', 'fecha_documento' => '', 'buzon_origen' => '', 'nombre_accion' => '', 'mensaje_respuesta' => '', 'tipo_destino' => '', 'materia' => '',  'identificador' => '']
+            // ]];
             toast($mensaje, 'error');
             return response()->json($lista_bitacora);//->json();
         } else {
             return $lista_bitacora->json();
         }
         
+        // $item = Documento::findOrFail($id);
+        // return response()->json($item);
+
+
     }
 
     public function bitacora($id)
