@@ -23,7 +23,7 @@
             </div>
             <div class="col-lg-5 col-md-12 col-sm-12 d-flex ">
                 <div class="flex-fill">
-                    Materia:<br /><input type="search" aria-controls="grilla_despachados" class="form-control" id="gd_buscar_destino_materia" name="gd_buscar_destino_materia" onkeypress="javascript: if (event.key=='Enter') $('#gd_btn_buscar').trigger('click');">
+                    Materia:<br /><input type="search" aria-controls="grilla_despachados" class="form-control" id="gd_buscar_origen_materia" name="gd_buscar_origen_materia" onkeypress="javascript: if (event.key=='Enter') $('#gd_btn_buscar').trigger('click');">
                 </div>
                 <div class="pt-4 d-flex justify-content-end" id="botones_grilla_despachados"></div>
             </div>
@@ -48,6 +48,7 @@ async function fn_grilla_despachados(q) {
                 data: function(d,obj){
                         d.estados = $('#gd_buscar_estado').val().join("|");
                         d.id_buzon= {{$id_buzon}};
+                        d.tipodocs = $('#gd_buscar_tipo_doc').val().join("|");
                         d.id_carpeta= 3;
                         if($("#buscador_general").val()!=""){
                             d.texto=$("#buscador_general").val();
@@ -211,13 +212,13 @@ async function fn_grilla_despachados(q) {
                 }
             ],
             initComplete: function() {
-                var input = $('#gd_buscar_destino_materia input').unbind(),
+                var input = $('#gd_buscar_origen_materia input').unbind(),
                     self = this.api(),
                     $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar mx-1">')
                     .html("<i class='fa fa-eraser'></i>")
                     .click(function() {
                         $('#gd_buscar_id_doc').val('');
-                        $('#gd_buscar_destino_materia').val('');
+                        $('#gd_buscar_origen_materia').val('');
                         $('#gd_buscar_estado').multiselect('selectAll', true);
                         $('#gd_buscar_estado').multiselect('deselect', ["A"]);
                         $('#gd_buscar_tipo_doc').multiselect('selectAll', true);
@@ -235,7 +236,7 @@ async function fn_grilla_despachados(q) {
                         grilla_despachados
                             .columns(2).search($('#gd_buscar_id_doc').val())
                             .columns(5).search($('#gd_buscar_tipo_doc').val().join("|"), true, false)
-                            .columns(6).search($('#gd_buscar_destino_materia').val())
+                            .columns(6).search($('#gd_buscar_origen_materia').val())
                         .draw();
 
                     })
@@ -271,7 +272,7 @@ async function fn_grilla_despachados(q) {
         sessionStorage.setItem('id_despachados', $('#gd_buscar_id_doc').val());
         sessionStorage.setItem('td_despachados', $('#gd_buscar_tipo_doc').val().join("|"));
         sessionStorage.setItem('estados_despachados', $('#gd_buscar_estado').val().join("|"));
-        sessionStorage.setItem('materia_despachados', $('#gd_buscar_destino_materia').val());
+        sessionStorage.setItem('materia_despachados', $('#gd_buscar_origen_materia').val());
 
     }
 
@@ -283,7 +284,7 @@ async function fn_grilla_despachados(q) {
             $('#grilla_despachados').DataTable().columns(1).search("" + estadosd + "", true, false).draw();
             $('#grilla_despachados').DataTable().columns(2).search($('#gd_buscar_id_doc').val()).draw();
             $('#grilla_despachados').DataTable().columns(5).search($('#gd_buscar_tipo_doc').val().join("|"), true, false).draw();
-            $('#grilla_despachados').DataTable().columns(7).search($('#gd_buscar_destino_materia').val()).draw();
+            $('#grilla_despachados').DataTable().columns(7).search($('#gd_buscar_origen_materia').val()).draw();
         }
     }
 

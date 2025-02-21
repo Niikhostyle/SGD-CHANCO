@@ -220,6 +220,32 @@ class BuscadorController extends Controller
         
     }
 
+    public function bitacora($id)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $lista_bitacora = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
+            ->timeout(10)
+            ->withBody(json_encode([
+                'id_documento' => $id,
+            ]), 'json')
+            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora')->throw();
+
+        if ($lista_bitacora->failed()) {
+            $mensaje = $lista_bitacora->json()['data']['comentario'];
+
+            $lista_bitacora = ['data' => [
+                0 => ['accion' => '', 'fecha_documento' => '', 'buzon_origen' => '', 'nombre_accion' => '', 'mensaje_respuesta' => '', 'tipo_destino' => '', 'materia' => '',  'identificador' => '']
+            ]];
+            toast($mensaje, 'error');
+            return response()->json($lista_bitacora);//->json();
+        } else {
+            return $lista_bitacora->json();
+        }
+        
+    }
+
+
+
     public function listar(Request $request)
     {
         $year_actual = session('year');

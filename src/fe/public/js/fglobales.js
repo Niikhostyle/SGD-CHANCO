@@ -359,6 +359,9 @@ function cargar_datos_bitacora(id_documento)
         data: response.data,
        // destroy: true, 
        // bProcessing:false,
+       order: [
+        [1, 'desc']
+        ],
        language: lenguaje_datatable,
         columns: [
             {data: 'tipo_destino', 
@@ -378,7 +381,12 @@ function cargar_datos_bitacora(id_documento)
                         return txtTipo;
                     }     
             },
-            {data: 'fecha_documento'},
+            {data: 'fecha_documento', 
+                render:function (data) {
+                    let fecha = new Date(data);
+                    return fecha.toLocaleDateString() +" " +fecha.toLocaleTimeString("en-US", { hour12: false });
+                }
+            },
             {data: 'buzon_origen',
                     render: function(data, type, row) {
                         if (type === 'display') 

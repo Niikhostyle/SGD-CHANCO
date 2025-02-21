@@ -52,7 +52,8 @@ Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':admin'
 //Documentos
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar/',[BuscadorController::class,'listar'])->name('buscador.listar');
-Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show');
+Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show'); //bitacora
+Route::middleware(['auth:sanctum', 'verified'])->get('bitacora/{id}',[BuscadorController::class,'bitacora'])->name('documento.bitacora'); //bitacora
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[BuscadorController::class,'documentoBuzonArchivo'])->name('buscador.documentoBuzonArchivo');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscar_categorias',[BuscadorController::class,'buscar'])->name('buscador.categorias');
@@ -64,9 +65,12 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar2/', [Buscad
 Route::middleware(['auth:sanctum', 'verified'])->get('buscarReferenciaSGD', [BuscadorController::class, 'buscarDocumentoReferencia'])->name('buscador.referenciasgd');
 
 
+Route::middleware(['auth:sanctum', 'verified'])->get('getContadores',[BuzonController::class,'getContadores']);
+
 //files
 
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);
+
 Route::middleware(['auth:sanctum', 'verified'])->post('filesSGD',[DocumentoBuzonArchivoController::class,'uploadReferenciaSGD'])->name('archivo.uploadreferenciasgd');
 
 
@@ -125,18 +129,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
 Route::middleware(['auth:sanctum', 'verified'])->post('vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa_sg/{id}',[BuzonController::class,'vp_sg'])->name('documentos.vp_sg');
-
-
-//Route::middleware(['auth:sanctum', 'verified'])->put('archivar_documento/{id}',[BuzonController::class,'archivar_documento'])->name('documentos.archivar');
-
-Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
-//Route::middleware(['auth:sanctum', 'verified'])->put('devolver',[BuzonController::class,'devolver'])->name('documentos.devolver');
-//Route::middleware(['auth:sanctum', 'verified'])->put('accion_editar/{id}',[BuzonController::class,'accion_editar_documento'])->name('documentos.editar');
-//Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivo',[BuzonController::class,'generar_archivo_pdf'])->name('documentos.generar');
-//Route::middleware(['auth:sanctum', 'verified'])->get('vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
-
-//Route::middleware(['auth:sanctum', 'verified'])->get('clonar',[BuzonController::class,'clonar'])->name('documentos.clonar');
-
+//Route::middleware(['auth:sanctum', 'verified'])->put('derivarOpcion1',[BuzonController::class,'derivarOpcion1'])->name('documentos.derivarOpcion1');
 
 //tipos de documentos
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {

@@ -22,7 +22,7 @@ class PanelController extends Controller
         //parametros
         $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
+        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer')->throw();
 
         if($listado_parametros->failed()){
             toast("Error al mostrar datos",'error');

@@ -103,6 +103,7 @@
                     url:route('buzones.listar',{'id': {{$id_buzon}} }),
                     data: function(d,obj){
                         d.estados = $('#gr_buscar_estado').val().join("|");
+                        d.tipodocs = $('#gr_buscar_tipo_doc').val().join("|");
                         d.id_buzon= {{$id_buzon}};
                         d.id_carpeta= 2;
                         if($("#buscador_general").val()!=""){
@@ -116,7 +117,6 @@
                     [5, 'desc']
                 ],
                 responsive: true,
-
                 language: lenguaje_datatable,
                 'columnDefs': [{
                         'targets': 0,
@@ -255,6 +255,7 @@
                         title:'Materia',
                         name: 'documento.materia',
                         responsivePriority:0,
+                        
                         'width': 200,
                         {{-- render: function(data) {
                             if (data == null) {
@@ -413,8 +414,8 @@
                             
                             $('#gr_buscar_id_doc').val('');
                             $('#gr_buscar_origen_materia').val('');
-                            $('#gr_buscar_estado').multiselect('deselectAll', true);
-                            $('#gr_buscar_estado').multiselect('select', ["4"]);
+                            $('#gr_buscar_estado').multiselect('selectAll', true);
+                            $('#gr_buscar_estado').multiselect('deselect', ["6"]);
                             //$('#gr_buscar_id_doc').val('');
                             $searchButton.click();
                         }),
@@ -972,6 +973,7 @@
             .columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false)
             .draw();
     }
+
     function ver_recibidos(id_documento, id_documento_buzon, id_documento_buzon_padre) {
         $('#titulo_accion').html('Ver Documento ID '+id_documento);
 
@@ -1034,6 +1036,7 @@
                 maxHeight: 400,
                 enableFiltering: true,
             });
+            $('#gr_buscar_estado').multiselect('selectAll', true);
     });
 
 $(function() {
@@ -1120,8 +1123,10 @@ $(function() {
 
     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
     $('#filtro-td').multiselect('select', 'Principal');
+    $('#gr_buscar_estado').multiselect('deselect', ["6"]);
     
     });
+    
 
     //$('#gr_buscar_estado').multiselect('select', ["4"]);
 

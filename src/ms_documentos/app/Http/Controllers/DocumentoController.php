@@ -1119,7 +1119,7 @@ class DocumentoController extends Controller
                         ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
                         ->select(
                             'documento_buzon_bitacora.id_accion as accion',
-                            'documento_buzon_bitacora.fecha as fecha_documento',
+                            'documento_buzon_bitacora.created_at as fecha_documento',
                             'buzon.nombre as buzon_destino',
                             'documento_buzon_bitacora.id_accion as accion',
                             'documento_buzon_bitacora.comentario',
@@ -1136,7 +1136,7 @@ class DocumentoController extends Controller
                         )
 
                         ->where('documento_buzon.id_documento', '=', $datosRequest['id_documento'])
-                        ->where('id_accion', '<>', '1')
+                        //->where('id_accion', '<>', '1')
                         ->orderBy('id_documento_buzon_bitacora')
                 )
                     ->toJson();

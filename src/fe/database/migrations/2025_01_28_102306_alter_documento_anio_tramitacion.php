@@ -20,8 +20,9 @@ class AlterDocumentoAnioTramitacion extends Migration
 
             //procesar BD para asignar año tramitacion
             ini_set('memory_limit', '-1');
-            $documentos = \App\Models\Documento::all();
+            $documentos = \App\Models\Documento::OrderBy('id_documento', 'ASC')->get();
             foreach ($documentos as $documento) {
+                echo "ID ".$documento->id_documento." Año Tramitación:".$documento->fecha->year."\n";
                 $documento->anio_tramitacion = $documento->fecha->year;
                 $documento->save();
             }

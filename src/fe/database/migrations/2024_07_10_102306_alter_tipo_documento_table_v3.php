@@ -13,9 +13,11 @@ class AlterTipoDocumentoTableV3 extends Migration
      */
     public function up()
     {
-        Schema::table('tipo_documento', function (Blueprint $table) {
-            $table->text('nombre_corto_firma')->nullable();
-        });
+        if (!Schema::hasColumn('tipo_documento', 'nombre_corto_firma')) {
+            Schema::table('tipo_documento', function (Blueprint $table) {
+                $table->text('nombre_corto_firma')->nullable();
+            });
+        }
     }
 
     /**

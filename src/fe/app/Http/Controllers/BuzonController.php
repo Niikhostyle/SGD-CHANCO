@@ -35,6 +35,7 @@ use Yajra\DataTables\DataTables;
 use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Mail\MailController;
+use App\Models\BuzonUsuario;
 use App\Models\DocumentoTmp;
 use App\Models\FirmaLog;
 use App\Models\User;
@@ -208,10 +209,9 @@ class BuzonController extends Controller
     {
 
         $nombre_buzon = "";
-
         $buzon = Buzon::findOrFail($id);
-
         $year_actual = session('year');
+
 
         $sesion_key =  AppServiceProvider::session_key_general();
         $perfiles_datos = "";
@@ -242,13 +242,11 @@ class BuzonController extends Controller
 
 
         //add check fea masiva
-        $this->userFirma = Auth::user()->aplica_fea;
         $aplicaFrm = 0;
+        $this->userFirma = Auth::user()->aplica_fea;
         if ($this->userFirma)
             $aplicaFrm = 1;
-        //$aplicaFrm = "<input type='check' name='chkFrm'> Solo mostrar documentos por firmar";
-
-
+  
         /* NUEVO-DOCUMENTOS */
 
         //tipos de documentos
@@ -356,12 +354,9 @@ class BuzonController extends Controller
         if ($listado_pendientes->failed()) {
             $listado_pendientes->json()['data']['comentario'];
         } else {
-
-
             $doctoPendiente = array();
             foreach ($listado_pendientes['data'] as $dato) {
                 $datosJsonTipoDocumento = json_decode($dato['json_tipo_documento'], true);
-
                 if ($datosJsonTipoDocumento['id_tipo_flujo'] == 1) {
                     $aDocumentos[] = array("value" => $dato['id_documento'], "label" => $dato['identificador'], "title" => $dato['identificador'] . " - " . $dato['materia']);
                     $doctoPendiente[] = $dato['id_documento'];
@@ -369,15 +364,16 @@ class BuzonController extends Controller
             }
         }
 
-        $log_firma = FirmaLog::whereIn('id_documento', $doctoPendiente)->get();
-        if($log_firma->count() > 0){
-            $msjFirma = "Errores en la última firma:<br />";
-            $nFilasError = 0;
-            foreach ($log_firma as $lf) {
-                $nFilasError++;
-                $msjFirma  .= $lf->mensaje . "<br>";
-            }
-        }
+
+        // $log_firma = FirmaLog::whereIn('id_documento', $doctoPendiente)->get();
+        // if($log_firma->count() > 0){
+        //     $msjFirma = "Errores en la última firma:<br />";
+        //     $nFilasError = 0;
+        //     foreach ($log_firma as $lf) {
+        //         $nFilasError++;
+        //         $msjFirma  .= $lf->mensaje . "<br>";
+        //     }
+        // }
 
         /* NUEVO-DOCUMENTOS */
         return View::make('buzon.carpetas', [
@@ -386,8 +382,7 @@ class BuzonController extends Controller
             'n_docs_por_recibir' => $n_docs_por_recibir,
             'n_docs_recibidos_pendientes' => $n_docs_recibidos_pendientes,
             'nivel_acceso' => $datosNivelAcceso,
-            //'nombre_buzon' =>'Test',
-            'nombre_buzon' => $datosBuzon['data']['nombre'],
+            'nombre_buzon' => $buzon->nombre,
             'listado_tiposdoc' => $datosTipoDoc,
             'id_buzon' => $id,
             'listadoAcciones' => $datosAccion,
@@ -401,7 +396,7 @@ class BuzonController extends Controller
             'listDocPendientesBuzon' => $aDocumentos,
             'listado_parametros' => $listado_parametros['data'],
             'aplicaFrm' => $aplicaFrm,
-            'log_firma' => $msjFirma
+            'log_firma' => ''// $msjFirma
         ]);
     }
 
@@ -803,16 +798,7 @@ class BuzonController extends Controller
     {
         $year_actual = session('year');
         $nCarpeta = $request->id_carpeta;
-        // if ($request->id_carpeta == 3) {
-        //     $sOpestado = '(1,2,7,10,12)';
-        // }
-        // if ($request->id_carpeta == 2) {
-        //     $sOpestado = '(4,5,6,8,9,11,13)';
-        // }
-        // if ($request->id_carpeta == 1) {
-        //     $sOpestado = '(3)';
-        // }
-
+       
         $texto = $request->texto;
         $extraquery = "";
         if ($texto) {
@@ -830,10 +816,12 @@ class BuzonController extends Controller
             ->join('tipo_origen', 'tipo_documento.id_tipo_origen', '=', 'tipo_origen.id_tipo_origen')
             ->join('tipo_destino', 'documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino')
             ->join('estado_tramitacion', 'documento.estado_tramitacion', '=', 'estado_tramitacion.id')
-            // ->join('tipo_destino', function ($join)  use ($nCarpeta, $sOpestado) {
-            //     $join->on('documento_buzon.id_tipo_destino', '=', 'tipo_destino.id_tipo_destino');
-            //     $join->on('documento_buzon.id_documento_buzon', '=', DB::raw('(select max(db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino and db.id_carpeta = ' . $nCarpeta . ' )'));
-            // })
+             ->leftJoin(DB::raw('documento_buzon as origen'), function ($join)  {
+                 $join->on("origen.id_documento_buzon","=", "documento_buzon.id_documento_buzon_padre");
+             })
+            ->leftJoinSub('select * from documento_buzon where id_tipo_destino = 1', 'destinatario', function ($join) {
+                $join->on("destinatario.id_documento_buzon_padre","=", "documento_buzon.id_documento_buzon");
+            })
             ->select(
                 'documento_buzon.id_documento_buzon as id_documento_buzon',
                 'documento_buzon.id_estado_documento as id_estado_documento',
@@ -857,13 +845,8 @@ class BuzonController extends Controller
                 'documento.json_tipo_documento as json_tipo_documento',
                 'tipo_destino.nombre as tipo_envio',
                 'tipo_destino.id_tipo_destino as id_tipo_destino',
-                // "documento_buzon.id_documento_buzon as buzon_origen","documento_buzon.id_documento_buzon as destinatario",
-                // 'documento_buzon.id_documento as buzon_origen',
-                // 'documento_buzon.id_documento as destinatario',
-                DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre limit 1) as buzon_origen'),
-                DB::raw('(select id_buzon from documento_buzon db3 where db3.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db3.id_tipo_destino = 1 limit 1) as destinatario'),
-
-                //DB::raw('(select dbb.fecha from documento_buzon_bitacora dbb join documento_buzon db4 on dbb.id_documento_buzon = db4.id_documento_buzon where db4.id_documento_buzon_padre = documento_buzon.id_documento_buzon and db4.id_tipo_destino = 1 and dbb.id_accion = 3) as fecha_recepcion'),
+                'origen.id_buzon as buzon_origen',
+                'destinatario.id_buzon as destinatario',
                 'documento_buzon.fecha as fecha_recepcion',
                 'documento_buzon.contestar_hasta as contestas_hasta',
                 DB::raw('case when ' . $request->id_carpeta . ' = 3 then case when (select count(1) from  documento_buzon db  	
@@ -874,24 +857,26 @@ class BuzonController extends Controller
             ->where('documento_buzon.id_buzon', '=', $request->id_buzon)
             ->where('documento_buzon.id_carpeta', '=', $request->id_carpeta)
             ->where('documento.anio_tramitacion', $year_actual)
-            // ->whereYear('documento.created_at', $year_actual)
-            // ->whereBetween('documento.created_at', ['01-01-'.$year_actual,'01-01-'.($year_actual+1)])
             ->when($extraquery, function ($query, $extraquery) {
                 return $query->whereRaw($extraquery);
             });
-        //->whereRaw('documento_buzon.fecha = (select max(db.fecha) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino)');
-
+ 
         //filtrar por estados
         if ($request->estados != null)
             $datos->whereIn('documento_buzon.id_estado_documento', explode('|', $request->estados));
 
-        //filtrar por recibir (forzar a que sea solo los por recibir)
+        //filtrar por tipodoc
+         if ($request->tipodocs != null)
+         $datos->whereIn('documento.id_tipo_documento', explode('|', $request->tipodocs));
+
+        //filtrar por recibir (forzar a que sea solo los por recibir)(si no se deja este filtro, cada vez que se guarde un destinatario aparece en la bandeja del destinatario sin enviar)
         if($nCarpeta == 1){
             $datos->where('documento_buzon.id_estado_documento','<>',1);
         }
 
 
-        //return $datos->toSql();
+        // echo $datos->toSql();
+        // die;
 
         return datatables($datos)->toJson();
     }
@@ -1147,5 +1132,25 @@ class BuzonController extends Controller
     public function editor()
     {
         return View::make('buzon.editor', []);
+    }
+
+
+    public function getContadores(Request $request){
+        $buzones = BuzonUsuario::where('id_usuario', Auth::user()->id)->get();
+
+        $res=[];
+        foreach($buzones as $buzon){
+            $res[$buzon->id_buzon] = DocumentoBuzon::where('id_buzon', $buzon->id_buzon)->join()
+            ->whereIn('id_estado_documento',[2,4])
+            ->groupBy(['id_carpeta','id_estado_documento','id_tipo_destino'])
+            ->select(['id_carpeta','id_estado_documento','id_tipo_destino',DB::raw('COUNT(*) as total')])
+            ->get();
+            //$buzon->contadores = DocumentoBuzon::where('id_buzon', $buzon->id_buzon)->where('id_estado_documento', 2)->count();
+            
+
+        }
+
+
+        return response()->json(['data' => $res]);
     }
 }

@@ -1,20 +1,44 @@
 
 <div class="tab-pane fade show active" id="nav-por-recibir" role="tabpanel" aria-labelledby="nav-por-recibir-tab">
+<div class="row">
+        <div class="col-lg-2 col-md-12 col-sm-12">
+            ID Doc:<br /><input class="form-control" type="text" id="gp_buscar_id_doc" name="gp_buscar_id_doc" onkeypress="javascript: if (event.key=='Enter') $('#gp_btn_buscar').trigger('click');">
+        </div>
+        <div class="col-lg-3 col-md-12 col-sm-12">
+            Tipo Documento:<br /><select id="gp_buscar_tipo_doc" style="display:grid;" name="gp_buscar_tipo_doc" class="form-control " multiple="multiple">
+                @foreach($listado_tiposdoc as $list)
+                <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
+                <!-- <option value="{{$list['nombre']}}">{{$list['nombre']}}</option> -->
+                @endforeach
+            </select>
+        </div>
+        <div class="col-lg-2 col-md-12 col-sm-12">
+            Estado:<br /><select class="form-control" id="gp_buscar_estado" name="gp_buscar_estado" multiple="multiple">
+                @foreach($listado_parametros['estado_documento'] as $estado_documento)
+                @if(in_array($estado_documento['id_estado_documento'],[3]))
+                <option value='{{$estado_documento['id_estado_documento']}}'> {{$estado_documento['nombre']}} </option>
+                @endif
+                @endforeach
+            </select>
+        </div>
+        <div class="col-lg-5 col-md-12 col-sm-12 d-flex ">
+            <div class="flex-fill">
+                Materia:<br /><input type="search" aria-controls="grilla_porrecibir" class="form-control" id="gp_buscar_origen_materia" name="gp_buscar_origen_materia" onkeypress="javascript: if (event.key=='Enter') $('#gp_btn_buscar').trigger('click');">
+            </div>
+            <div class="pt-4 d-flex justify-content-end" id="botones_grilla_porrecibir">
+        </div>
+       
+
+        </div>
+    </div>
+
     <div class="pb-4 pt-2">
         <button onclick="recepcion_masiva()" class="btn text-nowrap btn-min-w  btn-sm btn-primary btn-recepcion-masiva">Recibir Masivo</button>
     </div>
     <table id="grilla_por_recibir" class="table dt-responsive " style="width:100%">
         <thead>
             <tr class="grilla_header">
-                <th data-priority="1">Sel</th>
-                <th data-priority="1">ID Doc.</th>
-                <th data-priority="1">F. Entrada</th>
-                <th data-priority="1">Materia</th>
-
-                <th data-priority="2">TD</th>
-                <th data-priority="2">TE</th>
-                <th data-priority="2">Origen</th>
-                <th data-priority="2">Contestar Hasta</th>
+                
             </tr>
         </thead>
     </table>
@@ -234,19 +258,26 @@ function grilla_por_recibir_texto(sTexto) {
     }
     async function fn_grilla_por_recibir() {
         $('#documento').hide();
-        if ($.fn.DataTable.isDataTable('#grilla_por_recibir')) {
-            $('#grilla_por_recibir').DataTable().destroy();
-        }
-        $('#grilla_por_recibir tbody').empty();
-
+        if (!$.fn.DataTable.isDataTable('#grilla_por_recibir')) {
+           
         grilla_por_recibir = $('#grilla_por_recibir').DataTable({
             processing: true,
             serverSide: true,
             pageLength: 25,
+            searching: false,
+            layout: {
+                topStart: function () {
+                    let toolbar = document.createElement('div');
+                    toolbar.innerHTML = '<b>Custom tool bar! Text/images etc.</b>';
+        
+                    return toolbar;
+                }
+            },
             ajax:{
                 url: route('buzones.listar',{'id': {{$id_buzon}} }) , //'/buzonesListar',
                 data: function(d,obj){
-                    //d.estados = $('#gr_buscar_estado').val().join("|");
+                    d.tipodocs = $('#gp_buscar_tipo_doc').val().join("|");
+                    //d.estados = $('#gp_buscar_estado').val().join("|");
                     d.id_buzon= {{$id_buzon}};
                     d.id_carpeta= 1;
                     if($("#buscador_general").val()!=""){
@@ -271,10 +302,12 @@ function grilla_por_recibir_texto(sTexto) {
                 [1, 'asc']
             ],
             columns: [{
+                    title: 'Sel.',
                     data: 'id_documento',
                     name: 'documento.id_documento',
                 },
                 {
+                    title: 'ID Doc.',
                     data: 'id_documento',
                     name: 'documento.id_documento',
 
@@ -284,6 +317,7 @@ function grilla_por_recibir_texto(sTexto) {
 
                 },
                 {
+                    title: 'F. Entrada',
                     data: 'fecha_envio',
                     render: function(data) {
                         if (data == null)
@@ -293,6 +327,7 @@ function grilla_por_recibir_texto(sTexto) {
                     }
                 },
                 {
+                    title: 'Materia',
                     data: 'materia',
                     name: 'documento.materia',
                     'width': 200,
@@ -305,14 +340,17 @@ function grilla_por_recibir_texto(sTexto) {
                 },
 
                 {
+                    title: 'TD',
                     data: 'tipo_documento',
                     name: 'tipo_documento.nombre'
                 },
                 {
+                    title: 'TE',
                     data: 'tipo_envio',
                     name: 'tipo_destino.nombre'
                 },
                 {
+                    title: 'Origen',
                     data: 'buzon_origen',
                     render: function(data, type, row) {
                         if (type === 'display') {
@@ -325,6 +363,7 @@ function grilla_por_recibir_texto(sTexto) {
                     }
                 },
                 {
+                    title: 'Contestar Hasta',
                     data: 'contestas_hasta',
                     render: function(data) {
                         if (data == null)
@@ -335,11 +374,56 @@ function grilla_por_recibir_texto(sTexto) {
                 }
 
             ],
+            initComplete: function() {
+                var input = $('#gp_buscar_origen_materia input').unbind(),
+                    self = this.api(),
+                    $clearButton = $('<button class="btn text-nowrap btn-min-w  btn-secondary btn_cerrar_guardar mx-1">')
+                    .html("<i class='fa fa-eraser'></i>")
+                    .click(function() {
+                        $('#gp_buscar_id_doc').val('');
+                        $('#gp_buscar_origen_materia').val('');
+                        $searchButton.click();
+                    }),
+                    $searchButton = $('<button class="btn text-nowrap btn-min-w  btn-success buscar_btn_buscar" id="gp_btn_buscar">')
+                    .html("<i class='fa fa-search'></i>")
+                    .click(function() {
+                    console.log("click search")
+                    //limpiar buscador general
+                    $("#resultadoBusquedaGral").html('');
+                    $("#buscador_general").val('');
+
+                    var tipos = $('#gp_buscar_tipo_doc').val();
+                    grilla_por_recibir
+                        .columns(1).search($('#gp_buscar_id_doc').val())
+                        .columns(3).search($('#gp_buscar_origen_materia').val())
+                        .columns(4).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
+                        .draw();
+
+                    //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
+
+                    })
+
+                $('#botones_grilla_porrecibir').html('');
+                $('#botones_grilla_porrecibir').append($clearButton, $searchButton);
+                $('#grilla_porrecibir_filter').html('');
+               
+            },
             rowCallback: function(row, data, index) {}
         });
         $('#grilla_por_recibir').on('error.dt', function(e, settings, techNote, message) {
             console.log('Error DataTables: ', message);
         });
+        }else {         
+             grilla_por_recibir.draw();
+        }
+
+        $('#grilla_por_recibir').on('processing.dt', function (e, settings, processing) {
+            if(processing)
+                $("#grilla_por_recibir tbody").addClass('text-hide');
+            else{
+                $("#grilla_por_recibir tbody").removeClass('text-hide');
+            }
+        })
     }
 
     function recepcion_masiva() {
@@ -429,7 +513,21 @@ function grilla_por_recibir_texto(sTexto) {
 
 
     $(function() {
-        fn_grilla_por_recibir();
+        
+            $('#gp_buscar_tipo_doc').multiselect({
+                includeSelectAllOption: true,
+                maxHeight: 400,
+                enableFiltering: true,
+            });
+            $('#gp_buscar_tipo_doc').multiselect('selectAll', true)
+            $('#gp_buscar_estado').multiselect({
+                includeSelectAllOption: true,
+                maxHeight: 400,
+                enableFiltering: true,
+            });
+            $('#gp_buscar_estado').multiselect('select', 3)
+            $("#gp_buscar_estado").multiselect("disable");
+            fn_grilla_por_recibir();
 
     });
 

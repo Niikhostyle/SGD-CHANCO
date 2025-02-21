@@ -56,60 +56,99 @@ class DocumentoBuzonArchivoController extends Controller
 
                     if ($uploadSuccess)
                     {
-                        if(strlen($fileName) && $id_tipo_archivo == 1)
-                        {
-                            //calcula cant de paginas si es doc de origen externo - para futura firma
+                        if(strlen($fileName)){
+                            switch($id_tipo_archivo){
+                                case 1:
+                                    //calcula cant de paginas si es doc de origen externo - para futura firma
+                                    $nTipoDocumento = TipoDocumento::join('documento', 'tipo_documento.id_tipo_documento','=','documento.id_tipo_documento')
+                                        ->where('id_documento', $id_documento)
+                                        ->select('id_tipo_origen')
+                                        ->first();
 
-                            $nTipoDocumento = TipoDocumento::join('documento', 'tipo_documento.id_tipo_documento','=','documento.id_tipo_documento')
-                                                            ->where('id_documento', $id_documento)
-                                                            ->select('id_tipo_origen')
-                                                            ->first();
-                            
-                            if ($nTipoDocumento['id_tipo_origen'] == 2)
-                                Documento::find($id_documento)->update(['archivo_existente' => true]);  //'paginas_archivo' => $count, 
-                            
-                            $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
-                                                        ->where('id_documento', $id_documento)
-                                                        ->where('id_tipo_archivo', 1)
-                                                        ->get();
+                                    if ($nTipoDocumento['id_tipo_origen'] == 2)
+                                        Documento::find($id_documento)->update(['archivo_existente' => true]);  //'paginas_archivo' => $count, 
 
-                            foreach ($docsPpales as $archFile)
-                            {
-                                $nSalida = $archFile->version + 1;
-                                DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                                    $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon','=','documento_buzon.id_documento_buzon')
+                                        ->where('id_documento', $id_documento)
+                                        ->where('id_tipo_archivo', 1)
+                                        ->get();
+                                    foreach ($docsPpales as $archFile)
+                                    {
+                                        $nSalida = $archFile->version + 1;
+                                        DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update(['version' => $nSalida]);
+                                    }
+
+                                    if ($id_tipo_archivo == 1)
+                                        $nVersion = 1;
+                                    //creación de archivo y bitácora
+                                    DocumentoBuzonArchivo::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_tipo_archivo' => $id_tipo_archivo,
+                                        'nombre_archivo_original' => $fileName,
+                                        'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                                        'fecha' => $dFechaCreacion,
+                                        'version' => $nVersion
+                                    ]);
+                                    DocumentoBuzonBitacora::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_accion' => 5,
+                                        'fecha' => $dFechaCreacion,
+                                        'id_usuario' => Auth::user()->id,
+                                        'mensaje_respuesta' => "Cambio en archivo principal"
+                                    ]);
+                                    break;
+                                case 2:
+                                    //creación de archivo y bitácora
+                                    DocumentoBuzonArchivo::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_tipo_archivo' => $id_tipo_archivo,
+                                        'nombre_archivo_original' => $fileName,
+                                        'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                                        'fecha' => $dFechaCreacion,
+                                    ]);
+                                    DocumentoBuzonBitacora::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_accion' => 5,
+                                        'fecha' => $dFechaCreacion,
+                                        'id_usuario' => Auth::user()->id,
+                                        'mensaje_respuesta' => "Se agrega Anexo: ".$fileName
+                                    ]);
+                                    break;
+                                case 3:
+                                    //creación de archivo y bitácora
+                                    DocumentoBuzonArchivo::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_tipo_archivo' => $id_tipo_archivo,
+                                        'nombre_archivo_original' => $fileName,
+                                        'nombre_archivo_codificado' => $nNombreArchivoCargar,
+                                        'fecha' => $dFechaCreacion,
+                                    ]);
+                                    DocumentoBuzonBitacora::create([
+                                        'id_documento_buzon' => $id_documento_buzon,
+                                        'id_accion' => 5,
+                                        'fecha' => $dFechaCreacion,
+                                        'id_usuario' => Auth::user()->id,
+                                        'mensaje_respuesta' => "Se agrega Otros Archivos: ".$fileName
+                                    ]);
+                                    break;
+
                             }
-
-                            if ($id_tipo_archivo == 1)
-                                $nVersion = 1;
+                        }else{
+                            return response()->json([
+                                'status' => 500, 
+                                'data' => [
+                                    'comentario' => 'Error al guardar documento, nombre de archivo no válido'
+                            ]], 500);
                         }
 
-                        DocumentoBuzonArchivo::create([
-                            'id_documento_buzon' => $id_documento_buzon,
-                            'id_tipo_archivo' => $id_tipo_archivo,
-                            'nombre_archivo_original' => $fileName,
-                            'nombre_archivo_codificado' => $nNombreArchivoCargar,
-                            'fecha' => $dFechaCreacion,
-                            'version' => $nVersion
-                        ]);
-
-                        if ($nVersion == 1)
-                        {
-                            //registrar accion de cambio de archivo ppal en bitacora
-                            $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
-                                'id_documento_buzon' => $id_documento_buzon,
-                                'id_accion' => 5,
-                                'fecha' => $dFechaCreacion,
-                                'id_usuario' => Auth::user()->id,
-                                'mensaje_respuesta' => "Cambio en archivo principal"
-                            ]);  
-                        }
+                       
                     }
                     else
                     {
                         return response()->json([
                             'status' => 500, 
                             'data' => [
-                                'comentario' => 'Error al guardar documento'
+                                'comentario' => 'Error al guardar documento '.$fileName.', '
                         ]], 500);
                     }
                 }
