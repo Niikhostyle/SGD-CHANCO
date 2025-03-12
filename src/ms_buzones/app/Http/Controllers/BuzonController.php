@@ -317,6 +317,9 @@ class BuzonController extends Controller{
             return $this->respondError('Json inválido', 406);
 
     }
+    public function contadorPendientes(Request $request){
+
+    }
 
     public function menu(Request $request){
         if($request->isJson())
@@ -331,29 +334,28 @@ class BuzonController extends Controller{
 
 
                 $datosBuzon = BuzonUsuario::where('id_usuario','=', $datosRequest['id_usuario'])->get();
-                
+                //dd($datosBuzon);
                 $arreglo_datos_enlazados =[];
                 $sOpestado = '(4,5,6,7,8,9,10,11,12,13)';
                 foreach ($datosBuzon as $buzon)
                 {
                     if(isset($buzon->buzon->id_buzon)){
-                       
+                        
+                        
                         $documento_buzon_por_recibir_count = DocumentoBuzon::join('documento', 'documento.id_documento','=','documento_buzon.id_documento')
                         ->where('id_carpeta','=','1')
                         ->where('id_estado_documento','=','3')
                         ->where('id_buzon','=',$buzon->buzon->id_buzon)
-                        ->whereYear('documento.created_at', $datosRequest['year_actual'])
+                        ->where('documento.anio_tramitacion', $datosRequest['year_actual'])
                         ->get()->count();
                         
-                        $documento_buzon_recibidos_pendientes_count= DocumentoBuzon::join('documento', function($join)  use ($sOpestado) {
-                            $join->on('documento.id_documento','=','documento_buzon.id_documento');
-                            $join->on('documento_buzon.id_documento_buzon', '=', DB::raw('(select max(db.id_documento_buzon) from documento_buzon db where db.id_documento = documento_buzon.id_documento and db.id_buzon = documento_buzon.id_buzon and db.id_tipo_destino = documento_buzon.id_tipo_destino and db.id_carpeta = 2 and db.id_estado_documento in '.$sOpestado.')'));
-                        })
+                        $documento_buzon_recibidos_pendientes_count= DocumentoBuzon::join('documento','documento.id_documento','=','documento_buzon.id_documento')
                         ->where('documento_buzon.id_carpeta','=','2')
                         ->where('documento_buzon.id_estado_documento','=','4')
                         ->where('documento_buzon.id_buzon','=',$buzon->buzon->id_buzon)
-                        ->whereYear('documento.created_at', $datosRequest['year_actual'])
+                        ->where('documento.anio_tramitacion', $datosRequest['year_actual'])
                         ->get()->count();
+                        
 
                         array_push($arreglo_datos_enlazados,[
                             'id_buzon'=>$buzon->buzon->id_buzon,
@@ -367,6 +369,7 @@ class BuzonController extends Controller{
                 }
 
                 return $this->respondSuccess($arreglo_datos_enlazados, 200);
+                return $this->respondSuccess($datosBuzon, 200);
             }
             catch (ModelNotFoundException $e)
             {

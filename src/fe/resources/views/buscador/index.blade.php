@@ -21,7 +21,7 @@
                 </div>
                 <div class="col-md-1 md-4">  
                     <i id="botones_busqueda_simple"></i>
-                    <button id="btnBuscarSimple" class="btn btn-success">Buscar</button>
+                    <button id="btnBuscarSimple" class="btn btn-success"><span class="spinner-border spinner-border-sm d-none"></span>&nbsp; Buscar</button>
                 </div>
                 <div class="col-md-3 md-4">  
                     <a href="#" class="btn btn-link desplegar_opciones_avanzadas">
@@ -153,7 +153,7 @@
                     <div class="form-group">
                         <!-- <i id="botones_grilla_despachados"></i> 
                         <br/>-->
-                        <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>&nbsp;&nbsp;<button id="btnBuscar" class="btn btn-success">Buscar</button>
+                        <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>&nbsp;&nbsp;<button id="btnBuscar" class="btn btn-success"><span class="spinner-border spinner-border-sm d-none"></span>&nbsp; Buscar</button>
                     </div>
                 </div>
             </div>   
@@ -187,8 +187,8 @@
                         
                             <div class="" id="card_buscador_grilla">
                                 <div class="card-body">
-                                    <table id="grilla_recibidos"  class="table dt-responsive nowrap no-footer dtr-inline dataTable collapsed" style="width:100%">
-                                        <thead>
+                                    <table id="grilla_recibidos"  class="table dt-responsive no-footer dtr-inline dataTable collapsed" style="width:100%">
+                                        {{-- <thead>
                                             <tr class="grilla_header">
                                                 <th data-priority="0">ID</th>
                                                 <th>TD</th>
@@ -206,7 +206,7 @@
                                                 <th>Acciones</th>
                                                 <th></th>
                                             </tr>
-                                        </thead>
+                                        </thead> --}}
                                     </table>
                                 
                                 </div>
@@ -368,7 +368,7 @@
                                 </div>
     
                             </div>
-    <div class="d-none">
+            <div class="d-none">
                             <div class="form-row">
                                 <div class="col-md-8 mb-3">
                                     <label for="inputState">Destinatario Principal:</label>
@@ -635,46 +635,41 @@
             order:[[0,'DESC'], [4,'asc'] ],
             language: lenguaje_datatable,
             columns: [
-                    { data: 'identificador', name: 'identificador' },
-                    { data: 'tipo_documento', name: 'tipo_documento' },
-                    { data: 'materia', name: 'documento.materia',render: function(data, type, row)
-                            {
-                                if(data!=null){
-                                    if(data.length > 50){
-                                        return data.substring(0,50)+"...";
+                    { data: 'identificador', name: 'identificador', title:'ID',
+                        render: function(data, type, row) {
+                            //codigo para evitar mostrar en reservado y confidencial
+                            switch(row.id_nivel_acceso){
+                                case 1:
+                                    return "<a href='javascript:visualizar_documento(" + row.id_documento + "," + row.id_documento_buzon + "," + row.id_documento_buzon_padre + ")'>" + data + "</a>";
+                                    break;
+                                case 2:
+                                    return data;
+                                    break;
+                                case 3:
+                                    var salida = row.list_usuarios.split(',');
+                                    var acciones = false;
+                                    for(i=0; i<salida.length; i++){
+                                        if(salida[i]==row.id)
+                                        {
+                                            acciones = true;
+                                            if (acciones==true){
+                                                i=salida.length;
+                                            }
+                                        }
                                     }
-                                    else{
+                                    if (acciones==true){
+                                        return "<a href='javascript:visualizar_documento(" + row.id_documento + "," + row.id_documento_buzon + "," + row.id_documento_buzon_padre + ")'>" + data + "</a>";
+                                    }else{
                                         return data;
-                                    }     
-                                }else{
-                                    return data;
-                                }                     
+                                    }
+                                    break;
                             }
+                        }
                     },
-                    { data: 'materia', name: 'documento.materia',render: function(data, type, row)
-                            {
-                               
-                                    return data;
-                            }
-                    },
-                    
-                    { data: 'fecha_documento_firma',data: 'fecha_documento_firma', render: function(data, type, row)
-                            {
-                                if(data == null)
-                                    return '';
-                                else
-                                { 
-                                    return moment(data).format('DD-MM-YYYY');
-                                }
-
-                                return '';
-                            }
-                
-                    },
-
-                    
-                    { data: 'folio', name: 'folio' },
-                    { data: 'fecha_documento',data: 'fecha_documento', render: function(data, type, row)
+                    { data: 'tipo_documento', name: 'tipo_documento' , title:'Tipo de Documento'},
+                    { data: 'materia', name: 'documento.materia',title:'Materia'},
+                    { data: 'folio', name: 'folio', title:'Folio' },
+                    { data: 'fecha_documento',data: 'fecha_documento',title:'Fecha', render: function(data, type, row)
                             {
                                 if(data == null)
                                     return '';
@@ -685,15 +680,15 @@
 
                                 return '';
                             }
-                
+                 
                     },
-                    { data: 'buzon_origen', name: 'buzon_origen' },
-                    { data: 'buzon_actual', name: 'buzon_actual' },
-                    { data: 'destinatario', name: 'destinatario' },
-                    { data: 'id_respuesta', name:'id_respuesta'},
-                    { data: 'fecha_respuesta',name:'fecha_respuesta'},
-                    { data: 'efectos_terceros', searchable: true, visible: false,},
-                    { data: 'id_documento', name: 'descarga',
+                    { data: 'buzon_origen', name: 'buzon_origen',title:'Buzón origen'  },
+                    { data: 'buzon_actual', name: 'buzon_actual',title:'Buzón Actual' },
+                    { data: 'destinatario', name: 'destinatario',title:'Derivado a' },
+                    { data: 'id_respuesta', name:'id_respuesta',title:'ID Respuesta'},
+                    { data: 'fecha_respuesta',name:'fecha_respuesta',title:'Fecha DOC Respuesta'},
+                    { data: 'efectos_terceros', searchable: true, visible: false,title:'Efectos Terceros'},
+                    { data: 'id_documento', name: 'descarga',title:'Descarga',
                         render:function(data, type, row){
                             //console.log(row);
                             if(row.id_nivel_acceso == 1 && parseInt(row.folio) > 0){
@@ -704,7 +699,7 @@
                             }
                         }
                     },
-                    { data: 'id_documento',
+                    { data: 'id_documento',title:'Opciones',
                     render: function(data, type, row) {
                         if (type === 'display') {
                             
@@ -733,8 +728,8 @@
                                                 }   
                                             if(row.id_nivel_acceso == 2 )
                                             {
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
-                                            botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"><i class="fas fa-download text-blue"></i> Descargar</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento('+row.id_documento+','+row.id_documento_buzon+','+row.id_documento_buzon_padre+')"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>';
+                                                botonera +=' <a class="dropdown-item btn-menu-ver" onclick="descargar_documento('+row.id_documento+','+row.id_documento_buzon+')"><i class="fas fa-download text-blue"></i> Descargar</a>';
                                             }
                                             if(row.id_nivel_acceso == 3)
                                             {   
@@ -784,10 +779,31 @@
             //,visible:true, searchable: true
         });
         var table = $('#grilla_recibidos').DataTable();
+        {{-- 
         var column = table.column(8);
-        column.visible(false);
+        column.visible(false); 
         var columnm2 = table.column(3);
         columnm2.visible(false);
+        --}}
+
+         $('#grilla_recibidos').on('processing.dt', function (e, settings, processing) {
+            
+            if(processing){
+                $("#grilla_recibidos tbody").addClass('text-hide');
+                $("#btnBuscar span").removeClass('d-none');
+                $("#btnBuscar").attr('disabled','disabled');
+                $("#btnBuscarSimple span").removeClass('d-none');
+                $("#btnBuscarSimple").attr('disabled','disabled');
+                console.log("procesando grilla");
+            }else{
+                $("#grilla_recibidos tbody").removeClass('text-hide');
+                $("#btnBuscar span").addClass('d-none');
+                $("#btnBuscar").attr('disabled','');
+                $("#btnBuscarSimple span").addClass('d-none');
+                $("#btnBuscarSimple").attr('disabled','');
+
+            }
+        })
     });
       
     function activa_fechas(valor){

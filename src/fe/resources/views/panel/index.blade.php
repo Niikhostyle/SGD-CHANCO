@@ -87,13 +87,13 @@
                     <div class=" form-row" id="panelBuscador">   
                         <div class="row col-12">
                             <div class="col-md-5 mb-1">
-                                <input class="form-control" type="text" name="buscar_docto" id="buscar_docto" placeholder="Buscar documento por materia, descripción, folio o ID">
+                                <input class="form-control" type="text" name="buscar_docto" id="buscar_docto" placeholder="Buscar documento por materia, descripción, folio o ID" onkeypress="javascript: if (event.key=='Enter') $('#btnBuscarDocto').trigger('click');">
                             </div>
                             <div class="col-md-1 mb-1">
                                 <button class="btn btn-success" id="btnBuscarDocto">Buscar</button>
                             </div>
                             <div class="col-md-5 mb-1">
-                                <input class="form-control" type="text" name="buscar_contacto" id="buscar_contacto" placeholder="Buscar contacto por nombre, cargo o correo">
+                                <input class="form-control" type="text" name="buscar_contacto" id="buscar_contacto" placeholder="Buscar contacto por nombre, cargo o correo" onkeypress="javascript: if (event.key=='Enter') $('#btnBuscarContacto').trigger('click');">
                             </div>
                             <div class="col-md-1 mb-1">
                                 <button class="btn btn-success" id="btnBuscarContacto">Buscar</button>

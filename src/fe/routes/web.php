@@ -15,6 +15,7 @@ use App\Http\Controllers\DescargaController;
 use App\Http\Controllers\PLCController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\AuditoriaFoliosController;
+use App\Http\Controllers\DocDigitalController;
 use App\Http\Middleware\PermisosMiddleware;
 
 use App\Jobs\Firma;
@@ -100,7 +101,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('buzonesListar/{id}',[BuzonController::class,'listar'])->name('buzones.listar');
     Route::post('documentos/{id}',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
     Route::post('documentos/{id}/buscarGlobal', [BuzonController::class, 'buscar_documento_buzon'])->name('buzones.buscar_global');
-    Route::put('documentos/{id}/firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
+    
 });
 
 //buzon documento
@@ -121,10 +122,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     //Route::get('documentos/{buzon}/{id}/vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 
     Route::put('documentos/{buzon}/{id}/firmar',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
-    
+    Route::put('documentos/{buzon}/firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
+       
     Route::delete('documentos/{buzon}/{id}/eliminar',[BuzonController::class,'delete_documento'])->name('documentos.delete');
     Route::get('documentos/{buzon}/{id}/eliminar_envio',[BuzonController::class,'eliminar_documento_enviado'])->name('documentos.eliminar_documento_enviado');
-
     
 });
 
@@ -218,3 +219,6 @@ Route::middleware(['auth:sanctum', 'verified'])->get('transparencia', [PLCContro
 Route::middleware(['auth:sanctum', 'verified'])->get('transparencia/getitems', [PLCController::class, 'getItems'])->name('plc.transparenciagetitems');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc', [PLCController::class, 'getDoc'])->name('plc.transparenciagetDoc');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc_anexo', [PLCController::class, 'getDocAnexo'])->name('plc.transparenciagetDocAnexo');
+
+//docDigital
+Route::middleware(['auth:sanctum', 'verified'])->get('docdigital', [DocDigitalController::class, 'index'])->name('docdigital.index');

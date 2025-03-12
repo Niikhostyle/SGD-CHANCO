@@ -488,6 +488,7 @@ class DocumentoController extends Controller
                 if ($datoDocBuzon['id_documento_buzon']) {
                     //elimina de las tablas relacionadas
                     $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                    
                     DocumentoBuzonBitacora::where('id_documento_buzon', $datosRequest['id_documento_buzon'])->delete();
                     $datosDocumento->rel_documento_buzon()->delete();
                     $datosDocumento->delete();
@@ -868,11 +869,9 @@ class DocumentoController extends Controller
                 ]);
 
                 DB::commit();
-
                 return $this->respondSuccess("Documento archivado", 200);
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
-
                 return $this->respondError('Falla al archivar documento:' . $e->getMessage(), 500);
             }
         } else

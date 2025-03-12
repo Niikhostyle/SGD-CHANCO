@@ -19,5 +19,9 @@
         "postcss": "^8.1.14",
         "postcss-import": "^14.0.1",
         "tailwindcss": "^2.2.2"
+    },
+    "dependencies": {
+        "datatables.net-bs4": "^2.2.2",
+        "datatables.net-buttons-bs4": "^3.2.2"
     }
 }

@@ -600,11 +600,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.12/js/dataTables.checkboxes.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/2.2.2/sorting/datetime-moment.js"></script>
 
 <!-- <script src="//cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
 <script src="//cdn.ckeditor.com/ckeditor5/41.4.2/classic/translations/es.js"></script> -->
 
 <script>
+    $.fn.dataTable.moment( 'HH:mm MMM D, YY' );
     var grilla_despachados;
     const accionesFlujo1 = @json($acciones_tipoflujo1);
     const accionesFlujo2 = @json($acciones_tipoflujo2);
@@ -4905,7 +4907,7 @@
                 $.ajax({
                     url: route('documentos.clonar',{'buzon':id_documento_buzon,'id':id_documento}),
                     //url: "/clonar",
-                    type: 'GET',
+                    type: 'PUT',
                     dataType: 'json',
                     //dataType: 'binary',
                     data: {

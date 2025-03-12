@@ -524,7 +524,7 @@
                                     var p = new Promise(function(resolve, reject) {
 
                                         $.ajax({
-                                            url: route('documentos.archivar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                                            url: route('documentos.archivar',{'buzon':data.id_documento_buzon,'id':data.id_documento}),
                                             //url: "/archivar_documento/" + data.id_documento_buzon,
                                             type: 'PUT',
                                             dataType: 'json',
@@ -538,16 +538,12 @@
                                             success: function(data) {
                                                 if (data.status == '200') {
                                                     return resolve();
-
                                                 } else {
                                                     return reject();
                                                 }
-
                                             },
                                             error: function(jqXHR, textStatus, errorThrown) {
-
                                                 toastr.error("Falla en el documento", "¡Aviso!");
-
                                                 habilita_boton('btn-aplicar');
                                                 $('.btn-aplicar').html('Aplicar');
                                             }
@@ -569,8 +565,10 @@
                     Promise.all(promiseArray).then(function(obj) {
                         Swal.close();
                         toastr.success("Documentos Archivados", "¡Aviso!");
-                        fn_grilla_por_recibir();
-                        window.location.reload();
+                        $("#select-acciones-masivas").multiselect('select', [""]).change();
+                        habilita_boton('btn-aplicar');
+                        $('.btn-aplicar').html('Aplicar');
+                        grilla_recibidos.draw();
                     });
                 } else {
                     habilita_boton('btn-aplicar');
@@ -854,6 +852,7 @@
         var _token = $("input[name='_token']").val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+        var hiddIdDocBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
         var matches = [];
         var checkedcollection = grilla_recibidos.$("input[name='checkFrm']:checked", {
@@ -881,8 +880,7 @@
             }).then((result) => {
                 if (result.value == true) {
                     $.ajax({
-                        url: route('documentos.firma_masiva',{'id':hiddIdBuzon}),
-                        //url: "/firma_masiva/",
+                        url: route('documentos.firma_masiva',{'buzon':hiddIdDocBuzon}),
                         type: 'PUT',
                         dataType: 'json',
                         data: {
@@ -895,16 +893,16 @@
                         success: function(data) {
                             if (data.status == '200') {
                                 toastr.success(data.data, "¡Aviso!");
-
                                 $('#card_crear_documento').hide();
-                                fn_grilla_recibidos();
                                 $("#collapseOne").collapse('show');
                             } else {
                                 toastr.error(data.data.comentario, "¡Aviso!");
                             }
-                            $('.btn-aplicar').html('Aplicar');
+
+                            $("#select-acciones-masivas").multiselect('select', [""]).change();
                             habilita_boton('btn-aplicar');
-                            location.reload();
+                            $('.btn-aplicar').html('Aplicar');
+                            grilla_recibidos.draw();
 
                         },
                         error: function(e) {
@@ -1013,6 +1011,7 @@
         $('#nav-despachados-tab').tab('show');
         $("#add_documento").trigger("click");
     }
+    
     function setea_sesiones_recibidos() {
         sessionStorage.setItem('id_recibidos', $('#gr_buscar_id_doc').val());
         sessionStorage.setItem('td_recibidos', $('#gr_buscar_tipo_doc').val().join("|"));

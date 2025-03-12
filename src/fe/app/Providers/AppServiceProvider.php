@@ -105,6 +105,8 @@ class AppServiceProvider extends ServiceProvider
                     'year_actual' => session('year'),
                 ]), 'json')
                 ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
+            
+            //dd($menuBuzon["data"]);    
 
             if ($menuBuzon->failed()) {
             

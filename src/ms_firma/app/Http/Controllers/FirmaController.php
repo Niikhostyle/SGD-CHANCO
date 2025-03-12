@@ -469,14 +469,18 @@ class FirmaController extends Controller
                                 $datosDocumento->anio_tramitacion = date('Y');
                                
 
-                                 //actualiza estado de tramitacion
+                                 //actualiza estado de tramitación
                                  if(count($datosBitacora)==0){
-                                    //cambiar estado a en proceso de firma
-                                    $datosDocumento->estado_tramitacion = 3;
+                                    //cambiar estado a en proceso de firma (si es unica firma, marca como finalizado directamente)
+                                    if($nNroFirmas == 1)
+                                        $datosDocumento->estado_tramitacion = 4;
+                                    else
+                                        $datosDocumento->estado_tramitacion = 3;
                                  }elseif(count($datosBitacora)==($nNroFirmas-1)){
                                     //ultima firma, pasar a finalizado
                                     $datosDocumento->estado_tramitacion = 4;
                                  }
+                                
                                  $datosDocumento->save();
 
                                 //actualiza estado
@@ -496,7 +500,6 @@ class FirmaController extends Controller
                                 $this->saveBitacora($id_documento_buzon, $dFechaCreacion, $datos['id_usuario'], "Cambio en archivo principal por firma electrónica.", 5);
 
                                 //firma archivo nuevamente si folio en ultima firma                                 
-
                                 if (($idTipoAsigFolio == 5) && count($datosBitacora) == ($nNroFirmas - 1)) {
                                     $datosDocumentos = Documento::findOrFail($datos['id_documento']);
 
@@ -930,6 +933,9 @@ class FirmaController extends Controller
                 }
 
                 $datosUpdate->id_estado_documento = $estadoDocumentoFinal;
+                //cambia de carpeta a despachados
+                $datosUpdate->id_carpeta = 3;
+
                 $datosUpdate->save();
             }
             if (($buzonDestino != "" || $buzonDestino != null)) {

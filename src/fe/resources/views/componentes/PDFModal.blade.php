@@ -1,3 +1,4 @@
+
 <div class="modal fade" id="PDFModal" >
  <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
@@ -26,7 +27,6 @@
     </div>
     </div>
 </div>
-
 
 
 @push('js')

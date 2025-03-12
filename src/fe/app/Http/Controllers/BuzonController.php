@@ -589,22 +589,23 @@ class BuzonController extends Controller
         return $datosFea->json();
     }
 
-    public function archivar_documento($id, Request $request)
+    public function archivar_documento($buzon, $id,Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
 
         $datosDocumento = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json']) //
             ->timeout(30)
             ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/archivar', [
-                'id_documento_buzon' => $id,
-                'id_documento' => $request->hiddIdDocumento,
+                'id_documento_buzon' => $buzon,
+                'id_documento' => $id,
                 'id_buzon' => $request->buzon,
                 'id_usuario' => Auth::user()->id,
                 'comentario' => $request->comentario,
                 'accion' => $request->accion
-            ]);
-
-        return $datosDocumento->json();
+            ])->throw();
+        
+        //dd(json_decode($datosDocumento->getBody()));
+        return json_decode($datosDocumento->getBody());
     }
 
     public function generar_archivo_pdf(Request $request)
@@ -1140,10 +1141,12 @@ class BuzonController extends Controller
 
         $res=[];
         foreach($buzones as $buzon){
-            $res[$buzon->id_buzon] = DocumentoBuzon::where('id_buzon', $buzon->id_buzon)->join()
-            ->whereIn('id_estado_documento',[2,4])
-            ->groupBy(['id_carpeta','id_estado_documento','id_tipo_destino'])
-            ->select(['id_carpeta','id_estado_documento','id_tipo_destino',DB::raw('COUNT(*) as total')])
+            $res[$buzon->id_buzon] = DocumentoBuzon::where('documento_buzon.id_buzon', $buzon->id_buzon)
+            ->join('documento','documento.id_documento','=','documento_buzon.id_documento')
+            ->whereIn('documento_buzon.id_estado_documento',[3,4])
+            ->where('documento.anio_tramitacion',session('year'))
+            ->groupBy(['documento_buzon.id_carpeta','documento_buzon.id_estado_documento','documento_buzon.id_tipo_destino'])
+            ->select(['documento_buzon.id_carpeta','documento_buzon.id_estado_documento','documento_buzon.id_tipo_destino',DB::raw('COUNT(*) as total')])
             ->get();
             //$buzon->contadores = DocumentoBuzon::where('id_buzon', $buzon->id_buzon)->where('id_estado_documento', 2)->count();
             

@@ -90,11 +90,12 @@ $().ready(function() {
                             return txtTipo;
                         }
                     },
-                    { data: 'fecha_documento',
-                    
+                    {   
+                        data: 'fecha_documento',
                         render:function (data, type, row) {
-                            let fecha = new Date(data);
-                            return fecha.toLocaleDateString() +" " +fecha.toLocaleTimeString("en-US", { hour12: false });
+                            {{-- let fecha = new Date(data);
+                            return fecha.toLocaleDateString() +" " +fecha.toLocaleTimeString("en-US", { hour12: false }); --}}
+                            return "<span class='d-none'>"+moment(data).unix()+"</span>"+moment(data).format('DD-MM-YYYY HH:mm:ss');
                         }
                      },
                     {
