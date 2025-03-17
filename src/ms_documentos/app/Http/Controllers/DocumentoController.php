@@ -472,6 +472,7 @@ class DocumentoController extends Controller
             return $this->respondError('Json inválido', 406);
     }
 
+    /*revisar eliminacion de documentos, no se debe borrar de la base de datos*/ 
     public function eliminar(Request $request)
     {
         if ($request->isJson()) {
@@ -488,6 +489,7 @@ class DocumentoController extends Controller
                 if ($datoDocBuzon['id_documento_buzon']) {
                     //elimina de las tablas relacionadas
                     $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                    
                     
                     DocumentoBuzonBitacora::where('id_documento_buzon', $datosRequest['id_documento_buzon'])->delete();
                     $datosDocumento->rel_documento_buzon()->delete();
@@ -540,7 +542,7 @@ class DocumentoController extends Controller
                 //bitácora
                 DocumentoBuzonBitacora::create([
                     'id_documento_buzon' => $datosDocumentoBuzon->id_documento_buzon,
-                    'id_buzon' => $datosRequest['destinatarioPrincipal'],
+                    //'id_buzon' => $datosRequest['destinatarioPrincipal'],
                     'id_accion' => 2,
                     'fecha' => $dFechaCreacion,
                     'id_usuario' => $datosRequest['id_usuario'],
@@ -677,8 +679,9 @@ class DocumentoController extends Controller
                         ->first();
                     $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
 
+                    //correccion buzon desde donde se hace la accion, no guardar el buzon destino (revisar acciones anidadas, devolver y anular envío)
                     DocumentoBuzonBitacora::create([
-                        'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
+                        'id_documento_buzon' => $datosRequest['id_documento_buzon'],
                         'id_accion' => 2,
                         'fecha' => $dFechaCreacion,
                         'id_usuario' => $datosRequest['id_usuario']
@@ -1418,9 +1421,10 @@ class DocumentoController extends Controller
                         ->select('id_documento_buzon')
                         ->first();
                     $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
-
+                    
+                    //registrar accion desde buzon actual, no buzon destino
                     $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
-                        'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
+                        'id_documento_buzon' => $datosRequest['id_documento_buzon'],
                         'id_accion' => 2,
                         'fecha' => $dFechaCreacion,
                         'id_usuario' => $datosRequest['id_usuario']

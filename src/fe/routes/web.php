@@ -101,10 +101,10 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('buzonesListar/{id}',[BuzonController::class,'listar'])->name('buzones.listar');
     Route::post('documentos/{id}',[BuzonController::class,'store_documento'])->name('buzones.store_documento');
     Route::post('documentos/{id}/buscarGlobal', [BuzonController::class, 'buscar_documento_buzon'])->name('buzones.buscar_global');
-    
+    Route::put('documentos/{id}/firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
 });
 
-//buzon documento
+//buzon documento (iddoc y idbuzondoc)
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('documentos/{buzon}/{id}',[BuzonController::class,'ver_documento'])->name('documentos.ver');
@@ -122,7 +122,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     //Route::get('documentos/{buzon}/{id}/vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 
     Route::put('documentos/{buzon}/{id}/firmar',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
-    Route::put('documentos/{buzon}/firma_masiva',[BuzonController::class,'firma_masiva'])->name('documentos.firma_masiva');
+    
        
     Route::delete('documentos/{buzon}/{id}/eliminar',[BuzonController::class,'delete_documento'])->name('documentos.delete');
     Route::get('documentos/{buzon}/{id}/eliminar_envio',[BuzonController::class,'eliminar_documento_enviado'])->name('documentos.eliminar_documento_enviado');

@@ -68,3 +68,5 @@ certificados/sgd.padrelascasas.cl.key
 configs/fe/apache/000-default.conf
 configs/fe/apache/default-ssl.conf
 src/fe/public/favicon.ico
+src/fe/composer.lock
+src/fe/package-lock.json

@@ -536,9 +536,9 @@ class BuzonController extends Controller
     public function firma_masiva(Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
-        foreach ($request->firmas as $idDoc) {
-            $aValores = explode("-", $idDoc);
+        $documentobuzon  = $request->docBuzon;
+        foreach ($request->firmas as $key=>$idDoc) {
+            //$aValores = explode("-", $idDoc);
             // $derivarPrimera = 0;
             // $derivarUltima  = 0;
             // $datosDocumento = Documento::findOrFail($aValores[0]);
@@ -563,9 +563,9 @@ class BuzonController extends Controller
             //         Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);        
             //     }
             // }
-
-            Firma::dispatch($request->buzon, $aValores[0], $aValores[1], $sesion_key, Auth::user()->id);
-            DocumentoBuzon::find($aValores[1])->update(['id_estado_documento' => 8]);
+            DocumentoBuzon::find($documentobuzon[$key])->update(['id_estado_documento' => 8]);
+            Firma::dispatch($request->buzon, $idDoc, $documentobuzon[$key], $sesion_key, Auth::user()->id);
+            
         }
 
         return $this->respondSuccess("Documentos enviados a firma.", 200);

@@ -124,18 +124,6 @@
                             'selectRow': true
                         }
                     },
-                    {
-                        'targets': 1,
-                        'checkboxes': {
-                            'selectRow': true
-                        }
-                    },
-                    {
-                        'targets': 2,
-                        'checkboxes': {
-                            'selectRow': true
-                        }
-                    }
                 ],
                 'select': {
                     'style': 'multi'
@@ -146,23 +134,7 @@
                         title:'Sel',
                         name: 'documento.id_documento',
                         render: function(data, type, row) {
-                            if (row.id_estado_documento == 4) {
-                                return '<input type="checkbox" class="dt-checkboxes chkArchivar" name="chkArchivar" id="chkArchivar" value="' + row.id_documento + '" />';
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'id_documento',
-                        title:'Sel',
-                        name: 'documento.id_documento',
-                        render: function(data, type, row) {
-                            if (row.id_estado_documento == 4 || row.id_estado_documento == 9 || row.id_estado_documento == 11) {
-                                return '<input type="checkbox" class="dt-checkboxes chkDerivar" name="chkDerivar" id="chkDerivar" value="' + row.id_documento + '" />';
-                            } else {
-                                return '';
-                            }
+                                return '<input type="checkbox" class="dt-checkboxes chkSeleccionados" data-documentobuzon="'+row.id_documento_buzon+'" disabled="disabled"  name="chkSeleccionados" id="chkSeleccionados" value="' + row.id_documento + '" />';
                         }
                     },
                     {
@@ -203,24 +175,6 @@
                         }
                     },
                     {
-                        data: 'recibido',
-                        title:'Sel',
-                        visible:false,
-                        render: function(data, type) {
-                            if (type === 'display') {
-                                if (data == null) {
-                                    return '<div id="addChkFrm"></div>';
-                                } else {
-                                    if (data == true) {
-                                        return '<span class="fas fa-check text-green"></span><div id="addChkFrm"></div>';
-                                    }
-                                }
-                            }
-                            return '<div id="addChkFrm"></div>';
-                        }
-                    },
-
-                    {
                         data: 'estado_documento',
                         title:'E',
                         name: 'documento_buzon.id_estado_documento',
@@ -257,12 +211,6 @@
                         responsivePriority:0,
                         
                         'width': 200,
-                        {{-- render: function(data) {
-                            if (data == null) {
-                                return '';
-                            }
-                            return data.length > 60 ? data.substr(0, 60) + '…' : data;
-                        } --}}
                     },
                     {
                         data: 'tipo_documento',
@@ -396,12 +344,11 @@
                             return '';
                         }
                     },
-                    {{-- {
-                        data: 'id_tipo_documento',
-                        name: 'tipo_documento.id_tipo_documento'
-                    } --}}
-
+                    
                 ],
+            
+              
+
 
                 initComplete: function() {
                     
@@ -426,33 +373,30 @@
                         //limpiar buscador general
                         $("#resultadoBusquedaGral").html('');
                         $("#buscador_general").val('');
-
+                        $("#select-acciones-masivas").multiselect('select', [""]).change();
                         var tipos = $('#gr_buscar_tipo_doc').val();
                         grilla_recibidos
-                            .columns(5).search($('#gr_buscar_id_doc').val())
-                            .columns(7).search($('#gr_buscar_origen_materia').val())
-                            .columns(14).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
+                            .columns(3).search($('#gr_buscar_id_doc').val())
+                            .columns(5).search($('#gr_buscar_origen_materia').val())
+                            .columns(12).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
                             .draw();
 
                         //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
-
                         })
 
                     $('#botones_grilla_recibidos').html('');
                     $('#botones_grilla_recibidos').append($clearButton, $searchButton);
-                    $('#grilla_recibidos_filter').html('');
-                    if (aplicaFrm == 1)
-                        $("div.addFrm").append("<input type='checkbox' name='chkFrm' id='chkFrm' onClick='addBtnFirma()'> Solo mostrar documentos por firmar <div class='btnFirma' id='btnFirma'></div>");
-
+                    $('#grilla_recibidos_filter').html('');  
+                  
                     //filtro por TD
                     $('#filtro-td').on("change", function() {
-                        grilla_recibidos.columns(11).search($('#filtro-td').val().join("|"), true, false).draw();
+                        grilla_recibidos.column().checkboxes.deselectAll();
+                        grilla_recibidos.column(0).visible(false);
+                        $("#select-acciones-masivas").multiselect('select', [""]).change();
+                        grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"), true, false).draw();
                     });
                     $('#filtro-td').trigger("change");
                     grilla_recibidos.column(0).visible(false);
-                    grilla_recibidos.column(1).visible(false);
-                    grilla_recibidos.column(2).visible(false);
-                    //grilla_recibidos.column(15).visible(false);
                 }
 
             });
@@ -484,7 +428,7 @@
     
     function archivar_masiva() {
         let arr_chequeados = new Array();
-        $(".chkArchivar").each(function() {
+        $(".chkSeleccionados").each(function() {
             if ($(this).is(":checked")) {
                 arr_chequeados.push($(this).val())
             }
@@ -583,11 +527,13 @@
     function derivar_masiva() {
         let arr_chequeados_der = new Array();
         let continuar = 1;
-        $(".chkDerivar").each(function() {
+        $(".chkSeleccionados").each(function() {
             if ($(this).is(":checked")) {
                 arr_chequeados_der.push($(this).val())
             }
         });
+
+
         if (arr_chequeados_der.length > 0) {
             let nSecundarios = 0;
             let nPrincipal = 0;
@@ -657,7 +603,7 @@
                     }, 300);
                     Swal.fire({
                         title: 'Derivar',
-                        html: "<p>Se Derivará(n) <b>" + arr_chequeados_der.length + "</b> Documento(s) <br>¿Desea Continuar?</p>" +
+                        html: "<p>Se Derivará(n) los Documento(s) ID <b>" + arr_chequeados_der.join(", ") + "</b>  <br>¿Desea Continuar?</p>" +
                             "<br/>" +
                             "<form class='needs-validation text-left' id='fDerivarMariva' method='POST' action=''>" +
                             "                       <div class='form-row'>" +
@@ -852,15 +798,15 @@
         var _token = $("input[name='_token']").val();
 
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
-        var hiddIdDocBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
 
         var matches = [];
-        var checkedcollection = grilla_recibidos.$("input[name='checkFrm']:checked", {
+        let matchesBuzon =[];
+        var checkedcollection = grilla_recibidos.$("input[name='chkSeleccionados']:checked", {
             "page": "all"
         });
         checkedcollection.each(function(index, elem) {
             matches.push($(elem).val());
-
+            matchesBuzon.push($(elem).data('documentobuzon'));
         });
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
@@ -871,7 +817,7 @@
             deshabilita_boton('btn-aplicar');
             Swal.fire({
                 title: 'Firma electrónica masiva',
-                html: "¿ Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados ?",
+                html: "<p>¿Está seguro(a) que desea aplicar su firma electrónica al conjunto de documentos seleccionados?</p><p>ID: <b>" + matches.join(", ")+ "</b></p>",
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
                 confirmButtonColor: '#3085d6',
@@ -880,13 +826,13 @@
             }).then((result) => {
                 if (result.value == true) {
                     $.ajax({
-                        url: route('documentos.firma_masiva',{'buzon':hiddIdDocBuzon}),
+                        url: route('documentos.firma_masiva',{'id':hiddIdBuzon}),
                         type: 'PUT',
                         dataType: 'json',
                         data: {
                             _token: _token,
                             buzon: hiddIdBuzon,
-                            //docBuzon:matchesBuzon,
+                            docBuzon:matchesBuzon,
                             firmas: matches,
                             accion: 7
                         },
@@ -907,12 +853,14 @@
                         },
                         error: function(e) {
                             data = e.responseJSON;
-                            console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null)
-                                toastr.error(data.data.comentario, "¡Aviso!");
-                            else
-                                toastr.error("Falla en el documento", "¡Aviso!");
-
+                            if(e.status == 500){
+                                toastr.error("Error en procesar la petición de firma electrónica masiva", "¡Aviso!");
+                            }else{
+                                if (data.data.comentario != "" && data.data.comentario != null)
+                                    toastr.error(data.data.comentario, "¡Aviso!");
+                                else
+                                    toastr.error("Falla en el documento", "¡Aviso!");
+                            }
                             $('.btn-aplicar').html('Aplicar');
                             habilita_boton('btn-aplicar');
 
@@ -931,27 +879,41 @@
 
     function seleccionarAccionMasiva(nOpcion) {
         console.log("seleccionarAccionMasiva", nOpcion);
-        let opTotal = 3;
-        let esVisible = "";
+        grilla_recibidos.column().checkboxes.deselectAll();
+        $(".chkSeleccionados").attr("disabled","disabled");
+        //nueva forma de operar
         if (nOpcion != "") {
-            $('.btn-aplicar').show();
-            for (let n = 0; n < opTotal; n++) {
-                let column = grilla_recibidos.column(n);
-                if (n == nOpcion) {
-                    esVisible = true;
-                } else {
-                    esVisible = false;
-                }
-                column.visible(esVisible);
+            $(".btn-aplicar").show();
+            grilla_recibidos.column(0).visible(true);
+            switch(nOpcion){
+                case '0': //archivar (omitir archivados)
+                    grilla_recibidos.data().each(function(item,index){
+                        if(item.id_estado_documento !=6){
+                            $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
+                        }
+                    });
+                    break;
+                case '1':
+                    //derivar (solo principales)
+                    //$(".chkSeleccionados").removeAttr("disabled");
+                    grilla_recibidos.data().each(function(item,index){
+                        if(item.id_tipo_destino==1){
+                            $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
+                        }
+                    });
+                    break;
+                case '2'://firmar (solo pendientes principales)
+                    grilla_recibidos.data().each(function(item,index){
+                        if(item.id_estado_documento ==4 && item.id_tipo_destino==1){
+                            $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
+                        }
+                    });
+                    break;
             }
-        } else {
-            $('.btn-aplicar').hide();
-            for (let n = 0; n < opTotal; n++) {
-                let column = grilla_recibidos.column(n);
-                column.visible(false);
-            }
+        }else{
+            $(".btn-aplicar").hide();
+             grilla_recibidos.column(0).visible(false);
         }
-
     }
 
     function setea_sesiones_recibidos() {
