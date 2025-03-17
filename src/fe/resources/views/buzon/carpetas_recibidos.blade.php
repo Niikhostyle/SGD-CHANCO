@@ -114,7 +114,7 @@
                     type: 'GET',
                 }, 
                 order: [
-                    [5, 'desc']
+                    [2, 'desc']
                 ],
                 responsive: true,
                 language: lenguaje_datatable,
@@ -129,7 +129,9 @@
                     'style': 'multi'
                 },
                 buttons: ['copy', 'excel', 'pdf'],
-                columns: [{
+                columns: [
+                    //[0]
+                    {
                         data: 'id_documento',
                         title:'Sel',
                         name: 'documento.id_documento',
@@ -137,43 +139,7 @@
                                 return '<input type="checkbox" class="dt-checkboxes chkSeleccionados" data-documentobuzon="'+row.id_documento_buzon+'" disabled="disabled"  name="chkSeleccionados" id="chkSeleccionados" value="' + row.id_documento + '" />';
                         }
                     },
-                    {
-                        data: 'estado_documento',
-                        name: 'estado_documento.nombre_corto',
-                        targets: 2,
-                        searchable: false,
-                        orderable: false,
-                        className: 'dt-body-center',
-                        render: function(data, type, row, full, meta) {
-                            if (type === 'display') {
-                                if (data == null) {
-                                    return '';
-                                } else {
-                                    if (row.id_tipo_destino == 1) //principal
-                                    {
-                                        //agrega listado de acciones
-
-                                        if (row.id_estado_documento != 6 && row.id_estado_documento != 5 && row.id_estado_documento != 7 && row.id_estado_documento != 8 && row.id_estado_documento != 10 && row.id_estado_documento != 12 && row.id_estado_documento != 13) {
-                                            if (row.json_acciones != null) {
-                                                var accionesSolicitadas = row.json_acciones
-
-                                                accionesSolicitadas = $.parseJSON(accionesSolicitadas.replace(/(&quot\;)/g, "\""));
-                                                jsonTipoDoc = $.parseJSON(row.json_tipo_documento.replace(/(&quot\;)/g, "\""));
-
-                                                for (let i in accionesSolicitadas) {
-                                                    if (accionesSolicitadas[i]['id_accion'] == 7 && row.id_estado_documento == 4) //Firmar                                                   
-                                                        return '<input class="dt-checkboxes" type="checkbox" name="checkFrm" value="' + row.id_documento + '-' + row.id_documento_buzon + '">';
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                    return '';
-                                }
-                            }
-                            return '';
-                        }
-                    },
+                    //[1]
                     {
                         data: 'estado_documento',
                         title:'E',
@@ -187,6 +153,7 @@
                             return data;
                         }
                     },
+                    //[2]
                     {
                         data: 'id_documento',
                         title:'ID',
@@ -196,7 +163,7 @@
                             return "<a href='javascript:ver_recibidos(" + row.id_documento + "," + row.id_documento_buzon + "," + row.id_documento_buzon_padre + ")'>" + data + "</a>";
                         }
                     },
-
+                    //[3]
                     {
                         data: 'fecha_envio_recepcion',
                         title:'Recibido',
@@ -204,6 +171,7 @@
                             return moment(data).format('DD-MM-YYYY HH:mm');
                         }
                     },
+                    //[4]
                     {
                         data: 'materia',
                         title:'Materia',
@@ -212,17 +180,21 @@
                         
                         'width': 200,
                     },
+                    //[5]
                     {
                         data: 'tipo_documento',
                         title:'Tipo Documento',
+                        ordenable:false,
+                        searchable:false,
                     },
-                     {
+                    //[6]
+                    {
                         data: 'folio',
                         title:'Folio',
                         //name: 'documento.folio'
                     },
-                   
                     // { data: 'buzon_origen', name: 'tipo_origen.nombre' },
+                    //[7]
                     {
                         data: 'buzon_origen',
                         title:'Desde',
@@ -236,15 +208,20 @@
                             return '';
                         }
                     },
+                    //[8]
                     {
                         data: 'tipo_envio',
                         name: 'tipo_destino.nombre',
                         title:'TE',
                     },
+                    //[9]
                     {
                         title:'Estado Tramitación',
                         data: 'etapa_tramitacion',
+                        ordenable:false,
+                        searchable:false,
                     },
+                    //[10]
                     {
                         title:'Contestar Hasta',
                         data: 'contestas_hasta',
@@ -255,7 +232,8 @@
                             else
                                 return moment(data).format('DD-MM-YYYY');
                         }
-                    }, 
+                    },
+                    //[11] 
                     {
                         data: 'id_documento',
                         title:'',
@@ -344,12 +322,14 @@
                             return '';
                         }
                     },
+                    //[12]
+                    {
+                        data: 'id_tipo_documento',
+                        title:'Tipo Documento',
+                    },
                     
                 ],
             
-              
-
-
                 initComplete: function() {
                     
                     var input = $('#gr_buscar_origen_materia input').unbind(),
@@ -376,9 +356,9 @@
                         $("#select-acciones-masivas").multiselect('select', [""]).change();
                         var tipos = $('#gr_buscar_tipo_doc').val();
                         grilla_recibidos
-                            .columns(3).search($('#gr_buscar_id_doc').val())
-                            .columns(5).search($('#gr_buscar_origen_materia').val())
-                            .columns(12).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
+                            .columns(2).search($('#gr_buscar_id_doc').val())
+                            .columns(4).search($('#gr_buscar_origen_materia').val())
+                           // .columns(12).search(tipos.map(valor => '^' + valor + '$').join('|'), true, true)
                             .draw();
 
                         //grilla_recibidos.columns(8).search($('#gr_buscar_tipo_doc').val().join("|"),true,false,true).draw();
@@ -393,7 +373,7 @@
                         grilla_recibidos.column().checkboxes.deselectAll();
                         grilla_recibidos.column(0).visible(false);
                         $("#select-acciones-masivas").multiselect('select', [""]).change();
-                        grilla_recibidos.columns(9).search($('#filtro-td').val().join("|"), true, false).draw();
+                        grilla_recibidos.columns(8).search($('#filtro-td').val().join("|"), true, false).draw();
                     });
                     $('#filtro-td').trigger("change");
                     grilla_recibidos.column(0).visible(false);
@@ -927,10 +907,10 @@
         console.log("recarga_grilla_recibidos");
         let estados_r = $('#gr_buscar_estado').val().join("|");
         $('#grilla_recibidos').DataTable()
-            .columns(4).search("" + estados_r + "", true, false)
-            .columns(5).search($('#gr_buscar_id_doc').val())
-            .columns(7).search($('#gr_buscar_origen_materia').val())
-            .columns(8).search($('#gr_buscar_tipo_doc').val().join("|"), true, false)
+            .columns(1).search("" + estados_r + "", true, false)
+            .columns(2).search($('#gr_buscar_id_doc').val())
+            .columns(4).search($('#gr_buscar_origen_materia').val())
+            .columns(8).search($('#filtro-td').val().join("|"), true, false)
             .draw();
     }
 
