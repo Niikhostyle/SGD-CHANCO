@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUsuario;
 use App\Http\Requests\UpdateUsuario;
+use App\Models\BuzonUsuario;
 use App\Models\Users;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -56,8 +57,32 @@ class UsuarioController extends Controller
 
         }
 
+        //lista de buzones
+        $listado_buzones = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
+            ->timeout(30)
+            ->withBody(json_encode([
+                'texto_busqueda' => '',
+            ]), 'json')
+            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
 
-        return View::make('usuario.index',['lista_usuarios'=>$lista_usuarios,'perfiles'=>$perfiles_datos,'estados_usuario'=>$estados_usuario]);
+        if ($listado_buzones->failed()) {
+            $mensaje = $listado_buzones->json()['data']['comentario'];
+
+            $listado_buzones = ['data' => [
+                0 => ['id' => '0', 'nombre' => 'Sin Datos', 'nombre_corto' => '', 'total_us_asignados' => '', 'total_us_asignados' => '']
+            ]];
+            toast($mensaje, 'error');
+        } else {
+
+            $aBuzones = $listado_buzones['data'];
+
+            foreach ($aBuzones as $key => $value) {
+                if ($value['id_tipo_buzon'] == 1)
+                    unset($aBuzones[$key]);
+            }
+        }
+        //dd(json_decode($lista_usuarios->getBody()));
+        return View::make('usuario.index',['lista_usuarios'=>$lista_usuarios,'perfiles'=>$perfiles_datos,'buzones'=>$aBuzones,'estados_usuario'=>$estados_usuario]);
     }
 
     public function store(StoreUsuario $request)
@@ -118,7 +143,7 @@ class UsuarioController extends Controller
         ->withBody(json_encode([
             'id_usuario' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver/');
+        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver/')->throw();
 
         return $usuario->json();
 
@@ -157,6 +182,34 @@ class UsuarioController extends Controller
             'cargo'=>$request->form_cargo,
             'img_perfil'=>$uploadFoto
         ]);
+
+       
+        foreach($request->buzonusuario as $buzon){
+            $registro = BuzonUsuario::where('id_usuario', '=', $request->form_id_usuario)->where('id_buzon', '=', $buzon)->first();
+            if(!$registro){
+                BuzonUsuario::create([
+                    'id_usuario' => $request->form_id_usuario,
+                    'id_buzon' => $buzon,
+                    'id_tipo_firma' => 2,
+                    'restringir_sr' =>null,
+                    'id_usuario_sr' => null
+                ]);
+            }
+
+        }
+        // BuzonUsuario::updateOrCreate([
+        //     'id_buzon' => $buzon,
+        //     'id_usuario' => $request->form_id_usuario
+        // ],[
+        //     'id_tipo_firma' => $nTipoFirma,
+        //     'restringir_sr' =>null,
+        //     'id_usuario_sr' => 0
+        // ]);
+        
+        //elimina buzones no asociados al usuario
+        //dd($request->buzonusuario);
+        $datosBuzonUsuario = BuzonUsuario::where('id_usuario','=', $request->form_id_usuario)->whereNotIn('id_buzon',$request->buzonusuario)->delete();
+        //dd($datosBuzonUsuario);
 
         $response_json = response()->json($response->json());
 

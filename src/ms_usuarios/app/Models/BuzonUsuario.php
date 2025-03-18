@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BuzonUsuario extends Model{
 
@@ -9,7 +10,7 @@ class BuzonUsuario extends Model{
     protected $primaryKey = 'id_buzon_usuario';
 
     protected $fillable = [
-        'id_buzon', 'id_usuario','restringir_sr','id_usuario_sr','id_tipo_firma'
+        'id_buzon', 'id_usuario','restringir_sr','id_usuario_sr'
     ];
 
     public function buzon()

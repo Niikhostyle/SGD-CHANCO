@@ -326,6 +326,7 @@
                     {
                         data: 'id_tipo_documento',
                         title:'Tipo Documento',
+                        visible:false,
                     },
                     
                 ],

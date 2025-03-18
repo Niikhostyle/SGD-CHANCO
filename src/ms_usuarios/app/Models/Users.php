@@ -26,5 +26,10 @@ class Users extends Model implements AuthenticatableContract, AuthorizableContra
         'run', 'id_perfil', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'password', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'img_firma','numero_contacto','cargo'
     ];
 
+    public function usuarios_buzon()
+    {
+        return $this->hasMany(BuzonUsuario::class, 'id_usuario', 'id');
+    } 
+
    
 }

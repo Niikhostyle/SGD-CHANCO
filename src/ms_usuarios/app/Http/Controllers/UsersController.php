@@ -24,7 +24,7 @@ class UsersController extends Controller{
         {
             try 
             {
-                $datosUsuarios = Users::all('id','run','nombres','primer_apellido','segundo_apellido','email','id_estado_usuario');
+                $datosUsuarios = Users::with("usuarios_buzon")->select('id','run','nombres','primer_apellido','segundo_apellido','email','id_estado_usuario')->get();
           
                 return $this->respondSuccess($datosUsuarios, 200);
             }  
@@ -137,7 +137,8 @@ class UsersController extends Controller{
                 if ($validator->fails())
                     return $this->respondFail('Falla al obtener usuario: revisar datos de entrada');
 
-                $datosUsuario = Users::findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma','numero_contacto','cargo','img_perfil']);
+                $datosUsuario = Users::With(['usuarios_buzon:id_usuario,id_buzon,id_tipo_firma'])
+                ->findOrFail($datosRequest['id_usuario'],['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido', 'email', 'aplica_fea', 'genera_pdf', 'id_estado_usuario', 'id_perfil', 'img_firma','numero_contacto','cargo','img_perfil']);
                 
                 return $this->respondSuccess($datosUsuario, 200);
             }  

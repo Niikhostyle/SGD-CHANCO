@@ -15,15 +15,15 @@
     <br>
     <div class="card">
         <div class="card-body">
-            <div class=" form-row">   
-                <div class="col-md-8 md-4">  
+            <div class="d-sm-flex align-items-center">   
+                <div class="flex-fill  mr-sm-2">  
                 <input class="form-control"  type="text" id="busqueda_simple" name="busqueda_simple" placeholder="Buscar por materia, folio o ID" onkeypress="filtrar_enter()">
                 </div>
-                <div class="col-md-1 md-4">  
+                <div class="">  
                     <i id="botones_busqueda_simple"></i>
-                    <button id="btnBuscarSimple" class="btn btn-success"><span class="spinner-border spinner-border-sm d-none"></span>&nbsp; Buscar</button>
+                    <button id="btnBuscarSimple" class="Whoops btn btn-block btn-success d-sm-inline-flex mt-sm-0"><span class="spinner-border spinner-border-sm d-none"></span>&nbsp; Buscar</button>
                 </div>
-                <div class="col-md-3 md-4">  
+                <div class="">  
                     <a href="#" class="btn btn-link desplegar_opciones_avanzadas">
                     <i class="fa fa-angle-double-down "></i> Búsqueda avanzada</a>
                     <a href="#" style="display:none" class="btn btn-link cerrar_opciones_avanzadas">
@@ -629,7 +629,7 @@
                     ]
                 },
             processing: false,
-            serverSide: true,
+            serverSide: false,
             "lengthMenu": [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
             ajax: '/buscadorListar?folio=0',
             order:[[0,'DESC'], [4,'asc'] ],
@@ -778,16 +778,8 @@
                 ]
             //,visible:true, searchable: true
         });
-        var table = $('#grilla_recibidos').DataTable();
-        {{-- 
-        var column = table.column(8);
-        column.visible(false); 
-        var columnm2 = table.column(3);
-        columnm2.visible(false);
-        --}}
 
-         $('#grilla_recibidos').on('processing.dt', function (e, settings, processing) {
-            
+         $('#grilla_recibidos').on('processing.dt', function (e, settings, processing) {            
             if(processing){
                 $("#grilla_recibidos tbody").addClass('text-hide');
                 $("#btnBuscar span").removeClass('d-none');
@@ -800,8 +792,8 @@
                 $("#btnBuscar span").addClass('d-none');
                 $("#btnBuscar").attr('disabled','');
                 $("#btnBuscarSimple span").addClass('d-none');
-                $("#btnBuscarSimple").attr('disabled','');
-
+                $("#btnBuscarSimple").removeAttr('disabled');
+                console.log("end procesando grilla");
             }
         })
     });
@@ -962,8 +954,6 @@
     
 
     $.fn.dataTable.ext.search.push(
-
-       
         function (settings, data, dataIndex) {
             var dateFrom = $('#buscar_fecha_ini').val();
             var dateTo = $('#buscar_fecha_fin').val();

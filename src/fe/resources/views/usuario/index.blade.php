@@ -30,6 +30,7 @@
                             <th>Nombre</th>
                             <th>RUN</th>
                             <th>Email(Cuenta)</th>
+                            <th>N° Buzones</th>
                             <th>Estado</th>
                             <th></th>
                         </tr>
@@ -38,9 +39,10 @@
                         @foreach($lista_usuarios['data'] as $list)
                         <tr @if($list['id_estado_usuario']==2)style="background-color:#e2e2e2"@endif>
                             <td>{{$list['id']}}</td>
-                            <td>{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
+                            <td><a href="javascript:void(0)" onClick="visualizar_usuario( {{$list['id']}} )">{{$list['nombres'].' '.$list['primer_apellido'].' '.$list['segundo_apellido']}}</td>
                             <td>{{$list['run']}}</td>
                             <td>{{$list['email']}}</td>
+                            <td>{{count($list['usuarios_buzon'])}}</td>
                             <td>
                                 <?php
                                 foreach($estados_usuario as $estado)
@@ -93,7 +95,12 @@
        
         
         <div class="card-header" >
-            <h4 id="titulo_usuario_crear_editar">Nuevo Usuario</h4>
+        <div class="d-flex align-items-center">
+            <button class="btn btn-default btn-sm mr-2 btn-volver-listado " ><i class="fa fa-list"></i></button>
+            <h4 class="mb-0 flex-fill" id="titulo_usuario_crear_editar">Nuevo Usuario</h4>
+            <button class=" btn btn-default btn-sm ml-2 btn-editar-usuario"  data-identificador=""><i class="fa fa-edit"></i></button>
+        </div>
+            
             <div class="linea_content_header"></div>
         </div>
         
@@ -181,27 +188,26 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="input_contrasena">Contraseña</label>
-                        <input type="password" class="form-control" id="form_contrasena" name="password" aria-describedby="contrasena_error"  >
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="form_contrasena" name="password" aria-describedby="contrasena_error"  >
+                            <div class="input-group-append">
+                                <i class="btn border fa fa-eye" id="mostrarC"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-1">
-                    <div class="form-group">
-                    <br/><br/><i class="fa fa-eye" id="mostrarC"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="input_reescribir_contrasena">Reescribir Contraseña</label>
-                        <input type="password" class="form-control" id="form_reescribir_contrasena" name="re_password" aria-describedby="reescribir_contrasena_error" >
-
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-group">
-                    <br/><br/><i class="fa fa-eye" id="mostrarCC"></i>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="form_reescribir_contrasena" name="re_password" aria-describedby="reescribir_contrasena_error" >
+                            <div class="input-group-append">
+                                <i class="btn border fa fa-eye" id="mostrarCC"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -233,22 +239,26 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="form-group">                       
+                    <div class="form-group">
+                    <label for="input_imagen_firma">Imagen de firma</label>                        
+                        <input type="file" accept="image/*" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="">
+                        <input type="hidden" id="hiddFirma" name="hiddFirma" >
+                        <div class="displayImg"></div>                       
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="input_imagen_firma">Imagen de firma</label>                        
-                        <input type="file" accept="image/*" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="">
-                        <input type="hidden" id="hiddFirma" name="hiddFirma" >
-
-                    </div>
+           
+                <div class="col-md-12">
+                    <select multiple="multiple" size="10" name="buzonusuario[]" id="buzonusuario" class="duallist" title="">
+                        @foreach ($buzones as $item)
+                            <option value="{{$item["id_buzon"]}}">{{ $item["nombre"]}}</option>
+                        @endforeach
+                    </select> 
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">    
-                        <div class="displayImg"></div>
+                        
                      </div>
                 </div>
                 <div class="col-md-4">
@@ -257,19 +267,11 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-8"> </div>
-                <div class="col-md-2">
-                    <button type="button"  class="btn btn-secondary w-100 btn_cerrar_guardar">Cerrar</button>
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-submit w-100">
-                        Guardar
-                    </button>
-                    <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-actualizar w-100">
-                        Actualizar
-                    </button>
-                </div>
+            <div class="align-items-end d-flex justify-content-end">
+                <button type="button"  class="btn btn-secondary w-25 btn_cerrar_guardar">Cerrar</button>
+                <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-submit w-25 ml-2">Guardar</button>
+                <button type="button" class="btn btn-success btn-acciones-guardar-editar btn-actualizar w-25 ml-2">Actualizar</button>
+            </div>
             </div>
 
             </form>
@@ -284,9 +286,42 @@
 
 @section('css')
     <link rel="stylesheet" href="/css/admin_custom.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-duallistbox.css">
+
+    <style type="text/css">
+    
+        .bootstrap-duallistbox-container .btn.moveall,
+        .bootstrap-duallistbox-container .btn.removeall {
+            display: none;
+        }
+      
+        .bootstrap-duallistbox-container .btn.move,
+        .bootstrap-duallistbox-container .btn.remove {
+            width: 40%;
+            height: 30%;
+            margin: 20px;
+        }
+
+        .customButtonBox {
+            margin-top:80px;
+        }
+        
+        .form-control.is-valid, .was-validated .form-control:valid {
+            border-color: none !important;
+            background-image: none;
+        }
+
+        .clear1, .clear2
+        {
+            display:none;
+        }
+        
+
+     </style>
 @stop
 
 @section('js')
+<script src="js/jquery.bootstrap-duallistbox.js"></script>
 <script>
  $(document).ready(function () {
 
@@ -313,6 +348,7 @@
         });
 
         $(".btn_cerrar_guardar").click(function(e){
+            $('#card_usuario_grilla').show();
             $('#card_usuario_crear_editar').hide();
             $('#form_usuario_crear_editar').trigger("reset");
             $(".print-error-msg").hide();
@@ -501,13 +537,41 @@
             }
         });
 
+        $(".btn-volver-listado").on('click',function(){
+            $(".btn_cerrar_guardar").trigger('click');
+        });
+        $(".btn-editar-usuario").on('click',function(){
+            editar_usuario($(".btn-editar-usuario").data('identificador'));
+        });
 
+
+
+        var duallist = $('#buzonusuario').bootstrapDualListbox({
+            nonSelectedListLabel: 'Buzones disponibles:',
+            selectedListLabel: 'Buzones asignados:',
+            preserveSelectionOnMove: false,
+            moveOnSelect: false,   
+            filterPlaceHolder: '',
+            filterTextClear: '',
+            selectorMinimalHeight:'200',
+            infoTextEmpty:'',
+            infoText:'',
+            moveSelectedLabel:'Mover Asignados',
+            removeSelectedLabel:'Mover Disponibles',
+            infoTextFiltered: '' 
+        });
+        // cambiar iconos
+        $('#buzonusuario').bootstrapDualListbox('getContainer').find('.move i').removeClass().addClass('fa fa-arrow-right');
+        $('#buzonusuario').bootstrapDualListbox('getContainer').find('.remove i').removeClass().addClass('fa fa-arrow-left');
 
     });
 
     function editar_usuario(identificador){
+
+        $('#card_usuario_grilla').hide();
         $('#cargando').show();
         $(".print-error-msg").hide();
+        $(".btn-editar-usuario").addClass('d-none');
         if(identificador>0){
             $('#form_usuario_crear_editar').trigger("reset");
             $('#card_usuario_crear_editar').hide();
@@ -563,6 +627,11 @@
                                     } 
                                     else
                                         $("#displayImgPerfil").html('');
+                                    //seleccionar buzones disponibles
+                                    data.data.usuarios_buzon.forEach(function(option, index) {
+                                        $('#buzonusuario option[value="'+option.id_buzon+'"]').prop('selected', true);
+                                    });
+                                    $('#buzonusuario').bootstrapDualListbox('refresh', true);
 
                                 }
                             }
@@ -591,8 +660,12 @@
     }
 
     function visualizar_usuario(identificador){
+        $('#card_usuario_grilla').hide();
         $('#cargando').show();
         $(".print-error-msg").hide();
+
+        $(".btn-editar-usuario").data('identificador',identificador);
+        $(".btn-editar-usuario").removeClass('d-none');
         if(identificador>0){
             $('#form_usuario_crear_editar').trigger("reset");
             $('#card_usuario_crear_editar').hide();
@@ -632,6 +705,11 @@
                                     } 
                                     else
                                         $(".displayImg").html('');
+                                    //seleccionar buzones disponibles
+                                    data.data.usuarios_buzon.forEach(function(option, index) {
+                                        $('#buzonusuario option[value="'+option.id_buzon+'"]').prop('selected', true);
+                                    });
+                                    $('#buzonusuario').bootstrapDualListbox('refresh', true);
                                 }
                             }
                             $('#cargando').hide();
