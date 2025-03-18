@@ -518,7 +518,8 @@
         if (arr_chequeados_der.length > 0) {
             let nSecundarios = 0;
             let nPrincipal = 0;
-            var rows_selected = grilla_recibidos.column(1).checkboxes.selected();
+            var rows_selected = grilla_recibidos.column(0).checkboxes.selected();
+            console.log(rows_selected);
             $.each(rows_selected, function(index, obj) {
                 $.each(grilla_recibidos.rows().data(), function(idx, data) {
                     if (data.id_documento == obj) {
@@ -657,9 +658,10 @@
                         if (result.value) { //==true || result.value.length > 0) {
                             if (msgValidacion == '') {
                                 var promiseArray = [];
-                                $.each(rows_selected, function(index, obj) {
+                                //$.each(rows_selected, function(index, obj) {
                                     $.each(grilla_recibidos.rows().data(), function(idx, data) {
-                                        if (data.id_documento == obj) {
+                                        
+                                        //if (data.id_documento == obj) {
                                             if (arr_chequeados_der.includes('' + data.id_documento + '')) {
                                                 var hiddIdBuzon = data.id_buzon;
                                                 var hiddIdDocumento = data.id_documento;
@@ -732,15 +734,15 @@
                                                     Promise.all(promiseArray).then(function(obj) {
                                                         Swal.close();
                                                         toastr.success("Documentos Derivados", "¡Aviso!");
-                                                        fn_grilla_por_recibir();
+                                                        fn_grilla_recibidos();
                                                         //location.reload();
                                                     });
                                                 });
                                             }
                                             promiseArray.push(p);
-                                        }
-                                    })
-                                });
+                                        //}
+                                    });
+                                //});
                                 Swal.fire({
                                     title: 'Derivando documentos',
                                     allowEscapeKey: false,
@@ -752,8 +754,8 @@
                                 Promise.all(promiseArray).then(function(obj) {
                                     Swal.close();
                                     toastr.success("Documentos Derivados...", "¡Aviso!");
-                                    fn_grilla_por_recibir();
-                                    window.location.reload();
+                                    fn_grilla_recibidos();
+                                    //window.location.reload();
                                 });
                             } else {
                                 toastr.error(msgValidacion, "¡Aviso!");

@@ -197,19 +197,17 @@ class UsuarioController extends Controller
             }
 
         }
-        // BuzonUsuario::updateOrCreate([
-        //     'id_buzon' => $buzon,
-        //     'id_usuario' => $request->form_id_usuario
-        // ],[
-        //     'id_tipo_firma' => $nTipoFirma,
-        //     'restringir_sr' =>null,
-        //     'id_usuario_sr' => 0
-        // ]);
-        
-        //elimina buzones no asociados al usuario
-        //dd($request->buzonusuario);
-        $datosBuzonUsuario = BuzonUsuario::where('id_usuario','=', $request->form_id_usuario)->whereNotIn('id_buzon',$request->buzonusuario)->delete();
-        //dd($datosBuzonUsuario);
+        //elimina buzones no asociados al usuario (menos el personal)
+        $buzones = $request->buzonusuario;
+        $buzonpersonal=BuzonUsuario::where("id_usuario",$request->form_id_usuario)
+            ->with(['buzon',function($q){
+                $q->where('id_tipo_buzon', 1);
+            }])->first();
+        if($buzonpersonal)
+            $buzones[] = $buzonpersonal->id_buzon;
+
+        BuzonUsuario::where('id_usuario','=', $request->form_id_usuario)->whereNotIn('id_buzon',$buzones)->delete();
+
 
         $response_json = response()->json($response->json());
 
