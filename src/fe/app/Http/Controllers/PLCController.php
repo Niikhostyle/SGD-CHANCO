@@ -6,6 +6,7 @@ use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonArchivoDescarga;
+use App\Models\EstadoTramitacion;
 use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
@@ -112,9 +113,11 @@ class PLCController extends Controller
             $datosTipoDoc = $listado_tiposdoc['data'];
 
         }
+        $listaTramites = EstadoTramitacion::all();
 
         return View::make('transparencia.index', [
-           "listado_tiposdoc"=>$datosTipoDoc
+           "listado_tiposdoc"=>$datosTipoDoc,
+           "listado_tramites"=>$listaTramites
         ]);
     }
     
@@ -123,11 +126,13 @@ class PLCController extends Controller
         $tipo = $request->get("tipo_documento",7);
         $ini = $request->get("buscar_fecha_ini",date('Y-m-d'));
         $fin = $request->get("buscar_fecha_fin",date('Y-m-d'));
+        $estado = $request->get("estado_tramitacion", null);
 
         $archivos = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_archivo.id_documento_buzon')
             ->join('buzon', 'documento_buzon.id_buzon', '=', 'buzon.id_buzon')
             ->join('buzon_usuario', 'buzon.id_buzon', '=', 'buzon_usuario.id_buzon')
             ->join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
+            ->join('estado_tramitacion', 'estado_tramitacion.id', '=', 'documento.estado_tramitacion')
             ->join('tipo_documento', 'tipo_documento.id_tipo_documento', '=', 'documento.id_tipo_documento')
            // ->where('documento_buzon.id_documento', $nDocumento)
             ->whereNotNull('folio')
@@ -143,6 +148,7 @@ class PLCController extends Controller
                 'documento.folio',
                 'documento.fecha',
                 'documento.materia',
+                'estado_tramitacion.nombre as nombre_estado_tramitacion',
                 'nombre_archivo_codificado',
                 'id_documento_buzon_archivo',
                 DB::raw('(SELECT count(id_documento_buzon_archivo) FROM public.documento_buzon_archivo WHERE id_documento_buzon in(SELECT id_documento_buzon FROM documento_buzon WHERE id_documento=documento.id_documento) AND id_tipo_archivo = 2) as num_anexos')                
@@ -152,9 +158,16 @@ class PLCController extends Controller
             ->groupBy('documento.id_documento')
             ->groupBy('tipo_documento.nombre_corto')
             ->orderBy('documento.folio')
-        //   ->groupBy('buzon_usuario.id_buzon_usuario')
-            ->get();  
+            ->groupBy('nombre_estado_tramitacion');
+            //->get();  
             
+
+            if($estado!=null || $estado!=''){
+                $archivos->where('documento.estado_tramitacion', $estado);
+                //dd($archivos->get());
+            }
+           // dd
+            $archivos = $archivos->get();
             return response()->json(["data"=>$archivos]);
     }
 }

@@ -24,45 +24,44 @@
 
     
 
-    <div class="row">
-    <div class="col-lg-3 col-md-12 col-sm-12">
+    <div class="d-md-flex justify-content-between">
+    <div class="mr-2 flex-fill">
             Tipo Documento:<br/><select id="buscar_tipo_documento" xstyle="display:none;" name="tipo_documento" class="form-control " xmultiple="multiple">
                         @foreach($listado_tiposdoc as $list)
                         <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
                         @endforeach
                     </select>
     </div>
-
-    <div class="col-lg-3 col-md-12 col-sm-12">
+<div class="mr-2">
+            Estado Tramitación:<br/><select name="estado_tramitacion" class="form-control ">
+            <option value=''>Seleccione</option>
+            @foreach($listado_tramites as $list)
+                        <option value="{{$list['id']}}">{{$list['nombre']}}</option>
+                        @endforeach
+            </select>
+    </div>    
+    <div class="mr-2">
             Fecha Desde:<br/><input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
     </div>
 
-    <div class="col-lg-3 col-md-12 col-sm-12">
+    <div class="mr-2">
             Fecha Hasta:<br/><input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
     </div>    
-    <div class="col-lg-3 col-md-12 col-sm-12">
+    <div class="">
     &nbsp;</br>
     <a href="javascript:void(0)" onclick="getDT()" class="btn btn-success">Buscar</a>
     </div>
 
     </div>
     <hr/>
-    <table id="myTable" class="table table-bordered nowrap">
+    <div>
+    <table id="myTable" class="table table-bordered nowrap table-responsive responsive"  width="100%">
     <thead></thead>
     <tbody></tbody>
     </table>
-
-
-<div class="d-none">
-    <p>Docs de ejemplo:</p>
-     <a href="https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28189">28189</a><br/>
-     <a href="https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28172">28172</a><br/>
-     <a href="https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28166">28166</a><br/>
-     <a href="https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28163">28163</a><br/>
-
-        <a href="javascript:void(0)" onclick="getZip()" class="btn btn-success">ZIP Ejemplo</a>
-
 </div>
+
+
     </div>
 </div>
 
@@ -113,7 +112,7 @@
 
 @section('js')
 
-<script src="js/jquery.bootstrap-duallistbox.js"></script>
+
 <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js" integrity="sha512-3WaCYjK/lQuL0dVIRt1thLXr84Z/4Yppka6u40yEJT1QulYm9pCxguF6r8V84ndP5K03koI9hV1+zo/bUbgMtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -121,6 +120,9 @@
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
 <script src="//cdn.datatables.net/plug-ins/1.13.4/api/processing().js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.2.3/js/dataTables.buttons.min.js" integrity="sha512-QT3oEXamRhx0x+SRDcgisygyWze0UicgNLFM9Dj5QfJuu2TVyw7xRQfmB0g7Z5/TgCdYKNW15QumLBGWoPefYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.2.3/js/buttons.html5.min.js" integrity="sha512-BdN+kHA7QfWIcQE3WMwSj5QAvVUrSGxJLv7/yuEEypMOZBSJ1VKGr9BSpOew+6va9yfGUACw/8Yt7LKNn3RKRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs4/1.11.1/dataTables.bootstrap4.min.js" integrity="sha512-9o2JT4zBJghTU0EEIgPvzzHOulNvo0jq2spTfo6mMmZ6S3jK+gljrfo0mKDAxoMnrkZa6ml2ZgByBQ5ga8noDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-bs4/1.11.1/dataTables.bootstrap4.min.css" integrity="sha512-+RecGjm1x5bWxA/jwm9sqcn5EV0tNej3Xxq5HtIOLM9YM9VgI2LbhEDn099Xhxg6HuvrmsXR0J6JQxL7tLHFHw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
    
 <script src="/js/bootstrap-multiselect.js"></script>
 <script>
@@ -136,17 +138,19 @@ $(document).ready( function () {
         dom: 'Brtip',
         order: [[2, 'asc']],
         paging:false,
-        //responsive: true,
+        responsive: true,
         processing: true,
-        buttons: ['copy', 'excel', 'pdf',
+        buttons: [
+            { extend: 'excel', className:'btn btn-info', text: "<i class='fa fa-download'></i>&nbsp;Descargar información en Excel" }
+            ,
             {
-                text: 'Descargar Documentos',
+                text: "<i class='fa fa-download'></i>&nbsp;Descargar Documentos",
                 className:'btn btn-info',
                 action: function ( e, dt, node, config ) {
                     dt.processing( true );
                     let zip = new JSZip();
-                    let urldoc = 'https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=';
-                    let urlanexo = 'https://sgd.padrelascasas.cl:9443/descargar_documento_plc_anexo?idDocumento=';
+                    let urldoc = route('plc.transparenciagetDoc')+'?idDocumento=';
+                    let urlanexo = route('plc.transparenciagetDocAnexo')+'?idDocumento=';
                     let items = [];
                     $.each(dt.rows().data(),function(idx,o){
                         setTimeout(zip.file(o.nombre_corto+"_"+o.folio+".pdf", urlToPromise(urldoc+o.id_documento), {binary:true}),500);
@@ -156,7 +160,6 @@ $(document).ready( function () {
                         }
 
                     });
-
                     zip.generateAsync({type:"blob"})
                     .then(function(content) {
                         // see FileSaver.js
@@ -168,17 +171,15 @@ $(document).ready( function () {
             }
         ],
         "columns": [
-            {title:"ID",data:'id_documento',className:'col-1'},
-            {title:"tipo",data:'nombre_corto',className:'col-1'},
-            {title:"folio",data:'folio',className:'col-1'},
-            {title:"fecha",data:'fecha',render:function(item){return moment(item).format('DD-MM-YYYY')},className:'col-1'},
-            {title:"Materia",data:'materia',width: "200px",className:'text-wrap col-7'},
-            {title:"Anexos",data:'num_anexos',className:'col-1'},
+            {title:"ID",data:'id_documento',className:''},
+            {title:"tipo",data:'nombre_corto',className:'-1'},
+            {title:"folio",data:'folio',className:'-1'},
+            {title:"fecha",data:'fecha',render:function(item){return moment(item).format('DD-MM-YYYY')},className:'-1'},
+            {title:"Materia",data:'materia',className:'text-wrap -5'},
+            {title:"Estado Tramitación",data:'nombre_estado_tramitacion',className:'text-wrap -1'},
+            {title:"Anexos",data:'num_anexos',className:'-1'},
         ],
-        // "ajax": {
-        //     "url": "https://sgd.padrelascasas.cl:9443/transparencia/getitems",
-        //     "type": "GET"
-        // },
+       
     });
 } );
 function getDT() {
@@ -186,11 +187,12 @@ function getDT() {
      "tipo_documento": $('select[name=tipo_documento]').val(),
      "buscar_fecha_ini": $('input[name=buscar_fecha_ini]').val(),
      "buscar_fecha_fin": $('input[name=buscar_fecha_fin]').val(),
+     "estado_tramitacion": $('select[name=estado_tramitacion]').val(),
     };
 table.processing( true );
   $.ajax({
     Type: 'GET',
-    url: 'https://sgd.padrelascasas.cl:9443/transparencia/getitems',
+    url: route('plc.transparenciagetitems'),
     data: searchData
   }).done(function (result) {
     console.log(typeof result);
@@ -208,10 +210,10 @@ function getZip(){
     let zip = new JSZip();
 
     let archivos = [
-        "https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28189",
-        "https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28172",
-        "https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28166",
-        "https://sgd.padrelascasas.cl:9443/descargar_documento_plc?idDocumento=28163"
+        route('plc.transparenciagetDoc')+"?idDocumento=28189",
+        route('plc.transparenciagetDoc')+"?idDocumento=28172",
+        route('plc.transparenciagetDoc')+"?idDocumento=28166",
+        route('plc.transparenciagetDoc')+"?idDocumento=28163"
     ];
 
     $(archivos).each(function (i,o) {
