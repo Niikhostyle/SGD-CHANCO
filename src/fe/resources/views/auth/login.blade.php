@@ -50,8 +50,6 @@
                                 <img class="img img-responsive mx-auto " src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo_home">
 
                             </div>
-                           
-
                             <div class="col-sm-6">
                                 <img class="img img-responsive mx-auto" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2_home">
                             </div>
