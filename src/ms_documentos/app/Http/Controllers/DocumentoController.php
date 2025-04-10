@@ -1122,7 +1122,7 @@ class DocumentoController extends Controller
                         ->select(
                             'documento_buzon_bitacora.id_accion as accion',
                             'documento_buzon_bitacora.created_at as fecha_documento',
-                            'buzon.nombre as buzon_destino',
+                            'buzon.id_buzon as buzon_origen',
                             'documento_buzon_bitacora.id_accion as accion',
                             'documento_buzon_bitacora.comentario',
                             'documento_buzon_bitacora.mensaje_respuesta',
@@ -1134,7 +1134,16 @@ class DocumentoController extends Controller
                             'documento_buzon.comentario_secundario',
                             DB::raw('users.nombres || \' \' || users.primer_apellido as nombre_usuario'),
                             //DB::raw('(select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) as buzon_origen'),
-                            DB::raw('(case when documento_buzon.id_documento_buzon_padre is not null then (select id_buzon from documento_buzon db2 where db2.id_documento_buzon = documento_buzon.id_documento_buzon_padre) else documento_buzon.id_buzon end) as buzon_origen'),
+                            DB::raw('(case
+                                when documento_buzon_bitacora.id_accion =2 then (
+                                select
+                                    id_buzon
+                                from
+                                    documento_buzon db2
+                                where
+                                    db2.id_documento_buzon_padre = documento_buzon.id_documento_buzon)
+                                else documento_buzon.id_buzon
+                            end) as buzon_destino'),
                         )
 
                         ->where('documento_buzon.id_documento', '=', $datosRequest['id_documento'])

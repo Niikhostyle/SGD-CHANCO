@@ -877,18 +877,18 @@
                     });
                     break;
                 case '1':
-                    //derivar (solo principales)
-                    //$(".chkSeleccionados").removeAttr("disabled");
+                    //derivar
                     grilla_recibidos.data().each(function(item,index){
-                        if(item.id_tipo_destino==1){
-                            $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
-                        }
+                        $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
                     });
                     break;
                 case '2'://firmar (solo pendientes principales)
                     grilla_recibidos.data().each(function(item,index){
                         if(item.id_estado_documento ==4 && item.id_tipo_destino==1){
-                            $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
+                            let accionesSolicitadas = $.parseJSON(item.json_acciones.replace(/(&quot\;)/g, "\""));
+                            console.log(accionesSolicitadas);
+                            if(accionesSolicitadas.find((e)=> e.id_accion == 7)!=null )
+                                $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
                         }
                     });
                     break;
@@ -967,7 +967,6 @@
 
 
     $(document).ready(function() {
-        console.log("ready recibidos");
     $('#gr_buscar_tipo_doc').multiselect({
                 includeSelectAllOption: true,
                 maxHeight: 400,

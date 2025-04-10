@@ -352,119 +352,84 @@ function cargar_datos_bitacora(id_documento)
             $('#tabla_bitacora_grilla').DataTable().destroy();
     }
 
-    var aTxtSalida = ['','Creación documento', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
-
-    $.getJSON(route('buscador.bitacora',{'id':id_documento}), function(response) {
-    gridBitacora = $('#tabla_bitacora_grilla').dataTable({
-        bDestroy : true,
-        processing: true,
-        data: response.data,
-       // destroy: true, 
-       // bProcessing:false,
-       order: [
-        [1, 'desc']
-        ],
-       language: lenguaje_datatable,
-        columns: [
-            {data: 'tipo_destino', 
-                    render: function(data, type, row) {
+    $.getJSON(route('buscador.bitacora', { 'id': id_documento }), function (response) {
+        $("#textMateriaModal").html();
+        console.log(response);
+        gridBitacora = $('#tabla_bitacora_grilla').dataTable({
+            bDestroy: true,
+            processing: true,
+            data: response,
+            order: [
+                [1, 'desc']
+            ],
+            language: lenguaje_datatable,
+            columns: [
+                {
+                    data: 'id_tipo_destino',
+                    render: function (data, type, row) {
                         let txtTipo = '';
-                        if (type === 'display' || type === 'filter' ) 
-                        { 
-                            if (data == 1 && row.accion == 2)
+                        if (type === 'display' || type === 'filter') {
+                            if (data == 1 && (row.id_accion == 2 || row.id_accion == 3))
                                 txtTipo = 'DDP';
-                            else if (data == 2 && row.accion == 2)
+                            else if (data == 2 && (row.id_accion == 2 || row.id_accion == 3))
                                 txtTipo = 'DOD';
-                            else if (row.accion == 5)
+                            else
                                 txtTipo = 'CAP';
 
-                            return txtTipo;    
+                            return txtTipo;
                         }
                         return txtTipo;
-                    }     
-            },
-            {data: 'fecha_documento', 
-                render:function (data) {
-                    //let fecha = new Date(data);
-                    //return fecha.toLocaleDateString() +" " +fecha.toLocaleTimeString("en-US", { hour12: false });
-                    return "<span class='d-none'>"+moment(data).unix()+"</span>"+moment(data).format('DD-MM-YYYY HH:mm:ss');
+                    }
+                },
+                {   
+                    data: 'fecha',
+                    render:function (data, type, row) {
+                        return "<span class='d-none'>"+row.id_documento_buzon_bitacora+"</span>"+moment(data).format('DD-MM-YYYY HH:mm:ss');
+                    }
+                 },
+                {
+                    data: 'buzon',
+                },
+                { data: 'nombre_usuario' },
+                {
+                    data: 'accion',
+                    
+                },
+                {
+                    data: 'mensaje',
+                   
+                }
+            ],
+           rowCallback: function (row, data) {
+                if (data.id_tipo_destino == 1) {
+                    
+                    //$(row).addClass('bg-lightblue');
+                    //$('td:eq(4)', row).html('<b>A</b>');
                 }
             },
-            {data: 'buzon_origen',
-                    render: function(data, type, row) {
-                        if (type === 'display') 
-                        {
-                            return listadoBuzones[data];                        
-                        }
-                        return '';
-                    }     
-            },
-            {data: 'nombre_usuario'},
-            {data: 'accion',
-                    render: function(data, type, row) {
-                        if (type === 'display') 
-                        {
-                            if(data == null){
-                                return '';
-                            }
-                            else
-                            {                                
-                                
-                                return aTxtSalida[data] + ' "' + row.buzon_destino + '"';
-                                let txtSalida = 'Derivación a buzón ';
-                                if (data == 2)
-                                    return txtSalida + '"' + row.buzon_destino + '"';
-                                else
-                                    return '';                                
-                            }
-                        }
-                        return '';
-                    }     
-            },
-            {data: 'comentario_principal',
-                    render: function(data, type, row) {
-                        if (type === 'display') 
-                        {                            
-                            if (row.tipo_destino == 1)
-                            {
-                                //agrega comentario de la tabla bitacora, en caso de errores, principalmente en la firma
-                                let txtComentario = row.comentario;
-                                let txtComentarioPpal = data;
-                                
-                                if(row.accion == 2)
-                                    return data;
-                                else if(row.accion == 13)
-                                    return row.mensaje_respuesta; 
-                                else if(row.accion == 5)
-                                    return row.mensaje_respuesta;  
-                                else if(row.accion == 12)
-                                    return row.comentario;   
-                                else if(row.accion == 14)
-                                    return row.comentario;                                             
-                                else 
-                                    return '';    
-                            }
-                            else if (row.tipo_destino == 2){ 
-                                    if(row.accion == 12)   
-                                        return row.comentario;    
-                                    else
-                                        return row.comentario_secundario;
-                                }
-                                
-                            else
-                                return '';                                
-                            
-                        }
-                        return '';
-                    }                   
+            initComplete: function (settings, json) {
+                
+                //marcar principales y cambios
+                //$('input:checkbox[name="filtro_derivaciones_bitacora"][value=DDP]').prop("checked",true).trigger("change");
+                //$('input:checkbox[name="filtro_derivaciones_bitacora"][value=CAP]').prop("checked",true).trigger("change"); 
             }
-        ],
+        });
+        $("#idAsignado2").text(response[0].identificador);
+        $("#textMateria").text(response[0].materia);
+
+
+        $('input[name="filtro_derivaciones_bitacora"]').on('change', function() {
+            var types = $('input:checkbox[name="filtro_derivaciones_bitacora"]:checked').map(function() {
+                return '^' + this.value + '\$';
+            }).get().join('|');
+            TablaModalBitacora.fnFilter(types, 0, true, false, false, false);
+        });
+
     });
 
-    $("#idAsignado2").text(response.data[0].identificador);
-    $("#textMateria").text(response.data[0].materia);
+    
     //window.someGlobalOrWhatever = response.balance
-   });
+ 
 
 }
 
