@@ -11,7 +11,7 @@
             <div class="form-row m-3"  style="background-color: #6BB4BD;">
                 <div class="row col-12">
                     <div class="col-12">
-                            <h4>Documentos Tramitados</h4>
+                            <h4>Docs. Tramitados</h4>
                     </div>
                 </div>
                 <div class="row col-12">
@@ -80,6 +80,23 @@
             </div>
         </div>
    </div>
+
+    <div>
+                <div class="card">
+                <div class="card-body">
+                <h5>Pendientes</h5>
+                <div id="contador_pendientes" class="row">
+                    
+                    
+                   
+
+
+                </div>
+
+                </div>
+                </div>
+    </div>
+
    <div class="row">
         <div class="col-12">
             <div class="card">
@@ -652,6 +669,36 @@
                 animar_iconos('iconoBuzones',11000,'fa-pulse',0,1);
             }, 6000);
 
+            //#contador_pendientes
+             $.ajax({
+                url: route('index.getContadores'),
+                type: 'GET',
+                data: {
+                       
+                },
+                success: function(data){   
+                    console.log(data);
+                    for (const [key, value] of Object.entries(data)) {
+                        let wrp = $("<div class='col-md-3 text-center'></div>");
+                        let cont = $("<div class='bg-gray-light p-2 m-1 rounded'></div>");
+                        wrp.append(cont);
+                        $(cont).append("<h6 class='text-bold'>"+value.nombre+"</h6>");
+                        $(cont).append("<p class='text-sm'>Por Recibir : <b>"+value.por_recibir+"</b></br>Pendientes : <b>"+value.pendientes+"</b></p>");
+                        $(cont).append("<a href='"+route('buzones.carpetas',{'id':key})+"' class='btn btn-sm btn-info'>Ir al Buzón</a>");
+
+                        $("#contador_pendientes").append(wrp);
+                        //console.log(`${key}: ${value}`);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    toastr.error("Falla en la carga de contadores","¡Aviso!");
+                }
+        
+            });
+
+
+
+
             $('#contenedor_tabla_doctos').hide();
             $('#contenedor_tabla_contacto').hide();
             $('#contenedor_tabla_categorias').hide();
@@ -927,7 +974,8 @@
         $('#contenedor_tabla_contacto').hide();
         $('#boton_carpetas_texto').html("Documentos Tramitados");
         var _token = $("input[name='_token']").val();
-        urlAccion = "{{route('buscador.categorias')}}";
+        urlAccion = "{{route('buscador.categorias')}}?anio="+$("select[name=select_anio]").val();
+
         $("#grilla_categorias1").find("tr:gt(0)").remove();
         $("#grilla_categorias2").find("tr:gt(0)").remove();
         $("#grilla_categorias3").find("tr:gt(0)").remove();

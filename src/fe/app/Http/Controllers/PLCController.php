@@ -102,7 +102,7 @@ class PLCController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
         $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(100)
-        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
 
         if($listado_tiposdoc->failed()){
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];

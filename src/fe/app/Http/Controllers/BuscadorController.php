@@ -35,7 +35,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentos');
+            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentos');
 
         if ($lista_documento->failed()) {
             $mensaje = $lista_documento->json()['data']['comentario'];
@@ -52,7 +52,7 @@ class BuscadorController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(30)
-            ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+            ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
 
         if ($listado_tiposdoc->failed()) {
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -71,7 +71,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'texto_busqueda' => '',
             ]), 'json')
-            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if ($listado_buzones->failed()) {
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -88,18 +88,9 @@ class BuscadorController extends Controller
             }
         }
 
-        //parametros
-        $listado_parametros = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
-            ->timeout(13)
-            ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-
-        if ($listado_parametros->failed()) {
-            toast("Error al mostrar datos", 'error');
-        }
-
-        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
-        $datosAccion = $listado_parametros['data']['accion'];
-        $datosAnios = $listado_parametros['data']['anio'];
+        $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
+        $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
+        $datosAnios = \App\Models\Anio::all('id_anio', 'descripcion','estado');
 
 
         return View::make('buscador.index', [
@@ -122,7 +113,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentos');
+            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentos');
 
         if ($lista_documento->failed()) {
             $mensaje = $lista_documento->json()['data']['comentario'];
@@ -139,7 +130,7 @@ class BuscadorController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(30)
-            ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+            ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
 
         if ($listado_tiposdoc->failed()) {
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -158,7 +149,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'texto_busqueda' => '',
             ]), 'json')
-            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if ($listado_buzones->failed()) {
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -176,16 +167,10 @@ class BuscadorController extends Controller
         }
 
         //parametros
-        $listado_parametros = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
-            ->timeout(13)
-            ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
 
-        if ($listado_parametros->failed()) {
-            toast("Error al mostrar datos", 'error');
-        }
-        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
-        $datosAccion = $listado_parametros['data']['accion'];
-        $datosAnios = $listado_parametros['data']['anios'];
+        $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
+        $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
+        $datosAnios = \App\Models\Anio::all('id_anio', 'descripcion','estado');
 
         return View::make('buscador.index2', [
             'lista_documento' => $lista_documento,
@@ -206,7 +191,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_documento' => $id,
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver')->throw();
+            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/ver')->throw();
 
         if ($lista_bitacora->failed()) {
             $mensaje = $lista_bitacora->json()['data']['comentario'];
@@ -234,7 +219,7 @@ class BuscadorController extends Controller
         //     ->withBody(json_encode([
         //         'id_documento' => $id,
         //     ]), 'json')
-        //     ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarDocumentosBitacora')->throw();
+        //     ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentosBitacora')->throw();
         // if ($lista_bitacora->failed()) {
         //     $mensaje = $lista_bitacora->json()['data']['comentario'];
 
@@ -683,10 +668,13 @@ class BuscadorController extends Controller
 
     public function buscar()
     {
+        $anio = request()->input('anio',session('year'));
+
         $datos = TipoDocumento::leftJoin('documento as d', 'd.id_tipo_documento', 'tipo_documento.id_tipo_documento')
             ->groupBy('tipo_documento.nombre')
             ->orderBy('tipo_documento.nombre')
             ->select(DB::raw('count(d.*) as total'), DB::raw('tipo_documento.nombre as tipo'))
+            ->where('d.anio_tramitacion',$anio)
             ->get();
 
         //return datatables( $datos )->toJson();

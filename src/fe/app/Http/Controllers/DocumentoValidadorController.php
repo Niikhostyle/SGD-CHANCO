@@ -39,7 +39,7 @@ class DocumentoValidadorController extends Controller
             ->withBody(json_encode([
                 'hash_validacion' => $codigo
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
+            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/verificaDocumento');
 
         //return $lista_documentos;
         if ($lista_documentos->failed()) {
@@ -77,7 +77,7 @@ class DocumentoValidadorController extends Controller
             ->withBody(json_encode([
                 'hash_validacion' => $codigo
             ]), 'json')
-            ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verificaDocumento');
+            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/verificaDocumento');
 
         //return $lista_documentos;
         if ($lista_documentos->failed()) {

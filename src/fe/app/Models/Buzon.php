@@ -25,4 +25,9 @@ class Buzon extends Model{
     {
         return $this->hasMany(DocumentoBuzon::class, 'id_buzon', 'id_buzon');
     } 
+
+    public function buzonUsuario()
+    {
+        return $this->hasMany(BuzonUsuario::class, 'id_buzon', 'id_buzon');
+    }
 }

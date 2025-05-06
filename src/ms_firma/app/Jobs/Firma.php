@@ -52,7 +52,7 @@ class Firma extends Job
     {   
         $datosFea = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
-        ->put('http://sgd_ms_firma:3333/api/sgd-firma/firmar_archivo', [  
+        ->put(env('API_SGD_FIRMA','http://sgd_ms_firma:3333').'/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$this->documento_buzon,          
             'id_documento'=>$this->documento,
             'id_usuario'=>$this->user,
@@ -60,7 +60,7 @@ class Firma extends Job
         ]);     
 
         $datosFD = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/firmar_derivar', [
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/firmar_derivar', [
             "nombre_buzon"=>"buzon publico",
             "nombre_corto_buzon"=>"bp",
             "tipo_buzon"=>"2",

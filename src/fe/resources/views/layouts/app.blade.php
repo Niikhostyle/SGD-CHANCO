@@ -45,4 +45,5 @@
         @livewireScripts
         @routes
     </body>
+   
 </html>

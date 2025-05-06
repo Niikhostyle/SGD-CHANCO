@@ -34,14 +34,7 @@ class AppServiceProvider extends ServiceProvider
 
         view()->composer('adminlte::partials.navbar.menu-item-periodo', function ($view) {
             if (Auth::check()) {
-                $listado_parametros = Http::withHeaders(['key' => session()->getId(), 'Content-Type' => 'application/json'])
-                    ->timeout(100)
-                    ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer')->throw();
-
-                if ($listado_parametros->failed()) {
-                } else {
-                    $datosAnio = $listado_parametros['data']['anio'];
-                }
+                $datosAnio = \App\Models\Anio::all('id_anio', 'descripcion','estado');
                 if (session('year') == null)
                     session(['year' => date('Y')]);
                 $view->with('listado_anios', $datosAnio);
@@ -62,25 +55,25 @@ class AppServiceProvider extends ServiceProvider
                                 'text'       => 'Usuarios',
                                 'icon'    => 'fas fa-fw fa-user',
                                 'icon_color' => 'red',
-                                'url'        => '/usuarios',
+                                'url'        => route('usuarios.index') //'/usuarios',
                             ],
                             [
                                 'text'       => 'Buzones',
                                 'icon'    => 'fas fa-fw fa-th-list',
                                 'icon_color' => 'yellow',
-                                'url'        => '/buzones',
+                                'url'        => route('buzones.index') //'/buzones',
                             ],
                             [
                                 'text'       => 'Tipos de Documentos',
                                 'icon'    => 'fas fa-fw fa-folder-open text-green',
                                 'icon_color' => 'green',
-                                'url'        => '/tipos_documentos',
+                                'url'        => route('tipos_documentos.index') //'/tipos_documentos',
                             ],
                             [
                                 'text'       => 'Auditoría de Folios',
                                 'icon'    => 'fas fa-fw fa-check-double text-blue',
                                 'icon_color' => '',
-                                'url'        => '/auditoria_folios',
+                                'url'        => route('auditoria_folios.index') //'/auditoria_folios',
                             ],
                             //[
                             //  'text'       => 'Descargas',
@@ -104,7 +97,7 @@ class AppServiceProvider extends ServiceProvider
                     'id_usuario' => Auth::user()->id,
                     'year_actual' => session('year'),
                 ]), 'json')
-                ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
+                ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/menu');
             
             //dd($menuBuzon["data"]);    
 
@@ -126,81 +119,56 @@ class AppServiceProvider extends ServiceProvider
                     }
                     //perfil externo
                     if (Auth::user()->id_perfil == 3) {
-                        if ($value['n_docs_por_recibir'] > 0) {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetasExterno' . '/' . $value['id_buzon'],
-                                    'label'     => $value['n_docs_por_recibir'],
-                                    'label_color' => 'success'
-                                ]
-                            );
-                        } else {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetasExterno' . '/' . $value['id_buzon']
-                                ]
-                            );
-                        }
+                        array_push(
+                            $submenu_buzones_usuarios,
+                            [
+                                'id'    => $value['id_buzon'],
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => route('buzones.carpetas',['id'=>$value['id_buzon']]),
+                                'label1'     => '',
+                                'label1_color' => 'warning',
+                                'label2'     => '',
+                                'label2_color' => 'success'
+                            ]
+                        );
                     }
                     //perfil funcionario
                     if (Auth::user()->id_perfil == 2) {
-                        if ($value['n_docs_por_recibir'] > 0) {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetas' . '/' . $value['id_buzon'],
-                                    'label'     => $value['n_docs_por_recibir'],
-                                    'label_color' => 'success'
-                                ]
-                            );
-                        } else {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetas' . '/' . $value['id_buzon']
-                                ]
-                            );
-                        }
+
+                        array_push(
+                            $submenu_buzones_usuarios,
+                            [
+                                'id'    => $value['id_buzon'],
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => route('buzones.carpetas',['id'=>$value['id_buzon']]),
+                                'label1'     => '',
+                                'label1_color' => 'warning',
+                                'label2'     => '',
+                                'label2_color' => 'success'
+                            ]
+                        );
+
                     }
                     //perfil administrador
-                    if (Auth::user()->id_perfil == 1) {
-                        if ($value['n_docs_por_recibir'] > 0) {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetas' . '/' . $value['id_buzon'],
-                                    'label'     => $value['n_docs_por_recibir'],
-                                    'label_color' => 'success'
-                                ]
-                            );
-                        } else {
-                            array_push(
-                                $submenu_buzones_usuarios,
-                                [
-                                    'text'       => $value['nombre_buzon'],
-                                    'icon'    => $icon,
-                                    'icon_color' => $color_icono,
-                                    'url'        => '/buzonesCarpetas' . '/' . $value['id_buzon']
-                                ]
-                            );
-                        }
+                    if (Auth::user()->id_perfil == 1) { 
+                        array_push(
+                            $submenu_buzones_usuarios,
+                            [
+                                'id'    => $value['id_buzon'],
+                                'text'       => $value['nombre_buzon'],
+                                'icon'    => $icon,
+                                'icon_color' => $color_icono,
+                                'url'        => route('buzones.carpetas',['id'=>$value['id_buzon']]),
+                                'label1'     => '',
+                                'label1_color' => 'gradient-lightblue',
+                                'label2'     => '',
+                                'label2_color' => 'success'
+                            ]
+                        );
                     }
                 }
             }
@@ -221,13 +189,13 @@ class AppServiceProvider extends ServiceProvider
                             'text'       => 'Buscar Documentos',
                             'icon'    => 'fas fa-fw fa-search',
                             'icon_color' => 'red',
-                            'url'        => '/buscador',
+                            'url'        => route('buscador.index'), //'/buscador',
                         ],
                         [
                             'text'       => 'Favoritos',
                             'icon'    => 'fas fa-fw fa-star',
                             'icon_color' => 'yellow',
-                            'url'        => '/favoritos',
+                            'url'        => route('favoritos.index'),
                         ],
                     ],
                 ]

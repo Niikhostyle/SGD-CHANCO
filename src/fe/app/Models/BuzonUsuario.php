@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class BuzonUsuario extends Model{
 
     protected $table = "buzon_usuario";
@@ -21,5 +22,7 @@ class BuzonUsuario extends Model{
     {
         return $this->belongsTo(User::class, 'id_usuario', 'id');
     }
+
+    
 
 }

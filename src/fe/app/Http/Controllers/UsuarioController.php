@@ -26,7 +26,7 @@ class UsuarioController extends Controller
         $estados_usuario="";
         $lista_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver_todos');
+        ->get(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/ver_todos');
 
 
         if($lista_usuarios->failed()){
@@ -40,22 +40,10 @@ class UsuarioController extends Controller
             $lista_usuarios->json();
         }
 
-        $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        if($perfiles->failed()){
-            $mensaje= $perfiles->json()['data']['comentario'];
+        $perfiles_datos = \App\Models\Perfil::all('id_perfil', 'nombre');
+        $estados_usuario = \App\Models\EstadoUsuario::all('id_estado_usuario','nombre');
 
-            $perfiles=['data'=>[
-                0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-            ]];
-            toast($mensaje,'error');
-        }else{
-            //$perfiles->json();
-            $perfiles_datos = $perfiles->json()['data']['perfil'];
-            $estados_usuario = $perfiles->json()['data']['estado_usuario'];
 
-        }
 
         //lista de buzones
         $listado_buzones = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
@@ -63,7 +51,7 @@ class UsuarioController extends Controller
             ->withBody(json_encode([
                 'texto_busqueda' => '',
             ]), 'json')
-            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if ($listado_buzones->failed()) {
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -94,7 +82,7 @@ class UsuarioController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
-        ->post('http://sgd_ms_usuarios:3333/api/sgd-usuarios/crear', [
+        ->post(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/crear', [
             'run'=>$request->run,
             'nombres'=>$request->nombres,
             'primer_apellido'=>$request->primer_apellido,
@@ -121,7 +109,7 @@ class UsuarioController extends Controller
             
             $accionBuzon = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
             ->timeout(20)
-            ->post('http://sgd_ms_buzones:3333/api/sgd-buzones/crear', [
+            ->post(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/crear', [
                 'nombre_buzon'=>'Personal - '.$request->nombres.' '.$request->primer_apellido,
                 'nombre_corto_buzon'=>'PRSNAL',
                 'tipo_buzon'=>'1',
@@ -143,7 +131,7 @@ class UsuarioController extends Controller
         ->withBody(json_encode([
             'id_usuario' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver/')->throw();
+        ->get(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/ver/')->throw();
 
         return $usuario->json();
 
@@ -164,7 +152,7 @@ class UsuarioController extends Controller
         $sesion_key =  AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
-        ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/actualizar', [
+        ->put(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/actualizar', [
             'id'=>$request->form_id_usuario,
             'run'=>$request->run,
             'nombres'=>$request->nombres,
@@ -183,6 +171,7 @@ class UsuarioController extends Controller
             'img_perfil'=>$uploadFoto
         ]);
 
+        //dd($response);
        
         foreach($request->buzonusuario as $buzon){
             $registro = BuzonUsuario::where('id_usuario', '=', $request->form_id_usuario)->where('id_buzon', '=', $buzon)->first();
@@ -220,7 +209,7 @@ class UsuarioController extends Controller
         $sesion_key = AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put('http://sgd_ms_usuarios:3333/api/sgd-usuarios/estado',['id_usuario' => $id]);
+        ->put(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/estado',['id_usuario' => $id]);
 
         $response_json=response()->json($response->json());
         return $response_json;

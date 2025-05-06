@@ -2,6 +2,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentoBuzon extends Model{
 
@@ -37,4 +39,41 @@ class DocumentoBuzon extends Model{
         return $this->hasMany(DocumentoBuzonBitacora::class, 'id_documento_buzon', 'id_documento_buzon');
     }
 
+    public function scopePendientes($query)
+    {
+        return $query
+            ->join('documento','documento.id_documento','=','documento_buzon.id_documento')
+            ->where('id_estado_documento',4)
+            ->where('id_carpeta',2)
+            ->where('documento.anio_tramitacion',session('year'))
+            ->select(['documento_buzon.*','documento.id_documento']);
+    }
+
+    public function scopePorRecibir($query)
+    {
+        return $query
+        ->join('documento','documento.id_documento','=','documento_buzon.id_documento')
+            ->where('id_estado_documento',3)
+            ->where('id_carpeta',1)
+            ->where('documento.anio_tramitacion',session('year'))
+            ->select(['documento_buzon.*','documento.id_documento']);
+    }
+
+    public function scopeContadores($query){
+
+        return DB::select("select 
+            buzon.nombre,
+            documento_buzon.id_buzon, 
+            documento_buzon.id_carpeta,
+            documento_buzon.id_estado_documento,
+            count( documento_buzon.id_carpeta) as total
+            from documento_buzon 
+            join documento on documento.id_documento = documento_buzon.id_documento 
+            join buzon on buzon.id_buzon = documento_buzon.id_buzon
+            where documento.anio_tramitacion = ".session('year')." 
+            and ( (documento_buzon.id_carpeta = 1 and documento_buzon.id_estado_documento=3) or (documento_buzon.id_carpeta = 2 and documento_buzon.id_estado_documento=4) )
+            and documento_buzon.id_buzon in (select id_buzon from buzon_usuario where id_usuario = ".Auth::user()->id.") 
+            group by documento_buzon.id_buzon, documento_buzon.id_carpeta, documento_buzon.id_estado_documento, buzon.nombre");
+
+    }
 }

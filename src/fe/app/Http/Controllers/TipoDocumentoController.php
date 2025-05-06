@@ -18,7 +18,7 @@ class TipoDocumentoController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
 
         if($listado_tiposdoc->failed()){
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -31,22 +31,16 @@ class TipoDocumentoController extends Controller
 
         }
         
-        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        
-        if($listado_parametros->failed()){
-            $mensaje= $listado_parametros->json()['data']['comentario'];
+       
+            
+            $datosFlujo = \App\Models\TipoFlujo::all('id_tipo_flujo', 'nombre');
+            $datosOrigen = \App\Models\TipoOrigen::all('id_tipo_origen', 'nombre');
+            $datosAvance = \App\Models\TipoAvance::all('id_tipo_avance', 'nombre');
+            $datosFolio = \App\Models\TipoFolio::all('id_tipo_folio', 'nombre');
+            $datosAsignacionFolio = \App\Models\TipoAsignacionFolio::all('id_tipo_asignacion_folio', 'nombre')->toArray();
+            $datosFlujoAccion = \App\Models\TipoAsignacionFolio::all('id_tipo_asignacion_folio', 'nombre');
+            $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
 
-            toast($mensaje,'error');
-        }else{            
-            
-            $datosFlujo = $listado_parametros['data']['tipo_flujo'];
-            $datosOrigen = $listado_parametros['data']['tipo_origen'];
-            $datosAvance = $listado_parametros['data']['tipo_avance'];
-            $datosFolio = $listado_parametros['data']['tipo_folio'];
-            $datosAsignacionFolio = $listado_parametros['data']['tipo_asignacion_folio'];
-            
             //ordenar por 1-2-5-3, según ticket 14 que agrega obtener folio en primera firma o ultima firma en el tipo de documentos. 
             //Con eso el tipo=2 evento recepción se cambia texto por primera firma y se agrega el tipo 5= ultima firma
             $ordenIds = array(1, 2, 5, 3,4);
@@ -62,9 +56,8 @@ class TipoDocumentoController extends Controller
                 return $idsOrdenados[$id];
             }, $ids), $datosAsignacionFolio);
 
-            $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
-            $datosAccion = $listado_parametros['data']['accion'];
-        }
+
+        
 
         //acciones
         $aAcciones = [];
@@ -100,7 +93,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -151,7 +144,7 @@ class TipoDocumentoController extends Controller
 
         $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->post('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/crear', [
+        ->post(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/crear', [
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
             'nombre_corto_firma'=>$request->nombre_corto_firma,
@@ -186,7 +179,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'id_tipo_documento' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
+        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver');
 
         return $datosTipoDoc->json();
     }
@@ -197,7 +190,7 @@ class TipoDocumentoController extends Controller
 
         $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->put('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/actualizar', [
+        ->put(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/actualizar', [
             'id_tipo_documento'=>$request->hiddTipoDocumento,
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
@@ -232,7 +225,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'id_tipo_documento' => $id,
         ]), 'json')
-        ->delete('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/eliminar');
+        ->delete(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/eliminar');
 
         return $accionTipoDoc->json();
     }

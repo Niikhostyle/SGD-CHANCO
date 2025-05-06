@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Perfil extends Model
+class Anio extends Model
 {
-    protected $table = "perfil";
-    protected $primaryKey = 'id_perfil';
+    protected $table = "anio";
+    protected $primaryKey = 'id_anio';
     
     /**
      * The attributes that are mass assignable.
@@ -17,5 +16,4 @@ class Perfil extends Model
      */
     protected $fillable = [];
    
-    use HasFactory;
 }

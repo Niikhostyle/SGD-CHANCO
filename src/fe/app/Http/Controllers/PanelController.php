@@ -19,18 +19,12 @@ class PanelController extends Controller
     
     Public function index(Request $request){
         $sesion_key =  AppServiceProvider::session_key_general();
-        //parametros
-        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer')->throw();
-
-        if($listado_parametros->failed()){
-            toast("Error al mostrar datos",'error');
-        }
         
-        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
-        $datosAccion = $listado_parametros['data']['accion'];
-        $datosAnios= $listado_parametros['data']['anio'];
+        //parametros
+        $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
+        $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
+        $datosAnios = \App\Models\Anio::all('id_anio', 'descripcion');
+
         $datosBuzones = array();
         $aBuzones = array();
 
@@ -39,7 +33,7 @@ class PanelController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -56,10 +50,7 @@ class PanelController extends Controller
                 $aBuzones[$dato['id_buzon']] = $dato['nombre'];                  
             }
         }
-
-
-
-        $documentos = Documento::select(DB::raw('count(1) as salida'))->first();
+        $documentos = Documento::select(DB::raw('count(1) as salida'))->where('anio_tramitacion',session('year'))->first();
         $usuarios = User::select(DB::raw('count(1) as salida'))->where('id_estado_usuario',1)->first();
         $buzones = Buzon::select(DB::raw('count(1) as salida'))->first();
         $favoritos = DB::select('select count(1) as salida from documento_favorito_usuario where id_usuario ='.Auth::user()->id);
@@ -85,7 +76,6 @@ class PanelController extends Controller
        
         $data['year'] = $request->select_anio;        
         session(['year' => $request->select_anio]);
-        
         return redirect()->route('panel.index');
 
 

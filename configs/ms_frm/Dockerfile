@@ -17,6 +17,9 @@ RUN apt-get update && apt-get install -y \
     #&& docker-php-ext-configure pdo_pgsql --with-pgsql \
     #&& docker-php-ext-install pdo_pgsql
 
+# Install Ghostscript
+RUN apt-get install -y ghostscript
+    
 # Install supervisor
 RUN apt-get install -y supervisor
 

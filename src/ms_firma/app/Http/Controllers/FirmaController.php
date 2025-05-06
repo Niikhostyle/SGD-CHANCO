@@ -162,7 +162,7 @@ class FirmaController extends Controller
                         //generar pdf                    
                         $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json']) //
                             ->timeout(60)
-                            ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_archivo_pdf', [
+                            ->put(env('API_SGD_ARCHIVOS','http://sgd_ms_archivos:3333').'/api/sgd-archivos/generar_archivo_pdf', [
                                 'id_documento' => $datos['id_documento'],
                                 'id_documento_buzon' => $datos['id_documento_buzon'],
                                 'id_usuario' => $datos['id_usuario'],
@@ -174,15 +174,15 @@ class FirmaController extends Controller
                     if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) {
 
                         //generar folio 
-                            $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
-                                ->timeout(60)
-                                ->put('http://sgd_ms_archivos:3333/api/sgd-archivos/generar_folio', [
-                                    'id_documento' => $datos['id_documento'],
-                                    'id_documento_buzon' => $datos['id_documento_buzon'],
-                                    'id_usuario' => $datos['id_usuario'],
-                                    'id_buzon' => $datos['id_buzon'],
-                                    'generaFolio' => $nGeneraFolio
-                                ])->throw();
+                        $datosArchivo = Http::withHeaders(['key' => $request->header('key'), 'Content-Type' => 'application/json'])
+                            ->timeout(60)
+                            ->put(env('API_SGD_ARCHIVOS','http://sgd_ms_archivos:3333').'/api/sgd-archivos/generar_folio', [
+                                'id_documento' => $datos['id_documento'],
+                                'id_documento_buzon' => $datos['id_documento_buzon'],
+                                'id_usuario' => $datos['id_usuario'],
+                                'id_buzon' => $datos['id_buzon'],
+                                'generaFolio' => $nGeneraFolio
+                            ])->throw();
                     }
 
                     if (isset($datosArchivo['status']) && ($datosArchivo['status'] == '400' || $datosArchivo['status'] == '500')) {
@@ -199,8 +199,7 @@ class FirmaController extends Controller
                         ->first();
                 }
 
-                if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
-                {
+                if (!isset($aDocumentoBuzon['nombre_archivo_codificado'])) {
                     $comentario = "No existe archivo PDF para realizar firma electrónica.";
                     throw new Exception($comentario);
                 }
@@ -222,7 +221,7 @@ class FirmaController extends Controller
                 $nRut = explode("-", $aInfoUsuarios['run']);
                 $nRutFirma = $nRut[0];
                 $sPath = config('app.path_upload') . '/';
-                $sArchivo = storage_path('app/public/files/' . $sNombreArchivo); //cambiar por linea sgte               
+                //$sArchivo = storage_path('app/public/files/' . $sNombreArchivo); //cambiar por linea sgte               
                 $id_documento_buzon = $datos['id_documento_buzon'];
                 $imagen_firma = storage_path('app/public/files/imagen_firma/' . $sNombreImg);
                 $imagen_firma_anexo = storage_path('app/public/files/imagen_firma/' . $sNombreImgAnexo);
@@ -316,7 +315,15 @@ class FirmaController extends Controller
                 }
 
                 $pdf = new PDF();
+
+                //leer si la version de PDF es 1.4, en caso contrario, transformarlo
+                //$pdf->setPdfVersion('1.4');
+                $sArchivo = $this->convertPDF($sNombreArchivo);
+
                 $pageCount = $pdf->setSourceFile($sArchivo);
+                //$pageCount = 1;
+
+
 
                 $nPaginasPdf = $aDocumentoBuzon['paginas_archivo'];
                 if ($aDocumentoBuzon['paginas_archivo'] == '' || $aDocumentoBuzon['paginas_archivo'] == null)
@@ -403,6 +410,7 @@ class FirmaController extends Controller
                     $nfh = 1;
                 } else //firma tradicional
                 {
+                    //dd("firma tradicional");
                     $aRespuestaFirma = $classFirma->setRUN($nRutFirma)
                         ->addPDF($sArchivo, $sDescipcion, $layout)
                         ->sign();
@@ -467,26 +475,26 @@ class FirmaController extends Controller
                                 //actualizar año tramitacion del archivo
                                 $datosDocumento = Documento::findOrFail($datos['id_documento']);
                                 $datosDocumento->anio_tramitacion = date('Y');
-                               
 
-                                 //actualiza estado de tramitación
-                                 if(count($datosBitacora)==0){
+
+                                //actualiza estado de tramitación
+                                if (count($datosBitacora) == 0) {
                                     //cambiar estado a en proceso de firma (si es unica firma, marca como finalizado directamente)
-                                    if($nNroFirmas == 1)
+                                    if ($nNroFirmas == 1)
                                         $datosDocumento->estado_tramitacion = 4;
                                     else
                                         $datosDocumento->estado_tramitacion = 3;
-                                 }elseif(count($datosBitacora)==($nNroFirmas-1)){
+                                } elseif (count($datosBitacora) == ($nNroFirmas - 1)) {
                                     //ultima firma, pasar a finalizado
                                     $datosDocumento->estado_tramitacion = 4;
-                                 }
-                                
-                                 $datosDocumento->save();
+                                }
+
+                                $datosDocumento->save();
 
                                 //actualiza estado
                                 DocumentoBuzon::find($id_documento_buzon)->update(['id_estado_documento' => 9]);
 
-                               
+
 
                                 //registrar accion de firma en bitacora
                                 $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
@@ -552,8 +560,11 @@ class FirmaController extends Controller
 
                             $fAnexos = $this->firmaAnexos($datos['id_documento'], $datosBitacora, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma);
 
+                            
+
                             if (isset($fAnexos['status'])) {
                                 if ($fAnexos['status'] == "400") {
+                                    Log::error($fAnexos);
                                     $comentario = "Error en firma de anexo. ";
                                     throw new Exception($comentario);
                                 }
@@ -629,7 +640,7 @@ class FirmaController extends Controller
                 $this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
                 $this->saveLog($datos['id_documento'], $e->getMessage());
 
-                Log::error("IDDOC=".$datos['id_documento']." Error al generar la Firma Electrónica(1): " . $e->getMessage().$e->getFile()." ".$e->getLine());
+                Log::error("IDDOC=" . $datos['id_documento'] . " Error al generar la Firma Electrónica(1): " . $e->getMessage() . $e->getFile() . " " . $e->getLine());
 
                 return $this->respondFail("Error al generar la Firma Electrónica (2): " . $e->getMessage());
             }
@@ -676,7 +687,7 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
 
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-        //Log::error("Comando " . $cmd);
+        Log::error("Comando " . $cmd);
         exec($cmd, $output, $estado);
 
         if ($estado == 0) //firma ok
@@ -762,6 +773,8 @@ class FirmaController extends Controller
                     $nNombreArchivoCargarAnexo = "a_" . $archAnexo->nombre_archivo_codificado;
 
                     $sArchivoAnexo = storage_path('app/public/files/' . $archAnexo->nombre_archivo_codificado);
+                    //convertir a PDF 1.4
+                   // $sArchivoAnexo = $this->convertPDF($archAnexo->nombre_archivo_codificado);
 
                     //lamada por hash a anexos
                     //Obtiene pagina para agregar firma
@@ -771,9 +784,6 @@ class FirmaController extends Controller
 
                     if ($iEstadoFirma == 2)
                         $countAnexo -= 1;
-
-
-                    //convertir a PDF 1.4
 
 
                     $nSalidaHashAnexo = $this->callHash($sArchivoAnexo, $layoutAnexo, $countAnexo, $nNombreArchivoCargarAnexo, $nRutFirma);
@@ -970,5 +980,47 @@ class FirmaController extends Controller
             DB::rollBack();
             return "500"; //$this->respondError('Falla al editar documento:' . $e->getMessage(), 400);
         }
+    }
+
+
+    //funcion para convertir documento a PDF 1.4
+    function convertPDF($srcfile)
+    {
+
+        $sArchivo = storage_path('app/public/files/' . $srcfile);
+        $filepdf = fopen($sArchivo, "r");
+        if ($filepdf) {
+            $line_first = fgets($filepdf);
+            fclose($filepdf);
+        } else {
+            echo "error opening the file.";
+        }
+        // extract number such as 1.4,1.5 from first read line of pdf file
+        preg_match_all('!\d+!', $line_first, $matches);
+
+        // save that number in a variable
+        $pdfversion = implode('.', $matches[0]);
+
+        if ($pdfversion > "1.4") {
+            $srcfile_new = substr($srcfile, 0, -4) . "_bkp.pdf";
+            //$sArchivo = storage_path('app/public/files/' . $sNombreArchivo); //cambiar por linea sgte     
+            if (!rename($sArchivo, storage_path('app/public/files/' . $srcfile_new))) {
+                throw new Exception("Error al renombrar el archivo PDF Ver.".$pdfversion);
+            }
+            // USE GHOSTSCRIPT IF PDF VERSION ABOVE 1.4 AND SAVE ANY PDF TO VERSION 1.4 , SAVE NEW PDF OF 1.4 VERSION TO NEW PATH
+            shell_exec('gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
+            //Log::error('Comando : gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
+            //comprobar si existe archivo
+            if (!file_exists($sArchivo)) {
+                //rollback PDF
+                if (!rename(storage_path('app/public/files/' . $srcfile_new), $sArchivo)) {
+                    throw new Exception("Error al renombrar el archivo PDF Ver.".$pdfversion." a su nombre original");
+                }
+
+                throw new Exception("Error al convertir el archivo PDF Ver.".$pdfversion);
+            }
+
+        }
+        return $sArchivo;
     }
 }

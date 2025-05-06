@@ -70,7 +70,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}/bitacora', [
 
 
 //contador de pendientes
-Route::middleware(['auth:sanctum', 'verified'])->get('getContadores',[BuzonController::class,'getContadores']);
+Route::middleware(['auth:sanctum', 'verified'])->get('getContadores',[BuzonController::class,'getContadores'])->name('index.getContadores');
 
 //files
 Route::middleware(['auth:sanctum', 'verified'])->resource('files',DocumentoBuzonArchivoController::class);

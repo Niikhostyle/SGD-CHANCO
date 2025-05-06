@@ -62,7 +62,7 @@ class DocumentoController extends Controller
                     ->withBody(json_encode([
                         'id_tipo_documento' => $nTipoDoc,
                     ]), 'json')
-                    ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver');
+                    ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver');
 
                 $nFolio = null;
                 $anio = date('Y');
@@ -81,7 +81,7 @@ class DocumentoController extends Controller
                             'id_buzon' => null,
                             'id_tipo_folio' =>  $idTipoFolio,
                         ]), 'json')
-                        ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                        ->get(env('API_SGD_FOLIOS','http://sgd_ms_folios:3333').'/api/sgd-folios/asignaFolio');
                 }
 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */
@@ -795,7 +795,7 @@ class DocumentoController extends Controller
                                     'id_buzon' => $datosRequest['id_buzon'],
                                     'id_tipo_folio' => $idTipoFolio
                                 ]), 'json')
-                                ->get('http://sgd_ms_folios:3333/api/sgd-folios/asignaFolio');
+                                ->get(env('API_SGD_FOLIOS','http://sgd_ms_folios:3333').'/api/sgd-folios/asignaFolio');
 
                             Documento::find($datosRequest["id_documento"])->update(['folio' => $nFolio]);
                             Documento::find($datosRequest["id_documento"])->update(['fecha' => $fecha]);

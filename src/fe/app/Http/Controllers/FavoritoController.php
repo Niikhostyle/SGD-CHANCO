@@ -24,7 +24,7 @@ class FavoritoController extends Controller
         ->withBody(json_encode([
             'id_usuario' => Auth::user()->id,
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/listarFavoritos');
+        ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarFavoritos');
 
         if($lista_favoritos->failed()){
             $mensaje= $lista_favoritos->json()['data']['comentario'];
@@ -38,16 +38,8 @@ class FavoritoController extends Controller
         }
 
         //parametros
-        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-
-        if($listado_parametros->failed()){
-            toast("Error al mostrar datos",'error');
-        }
-        
-        $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
-        $datosAccion = $listado_parametros['data']['accion'];
+        $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
+        $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
 
         //listado de buzones
         $aBuzones = array();
@@ -56,7 +48,7 @@ class FavoritoController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -86,7 +78,7 @@ class FavoritoController extends Controller
         $sesion_key = AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/estadoFavorito', [
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/estadoFavorito', [
             'id_documento' => $id,
             'id_usuario' => Auth::user()->id,
             'accion' => $request['accion']

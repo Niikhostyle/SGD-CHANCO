@@ -41,13 +41,13 @@ class BuzonUsuarioExternoController extends Controller
         ->withBody(json_encode([
             'id_buzon' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/ver');
+        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/ver');
 
         //listado de usuarios
 
         $listado_usuarios = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->get('http://sgd_ms_usuarios:3333/api/sgd-usuarios/ver_todos');
+        ->get(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/ver_todos');
 
         if($listado_usuarios->failed()){
             $mensaje = $listado_usuarios->json()['data']['comentario'];
@@ -74,25 +74,9 @@ class BuzonUsuarioExternoController extends Controller
         $nombre_buzon = "";
 
         $sesion_key =  AppServiceProvider::session_key_general();
-        $perfiles_datos="";
-        $estados_usuario="";
 
-        $perfiles = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(63)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-        if($perfiles->failed()){
-            $mensaje= $perfiles->json()['data']['comentario'];
-
-            $perfiles=['data'=>[
-                0=>['id_perfil'=>'0','nombre'=>'Sin Datos']
-            ]];
-            toast($mensaje,'error');
-        }else{
-            //$perfiles->json();
-            $perfiles_datos = $perfiles->json()['data']['perfil'];
-            $estados_usuario = $perfiles->json()['data']['estado_usuario'];
-
-        }
+        $perfiles_datos = \App\Models\Perfil::all('id_perfil', 'nombre');
+        $estados_usuario = \App\Models\EstadoUsuario::all('id_estado_usuario','nombre');
 
         $n_docs_por_recibir=0;
         $n_docs_recibidos_pendientes=0;
@@ -101,7 +85,7 @@ class BuzonUsuarioExternoController extends Controller
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
             ]), 'json')
-            ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/menu');
+            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/menu');
         if(isset($menuBuzon['data'])){
             foreach ($menuBuzon['data'] as $key => $value)
             {
@@ -117,7 +101,7 @@ class BuzonUsuarioExternoController extends Controller
         //tipos de documentos
         $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->get('http://sgd_ms_tipos_documentos:3333/api/sgd-tipodoc/ver_todos');
+        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
 
         if($listado_tiposdoc->failed()){
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -131,18 +115,9 @@ class BuzonUsuarioExternoController extends Controller
         }
 
         //parametros
-        $listado_parametros = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
-        ->timeout(13)
-        ->get('http://sgd_ms_parametros:3333/api/sgd-parametros/traer');
-
-        if($listado_parametros->failed()){
-            toast("Error al mostrar datos",'error');
-        }else{
-            $datosNivelAcceso = $listado_parametros['data']['nivel_acceso'];
-        }
-        
-        $datosFlujoAccion = $listado_parametros['data']['tipo_flujo_accion'];
-        $datosAccion = $listado_parametros['data']['accion'];
+        $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
+        $datosFlujoAccion = \App\Models\TipoFlujoAccion::all('id_tipo_flujo_accion', 'id_tipo_flujo', 'id_accion')->sortBy('id_accion');
+        $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
 
         //acciones
         $aAcciones = [];
@@ -180,7 +155,7 @@ class BuzonUsuarioExternoController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get('http://sgd_ms_buzones:3333/api/sgd-buzones/listar_todos');
+        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $listado_buzones->json()['data']['comentario'];
@@ -208,7 +183,7 @@ class BuzonUsuarioExternoController extends Controller
         ->withBody(json_encode([
             'id_buzon' => $id,
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/verPendientesBuzon');
+        ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/verPendientesBuzon');
 
         if($listado_pendientes->failed()){
             $listado_pendientes->json()['data']['comentario'];
@@ -255,7 +230,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->post('http://sgd_ms_documentos:3333/api/sgd-documentos/crear', [
+        ->post(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/crear', [
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'efectos_terceros'=>$request->efectos_terceros,
@@ -280,7 +255,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar', [
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/actualizar', [
             'id_tipo_documento'=>$request->tipo_documento,
             'id_nivel_acceso'=>$request->nivel_acceso,
             'id_documento'=>$request->hiddIdDocumento,
@@ -315,7 +290,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/enviar', [
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/enviar', [
             'id_documento'=>$request->hiddIdDocumento,
             'id_documento_buzon'=>$request->hiddIdDocumentoBuzon,
             'id_buzon'=>$request->buzon,
@@ -339,7 +314,7 @@ class BuzonUsuarioExternoController extends Controller
             'id_documento' => $id,
             'id_documento_buzon' => $request['hiddIdDocumentoBuzon']
         ]), 'json')
-        ->get('http://sgd_ms_documentos:3333/api/sgd-documentos/ver');
+        ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/ver');
 
         return $datosDocumento->json();
 
@@ -351,7 +326,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/actualizar_estado', [  
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/actualizar_estado', [  
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
@@ -369,7 +344,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
         ->timeout(30)        
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/archivar', [            
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/archivar', [            
             'id_documento_buzon'=>$id,          
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
@@ -426,7 +401,7 @@ class BuzonUsuarioExternoController extends Controller
             
             $datosDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json']) //
             ->timeout(30)        
-            ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/generar_archivo', [            
+            ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/generar_archivo', [            
                 'id_documento'=>$request->idDocumento,
                 'id_documento_buzon'=>$request->idDocumentoBuzon
             ]);
@@ -441,7 +416,7 @@ class BuzonUsuarioExternoController extends Controller
 
         $accionDocumento = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put('http://sgd_ms_documentos:3333/api/sgd-documentos/derivar', [
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/derivar', [
             'id_documento'=>$request->hiddIdDocumento,
             'id_buzon'=>$request->buzon,
             'id_usuario'=>Auth::user()->id,
