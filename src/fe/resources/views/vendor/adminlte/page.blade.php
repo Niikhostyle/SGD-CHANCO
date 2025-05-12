@@ -55,6 +55,7 @@
      <script>
      $(document).ready(function () {
         getContadores();
+        setInterval(() => getContadores(), 60000);
      });
 
     function getContadores(){
@@ -68,14 +69,21 @@
                     if(value.por_recibir > 0){
                         $("#cantidad_porrecibir_"+key).removeClass("d-none");
                         $("#cantidad_porrecibir_"+key).html(value.por_recibir);
+                        //cargar en buzon
+                        $("#gp_contador_pendientes[data-buzon='"+key+"']").removeClass("d-none").html(value.por_recibir);
+
                     }else{
                         $("#cantidad_porrecibir_"+key).addClass("d-none");
+                        $("#gp_contador_pendientes[data-buzon='"+key+"']").addClass("d-none")
                     }
                     if(value.pendientes > 0){
                         $("#cantidad_pendientes_"+key).removeClass("d-none");
                         $("#cantidad_pendientes_"+key).html(value.pendientes);
+                        //cargar en buzon
+                        $("#gr_contador_pendientes[data-buzon='"+key+"']").removeClass("d-none").html(value.pendientes);
                     }else{
                         $("#cantidad_pendientes_"+key).addClass("d-none");
+                        $("#gr_contador_pendientes[data-buzon='"+key+"']").addClass("d-none");
                     }
 
                 }

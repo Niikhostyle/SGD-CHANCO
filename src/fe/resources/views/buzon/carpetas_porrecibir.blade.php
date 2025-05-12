@@ -443,7 +443,6 @@ function grilla_por_recibir_texto(sTexto) {
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Aceptar'
             }).then((result) => {
-                console.log(result);
                 if (result.value == true) {
                     var promiseArray = [];
                     $.each(rows_selected, function(index, obj) {
@@ -498,8 +497,8 @@ function grilla_por_recibir_texto(sTexto) {
                         fn_grilla_por_recibir();
                         habilita_boton('btn-recepcion-masiva');
                         $('.btn-recepcion-masiva').html('Recibir Masivo');
-                        
-                        location.reload();
+                        getContadores();
+                        //location.reload();
                     });
                 } else {
                     habilita_boton('btn-recepcion-masiva');

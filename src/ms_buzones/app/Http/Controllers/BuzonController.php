@@ -341,7 +341,7 @@ class BuzonController extends Controller{
                 {
                     if(isset($buzon->buzon->id_buzon)){
                         
-                        
+                        /*
                         $documento_buzon_por_recibir_count = DocumentoBuzon::join('documento', 'documento.id_documento','=','documento_buzon.id_documento')
                         ->where('id_carpeta','=','1')
                         ->where('id_estado_documento','=','3')
@@ -355,15 +355,15 @@ class BuzonController extends Controller{
                         ->where('documento_buzon.id_buzon','=',$buzon->buzon->id_buzon)
                         ->where('documento.anio_tramitacion', $datosRequest['year_actual'])
                         ->get()->count();
-                        
+                        */
 
                         array_push($arreglo_datos_enlazados,[
                             'id_buzon'=>$buzon->buzon->id_buzon,
                             'nombre_buzon'=>$buzon->buzon->nombre,
                             'nombre_corto_buzon'=>$buzon->buzon->nombre_corto,
                             'tipo_buzon'=>$buzon->buzon->id_tipo_buzon,
-                            'n_docs_por_recibir'=>$documento_buzon_por_recibir_count,
-                            'n_docs_recibidos_pendientes'=>$documento_buzon_recibidos_pendientes_count
+                            //'n_docs_por_recibir'=>$documento_buzon_por_recibir_count,
+                            //'n_docs_recibidos_pendientes'=>$documento_buzon_recibidos_pendientes_count
                         ]) ;
                     }
                 }

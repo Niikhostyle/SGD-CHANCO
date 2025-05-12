@@ -494,6 +494,7 @@
                         habilita_boton('btn-aplicar');
                         $('.btn-aplicar').html('Aplicar');
                         grilla_recibidos.draw();
+                        getContadores();
                     });
                 } else {
                     habilita_boton('btn-aplicar');
@@ -735,6 +736,7 @@
                                                         Swal.close();
                                                         toastr.success("Documentos Derivados", "¡Aviso!");
                                                         fn_grilla_recibidos();
+                                                        //getContadores();
                                                         //location.reload();
                                                     });
                                                 });
@@ -755,6 +757,7 @@
                                     Swal.close();
                                     toastr.success("Documentos Derivados...", "¡Aviso!");
                                     fn_grilla_recibidos();
+                                    getContadores();
                                     //window.location.reload();
                                 });
                             } else {
@@ -832,6 +835,7 @@
                             habilita_boton('btn-aplicar');
                             $('.btn-aplicar').html('Aplicar');
                             grilla_recibidos.draw();
+                            getContadores();
 
                         },
                         error: function(e) {

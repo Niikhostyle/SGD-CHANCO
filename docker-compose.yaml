@@ -108,21 +108,21 @@ services:
       sgd_net:
           ipv4_address: 172.168.22.7
   
-
-  sgd_ms_parametros:
-    image: sgd_ms_master:latest
-    container_name: sgd_ms_parametros
-    expose:
-      - "3333"
-    volumes:
-      - ./src/ms_parametros:/src
-      - ./configs/ms/.env:/src/.env
-    depends_on: 
-      - sgd_ms_usuarios
-    restart: always
-    networks:
-      sgd_net:
-          ipv4_address: 172.168.22.8
+  # (absorbido en sgd_fe)
+  # sgd_ms_parametros:
+  #   image: sgd_ms_master:latest
+  #   container_name: sgd_ms_parametros
+  #   expose:
+  #     - "3333"
+  #   volumes:
+  #     - ./src/ms_parametros:/src
+  #     - ./configs/ms/.env:/src/.env
+  #   depends_on: 
+  #     - sgd_ms_usuarios
+  #   restart: always
+  #   networks:
+  #     sgd_net:
+  #         ipv4_address: 172.168.22.8
 
 
   sgd_ms_documentos:
@@ -285,22 +285,24 @@ services:
       - sgd_fe
 
   #*********************************** SWAGGER **********************************#            
-  sgd_sui:
-    image: swaggerapi/swagger-ui:v3.52.0
-    container_name: sgd_sui
-    expose:
-      - "8080"
-    volumes:
-      - ./data/sui:/usr/share/nginx/html/definitions
-    environment:
-      - "BASE_URL=/api/sui"
-      - "SWAGGER_JSON=/usr/share/nginx/html/definitions/sgd.json"
-    depends_on: 
-      - sgd_ms_usuarios
-    restart: always
-    networks:
-      sgd_net:
-          ipv4_address: 172.168.22.18
+  # sgd_sui:
+  #   image: swaggerapi/swagger-ui:v3.52.0
+  #   container_name: sgd_sui
+  #   expose:
+  #     - "8080"
+  #   volumes:
+  #     - ./data/sui:/usr/share/nginx/html/definitions
+  #   environment:
+  #     - "BASE_URL=/api/sui"
+  #     - "SWAGGER_JSON=/usr/share/nginx/html/definitions/sgd.json"
+  #   depends_on: 
+  #     - sgd_ms_usuarios
+  #   restart: always
+  #   ports:
+  #     - "8888:8080"
+  #   networks:
+  #     sgd_net:
+  #         ipv4_address: 172.168.22.18
 
 #*********************************** NETWORKS **********************************#            
 networks: 

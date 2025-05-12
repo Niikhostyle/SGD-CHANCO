@@ -57,19 +57,19 @@
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <a style="width: 33%" class="nav-item nav-link active" id="nav-por-recibir-tab" data-toggle="tab" href="#nav-por-recibir" role="tab" aria-controls="nav-home" aria-selected="true" onclick="cambio_texto_boton_carpetas('Por Recibir');">
                                     Por Recibir
-                                    @if($n_docs_por_recibir>0)
-                                    <span id="gp_contador_pendientes" class="badge badge-success right">
-                                        {{$n_docs_por_recibir}}
+                                    
+                                    <span id="gp_contador_pendientes" data-buzon="{{$id_buzon }}" class="d-none badge bg-gradient-lightblue right">
+                                        
                                     </span>
-                                    @endif
+                                  
                                 </a>
                                 <a style="width: 33%" class="nav-item nav-link" id="nav-recibidos-tab" data-toggle="tab" href="#nav-recibidos" role="tab" aria-controls="nav-profile" aria-selected="false" onclick="cambio_texto_boton_carpetas('Recibidos');">
                                     Recibidos
-                                    @if($n_docs_recibidos_pendientes>0)
-                                    <span  id="gr_contador_pendientes"  class="badge badge-success right">
-                                        {{$n_docs_recibidos_pendientes}}
+                                    
+                                    <span  id="gr_contador_pendientes"  data-buzon="{{$id_buzon }}" class="d-none badge badge-success right">
+                                        
                                     </span>
-                                    @endif
+                                    
                                 </a>
                                 <a style="width: 33%" class="nav-item nav-link" id="nav-despachados-tab" data-toggle="tab" href="#nav-despachados" role="tab" aria-controls="nav-contact" aria-selected="false" onclick="cambio_texto_boton_carpetas('Despachados');">
                                     Despachados</a>
@@ -5306,6 +5306,7 @@
                 {data: 'nombre_archivo_original'},
             ],
         });
+
 
     });
 

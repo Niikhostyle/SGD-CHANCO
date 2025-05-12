@@ -46,6 +46,7 @@ class UsuarioController extends Controller
 
 
         //lista de buzones
+        $aBuzones =[];
         $listado_buzones = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(30)
             ->withBody(json_encode([
@@ -172,7 +173,7 @@ class UsuarioController extends Controller
         ]);
 
         //dd($response);
-       
+        if(isset($request->buzonusuario)){ 
         foreach($request->buzonusuario as $buzon){
             $registro = BuzonUsuario::where('id_usuario', '=', $request->form_id_usuario)->where('id_buzon', '=', $buzon)->first();
             if(!$registro){
@@ -196,7 +197,7 @@ class UsuarioController extends Controller
             $buzones[] = $buzonpersonal->id_buzon;
 
         BuzonUsuario::where('id_usuario','=', $request->form_id_usuario)->whereNotIn('id_buzon',$buzones)->delete();
-
+        }
 
         $response_json = response()->json($response->json());
 

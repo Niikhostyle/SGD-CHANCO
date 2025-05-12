@@ -230,15 +230,15 @@ class BuzonController extends Controller
             ->throw(function ($response, $e) {});
 
 
-        if (isset($menuBuzon['data'])) {
-            foreach ($menuBuzon['data'] as $key => $value) {
-                //echo $value['id_buzon'];
-                if ($value['id_buzon'] == $id) {
-                    $n_docs_por_recibir = $value['n_docs_por_recibir'];
-                    $n_docs_recibidos_pendientes = $value['n_docs_recibidos_pendientes'];
-                }
-            }
-        }
+        // if (isset($menuBuzon['data'])) {
+        //     foreach ($menuBuzon['data'] as $key => $value) {
+        //         //echo $value['id_buzon'];
+        //         if ($value['id_buzon'] == $id) {
+        //             $n_docs_por_recibir = $value['n_docs_por_recibir'];
+        //             $n_docs_recibidos_pendientes = $value['n_docs_recibidos_pendientes'];
+        //         }
+        //     }
+        // }
 
 
         //add check fea masiva
