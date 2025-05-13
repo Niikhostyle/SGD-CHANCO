@@ -1,4 +1,4 @@
-FROM php:8.0.9-cli-bullseye
+FROM php:8.1-cli-bookworm
 
 #Instalar dependencias de Laravel (php extensions)
 RUN apt-get update && apt-get install -y \
@@ -30,7 +30,7 @@ RUN apt-get install -y libpq-dev \
 
 #Instalar Java
 RUN apt-get update && \
-    apt-get install -y openjdk-11-jdk
+    apt-get install -y openjdk-17-jdk
 
 ENV COMPOSER_HOME /composer
 ENV PATH ./vendor/bin:/composer/vendor/bin:$PATH
