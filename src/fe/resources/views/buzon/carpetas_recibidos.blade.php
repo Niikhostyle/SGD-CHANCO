@@ -41,7 +41,11 @@
                 <option value="">Seleccione</option>
                 <option value="1">Derivar</option>
                 <option value="0">Archivar</option>
+                @if(config('sgd.visarmasivo_enabled')==true)
+                <option value="3">Visar</option>
+                @endif
                 <option value="2">Firmar</option>
+               
             </select>
             &nbsp;&nbsp;<button class="btn text-nowrap btn-min-w  btn-primary btn-aplicar" id="btnAplicar" style="display:none">Aplicar</button>
         </div>
@@ -96,7 +100,8 @@
             grilla_recibidos = $('#grilla_recibidos').DataTable({
                 processing: true,
                 serverSide: true,
-                pageLength: 25,
+                pageLength: {{ config('sgd.ndocs_perpage') }},
+                lengthMenu: [[{{ config('sgd.ndocs_perpage') }}, 5, 15, 25, 100, -1 ], [ {{ config('sgd.ndocs_perpage') }},5, 15, 25, 100, "Todos" ]],
                 "cache": true,
                 //ajax: '/buzonesListar?id_buzon={{$id_buzon}}&id_carpeta=2',
                 ajax:{
@@ -864,6 +869,105 @@
             toastr.error("No hay documentos seleccionados para firmar.", "¡Aviso!");
     }
 
+    function visar_masiva() {
+        var _token = $("input[name='_token']").val();
+
+        var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
+
+        var matches = [];
+        let matchesBuzon =[];
+        var checkedcollection = grilla_recibidos.$("input[name='chkSeleccionados']:checked", {
+            "page": "all"
+        });
+        checkedcollection.each(function(index, elem) {
+            matches.push($(elem).val());
+            matchesBuzon.push($(elem).data('documentobuzon'));
+        });
+        setea_sesiones_recibidos();
+        setea_sesiones_despachados();
+
+
+        if (matches.length > 0) {
+            $('.btn-aplicar').html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Visando'
+            );
+            deshabilita_boton('btn-aplicar');
+
+            //
+            console.log(matches);
+
+            var rows_selected = grilla_recibidos.column(0).checkboxes.selected();
+            $.each(rows_selected, function(index, obj) {
+
+            });
+            Swal.fire({
+                title: 'Visación Masiva',
+                html: "<p>¿Está seguro(a) que desea visar el conjunto de documentos seleccionados?</p><p>ID: <b>" + matches.join(", ")+ "</b></p>",
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+                }).then((result) => {
+                    if (result.value == true) {
+                        promiseArray = [];
+                        checkedcollection.each(function(index, elem) {
+                            var hiddIdDocumento = $(elem).val();
+                            var hiddIdDocumentoBuzon = $(elem).data('documentobuzon');
+                           
+                            var p = new Promise(function(resolve, reject) {
+                                //promesa
+                                $.ajax({
+                                    url: route('documentos.visar',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
+                                    type: 'PUT',
+                                    dataType: 'json',
+                                    data: {
+                                        _token: "{{csrf_token()}}",
+                                    },
+                                    success: function(data) {
+                                        if (data.status == '200') {
+                                            console.log("estado",data.status);
+                                            resolve(data);
+                                        } else {
+                                            reject("Error en el procesamiento de la visación del documento ID:"+hiddIdDocumento);
+                                        }
+                                    },
+                                    error: function(jqXHR, textStatus, errorThrown) {
+                                        reject("Error '"+jqXHR.statusText+"' en la visación del documento ID:"+hiddIdDocumento)
+                                    }
+                                });
+                            
+                            });
+                            promiseArray.push(p);
+                        });
+                        Promise.all(promiseArray)
+                        .then(function(obj) {
+                            Swal.close();
+                            toastr.success("Documentos Visados", "¡Aviso!");
+                        }).catch(error => {
+                            toastr.error(error, "Error en la Visación")
+                            $('.btn-aplicar').html('Aplicar');
+                            
+                        }).finally(()=>{
+                            habilita_boton('btn-aplicar');
+                            $("#select-acciones-masivas").multiselect('select', [""]).change();
+                            fn_grilla_recibidos();
+                            getContadores();
+                        });
+                    
+                }else{
+                    $('.btn-aplicar').html('Aplicar');
+                    habilita_boton('btn-aplicar');
+                }   
+                
+            });
+        
+        } else{
+            toastr.error("No hay documentos seleccionados para visar.", "¡Aviso!");
+        }
+    }
+
+
     function seleccionarAccionMasiva(nOpcion) {
         console.log("seleccionarAccionMasiva", nOpcion);
         grilla_recibidos.column().checkboxes.deselectAll();
@@ -892,6 +996,16 @@
                             let accionesSolicitadas = $.parseJSON(item.json_acciones.replace(/(&quot\;)/g, "\""));
                             console.log(accionesSolicitadas);
                             if(accionesSolicitadas.find((e)=> e.id_accion == 7)!=null )
+                                $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
+                        }
+                    });
+                    break;
+                case '3'://Visar (solo pendientes principales)
+                    grilla_recibidos.data().each(function(item,index){
+                        if(item.id_estado_documento ==4 && item.id_tipo_destino==1){
+                            let accionesSolicitadas = $.parseJSON(item.json_acciones.replace(/(&quot\;)/g, "\""));
+                            console.log(accionesSolicitadas);
+                            if(accionesSolicitadas.find((e)=> e.id_accion == 6)!=null )
                                 $(".chkSeleccionados[value='"+item.id_documento+"']").removeAttr("disabled");
                         }
                     });
@@ -1060,6 +1174,9 @@ $(function() {
                 case "2":
                     firmar_masiva();
                     break;
+                case "3":
+                    visar_masiva();
+                    break;
             }
         });
 
@@ -1070,12 +1187,16 @@ $(function() {
 
     $("div.addFrm").append("<select id='filtro-td' multiple><option>Principal</option><option>Secundario</option></select>");
     $('#filtro-td').multiselect('select', 'Principal');
+
     $('#gr_buscar_estado').multiselect('deselect', ["6"]);
-    
+    @if(config('sgd.recibidos_solo_pendientes')==true)
+    console.log("ajuste solo pendientes")
+    $('#gr_buscar_estado').multiselect('clearSelection').multiselect('select', ["4"]);
+    @endif
     });
     
 
-    //$('#gr_buscar_estado').multiselect('select', ["4"]);
+    //
 
 
 </script>

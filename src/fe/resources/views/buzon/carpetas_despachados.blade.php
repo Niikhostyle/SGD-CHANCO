@@ -42,7 +42,8 @@ async function fn_grilla_despachados(q) {
         grilla_despachados = $('#grilla_despachados').DataTable({
             processing: true,
             serverSide: true,
-            pageLength: 25,
+            pageLength: {{ config('sgd.ndocs_perpage') }},
+            lengthMenu: [[{{ config('sgd.ndocs_perpage') }}, 5, 15, 25, 100, -1 ], [ {{ config('sgd.ndocs_perpage') }},5, 15, 25, 100, "Todos" ]],
             ajax:{
                 url:route('buzones.listar',{'id': {{$id_buzon}} }),
                 data: function(d,obj){

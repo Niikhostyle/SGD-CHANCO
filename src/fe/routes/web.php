@@ -121,6 +121,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('documentos/{buzon}/{id}/vista_previa',[BuzonController::class,'generar_vista_previa'])->name('documentos.vista_previa');
     //Route::get('documentos/{buzon}/{id}/vista_previa_sg',[BuzonController::class,'generar_vista_previa_sg'])->name('documentos.vista_previa_sg');
 
+    Route::put('documentos/{buzon}/{id}/visar',[BuzonController::class,'visar_documento'])->name('documentos.visar');
     Route::put('documentos/{buzon}/{id}/firmar',[BuzonController::class,'firmar_documento'])->name('documentos.firmar');
     
        

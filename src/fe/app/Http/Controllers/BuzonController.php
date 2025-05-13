@@ -567,6 +567,22 @@ class BuzonController extends Controller
         return $this->respondSuccess("Documentos enviados a firma.", 200);
     }
 
+    public function visar_documento($buzon,$id)
+    {
+        $sesion_key =  AppServiceProvider::session_key_general();
+
+        $datosDocumento = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json']) //
+        ->timeout(30)
+        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/actualizar_estado', [
+            'id_documento_buzon' => $buzon,
+            'id_documento' => $id,
+            'accion' => 6,
+            'id_usuario' => Auth::user()->id
+        ])->throw();
+
+        return $datosDocumento->json();
+    }
+
     public function firmar_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();

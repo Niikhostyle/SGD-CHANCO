@@ -106,9 +106,9 @@
                         </div>
                         <div class="row pt-5">
                         <div class="d-flex">
-                            <div class="d-flex col-sm-6 text-center text-base text-bold">
+                            <div class="d-flex  text-center text-base text-bold">
                                 {!! env('GENTILEZA_TXT') !!}                            
-                                <img class="img img-responsive mx-auto d-block wm-img w-48" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
+                                <img class="img img-responsive mx-auto d-block wm-img w-10" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
                             </div>
                             </div>
                         </div>

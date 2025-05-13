@@ -742,7 +742,6 @@ class DocumentoController extends Controller
                 DB::beginTransaction();
 
                 $datosRequest = $request->json()->all();
-
                 $dFecha = date('Y-m-d H:i:s');
 
                 //****** SI SE AGREGA EL CAMPO PROCESADO EN EL JSON POR CADA ACCION SE DEBE ACTUALIZAR A TRUE AL HACER EL CAMBIO DE ESTADO.    
@@ -750,6 +749,7 @@ class DocumentoController extends Controller
 
                 $datosDocumento = Documento::find($datosRequest["id_documento"]);
                 $idTipoDocumento = $datosDocumento->id_tipo_documento;
+
 
                 if ($request->accion == 3) // por recibir
                 {

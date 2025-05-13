@@ -263,7 +263,8 @@ function grilla_por_recibir_texto(sTexto) {
         grilla_por_recibir = $('#grilla_por_recibir').DataTable({
             processing: true,
             serverSide: true,
-            pageLength: 25,
+            pageLength: {{ config('sgd.ndocs_perpage') }},
+            lengthMenu: [[{{ config('sgd.ndocs_perpage') }}, 5, 15, 25, 100, -1 ], [ {{ config('sgd.ndocs_perpage') }},5, 15, 25, 100, "Todos" ]],
             searching: false,
             layout: {
                 topStart: function () {
