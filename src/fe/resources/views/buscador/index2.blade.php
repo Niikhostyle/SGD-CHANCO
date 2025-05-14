@@ -665,8 +665,8 @@
                         }
                     ]
                 },
-                processing: true,
-                serverSide: true,
+                processing: false,
+                serverSide: false,
                 ajax: {
                     type: 'get',
                     url: '/buscadorListar2', 

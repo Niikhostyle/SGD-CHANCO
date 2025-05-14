@@ -50,7 +50,7 @@ class PanelController extends Controller
                 $aBuzones[$dato['id_buzon']] = $dato['nombre'];                  
             }
         }
-        $documentos = Documento::select(DB::raw('count(1) as salida'))->where('anio_tramitacion',session('year'))->first();
+        $documentos = Documento::select(DB::raw('count(1) as salida'))->where('anio_tramitacion',session('year',date('Y')))->first();
         $usuarios = User::select(DB::raw('count(1) as salida'))->where('id_estado_usuario',1)->first();
         $buzones = Buzon::select(DB::raw('count(1) as salida'))->first();
         $favoritos = DB::select('select count(1) as salida from documento_favorito_usuario where id_usuario ='.Auth::user()->id);

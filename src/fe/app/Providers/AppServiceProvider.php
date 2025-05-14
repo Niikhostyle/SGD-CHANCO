@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $events)
     {
+        \Illuminate\Support\Facades\URL::forceScheme('https');
 
         view()->composer('adminlte::partials.navbar.menu-item-periodo', function ($view) {
             if (Auth::check()) {

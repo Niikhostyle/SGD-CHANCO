@@ -91,6 +91,7 @@ class BuscadorController extends Controller
         $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
         $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
         $datosAnios = \App\Models\Anio::all('id_anio', 'descripcion','estado');
+        $datosEstadoTramitacion = \App\Models\EstadoTramitacion::all();
 
 
         return View::make('buscador.index', [
@@ -99,6 +100,7 @@ class BuscadorController extends Controller
             'listBuzones' => $datosBuzones,
             'listadoBuzones' => $aBuzones,
             'listadoAcciones' => $datosAccion,
+            'listadoEstadoTramitacion' => $datosEstadoTramitacion,
             'nivel_acceso' => $datosNivelAcceso,
             'listadoAnios' => $datosAnios
         ]);
@@ -444,6 +446,10 @@ class BuscadorController extends Controller
             $filtroAvanzado .= " and d2.id_documento  is not null";
         }
 
+        if ($request->estado_tramitacion != "") {
+            $filtroAvanzado .= " and d.estado_tramitacion = " . $request->estado_tramitacion;
+        }
+
         if ($request->buscar_derivado != "") {
             $filtroAvanzado .= " and lower((case when db.id_documento_buzon_padre is not null 
             then 
@@ -458,9 +464,6 @@ class BuscadorController extends Controller
                 $filtroAvanzado .= " and dbb.fecha <= to_date('" . $request->buscar_fecha_fin_d . "','yyyy-mm-dd')  + INTERVAL '1 day' ";
             }
         }
-
-
-
 
         if ($request->buscar_anio != "") {
             $extraquery .= " and ( extract(year from d.created_at) = " . $request->buscar_anio . " or extract(year from d.fecha)  = " . $request->buscar_anio . ")";
@@ -488,6 +491,7 @@ class BuscadorController extends Controller
                                         d.json_tipo_documento,
                                         td.id_tipo_documento,
                                         td.nombre tipo_documento,
+                                        et.nombre as n_estado_tramitacion,
                                         CASE
                                             WHEN (d.efectos_terceros is true) THEN 'true'
                                             ELSE 'false'
@@ -509,6 +513,7 @@ class BuscadorController extends Controller
                                         join documento_buzon db on dbb.id_documento_buzon = db.id_documento_buzon
                                         join documento d on db.id_documento = d.id_documento
                                         join buzon b on db.id_buzon = b.id_buzon
+                                        join estado_tramitacion et on et.id = d.estado_tramitacion 
                                         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
                                         left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
                                     where 
@@ -530,6 +535,7 @@ class BuscadorController extends Controller
                                         , d.json_tipo_documento 
                                         , d.id_tipo_documento 
                                         , td.nombre as tipo_documento
+                                        , et.nombre as n_estado_tramitacion
                                         , CASE
                                             WHEN (d.efectos_terceros is true) THEN 'true'
                                             ELSE 'false'
@@ -543,7 +549,8 @@ class BuscadorController extends Controller
                                         documento_buzon db 
                                         join documento d on d.id_documento = db.id_documento and db.id_estado_documento > 1
                                         join buzon b on b.id_buzon = db.id_buzon
-                                        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento 
+                                        join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
+                                        join estado_tramitacion et on et.id = d.estado_tramitacion 
                                         left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
                                         LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento  AND dbo.id_documento_buzon_padre is null
                                         LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
@@ -564,6 +571,7 @@ class BuscadorController extends Controller
                                         , buzon_origen
                                         , buzon_actual
                                         ,d2.id_documento
+                                        ,n_estado_tramitacion
                                         ,d2.created_at");
         }
         //dd(DB::getQueryLog());

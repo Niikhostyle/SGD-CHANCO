@@ -733,6 +733,7 @@
                     },
                 processing: true,
                 serverSide: true,
+                "deferLoading": 0,
                 "lengthMenu": [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
                 ajax: '/buscadorListar?busqueda_simple=xyza',
                 order:[[0,'DESC'], [4,'asc'] ],

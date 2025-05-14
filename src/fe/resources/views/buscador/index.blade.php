@@ -34,8 +34,7 @@
         </div>
     </div>
     <div class="card" id="card_opciones_avanzadas" style="display:none">
-        <div class="card-body">
-            <div class="form-row">
+        <div class="card-body row">
                 <div class="col-md-2 md-2">
                     <div class="form-group">
                     <label for="id_folio">Folio: </label>
@@ -72,18 +71,20 @@
                         </select>
                     </div>                    
                 </div>
-                <div class="col-md-2 md-5 buscar_fila">
+                
+                <div class="col-md-2 md-3">
                     <div class="form-group">
-                        <input type="checkbox" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros" class="valign middle">
-                        <label for="check_efectos_sobre_terceros">Efectos Sobre Terceros</label>
-                        <br>
-                        <input type="checkbox" name="buscar_respondidos" id="buscar_respondidos" class="valign middle">
-                        <label for="check_respondidos">Respondido</label>
-                    </div>
-                    
+                        <label for="select_anio">Estado Tramitación</label>
+                        <br/>
+                        <select  style="width:100%" class="form-control" id="estado_tramitacion" name="estado_tramitacion" >
+                            <option value="">Seleccionar</option>
+                            @foreach($listadoEstadoTramitacion as $anios)
+                            <option value="{{$anios['id']}}">{{$anios['nombre']}}</option>
+                            @endforeach
+                        </select>
+                    </div>                    
                 </div>
-            </div>
-            <div class="form-row">
+
                 <div class="col-md-4 md-3">
                     <div class="form-group">
                         <label for="select_buzon_origen">Buzón Orígen</label>
@@ -108,22 +109,24 @@
                         </select>
                     </div>                    
                 </div>
-                <div class="col-md-2 md-2" id="fic">
-                    <div class="form-group">
-                        <label for="">Rango de Fechas Creación</label>                  
-                        <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                <div class="col-md-4 md-3 row">
+                    <label class="col-12" for="">Rango de Fechas Creación</label>  
+                    <div class="col-12 col-md-6" id="fic">   
+                        <div class="form-group">
+                                            
+                            <input type="date" id="buscar_fecha_ini" name="buscar_fecha_ini" class="form-control">
+                        </div>
                     </div>
-                </div>
-                
-                <div class="col-md-2 md-2"  id="ftc">
-                    <div class="form-group">
-                        <label for="">&nbsp;</label>                  
-                        <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
+                    
+                    <div class="col-12 col-md-6"  id="ftc">
+                        <div class="form-group">                 
+                            <input type="date" id="buscar_fecha_fin" name="buscar_fecha_fin" class="form-control">
+                        </div>
                     </div>
                 </div>  
-            </div> 
+
             <!-- <div class="linea_content_header mb-3"></div> -->
-            <div class="form-row">
+
                 <div class="col-md-4 md-3">
                     <div class="form-group">
                         <label for="select_buzon_actual">Derivado por</label>
@@ -136,9 +139,10 @@
                         </select>
                     </div>                    
                 </div>
+
                 <div class="col-md-2 md-2" id="fid" style="display:none;">
                     <div class="form-group">
-                        <label for="">Rango de Fechas Derivación</label>                  
+                        <label class="" for="">Rango de Fechas Derivación</label>                  
                         <input type="date" id="buscar_fecha_ini_d" name="buscar_fecha_ini_d" class="form-control">
                     </div>
                 </div>
@@ -149,14 +153,27 @@
                         <input type="date" id="buscar_fecha_fin_d" name="buscar_fecha_fin_d" class="form-control">
                     </div>
                 </div>  
-                <div class="col-md-3 md-3 buscar_fila">
+                <div class="col-md-3 md-5 d-flex">
+                    <div class="custom-control custom-checkbox align-content-center">
+                    <input type="checkbox" class="custom-control-input" name="buscar_efectos_sobre_terceros" id="buscar_efectos_sobre_terceros">
+                    <label class="custom-control-label" for="buscar_efectos_sobre_terceros">Efectos Sobre Terceros</label>
+                    </div>
+                </div>
+                <div class="col-md-3 md-5 d-flex">
+                    <div class="custom-control custom-checkbox align-content-center">
+                    <input type="checkbox" class="custom-control-input" name="buscar_respondidos" id="buscar_respondidos">
+                    <label class="custom-control-label" for="buscar_respondidos">Respondido</label>
+                    </div>
+                </div>
+               
+                <div class="col-12 d-flex justify-content-end">
                     <div class="form-group">
                         <!-- <i id="botones_grilla_despachados"></i> 
                         <br/>-->
                         <button class="btn btn-secondary" id="btnLimpiar">Limpiar</button>&nbsp;&nbsp;<button id="btnBuscar" class="btn btn-success"><span class="spinner-border spinner-border-sm d-none"></span>&nbsp; Buscar</button>
                     </div>
                 </div>
-            </div>   
+ 
         </div>
     </div>
    
@@ -187,26 +204,7 @@
                         
                             <div class="" id="card_buscador_grilla">
                                 <div class="card-body">
-                                    <table id="grilla_recibidos"  class="table dt-responsive no-footer dtr-inline dataTable collapsed" style="width:100%">
-                                        {{-- <thead>
-                                            <tr class="grilla_header">
-                                                <th data-priority="0">ID</th>
-                                                <th>TD</th>
-                                                <th data-priority="1">Materia</th>
-                                                <th data-priority="1">Materia</th>
-                                                <th data-priority="2">Fecha DOC</th>
-                                                <th data-priority="1">Folio</th>
-                                                <th data-priority="1">Fecha creación</th>
-                                                <th data-priority="2">Buzón origen</th>
-                                                <th data-priority="2">Buzón Actual</th>
-                                                <th data-priority="2">Derivado a</th>
-                                                <th data-priority="2">ID Respuesta</th>
-                                                <th data-priority="2">Fecha DOC Respuesta</th>
-                                                <th>Efectos Terceros</th>
-                                                <th>Acciones</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead> --}}
+                                    <table id="grilla_recibidos"  class="table-sm text-sm table dt-responsive no-footer dtr-inline dataTable collapsed" style="width:100%">
                                     </table>
                                 
                                 </div>
@@ -610,6 +608,7 @@
                     buttons:[
                         {
                             extend:"excel",
+                            filename:'SGD-Resultados_de_busqueda',
                             exportOptions: { 
                                 // columns: function(column, data, node) {
                                     
@@ -618,7 +617,7 @@
                                 //     }
                                 //     return true;
                                 // }
-                                columns: [0,1,3,4,5,6,7,8,9,10,11 ]
+                                //columns: [0,1,2,3,4,5,6,7,8,9,10,11 ]
                              },
                             text:'Descargar busqueda',
                             className: 'btn btn-success',
@@ -628,10 +627,11 @@
                         }
                     ]
                 },
-            processing: false,
-            serverSide: false,
-            "lengthMenu": [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
-            ajax: '/buscadorListar?folio=0',
+            processing: true,
+            serverSide: true,
+            deferLoading: 0,
+            lengthMenu: [ [10, 25, 50, 100, -1 ], [10, 25, 50, 100, "Todos"]],
+            ajax: route('buscador.listar'), //'/buscadorListar?folio=0',
             order:[[0,'DESC'], [4,'asc'] ],
             language: lenguaje_datatable,
             columns: [
@@ -667,7 +667,7 @@
                         }
                     },
                     { data: 'tipo_documento', name: 'tipo_documento' , title:'Tipo de Documento'},
-                    { data: 'materia', name: 'documento.materia',title:'Materia'},
+                    { data: 'materia', name: 'documento.materia',title:'Materia',width: '30%'},
                     { data: 'folio', name: 'folio', title:'Folio' },
                     { data: 'fecha_documento',data: 'fecha_documento',title:'Fecha', render: function(data, type, row)
                             {
@@ -684,6 +684,7 @@
                     },
                     { data: 'buzon_origen', name: 'buzon_origen',title:'Buzón origen'  },
                     { data: 'buzon_actual', name: 'buzon_actual',title:'Buzón Actual' },
+                    { data: 'n_estado_tramitacion', name: 'n_estado_tramitacion',title:'E. Tramitación' },
                     { data: 'destinatario', name: 'destinatario',title:'Derivado a' },
                     { data: 'id_respuesta', name:'id_respuesta',title:'ID Respuesta'},
                     { data: 'fecha_respuesta',name:'fecha_respuesta',title:'Fecha DOC Respuesta'},
@@ -790,7 +791,7 @@
             }else{
                 $("#grilla_recibidos tbody").removeClass('text-hide');
                 $("#btnBuscar span").addClass('d-none');
-                $("#btnBuscar").attr('disabled','');
+                $("#btnBuscar").removeAttr('disabled');
                 $("#btnBuscarSimple span").addClass('d-none');
                 $("#btnBuscarSimple").removeAttr('disabled');
                 console.log("end procesando grilla");
@@ -843,6 +844,7 @@
         let id_buzon_actual = $('#buscar_buzon_actual').val();
         let id_buzon_derivado = $('#buscar_derivado').val();
         let anio = $('#buscar_anio').val();
+        let estado_tramitacion = $('#estado_tramitacion').val();
         let terceros = "";
         if($('#buscar_efectos_sobre_terceros').is(":checked")){
             terceros = $('#buscar_efectos_sobre_terceros').is(":checked");
@@ -852,7 +854,7 @@
             respondidos = 1;
         }
 
-        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros+'&buscar_buzon_actual='+id_buzon_actual+'&buscar_anio='+anio+'&buscar_derivado='+id_buzon_derivado+'&buscar_fecha_ini_d='+fid+'&buscar_fecha_fin_d='+ftd+'&respondidos='+respondidos).load();
+        $('#grilla_recibidos').DataTable().ajax.url('/buscadorListar?buscar_id_documento='+id_documento+'&buscar_folio='+folio+'&buscar_tipo_documento='+tipo_documento+'&buscar_fecha_fin='+ffin+'&buscar_fecha_ini='+finicio+'&buscar_buzon_origen='+id_buzon+'&terceros='+terceros+'&buscar_buzon_actual='+id_buzon_actual+'&buscar_anio='+anio+'&buscar_derivado='+id_buzon_derivado+'&buscar_fecha_ini_d='+fid+'&buscar_fecha_fin_d='+ftd+'&respondidos='+respondidos+'&estado_tramitacion='+estado_tramitacion).load();
         var table = $('#grilla_recibidos').DataTable();
         var column = table.column(8);
         column.visible(false);
