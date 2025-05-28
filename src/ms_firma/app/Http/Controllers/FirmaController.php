@@ -75,28 +75,32 @@ class FirmaController extends Controller
                     $comentario = "No existe imagen para firma asociada al usuario.";
                     throw new Exception($comentario);
                 }
-
+                
 
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
+                $img->resize(300,100);
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
-                $img->text('Firmado electrónicamente por:', 330, 60, function ($font) {
+                $img->text('Firmado electrónicamente por:', 105, 15, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(34);
+                    $font->size(10);
                 });
-                $img->text(Str::upper($sNombre), 330, 110, function ($font) {
+                $img->text(Str::upper($sNombre), 105, 30, function ($font) {
                     $font->file(storage_path('../public/calibrib.ttf'));
-                    $font->size(34);
+                    $font->size(10);
                 });
-                $img->text('Fecha: ' . $dFechaCreacionImg, 330, 160, function ($font) {
+                $img->text('Fecha: ' . $dFechaCreacionImg, 105, 45, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(34);
+                    $font->size(10);
                 });
 
                 $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
-                $img->text($string, 330, 235, function ($font) {
+                $img->text($string, 105, 68, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(34);
+                    $font->size(10);
                 });
+
+                
+
 
                 $img->save(storage_path('app/public/files/imagen_firma/' . $sNombreImg));
 
@@ -364,7 +368,7 @@ class FirmaController extends Controller
                     $url = env('APP_URL') . '/validador_qr/' . $aInfoDocumento['hash_validacion'];
                     //$codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
                     $codigoQR = 'https://quickchart.io/qr?text=' . $url . '&size=100&.png';
-                    $html = '                                      ID: ' . $aInfoDocumento['identificador'] . ' | Para validar el documento haga click <a href="' . $url . '">aqui</a>, o escanee el codigo QR.';
+                    $html = '                                      ID: ' . $aInfoDocumento['identificador'] . ' | Para validar el documento haga click <a href="' . $url . '">aqu&iacute;</a>, o escanee el c&oacute;digo QR.';
 
 
                     if (!file_get_contents($codigoQR)) {

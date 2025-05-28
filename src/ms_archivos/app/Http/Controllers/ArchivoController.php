@@ -99,6 +99,7 @@ class ArchivoController extends Controller
             $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
             $datosRequest['generaFolio'] = $request->json()->get('generaFolio',0);
             //si existe folio, saltar proceso de obtención de folio
+            $fecha = new \DateTime('now');
             if ($nFolio == null && $datosRequest['generaFolio'] == 1) {
                 //if ($idTipoAsigFolio == 2 && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción
                 if (($idTipoAsigFolio == 2 || $idTipoAsigFolio == 4 || $idTipoAsigFolio == 5) && $idTipoFlujo == 1) //se aplica a flujo libre y tipo asig en recepción | primera firma 
@@ -140,20 +141,23 @@ class ArchivoController extends Controller
             $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 
             //unificacion para set encabezado de fecha cuando viene fecha seteada o cuando es actual    
-            if ($datosRequest['generaFolio'] == 1)
-                $sfecha = $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
+            //if ($datosRequest['generaFolio'] == 1)
+            $sfecha = $fecha->format('d') . " de " . $aMeses[$fecha->format('n') - 1] . " del " . $fecha->format('Y');
 
             $sEncabezado = $datosDocumentos['encabezado'];
             $sCuerpo = $datosDocumentos['cuerpo'];
 
+            $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
+            $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
+            $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
+            $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+
             if ($datosRequest['generaFolio'] == 1) {
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
-                $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-                $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
-                
                 $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);
-                $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
-                $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+            }else{
+                $sEncabezado = str_replace('{t_folio}', 'SIN FOLIO', $sEncabezado);
+                $sCuerpo = str_replace('{t_folio}', 'SIN FOLIO', $sCuerpo);
             }
 
             $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);

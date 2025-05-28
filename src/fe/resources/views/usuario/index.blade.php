@@ -240,7 +240,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                    <label for="input_imagen_firma">Imagen de firma</label>                        
+                    <label for="input_imagen_firma">Imagen de firma (300px * 100px)</label>                        
                         <input type="file" accept="image/*" class="form-control" id="form_imagen_firma" name="form_imagen_firma" aria-describedby="imagen_error" placeholder="">
                         <input type="hidden" id="hiddFirma" name="hiddFirma" >
                         <div class="displayImg"></div>                       
@@ -388,7 +388,7 @@
                 {
                     var formData = new FormData($("#form_usuario_crear_editar")[0]);
                     $.ajax({
-                        url: "{{route('usuarios.update')}}",
+                        url: route('usuarios.update',{id: $("input[name='form_id_usuario']").val()}),// "{{route('usuarios.update',['id'=>2])}}",
                         type:'POST',
                         data:formData,
                         contentType: false,
@@ -411,6 +411,16 @@
                         },
                         error: function (e) {
                             data = e.responseJSON;
+                            console.log(e);
+                            if (e.status ==500){
+                                let msg ='Error del servidor'
+                                if(e.responseJSON!=null) msg = e.responseJSON.message; 
+                                toastr.error(msg,"Aviso!");
+                                $('.btn-actualizar').prop("disabled", false);
+                                $('.btn-actualizar').html( 'Actualizar' );
+                                return false;
+                            }
+
                             if (typeof data.errors !== 'undefined') {
                                 printErrorMsg(data.errors);
                             }

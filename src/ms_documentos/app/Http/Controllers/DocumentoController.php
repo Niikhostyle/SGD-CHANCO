@@ -86,7 +86,7 @@ class DocumentoController extends Controller
 
                 /* IMPORTANTE::REVISAR QUE PASARÁ CON EL FOLIO SI NO SE LLEGA A CREAR EL DOCUMENTO POR ALGUN ERROR */
 
-                $dFechaCreacion = date('Y-m-d');
+                $dFechaCreacion = date('Y-m-d H:i:s');
 
                 $jsonTipoDocumento = $msVerTipoDoc->json();
 

@@ -45,7 +45,7 @@ Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':admin'
     Route::post('usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
     //Route::post('usuarios_new',[UsuarioController::class,'store'])->name('usuarios.store');
     Route::get('usuarios/{id}', [UsuarioController::class, 'show'])->name('usuarios.show');
-    Route::post('usuarios_img', [UsuarioController::class, 'update'])->name('usuarios.update');
+    Route::post('usuarios/{id}/guardar', [UsuarioController::class, 'update'])->name('usuarios.update');
     Route::put('usuarios/{id}', [UsuarioController::class, 'estado'])->name('usuarios.estado');
     Route::post('buscar_usuarios', [UsuarioController::class, 'buscar'])->name('usuarios.buscar');
 });

@@ -662,6 +662,7 @@ class BuzonController extends Controller
         return $datosArchivo;
     }
 
+    
     public function vp_sg($nID)
     {
 

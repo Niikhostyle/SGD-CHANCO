@@ -2611,6 +2611,7 @@
                                             //fn_grilla_despachados();
                                             //fn_grilla_recibidos();
                                             recarga_grilla_recibidos();
+                                            $("#collapseOne").collapse('show');
                                             //recarga_grilla_despachados();
                                             $('.btn-visar-derivar').html('Visar y Enviar');
                                             //location.reload();

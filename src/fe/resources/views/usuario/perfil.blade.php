@@ -381,7 +381,7 @@
         if(errores == 0 ) {
             var formData = new FormData($("#fEditarPerfil")[0]);
             $.ajax({
-                url: "{{route('usuarios.update')}}",
+                url: "{{route('usuarios.update',['id'=>$datos[0]])}}",
                 type:'POST',
                 data:formData,
                 contentType: false,

@@ -189,10 +189,12 @@ class UsuarioController extends Controller
         }
         //elimina buzones no asociados al usuario (menos el personal)
         $buzones = $request->buzonusuario;
+        //dd($request->form_id_usuario);
         $buzonpersonal=BuzonUsuario::where("id_usuario",$request->form_id_usuario)
-            ->with(['buzon',function($q){
+            ->whereHas('buzon',function($q){
                 $q->where('id_tipo_buzon', 1);
-            }])->first();
+            })->first();
+        
         if($buzonpersonal)
             $buzones[] = $buzonpersonal->id_buzon;
 

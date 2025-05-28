@@ -82,12 +82,12 @@
         var column = grilla_recibidos.column(1);
         column.visible(!column.visible());
     }
+
     function grillas_recibidos_texto(sTexto) {
         console.log("grillas_recibidos_texto");
         $('#documento').hide();
         fn_grilla_recibidos(sTexto);
     }
-
 
     async function fn_grilla_recibidos(q) {
         console.log("fn_grilla_recibidos",q);
@@ -1075,14 +1075,6 @@
         $("#add_documento").trigger("click");
     }
     
-    function setea_sesiones_recibidos() {
-        sessionStorage.setItem('id_recibidos', $('#gr_buscar_id_doc').val());
-        sessionStorage.setItem('td_recibidos', $('#gr_buscar_tipo_doc').val().join("|"));
-        sessionStorage.setItem('estados_recibidos', $('#gr_buscar_estado').val().join("|"));
-        sessionStorage.setItem('materia_recibidos', $('#gr_buscar_origen_materia').val());
-    }
-
-
 
     $(document).ready(function() {
     $('#gr_buscar_tipo_doc').multiselect({
