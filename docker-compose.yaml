@@ -30,8 +30,8 @@ services:
       - ./src/fe:/var/www/sgd
       - ./data/files:/var/www/sgd/storage/app/public/files
       - ./configs/fe/.env:/var/www/sgd/.env
-      - ./certificados/sgd.padrelascasas.cl.cert:/etc/ssl/certs/sgd.padrelascasas.cl.cert
-      - ./certificados/sgd.padrelascasas.cl.key:/etc/ssl/private/sgd.padrelascasas.cl.key
+      - ./certificados/${APP_URL}.cert:/etc/ssl/certs/certificado.cert
+      - ./certificados/${APP_URL}.key:/etc/ssl/private/certificado.key
       - ./logs/sgd_fe:/src/storage/logs
     ports: 
       - "${APP_HTTP_PORT}:80"
@@ -292,7 +292,7 @@ services:
     container_name: sgd_ms_cert
     #restart: always
     volumes:
-      - ./src/fe/public_html:/var/www/certbot
+      - ./src/fe/public:/var/www/certbot
       - ./configs/cert/:/etc/letsencrypt/:rw
     links:
       - sgd_fe

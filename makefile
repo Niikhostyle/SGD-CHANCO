@@ -7,6 +7,9 @@ sgd:
 
 sgd_up_build:
 	@echo $(mensaje_inicio)
+	@echo "=================== Copiando archivos de configuracion ==================="
+	test -f configs/fe/.env || cp configs/fe/.env.base configs/fe/.env
+	test -f configs/ms/.env || cp configs/ms/.env.base configs/ms/.env
 	@echo "=================== Creando imagenes y levantando contenedores ==================="
 	docker compose up -d --build
 	sleep 5
@@ -15,7 +18,7 @@ sgd_up_build:
 	docker exec -it -u 0 sgd_ms_usuarios bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_tipos_documentos bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_buzones bash -c 'cd /src ; composer install'
-	docker exec -it -u 0 sgd_ms_parametros bash -c 'cd /src ; composer install'
+#	docker exec -it -u 0 sgd_ms_parametros bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_documentos bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_archivos bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_bitacora bash -c 'cd /src ; composer install'
@@ -25,6 +28,7 @@ sgd_up_build:
 	docker exec -it -u 0 sgd_ms_verifica bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_notificaciones bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_descargas bash -c 'cd /src ; composer install'
+#agregar proteccion a carpetas de configuracion
 
 	@echo $(mensaje_fin)
 
@@ -73,5 +77,10 @@ sgd_customize:
 sgd_cert:
 	@echo $(mensaje_inicio)
 	@echo "=================== Ejecutando Certificado ==================="
-	docker exec -it sgd_ms_cert certonly --webroot --webroot-path /var/www/certbot -d $(APP_URL)
+	docker compose down
+	docker compose run --rm sgd_ms_cert certonly  --webroot --webroot-path /var/www/certbot -d $(APP_URL)
+	cp configs/cert/live/$(APP_URL)/privkey.pem certificados/certificado.key
+	cp configs/cert/live/$(APP_URL)/fullchain.pem certificados/certificado.cert
+	docker compose down
+	docker compose up -d
 	@echo $(mensaje_fin)

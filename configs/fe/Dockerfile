@@ -68,7 +68,7 @@ RUN echo "ServerTokens Prod\n" >> /etc/apache2/apache2.conf
 # Make laravel feel comfortable with mod-rewrite
 
 #AGREGADO PARA CERTIFICADOS SSL
-RUN sed -i 's/ssl-cert-snakeoil\.pem/sgd\.padrelascasas\.cl\.cert/g' /etc/apache2/sites-available/default-ssl.conf && sed -i 's/ssl-cert-snakeoil.key/sgd\.padrelascasas\.cl\.key/g' /etc/apache2/sites-available/default-ssl.conf
+RUN sed -i 's/ssl-cert-snakeoil\.pem/certificado\.cert/g' /etc/apache2/sites-available/default-ssl.conf && sed -i 's/ssl-cert-snakeoil.key/certificado\.key/g' /etc/apache2/sites-available/default-ssl.conf
 RUN a2ensite default-ssl
 RUN apt-get update && apt-get upgrade -y
 #FIN AGREGADO PARA CERTIFICADOS SSL
