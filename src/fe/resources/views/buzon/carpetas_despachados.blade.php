@@ -102,6 +102,9 @@ async function fn_grilla_despachados(q) {
                 {
                     title:'Fecha Despacho',
                     data: 'fecha_envio',
+                    render: function(data) {
+                        return moment(data).format('DD-MM-YYYY')+"<br/>"+moment(data).format('HH:mm');
+                    }
                 },
                 {
                     title:'TD',
@@ -160,7 +163,7 @@ async function fn_grilla_despachados(q) {
                     data: 'fecha_creacion',
                     responsivePriority:10002,
                     render: function(data) {
-                        return moment(data).format('DD-MM-YYYY HH:mm');
+                        return moment(data).format('DD-MM-YYYY')+"<br/>"+moment(data).format('HH:mm');
                     }
                 },
                 {

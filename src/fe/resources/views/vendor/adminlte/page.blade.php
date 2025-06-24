@@ -55,7 +55,7 @@
      <script>
      $(document).ready(function () {
         getContadores();
-        setInterval(() => getContadores(), 60000);
+        setInterval(() => getContadores(), 300000); // Actualiza cada 5 minutos
      });
 
     function getContadores(){

@@ -19,7 +19,9 @@ class DocumentoBuzonBitacora extends Model{
         'informacion_solicitud',
         'mensaje_respueta'
     ];
-
+    protected $casts = [
+        'informacion_solicitud' => 'array',
+    ];
     public function rel_documento_buzon()
     {
         return $this->belongsTo(DocumentoBuzon::class, 'id_documento_buzon', 'id_documento_buzon');

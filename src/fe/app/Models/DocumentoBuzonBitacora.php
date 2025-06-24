@@ -20,9 +20,21 @@ class DocumentoBuzonBitacora extends Model{
         'mensaje_respuesta'
     ];
 
+    protected $casts = [
+        'informacion_solicitud' => 'array',
+    ];
+
     public function rel_documento_buzon()
     {
         return $this->belongsTo(DocumentoBuzon::class, 'id_documento_buzon', 'id_documento_buzon');
+    }
+    public function accion()
+    {
+        return $this->belongsTo(Accion::class, 'id_accion', 'id_accion');
+    }
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario', 'id');
     }
 
 

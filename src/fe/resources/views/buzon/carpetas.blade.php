@@ -344,7 +344,6 @@
                             <input type="hidden" name="hiddBuzonUltima" id="hiddBuzonUltima" value="0">
                             <input type="hidden" name="hiddNroFirmas" id="hiddNroFirmas" value="0">
 
-
                         </div>
                     </div>
                 </form>
@@ -359,28 +358,30 @@
 <!-- Bitacora-->
 <div class="card" id="card_bitacora" style="display:none">
     <div class="card-header">
-        <h4 id="titulo_accion">Bitácora</h4>
+        <h4 id="titulo_accion">Bitácora <span id="BitIdAsignado"></span></h4>
         <div class="linea_content_header"></div>
     </div>
     <div class="card-body">
-        <div class="col"><b>ID: <span id="idAsignado2"></span></b></div>
-        <div class="col"><b>Materia: <span id="textMateria"></span></b></div>
+        <div class="col"><b>Tipo: </b><span id="BitTipo"></span></div>
+        <div class="col"><b>Folio: </b><span id="BitFolio"></span></div>
+        <div class="col"><b>Materia: </b><span id="BitMateria"></span></div>
+        <div class="col"><b>Estado: </b><span id="BitEstado"></span></div>
         <br>
 
         <div class="form-check" style="padding-right: 5px;">
-            <input class="form-check-input" type="checkbox" value="DDP" name="buscar_accion" id="accion_ddp">
+            <input class="form-check-input" type="checkbox" value="DDP" name="filtro_derivaciones_bitacora" id="accion_ddp">
             <label class="form-check-label" for="defaultCheck1">
                 Derivaciones destinatarios principales (DDP)
             </label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="DOD" name="buscar_accion" id="accion_dop">
+            <input class="form-check-input" type="checkbox" value="DOD" name="filtro_derivaciones_bitacora" id="accion_dop">
             <label class="form-check-label" for="defaultCheck1">
                 Derivaciones otros destinatarios (DOD)
             </label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="CAP" name="buscar_accion" id="accion_cap">
+            <input class="form-check-input" type="checkbox" value="CAP" name="filtro_derivaciones_bitacora" id="accion_cap">
             <label class="form-check-label" for="defaultCheck1">
                 Cambios Archivos Principal (CAP)
             </label>
@@ -2354,7 +2355,7 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
-
+        
 
 
         setea_sesiones_recibidos();
@@ -3684,15 +3685,14 @@
         $('#card_crear_documento').hide();
         $('#card_bitacora').show();
 
-        $('input[name="buscar_accion"]').on('change', function() {
-            var types = $('input:checkbox[name="buscar_accion"]:checked').map(function() {
-                return '^' + this.value + '\$';
-            }).get().join('|');
-
-            gridBitacora.fnFilter(types, 0, true, false, false, false);
-        });
-
-        cargar_datos_bitacora(id_documento);
+        //cargar_datos_bitacora(id_documento);
+       let res = get_tabla_bitacora(id_documento,'#tabla_bitacora_grilla');
+       console.log(res);
+        if(!res){
+              $("#collapseOne").collapse('show');
+              $('#card_bitacora').hide();
+                           // $('#card_crear_documento').hide();
+        }
     }
 
     function bitacora_modal(id_documento){
@@ -3707,10 +3707,11 @@
         $("#collapseOne").collapse('hide');
         $('#card_crear_documento').show();
         $('#card_bitacora').hide();
-
-        if (carpeta == 2)
+    /*
+        {{-- if (carpeta == 2)
             var docBuzon = id_documento_buzon_padre;
-        else
+        else --}}
+        */
             var docBuzon = id_documento_buzon;
         $.ajax({
            // url: "/documentos/" + id_documento,

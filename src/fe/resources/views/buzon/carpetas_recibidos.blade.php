@@ -173,7 +173,7 @@
                         data: 'fecha_envio_recepcion',
                         title:'Recibido',
                         render: function(data) {
-                            return moment(data).format('DD-MM-YYYY HH:mm');
+                            return moment(data).format('DD-MM-YYYY')+"<br/>"+moment(data).format('HH:mm');
                         }
                     },
                     //[4]

@@ -324,20 +324,20 @@ function grilla_por_recibir_texto(sTexto) {
                         if (data == null)
                             return '';
                         else
-                            return moment(data).format('DD-MM-YYYY HH:mm');
+                            return moment(data).format('DD-MM-YYYY')+"<br/>"+moment(data).format('HH:mm');
                     }
                 },
                 {
                     title: 'Materia',
                     data: 'materia',
                     name: 'documento.materia',
-                    'width': 200,
+                    {{-- 'width': 200,
                     render: function(data) {
                         if (data == null) {
                             return '';
                         }
                         return data.length > 60 ? data.substr(0, 60) + '…' : data;
-                    },
+                    }, --}}
                 },
 
                 {

@@ -21,6 +21,7 @@ use App\Http\Controllers\MailController;
 use App\Mail\MailController as MailMailController;
 use App\Models\Buzon;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -120,7 +121,7 @@ class DocumentoController extends Controller
                     'encabezado' => $datosDocumento['encabezado'],
                     'cuerpo' => $datosDocumento['cuerpo'],
                     'distribucion' => $datosDocumento['distribucion'],
-                    'fecha' => $dFechaCreacion,
+                    'fecha' => date('Y-m-d H:i:s'),//$dFechaCreacion,
                     'hash_validacion' => $sHash,
                     'folio' => $nFolio,
                     'anio_tramitacion' => date('Y'), //asigna año de tramitacion (al momento de firmar, cambia por el año de la firma)    
@@ -135,7 +136,7 @@ class DocumentoController extends Controller
                     'id_estado_documento' => 1,
                     'id_tipo_destino' => 1,
                     'id_documento_buzon_padre' => null,
-                    'fecha' => $dFechaCreacion,
+                    'fecha' => date('Y-m-d H:i:s'),//$dFechaCreacion,
                     'contestar_hasta' => $datosDocumento['contestar_hasta'],
                     'notificado' => false,
                     'recibido' => false,
@@ -145,7 +146,7 @@ class DocumentoController extends Controller
                 $documentoBuzonBitacora = DocumentoBuzonBitacora::create([
                     'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
                     'id_accion' => 1,
-                    'fecha' => $dFechaCreacion,
+                    'fecha' => date('Y-m-d H:i:s'),//$dFechaCreacion,
                     'id_usuario' => $datosDocumento['id_usuario']
                 ]);
 
@@ -154,7 +155,7 @@ class DocumentoController extends Controller
                     $documentoBuzonBitacoraFolio = DocumentoBuzonBitacora::create([
                         'id_documento_buzon' => $documentoBuzon->id_documento_buzon,
                         'id_accion' => 9,
-                        'fecha' => $dFechaCreacion,
+                        'fecha' => date('Y-m-d H:i:s'),//$dFechaCreacion,
                         'id_usuario' => $datosDocumento['id_usuario']
                     ]);
                 }
@@ -192,7 +193,6 @@ class DocumentoController extends Controller
                 //3: elimina dest secundario y crea nuevamente
 
                 $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
-
 
                 if ($datosDocumento->id_documento != '') {
                     $dFechaCreacion = date('Y-m-d H:i:s');
@@ -319,7 +319,7 @@ class DocumentoController extends Controller
                                 'id_buzon' => $datosRequest['destinatarioPrincipal'],
                                 'id_carpeta' => 1,
                                 'id_estado_documento' => 1,
-                                'fecha' => $dFechaCreacion,
+                                'fecha' => date('Y-m-d H:i:s'),//,$dFechaCreacion,
                                 'json_acciones' => json_encode($jsonAcciones),
                                 'comentario_principal' => $datosRequest['comentarioPrincipal'],
                                 'contestar_hasta' => $datosRequest['contestar_hasta'],
@@ -424,6 +424,7 @@ class DocumentoController extends Controller
                         $aFilesDelete = explode(',', $datosRequest['fileDelete']);
                         foreach ($aFilesDelete as $idDocBuzArchivo) {
                             $datosArchivo = DocumentoBuzonArchivo::findOrFail($idDocBuzArchivo);
+                            
                             if ($datosArchivo['id_tipo_archivo'] == 1) {
                                 $docsPpales = DocumentoBuzonArchivo::where('id_documento_buzon', $datosArchivo['id_documento_buzon'])
                                     ->where('id_tipo_archivo', 1)
@@ -437,15 +438,20 @@ class DocumentoController extends Controller
                             $filenameCodificado = storage_path('app/public/files/' . $sDocDelete);
                             if (file_exists($filenameCodificado))
                                 unlink($filenameCodificado);
-                            DocumentoBuzonArchivo::where('id_documento_buzon_archivo', $idDocBuzArchivo)->delete();
+                           
                             //se agrega registro de eliminacion de archivo
+                            $tipoArch = ["", "Principal", "Anexo", "Otro"];
+
+                            $datosArchivo->delete();
                             DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $datosRequest["id_documento_buzon"],
                                 'id_accion' => 4,
                                 'fecha' => $dFechaCreacion,
                                 'id_usuario' => $datosRequest['id_usuario'],
-                                'Comentario' => 'Se elimina archivo '.$filenameCodificado,
+                                'comentario' => 'Se elimina archivo '.$tipoArch[$datosArchivo["nombre_archivo_original"]].' '.$datosArchivo["nombre_archivo_original"],
                             ]);
+
+
                         }
                     }
 
@@ -510,10 +516,9 @@ class DocumentoController extends Controller
     }
 
 
-    public function derivar(Request $request)
+    public function devolver(Request $request)
     {
         $datosRequest = $request->json()->all();
-        $dFechaCreacion = date('Y-m-d H:i:s');
         try {
             DB::beginTransaction();
             if ($datosRequest['carpeta'] == 1) //por recibir, para devolver
@@ -528,25 +533,27 @@ class DocumentoController extends Controller
                     'id_documento' => $datosUpdate->id_documento,
                     'id_buzon' => $datosRequest['destinatarioPrincipal'],
                     'id_carpeta' => 1,
-                    'id_estado_documento' => 3,
+                    'id_estado_documento' => 3,// estado por recibir
                     'id_tipo_destino' => 1,
                     'id_documento_buzon_padre' => $datosRequest['id_documento_buzon'],
                     'json_acciones' => $datosRequest['acciones'],
                     'comentario_principal' => $datosRequest['comentarioPrincipal'],
-                    'fecha' => $dFechaCreacion,
+                    'fecha' => date('Y-m-d H:i:s'),
                     //'contestar_hasta' => $datosRequest['contestar_hasta'],
                     'notificado' => false,
                     'recibido' => false,
                     'favorito' => false
                 ]);
-                //bitácora
+                //bitácora (crea envio desde este buzon hacia el buzon de devolución)
                 DocumentoBuzonBitacora::create([
                     'id_documento_buzon' => $datosDocumentoBuzon->id_documento_buzon,
                     //'id_buzon' => $datosRequest['destinatarioPrincipal'],
                     'id_accion' => 2,
-                    'fecha' => $dFechaCreacion,
+                    'fecha' => date('Y-m-d H:i:s'),
                     'id_usuario' => $datosRequest['id_usuario'],
-                    'comentario' => "Devolución: " . $datosRequest['comentarioPrincipal']
+                    'comentario' => "Devolución: " . $datosRequest['comentarioPrincipal'],
+                    'informacion_solicitud' => ["buzon_destino" => $datosRequest['destinatarioPrincipal'], "id_tipo_destino"=>1,"mensaje"=>$datosRequest['comentarioPrincipal']],
+                    
                 ]);
                 DB::commit();
                 return $this->respondSuccess("Documento enviado", 200);
@@ -684,7 +691,8 @@ class DocumentoController extends Controller
                         'id_documento_buzon' => $datosRequest['id_documento_buzon'],
                         'id_accion' => 2,
                         'fecha' => $dFechaCreacion,
-                        'id_usuario' => $datosRequest['id_usuario']
+                        'id_usuario' => $datosRequest['id_usuario'],
+                        'informacion_solicitud' => ["buzon_destino" =>(int) $datosRequest['destinatarioPrincipal'], "id_tipo_destino"=>1,'mensaje'=>$datosDocumentoBuzonD1->comentario_principal],
                     ]);
 
 
@@ -701,7 +709,7 @@ class DocumentoController extends Controller
                         ->whereIn('id_buzon', $aOtrosDestinatarios)
                         ->whereIn('id_estado_documento', $estadoDocumentoActual)
                         ->where('id_tipo_destino', '2')
-                        ->select('id_documento_buzon')
+                        ->select(['id_documento_buzon','id_buzon'])
                         ->get();
                     foreach ($datosDocumentoBuzonD2 as $dato) {
                         DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
@@ -712,7 +720,8 @@ class DocumentoController extends Controller
                             'id_documento_buzon' => $dato["id_documento_buzon"],
                             'id_accion' => 2,
                             'fecha' => $dFechaCreacion,
-                            'id_usuario' => $datosRequest['id_usuario']
+                            'id_usuario' => $datosRequest['id_usuario'],
+                            'informacion_solicitud' => ["buzon_destino" => (int)$dato["id_buzon"], "id_tipo_destino"=>2,'mensaje'=>$dato["comentario_secundario"]],
                         ]);
                     }
                 } else {
@@ -727,7 +736,7 @@ class DocumentoController extends Controller
                 return $this->respondSuccess("Documento enviado", 200);
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
-
+                Log::error($e->getMessage() . ' linea: ' . $e->getLine());//rror('Falla al enviar documento: ' . $e->getMessage());
                 return $this->respondError('Falla al enviar documento:' . $e->getMessage(), 500);
             }
         } else
@@ -1436,7 +1445,8 @@ class DocumentoController extends Controller
                         'id_documento_buzon' => $datosRequest['id_documento_buzon'],
                         'id_accion' => 2,
                         'fecha' => $dFechaCreacion,
-                        'id_usuario' => $datosRequest['id_usuario']
+                        'id_usuario' => $datosRequest['id_usuario'],
+                        'informacion_solicitud' => ["buzon_destino" => $datosDocumentoBuzonD1->id_buzon, "id_tipo_destino"=>$datosDocumentoBuzonD1->id_tipo_destino,"mensaje"=>$datosDocumentoBuzonD1->comentario_principal],
                     ]);
 
                     DB::commit();

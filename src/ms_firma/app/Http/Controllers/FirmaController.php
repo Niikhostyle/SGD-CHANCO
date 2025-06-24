@@ -78,25 +78,24 @@ class FirmaController extends Controller
                 
 
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
-                $img->resize(300,100);
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
-                $img->text('Firmado electrónicamente por:', 105, 15, function ($font) {
+                $img->text('Firmado electrónicamente por:', 330, 60, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(10);
+                    $font->size(34);
                 });
-                $img->text(Str::upper($sNombre), 105, 30, function ($font) {
+                $img->text(Str::upper($sNombre), 330, 110, function ($font) {
                     $font->file(storage_path('../public/calibrib.ttf'));
-                    $font->size(10);
+                    $font->size(34);
                 });
-                $img->text('Fecha: ' . $dFechaCreacionImg, 105, 45, function ($font) {
+                $img->text('Fecha: ' . $dFechaCreacionImg, 330, 160, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(10);
+                    $font->size(34);
                 });
 
                 $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
-                $img->text($string, 105, 68, function ($font) {
+                $img->text($string, 330, 235, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
-                    $font->size(10);
+                    $font->size(34);
                 });
 
                 
@@ -156,7 +155,7 @@ class FirmaController extends Controller
                         $nGeneraFolio = 1;
                     }
 
-                    if ((($idTipoAsigFolio == 5 || $idTipoAsigFolio == 1) && count($datosBitacora) == 0)) {
+                    if ((($idTipoAsigFolio == 5 || $idTipoAsigFolio == 1  || $idTipoAsigFolio == 3) && count($datosBitacora) == 0)) {
                         $nGeneraFolio = 0;
                         if (!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                             $nGeneraArchivo = 1;
@@ -368,7 +367,7 @@ class FirmaController extends Controller
                     $url = env('APP_URL') . '/validador_qr/' . $aInfoDocumento['hash_validacion'];
                     //$codigoQR ='http://chart.apis.google.com/chart?chs=90x90&cht=qr&chl='.$url.'&.png';
                     $codigoQR = 'https://quickchart.io/qr?text=' . $url . '&size=100&.png';
-                    $html = '                                      ID: ' . $aInfoDocumento['identificador'] . ' | Para validar el documento haga click <a href="' . $url . '">aqu&iacute;</a>, o escanee el c&oacute;digo QR.';
+                    $html = '                                      ID: ' . $aInfoDocumento['identificador'] . ' | Para validar el documento haga click <a href="' . $url . '">aqui</a>, o escanee el codigo QR.';
 
 
                     if (!file_get_contents($codigoQR)) {
@@ -561,7 +560,6 @@ class FirmaController extends Controller
                             }
 
                             //firma anexos
-
                             $fAnexos = $this->firmaAnexos($datos['id_documento'], $datosBitacora, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma);
 
                             
@@ -641,7 +639,7 @@ class FirmaController extends Controller
                 $msgError = "Error al generar la Firma Electrónica (1):" . $e->getMessage();
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'], $msgError, 13);
                 $this->deleteImg($sNombreImg);
-                $this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
+                //$this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
                 $this->saveLog($datos['id_documento'], $e->getMessage());
 
                 Log::error("IDDOC=" . $datos['id_documento'] . " Error al generar la Firma Electrónica(1): " . $e->getMessage() . $e->getFile() . " " . $e->getLine());
@@ -706,7 +704,7 @@ class FirmaController extends Controller
         } else {
             $aSalida = array("status" => "400", "error" => $output);
         }
-
+        Log::error("salida " . var_dump($output));
         return $aSalida;
     }
 
@@ -777,8 +775,9 @@ class FirmaController extends Controller
                     $nNombreArchivoCargarAnexo = "a_" . $archAnexo->nombre_archivo_codificado;
 
                     $sArchivoAnexo = storage_path('app/public/files/' . $archAnexo->nombre_archivo_codificado);
+                    
                     //convertir a PDF 1.4
-                   // $sArchivoAnexo = $this->convertPDF($archAnexo->nombre_archivo_codificado);
+                    $sArchivoAnexo = $this->convertPDF($archAnexo->nombre_archivo_codificado);
 
                     //lamada por hash a anexos
                     //Obtiene pagina para agregar firma
@@ -814,7 +813,7 @@ class FirmaController extends Controller
                 }
 
                 //elimina imagen anexo de firma
-                $this->deleteImg($sNombreImgAnexo);
+               // $this->deleteImg($sNombreImgAnexo);
             }
         }
 

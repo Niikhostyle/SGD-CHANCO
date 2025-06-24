@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorControl
 Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar/',[BuscadorController::class,'listar'])->name('buscador.listar');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}',[BuscadorController::class,'show'])->name('buscador.show'); //bitacora
 Route::middleware(['auth:sanctum', 'verified'])->get('bitacora/{id}',[BuscadorController::class,'bitacora'])->name('documento.bitacora'); //bitacora
+Route::middleware(['auth:sanctum', 'verified'])->get('fixbitacora',[BuscadorController::class,'fixbitacora'])->name('documento.fixbitacora'); //bitacora
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[BuscadorController::class,'documentoBuzonArchivo'])->name('buscador.documentoBuzonArchivo');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscar_categorias',[BuscadorController::class,'buscar'])->name('buscador.categorias');

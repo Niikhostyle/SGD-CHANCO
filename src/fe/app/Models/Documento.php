@@ -57,6 +57,9 @@ class Documento extends Model{
     public function tipo_documento(){
         return $this->belongsTo(TipoDocumento::class, 'id_tipo_documento', 'id_tipo_documento');
     }
+        public function estado_tramitacion(){
+        return $this->belongsTo(EstadoTramitacion::class,'estado_tramitacion', 'id');
+    }
 }
 
  

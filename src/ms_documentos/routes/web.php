@@ -20,7 +20,7 @@ $router->group(['middleware' => ['auth']], function () use ($router){
     $router->get('/api/sgd-documentos/ver', 'DocumentoController@ver');
     $router->put('/api/sgd-documentos/actualizar_estado', 'DocumentoController@actualizar_estado');
     $router->put('/api/sgd-documentos/archivar', 'DocumentoController@archivar');
-    $router->put('/api/sgd-documentos/derivar', 'DocumentoController@derivar');
+    $router->put('/api/sgd-documentos/devolver', 'DocumentoController@devolver');
     $router->get('/api/sgd-documentos/listarFavoritos', 'DocumentoController@listarFavoritos');
     $router->get('/api/sgd-documentos/listarDocumentosBitacora', 'DocumentoController@listarDocumentosBitacora');
     $router->put('/api/sgd-documentos/estadoFavorito', 'DocumentoController@estadoFavorito'); 

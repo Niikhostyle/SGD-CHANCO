@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buzon;
 use App\Models\Documento;
 use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
@@ -213,186 +214,121 @@ class BuscadorController extends Controller
 
     }
 
-    public function bitacora($id)
+    public function bitacora($idDocumento)
     {
-        $sesion_key =  AppServiceProvider::session_key_general();
-        // $lista_bitacora = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
-        //     ->timeout(10)
-        //     ->withBody(json_encode([
-        //         'id_documento' => $id,
-        //     ]), 'json')
-        //     ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentosBitacora')->throw();
-        // if ($lista_bitacora->failed()) {
-        //     $mensaje = $lista_bitacora->json()['data']['comentario'];
+        $info = Documento::with([
+                'tipo_documento' => function($query) {
+                    $query->select(['id_tipo_documento', 'nombre']);
+                },
+                'estado_tramitacion' => function($query) {
+                    $query->select(['id', 'nombre']);
+                }])
+            ->where('id_documento', $idDocumento)
+            ->select(["id_documento","folio","materia","id_tipo_documento","estado_tramitacion","anio_tramitacion"])
+            ->first();
 
-        //     $lista_bitacora = ['data' => [
-        //         0 => ['accion' => '', 'fecha_documento' => '', 'buzon_origen' => '', 'nombre_accion' => '', 'mensaje_respuesta' => '', 'tipo_destino' => '', 'materia' => '',  'identificador' => '']
-        //     ]];
-        //     toast($mensaje, 'error');
-        //     return response()->json($lista_bitacora);//->json();
-        // } else {
-        //     return $lista_bitacora->json();
-        // }
-
-
-        // $lista_bitacora = DB::select('
-        //     select db.id_documento_buzon,db.id_buzon, 
-        //     db.id_carpeta,db.id_estado_documento ,db.id_tipo_destino ,db.id_documento_buzon_padre,
-        //     dbb.*
-        //     from documento_buzon db
-        //     join documento d on d.id_documento = db.id_documento
-        //     join documento_buzon_bitacora dbb on dbb.id_documento_buzon = db.id_documento_buzon 
-        //     where d.id_documento ='.$id.'
-        //     order by dbb.created_at asc
-        // ');
-        $lista_bitacora = DocumentoBuzon::leftJoin('documento_buzon_bitacora', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
-            ->join('documento', 'documento.id_documento', '=', 'documento_buzon.id_documento')
-            ->join('buzon','buzon.id_buzon',"=",'documento_buzon.id_buzon')
-            ->leftJoin('accion','accion.id_accion',"=",'documento_buzon_bitacora.id_accion')
-            ->join('users','users.id',"=",'documento_buzon_bitacora.id_usuario')
-            ->where('documento.id_documento', $id)
-            //->where('documento_buzon_bitacora.id_accion','<>',2)
-            ->orderBy('documento_buzon_bitacora.created_at', 'asc')
-            ->get([
-                'documento_buzon_bitacora.id_documento_buzon',
-                'documento_buzon.id_documento',
-                'documento_buzon_bitacora.id_documento_buzon_bitacora',
-                'documento_buzon_bitacora.id_accion',
-                'accion.nombre as nombre_accion',
-                'documento_buzon_bitacora.fecha',  
-                'documento_buzon_bitacora.id_usuario',  
-                'documento_buzon_bitacora.comentario',  
-                'documento_buzon_bitacora.informacion_solicitud',  
-                'documento_buzon_bitacora.mensaje_respuesta',  
-                'documento_buzon.id_buzon',
-                'buzon.nombre as buzon',
-                'documento_buzon.id_carpeta',
-                'documento_buzon.id_estado_documento',
-                'documento_buzon.id_tipo_destino',
-                'documento_buzon.id_documento_buzon_padre',
-                'documento_buzon.comentario_principal',
-                'documento_buzon.comentario_secundario',
-                'documento.id_documento',
-                DB::raw("CONCAT(users.nombres,' ',users.primer_apellido,' ',users.segundo_apellido)  as nombre_usuario")
-            
-            ]);
-        if($lista_bitacora->isEmpty()){
-            return response("no hay registros",423);
-        }
-        $bitacora = $this->bitacoraDestino($lista_bitacora[0]->id_documento_buzon,$lista_bitacora,[]);
+        $derivacion = DocumentoBuzon::with(['buzon'=> fn($q) => $q->withTrashed()])->where('id_documento', $idDocumento)->get();
+        $arbol = $this->arbolDocumentoBuzon($idDocumento,$derivacion);
+        $res = [];
         
-        // dd($bitacora);
-        // die;
-        //limpiar bitacora y agregar mensajes 
-        foreach ($bitacora as $key=>$item){
-            //adecuacion accion y mensaje
-           // var aTxtSalida = ['', '', 'Derivación a buzón ', 'Recepción en', 'Edición en', 'Cambio en archivo principal', 'Visación en', 'Firma PDF en', 'Generación de PDF en', '', 'Finalizado en', '', 'Archivado en', 'Enviado a Firma', 'Desarchivado en'];
+        $this->recorrerArrayRecursivo($arbol, function($nodo) use(&$res){
+            //dump($nodo);
+            foreach ($nodo["bitacora"] as $key => $value) {
+                $value["buzon"] = $nodo["buzon"];
+                $value["mensaje"] =[];
+                $value["nodo"] = $nodo;
 
-           $bitacora[$key]["mensaje"] = $item["mensaje_respuesta"]." ".$item["comentario"];
-            switch($item["id_accion"]){
-                case 1:
-                    $bitacora[$key]["accion"] = "Creación documento";
-                    break;
-                case 2:
-                    $bitacora[$key]["accion"] = "Derivación ".(($item["id_tipo_destino"]==2)?'<b>copia</b> ':'')."a '".($item["buzon_destino"]??'-')."'";
-                    $bitacora[$key]["mensaje"] = ($item["id_tipo_destino"]==1)?$item["comentario_principal"]:$item["comentario_secundario"];
-                    break;
-                case 3:
-                    $bitacora[$key]["accion"] = "Recepción ".(($item["id_tipo_destino"]==2)?'<b>copia</b> ':'')."en '".$item["buzon"]."'";  
-                    break;
-                default:
-                    $bitacora[$key]["accion"] = $item["nombre_accion"];                  
+                //leer si tiene destino (accion 2)
+                if(isset($value["informacion_solicitud"]["buzon_destino"])){
+                    //tipo derivacion destino
+                    $dest = Buzon::withTrashed()->find($value["informacion_solicitud"]["buzon_destino"]);
+                    //$der = DocumentoBuzon::where('id_documento', $value["id_documento"])->where('id_documento_buzon_padre', $value["id_documento_buzon"])->first();
+                    if($dest){
+                        $value["buzon_destino"] = $dest->nombre;
+                        $value["id_tipo_destino"] = $value["informacion_solicitud"]["id_tipo_destino"] ?? $nodo["id_tipo_destino"];
+                        $value["mensaje"][] = $value["informacion_solicitud"]["mensaje"];
+                    } else {
+                        $value["buzon_destino"] = null;
+                        $value["id_tipo_destino"] = $nodo["id_tipo_destino"];
+                    }
+                } else {
+                    $value["buzon_destino"] = null;
+                    $value["id_tipo_destino"] = $nodo["id_tipo_destino"];
+                }
+
+                //mensajes u otra información de la solicitud
+                if(isset($value["comentario"])) {$value["mensaje"][]= $value["comentario"];}
+                if(isset($value["mensaje_respuesta"])) {$value["mensaje"][]= $value["mensaje_respuesta"];}
+                $value["mensaje"] = implode('<br>', $value["mensaje"]);
+
+
+             
+               //$value["nombre_usuario"] = $nodo["usuario"]["nombres"]." - ".;
+               $res[] = $value;
             }
-
-
-
-        }
-
-        return response()->json($bitacora);
-
-
-
-        
-        
+        });
+//dd($arbol);
+        return response()->json(['info'=>$info,'data'=>$res]);
     }
 
-    private function bitacoraDestino($derivacion,$bitacora,$acumulador){ 
-        
-        $arr_derivacion = $bitacora->where('id_documento_buzon', $derivacion);
-
-        $hijos = $bitacora->where('id_documento_buzon_padre',$derivacion)->unique('id_documento_buzon')->pluck('id_documento_buzon');
-        if($hijos->isEmpty()){
-            // consultar si hay destino en base de datos y agregarlo 
-            $destino = DocumentoBuzon::Where('id_documento_buzon_padre', $derivacion)->where('id_tipo_destino', 1)->first();
-            if($destino){
-                
-                $arr_derivacion->last()->id_buzon_destino = $destino->id_buzon;
-                $arr_derivacion->last()->buzon_destino = $destino->buzon->nombre;
-                $arr_derivacion->last()->comentario_principal = $destino->comentario_principal;
-                $arr_derivacion->last()->comentario_secundario = $destino->comentario_secundario;
-                $arr_derivacion->last()->dato_corregido = 'se agrega destino mediante consulta';
-            }else{
-                // dump($derivacion);
-                // dump($arr_derivacion->where("id_accion",2)->toArray());
-            }
-
-            //$arr_derivacion->where('id_accion', 2)->first()->dato_corregido = 'sin hijos';
-            return $arr_derivacion->toArray();
-        }
-        foreach($hijos as $item){
-            $bit = $bitacora->where('id_documento_buzon', $item);
-            if($bit->count() == 1){
-                // si este registro es solo accion derivar.... asociar al envio 
-                $der = $bit->where('id_accion', 2);
-                if($der->count()==1){
-                    //echo "Fin Nodo  ".$item." ";
-                    $der->first()->id_documento_buzon_clon = $derivacion;
-                    $der->first()->id_documento_buzon_padre = $arr_derivacion->last()->id_documento_buzon_padre;
-                    $der->first()->id_buzon_destino = $der->first()->id_buzon;
-                    $der->first()->buzon_destino = $der->first()->buzon;
-                    // $der->first()->comentario_principal = $arr_derivacion->last()->comentario_principal;
-                    // $der->first()->comentario_secundario = $arr_derivacion->last()->comentario_secundario;
-                    $der->first()->dato_corregido = 'SI';
-                }else{
-                    $bit->first()->dato_corregido = 'NO';
+    /**
+     * Construye un árbol de documentos en el buzón.
+     *
+     * @param int $idDocumento
+     * @param int|null $padreId
+     * @return array
+     */
+    private function arbolDocumentoBuzon($idDocumento,$derivaciones, $padreId = null)
+    {
+        $hijos = $derivaciones->where('id_documento', $idDocumento)
+            ->where('id_documento_buzon_padre', $padreId);
+        //dump($hijos);
+        $resultado = [];
+        foreach ($hijos as $hijo) {
+            // Obtén los archivos asociados a este documento_buzon
+            $bitacora = DocumentoBuzonBitacora::with([
+                'usuario'=>function($query) {
+                    $query->select(['nombres','primer_apellido','segundo_apellido', 'id']);
+                },
+                'accion'=>function($query) {
+                    $query->select(['nombre', 'id_accion']);
                 }
-            }
-            else{
-                // agregar campo destino en padre
-                foreach($arr_derivacion->where('id_accion', 2) as $der_padre ){
-                    $der_padre->id_buzon_destino = $bit->first()->id_buzon;
-                    $der_padre->buzon_destino = $bit->first()->buzon;
-                    $der_padre->comentario_principal = $bit->first()->comentario_principal;
-                    $der_padre->comentario_secundario = $bit->first()->comentario_secundario;
-                    $der_padre->dato_corregido = 'se agrega destino';
-                }
-            }
-            $acumulador = array_merge($acumulador,$this->bitacoraDestino($item, $bitacora,$acumulador));
+            ])
+                ->where('id_documento_buzon', $hijo->id_documento_buzon)->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+            //revisar bitacora       
+            $resultado[] = [
+                'id_documento_buzon' => $hijo->id_documento_buzon,
+                'id_buzon' => $hijo->id_buzon,
+                'id_documento' => $hijo->id_documento,
+                'id_tipo_destino' => $hijo->id_tipo_destino,
+                'id_buzon'=>$hijo->id_buzon,
+                'buzon'=>$hijo->buzon->nombre,
+                //'usuario' => $hijo->buzon->rel_buzon_usuario->pluck('id_usuario')->toArray(),
+                'id_carpeta' => $hijo->id_carpeta,
+                'id_estado_documento' => $hijo->id_estado_documento,
+                'comentario_principal' => $hijo->comentario_principal,
+                'comentario_secundario' => $hijo->comentario_secundario,
+                'bitacora'=> $bitacora,
+                'hijos' => $this->arbolDocumentoBuzon($idDocumento, $derivaciones,$hijo->id_documento_buzon)
+            ];
         }
-        //revisar si la actual derivacion tiene destino
-        $dest = $arr_derivacion->where('id_accion', 2);
-        if($dest->count()==1 && !isset($dest->first()->dato_corregido)){
-            
-            //
-
-            $buzon_destino = $bitacora->where('id_documento_buzon_padre',$derivacion)->where('id_tipo_destino', 1);
-            if(!$buzon_destino->isEmpty()){
-                $arr_derivacion->where('id_accion', 2)->first()->id_buzon_destino = $buzon_destino->first()->id_buzon;
-                $arr_derivacion->where('id_accion', 2)->first()->buzon_destino = $buzon_destino->first()->buzon;
-                $arr_derivacion->where('id_accion', 2)->first()->comentario_principal = $buzon_destino->first()->comentario_principal;
-                $arr_derivacion->where('id_accion', 2)->first()->comentario_secundario = $buzon_destino->first()->comentario_secundario;
-                $arr_derivacion->where('id_accion', 2)->first()->dato_corregido = 'Dato destino corregido';
-            }else{
-                $arr_derivacion->where('id_accion', 2)->first()->dato_corregido = 'Dato por corregir';
-            }
-
-
-            
-        }
-
-        return array_merge($arr_derivacion->toArray(),$acumulador);
-
+        return $resultado;
     }
+
+
+    private function recorrerArrayRecursivo(array $arbol, callable $callback)
+    {
+        foreach ($arbol as $nodo) {
+            // Ejecuta la función callback con el nodo actual
+            $callback($nodo);
+
+            // Si el nodo tiene hijos, recorre recursivamente
+            if (isset($nodo['hijos']) && is_array($nodo['hijos']) && count($nodo['hijos']) > 0) {
+                $this->recorrerArrayRecursivo($nodo['hijos'], $callback);
+            }
+        }
+    }
+
 
     public function listar(Request $request)
     {
@@ -688,6 +624,113 @@ class BuscadorController extends Controller
         //return datatables( $datos )->toJson();
         return $datos;
     }
+
+
+
+public function fixbitacora(){
+    ini_set('memory_limit', '-1');
+    set_time_limit(0);
+    $anio = request()->input('anio',date('Y'));
+   //docker compose down $anio = 
+    $documentos = Documento::Where("anio_tramitacion",$anio)->orderBy('id_documento', 'ASC')->get('id_documento');
+    $derivaciones = DocumentoBuzon::All();
+    foreach ($documentos as $documento) {
+        dump(" " . $documento->id_documento );
+        $derivacion = $derivaciones->where('id_documento', $documento->id_documento);
+        $arbol = $this->getArbolDocumentoBuzon($documento->id_documento,$derivacion);
+        dump(" " .$documento->id_documento . " Aplicado! ");
+    }
+}
+
+private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = null)
+    {
+        $hijos = $derivaciones->where('id_documento', $idDocumento)
+            ->where('id_documento_buzon_padre', $padreId);
+        $resultado = [];
+        foreach ($hijos as $hijo) {
+            // Obtén los archivos asociados a este documento_buzon
+            $bitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $hijo->id_documento_buzon)->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+            //revisar bitacora
+            if (count($bitacora) > 0) {
+                //corregir registro y agregar destino a registro
+                if ($bitacora[0]['id_accion'] == 2) {
+                    dump("Actualizando registro ".$bitacora[0]['id_documento_buzon_bitacora']);
+
+
+                    DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $bitacora[0]['id_documento_buzon_bitacora'])
+                        ->update([
+                            'id_documento_buzon' => $padreId,
+                            'informacion_solicitud' => ["buzon_destino" => $hijo->id_buzon,"id_tipo_destino"=>$hijo->id_tipo_destino,"mensaje" => ($hijo->id_tipo_destino==1)?$hijo->comentario_principal:$hijo->comentario_secundario],
+                        ]);
+                    //dump("Registro Actualizado");
+                } else {
+                    //buscar en los registros del padre si hay envio a buzón
+                    $padreBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $padreId)->where('id_accion', 2)->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+                    if (count($padreBitacora) > 0) {
+                        $reg = array_filter($padreBitacora, function ($item) use ($hijo) {
+                            return (isset($item['informacion_solicitud']['buzon_destino']) && $item['informacion_solicitud']['buzon_destino'] == $hijo->id_buzon)
+                                && (isset($item['informacion_solicitud']['id_tipo_destino']) && $item['informacion_solicitud']['id_tipo_destino'] == $hijo->id_tipo_destino);
+                        });
+
+                        if (count($reg) > 0) {
+                            dump("Existe registro de envio a buzón, actualizando mensaje");
+                            $reg = reset($reg);
+                            //actualizar registro
+                            DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg['id_documento_buzon_bitacora'])
+                                ->update([
+                                    'informacion_solicitud' => ["buzon_destino" => $hijo->id_buzon,"id_tipo_destino"=>$hijo->id_tipo_destino,"mensaje" => ($hijo->id_tipo_destino==1)?$hijo->comentario_principal:$hijo->comentario_secundario],
+                                ]);
+                            //dump($reg);
+                        } else {
+                            //dump("No existe registro de envio a buzón, actualizando alguno de los disponoibles");
+                            $reg1 = array_filter($padreBitacora, function ($item) use ($hijo) {
+                                return !isset($item['informacion_solicitud']['buzon_destino']);
+                            });
+                            if (count($reg1) > 0) {
+                                //actualizar registro
+                                dump("Actualizando registro ".$reg1[0]['id_documento_buzon_bitacora']);
+                                $reg1 = reset($reg1);
+                                DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg1['id_documento_buzon_bitacora'])
+                                    ->update([
+                                        'informacion_solicitud' => ["buzon_destino" => $hijo->id_buzon, "id_tipo_destino"=>$hijo->id_tipo_destino,"mensaje" => ($hijo->id_tipo_destino==1)?$hijo->comentario_principal:$hijo->comentario_secundario],
+                                    ]);
+                            } else {
+                                dump("No existe registro de envio a buzón, no se puede actualizar");
+                                //agregar registro de envio a buzón
+                                // DocumentoBuzonBitacora::create([
+                                //     'id_documento_buzon' => $padreId,
+                                //     'id_accion' => 2,
+                                //     'fecha' => now(),
+                                //     'id_usuario' => Auth::user()->id,
+                                //     'comentario' => "Envío a buzón",
+                                //     'informacion_solicitud' => ["buzon_destino"=>$hijo->id_buzon],
+                                //     'mensaje_respuesta' => null
+                                // ]);
+                            }
+                        }
+                    } else {
+                        //dump($padreBitacora);
+                        //agregar registro de envio a buzón
+                    }
+                }
+            }
+            $resultado[] = [
+                'id_documento_buzon' => $hijo->id_documento_buzon,
+                'id_buzon' => $hijo->id_buzon,
+                'id_documento' => $hijo->id_documento,
+                'id_tipo_destino' => $hijo->id_tipo_destino,
+                'id_buzon' => $hijo->id_buzon,
+                'id_carpeta' => $hijo->id_carpeta,
+                'id_estado_documento' => $hijo->id_estado_documento,
+                'bitacora' => $bitacora,
+                //'otros_campos' => $hijo->toArray(), // Puedes quitar esto o agregar más campos específicos
+                'hijos' => $this->getArbolDocumentoBuzon($idDocumento, $derivaciones, $hijo->id_documento_buzon)
+            ];
+        }
+        return $resultado;
+    }
+
+
 
     public function buscarDocumentoReferencia(Request $request)
     {
