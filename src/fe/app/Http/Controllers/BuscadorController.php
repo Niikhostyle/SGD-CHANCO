@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Http;
 use League\CommonMark\Node\Block\Document;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 use PDF;
@@ -216,16 +217,25 @@ class BuscadorController extends Controller
 
     public function bitacora($idDocumento)
     {
+        //consultar si exixte registro actualizdo, sino actualizar bitácora
+        $derivaciones =  DocumentoBuzon::where('id_documento', $idDocumento)->get()->pluck('id_documento_buzon')->toArray();
+        $consulta = DocumentoBuzonBitacora::whereIn('id_documento_buzon',$derivaciones)
+        ->where('id_accion', 2)
+        ->whereNotNull('informacion_solicitud')->get()->toArray();
+        if (count($consulta) == 0) {
+            $this->fixbitacora($idDocumento);
+        }
+
         $info = Documento::with([
-                'tipo_documento' => function($query) {
-                    $query->select(['id_tipo_documento', 'nombre']);
-                },
-                'estado_tramitacion' => function($query) {
-                    $query->select(['id', 'nombre']);
-                }])
-            ->where('id_documento', $idDocumento)
-            ->select(["id_documento","folio","materia","id_tipo_documento","estado_tramitacion","anio_tramitacion"])
-            ->first();
+            'tipo_documento' => function($query) {
+                $query->select(['id_tipo_documento', 'nombre']);
+            },
+            'estado_tramitacion' => function($query) {
+                $query->select(['id', 'nombre']);
+            }])
+        ->where('id_documento', $idDocumento)
+        ->select(["id_documento","folio","materia","id_tipo_documento","estado_tramitacion","anio_tramitacion"])
+        ->first();
 
         $derivacion = DocumentoBuzon::with(['buzon'=> fn($q) => $q->withTrashed()])->where('id_documento', $idDocumento)->get();
         $arbol = $this->arbolDocumentoBuzon($idDocumento,$derivacion);
@@ -260,14 +270,10 @@ class BuscadorController extends Controller
                 if(isset($value["comentario"])) {$value["mensaje"][]= $value["comentario"];}
                 if(isset($value["mensaje_respuesta"])) {$value["mensaje"][]= $value["mensaje_respuesta"];}
                 $value["mensaje"] = implode('<br>', $value["mensaje"]);
-
-
-             
-               //$value["nombre_usuario"] = $nodo["usuario"]["nombres"]." - ".;
                $res[] = $value;
             }
         });
-//dd($arbol);
+
         return response()->json(['info'=>$info,'data'=>$res]);
     }
 
@@ -627,18 +633,21 @@ class BuscadorController extends Controller
 
 
 
-public function fixbitacora(){
+public function fixbitacora($idDocumento = null){
     ini_set('memory_limit', '-1');
     set_time_limit(0);
-    $anio = request()->input('anio',date('Y'));
-   //docker compose down $anio = 
-    $documentos = Documento::Where("anio_tramitacion",$anio)->orderBy('id_documento', 'ASC')->get('id_documento');
+
+    if($idDocumento == null){
+       return false;
+    }
+    
+    $documentos = Documento::Where("id_documento",$idDocumento)->orderBy('id_documento', 'ASC')->get('id_documento');
     $derivaciones = DocumentoBuzon::All();
     foreach ($documentos as $documento) {
-        dump(" " . $documento->id_documento );
+        Log::info("Iniciando Actualización Bitácora ID: " . $documento->id_documento);
         $derivacion = $derivaciones->where('id_documento', $documento->id_documento);
         $arbol = $this->getArbolDocumentoBuzon($documento->id_documento,$derivacion);
-        dump(" " .$documento->id_documento . " Aplicado! ");
+        Log::info("Actualización Bitácora ".$documento->id_documento." aplicada!");
     }
 }
 
@@ -654,9 +663,8 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
             if (count($bitacora) > 0) {
                 //corregir registro y agregar destino a registro
                 if ($bitacora[0]['id_accion'] == 2) {
-                    dump("Actualizando registro ".$bitacora[0]['id_documento_buzon_bitacora']);
-
-
+                    Log::info($bitacora[0]['id_documento_buzon_bitacora']. " > Actualizando registro" );
+                    
                     DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $bitacora[0]['id_documento_buzon_bitacora'])
                         ->update([
                             'id_documento_buzon' => $padreId,
@@ -671,9 +679,8 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                             return (isset($item['informacion_solicitud']['buzon_destino']) && $item['informacion_solicitud']['buzon_destino'] == $hijo->id_buzon)
                                 && (isset($item['informacion_solicitud']['id_tipo_destino']) && $item['informacion_solicitud']['id_tipo_destino'] == $hijo->id_tipo_destino);
                         });
-
                         if (count($reg) > 0) {
-                            dump("Existe registro de envio a buzón, actualizando mensaje");
+                            Log::info($bitacora[0]['id_documento_buzon_bitacora']." > Existe registro de envio a buzón, actualizando mensaje");
                             $reg = reset($reg);
                             //actualizar registro
                             DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg['id_documento_buzon_bitacora'])
@@ -688,14 +695,15 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                             });
                             if (count($reg1) > 0) {
                                 //actualizar registro
-                                dump("Actualizando registro ".$reg1[0]['id_documento_buzon_bitacora']);
+                                Log::info($bitacora[0]['id_documento_buzon_bitacora']." > Actualizando Registro");
                                 $reg1 = reset($reg1);
                                 DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg1['id_documento_buzon_bitacora'])
                                     ->update([
                                         'informacion_solicitud' => ["buzon_destino" => $hijo->id_buzon, "id_tipo_destino"=>$hijo->id_tipo_destino,"mensaje" => ($hijo->id_tipo_destino==1)?$hijo->comentario_principal:$hijo->comentario_secundario],
                                     ]);
                             } else {
-                                dump("No existe registro de envio a buzón, no se puede actualizar");
+                                Log::info($bitacora[0]['id_documento_buzon_bitacora']." > No existe registro de envio a buzón, no se puede actualizar");
+
                                 //agregar registro de envio a buzón
                                 // DocumentoBuzonBitacora::create([
                                 //     'id_documento_buzon' => $padreId,

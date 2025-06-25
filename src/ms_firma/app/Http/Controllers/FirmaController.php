@@ -559,15 +559,16 @@ class FirmaController extends Controller
                                 }
                             }
 
-                            //firma anexos
+                            //firma anexos asociados
                             $fAnexos = $this->firmaAnexos($datos['id_documento'], $datosBitacora, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma);
-
                             
+                            
+                            Log::error($fAnexos);
 
                             if (isset($fAnexos['status'])) {
                                 if ($fAnexos['status'] == "400") {
-                                    Log::error($fAnexos);
-                                    $comentario = "Error en firma de anexo. ";
+                                    $comentario = "Firma Anexo: " . $fAnexos['error'];
+                                    Log::error("Error Firma Anexo: " . $fAnexos['error']);
                                     throw new Exception($comentario);
                                 }
                             }
@@ -633,18 +634,14 @@ class FirmaController extends Controller
                 $comentario = "Error en el proceso de firma.";
                 throw new Exception($comentario . " - " . $aRespuestaFirma['metadata']);
             } catch (Exception $e) {
-
                 DB::rollBack();
-
-                $msgError = "Error al generar la Firma Electrónica (1):" . $e->getMessage();
+                $msgError = "Error al Firmar:" . $e->getMessage();
                 $this->saveBitacora($datos['id_documento_buzon'], $dFechaCreacion, $datos['id_usuario'], $msgError, 13);
                 $this->deleteImg($sNombreImg);
-                //$this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
+                $this->deleteImg($sNombreImgAnexo); //elimina imagen anexo de firma
                 $this->saveLog($datos['id_documento'], $e->getMessage());
-
-                Log::error("IDDOC=" . $datos['id_documento'] . " Error al generar la Firma Electrónica(1): " . $e->getMessage() . $e->getFile() . " " . $e->getLine());
-
-                return $this->respondFail("Error al generar la Firma Electrónica (2): " . $e->getMessage());
+                Log::error("IDDOC " . $datos['id_documento'] . " Error al generar la Firma Electrónica: " . $e->getMessage() . $e->getFile() . " " . $e->getLine());
+                return $this->respondFail("Error " . $e->getMessage());
             }
         } else
             return $this->respondError('Json inválido', 406);
@@ -678,10 +675,15 @@ class FirmaController extends Controller
             unlink($filename);
     }
 
-    public function callHash($sArchivo, $layout, $ultimaPag = 0, $nNombreArchivoFirmado, $nRut)
+    public function callHash($sArchivo, $layout, $ultimaPag = 0, $nNombreArchivoFirmado, $nRut,$retry=0)
     {
         $classFilePath = storage_path('../app/Libraries/firmaHashV1.jar');
         $sPathArchivoFirmado = storage_path('app/public/files/' . $nNombreArchivoFirmado);
+
+        if (!file_exists($classFilePath)) {
+            Log::error("No se encuentra el archivo de firmaHashV1.jar");
+            return array("status" => "400", "error" => "No se encuentra el archivo de firmaHashV1.jar");
+        }
 
         if ($ultimaPag == 0)
             $nPagina = $layout['page'];
@@ -689,22 +691,35 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
 
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-        Log::error("Comando " . $cmd);
-        exec($cmd, $output, $estado);
 
-        if ($estado == 0) //firma ok
+        $estado = shell_exec($cmd.' 2>&1');
+        Log::info("Firma DOC ".$sArchivo." por RUT ".$nRut." Estado :" . $estado);
+        if ($estado != null) //firma ok
         {
             $aSalida = array();
             if (!file_exists($sPathArchivoFirmado)) {
-                $comentario = "No se encuentra el archivo firmado - " . $nNombreArchivoFirmado;
-                $aSalida = array("status" => "400", "error" => $comentario);
+                
+                //si no existe el archivo firmado, convertir el archivo a 1.4 y reintentar
+                if ($retry ==0 ) {
+                    $retry++;
+                    Log::info("Reintentando firma anexo, intento: " . $retry);
+                    //convertir a PDF 1.4
+                    $sArchivo = $this->convertPDF(basename($sArchivo));
+                    //$nArchivoParchado = storage_path('app/public/files/' . $sArchivo);
+                    return $this->callHash( $sArchivo, $layout, $ultimaPag, $nNombreArchivoFirmado, $nRut, $retry);
+                }else{
+                    $comentario = "No se encuentra el archivo firmado";
+                    $aSalida = array("status" => "400", "error" => $comentario);
+                }
+
             } else {
                 $aSalida = array("files" => array(array("content" => "", "status" => "OK")), "metadata" => array("filesSigned" => 1));
             }
         } else {
-            $aSalida = array("status" => "400", "error" => $output);
+            $aSalida = array("status" => "400", "error" => "Excepción en comando de firma");
+            Log::error($cmd. " CON ERROR > salida " . var_dump($estado));
         }
-        Log::error("salida " . var_dump($output));
+        
         return $aSalida;
     }
 
@@ -721,7 +736,7 @@ class FirmaController extends Controller
                     ->where('id_tipo_archivo', '=', '2')
                     ->whereIn('firma_anexo', array(1, 2))
                     ->whereNull('estado_firma_anexo')
-                    ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado', 'id_tipo_archivo')
+                    ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado', 'id_tipo_archivo','nombre_archivo_original')
                     ->get();
 
                 $iEstadoFirma = 1;
@@ -734,7 +749,7 @@ class FirmaController extends Controller
                     ->where('id_tipo_archivo', '=', '2')
                     ->where('firma_anexo', '=', '2')
                     ->where('estado_firma_anexo', '=', '1')
-                    ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado', 'id_tipo_archivo')
+                    ->select('id_documento_buzon_archivo', 'nombre_archivo_codificado', 'id_tipo_archivo','nombre_archivo_original')
                     ->get();
 
                 $iEstadoFirma = 2;
@@ -791,18 +806,19 @@ class FirmaController extends Controller
 
                     $nSalidaHashAnexo = $this->callHash($sArchivoAnexo, $layoutAnexo, $countAnexo, $nNombreArchivoCargarAnexo, $nRutFirma);
 
-                    if (!file_exists(storage_path('app/public/files/' . $nNombreArchivoCargarAnexo))) {
-                        $comentario = "No se encuentra el archivo anexo firmado - " . $nNombreArchivoCargarAnexo;
-                        $aSalida = array("status" => "400", "error" => $comentario);
+                  
 
-                        return $aSalida;
-                    }
+                    // if (!file_exists(storage_path('app/public/files/' . $nNombreArchivoCargarAnexo))) {
+                    //     $comentario = "No se encuentra el archivo anexo firmado - " . $nNombreArchivoCargarAnexo;
+                    //     $aSalida = array("status" => "400", "error" => $comentario);
+
+                    //     return $aSalida;
+                    // }
 
                     if (isset($nSalidaHashAnexo['status'])) {
                         $comentario = $nSalidaHashAnexo['error'];
-
-                        $aSalida = array("status" => "400", "error" => $comentario);
-
+                        $aSalida = array("status" => "400", "error" => $archAnexo->nombre_archivo_original." ".$comentario);
+                        //throw new Exception($aSalida['error']);
                         return $aSalida;
                     }
 
@@ -813,7 +829,7 @@ class FirmaController extends Controller
                 }
 
                 //elimina imagen anexo de firma
-               // $this->deleteImg($sNombreImgAnexo);
+                $this->deleteImg($sNombreImgAnexo);
             }
         }
 
@@ -1011,8 +1027,8 @@ class FirmaController extends Controller
                 throw new Exception("Error al renombrar el archivo PDF Ver.".$pdfversion);
             }
             // USE GHOSTSCRIPT IF PDF VERSION ABOVE 1.4 AND SAVE ANY PDF TO VERSION 1.4 , SAVE NEW PDF OF 1.4 VERSION TO NEW PATH
-            shell_exec('gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
-            //Log::error('Comando : gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
+            shell_exec('gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
+            Log::error('Comando : gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite  -dCompatibilityLevel=1.4 -sOutputFile="' . $sArchivo . '" "' . storage_path('app/public/files/' . $srcfile_new) . '"');
             //comprobar si existe archivo
             if (!file_exists($sArchivo)) {
                 //rollback PDF

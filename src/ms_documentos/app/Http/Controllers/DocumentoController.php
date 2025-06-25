@@ -448,7 +448,7 @@ class DocumentoController extends Controller
                                 'id_accion' => 4,
                                 'fecha' => $dFechaCreacion,
                                 'id_usuario' => $datosRequest['id_usuario'],
-                                'comentario' => 'Se elimina archivo '.$tipoArch[$datosArchivo["nombre_archivo_original"]].' '.$datosArchivo["nombre_archivo_original"],
+                                'comentario' => 'Se elimina '.$tipoArch[$datosArchivo["id_tipo_archivo"]].' '.$datosArchivo["nombre_archivo_original"],
                             ]);
 
 

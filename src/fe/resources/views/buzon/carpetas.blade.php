@@ -2767,31 +2767,27 @@
                     },
                     //error: function (e) {
                     error: function(data, jqXHR, textStatus, errorThrown) {
-                        //data = e.responseJSON;
+                        data = data.responseJSON;
 
                         //console.log(data);
                         //if (data.data.comentario != "" && data.data.comentario != null){
                         if (data.comentario != "" && data.comentario != null) {
-
                             toastr.error(data.comentario, "¡Aviso!");
-                            habilita_boton('btn-recibir-submit');
                         } else {
                             toastr.error("Falla en el documento", "¡Aviso!");
-                            habilita_boton('btn-recibir-submit');
-                            habilita_boton('btn-recibir-submit');
-                            habilita_boton('btn_cerrar_guardar');
-                            habilita_boton('btn-guardar-submit');
-                            habilita_boton('btn-enviar-submit');
-                            habilita_boton('btn-visar');
-                            habilita_boton('btn-editar');
-                            habilita_boton('btn-firmar');
-                            habilita_boton('btn-archivar');
-                            habilita_boton('btn-visar-derivar');
-                            habilita_boton('btn-firmar-derivar');
-                            habilita_boton('btn-derivar');
-                            habilita_boton('btn-derivar-2');
-
                         }
+                        habilita_boton('btn-recibir-submit');
+                        habilita_boton('btn_cerrar_guardar');
+                        habilita_boton('btn-guardar-submit');
+                        habilita_boton('btn-enviar-submit');
+                        habilita_boton('btn-visar');
+                        habilita_boton('btn-editar');
+                        habilita_boton('btn-firmar');
+                        habilita_boton('btn-archivar');
+                        habilita_boton('btn-visar-derivar');
+                        habilita_boton('btn-firmar-derivar');
+                        habilita_boton('btn-derivar');
+                        habilita_boton('btn-derivar-2');
                         $('.btn-recibir-submit').html('Firmar');
                         $('.btn-firmar').html('Firmar');
                         bloqueo_accion = false;
@@ -3011,8 +3007,8 @@
                         error: function(e) {
                             data = e.responseJSON;
                             //console.log(data);
-                            if (data.data.comentario != "" && data.data.comentario != null) {
-                                toastr.error(data.data.comentario, "¡Aviso!");
+                            if (data.comentario != "" && data.comentario != null) {
+                                toastr.error(data.comentario, "¡Aviso!");
                                 habilita_boton('btn-recibir-submit');
                                 habilita_boton('btn_cerrar_guardar');
                                 habilita_boton('btn-guardar-submit');

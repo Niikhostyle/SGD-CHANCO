@@ -595,8 +595,13 @@ class BuzonController extends Controller
                 'id_documento' => $request->hiddIdDocumento,
                 'id_usuario' => Auth::user()->id,
                 'id_buzon' => $request->buzon
-            ])->throw();
-
+            ]);
+        if($datosFea->failed()){
+            return response()->json([
+                'status' => 'error',
+                'comentario' => $datosFea->json()['data']['comentario']
+            ], 500);
+        }
         return $datosFea->json();
     }
 
