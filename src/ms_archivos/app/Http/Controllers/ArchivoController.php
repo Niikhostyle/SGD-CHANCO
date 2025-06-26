@@ -36,6 +36,9 @@ class ArchivoController extends Controller
 
     public function generar_archivo_pdf(Request $request)
     {
+        //sin limite en caso de documentos grandes
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
         try {
             DB::beginTransaction();
 

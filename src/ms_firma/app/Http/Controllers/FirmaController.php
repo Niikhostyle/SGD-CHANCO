@@ -30,6 +30,8 @@ class FirmaController extends Controller
     public function firmar_archivo(Request $request)
     {
         if ($request->isJson()) {
+
+
             //eliminar log de firmas con errores
             $datos = $request->json()->all();
             $logs = FirmaLog::where('id_documento', $datos['id_documento'])->delete();
@@ -171,7 +173,11 @@ class FirmaController extends Controller
                                 'id_usuario' => $datos['id_usuario'],
                                 'id_buzon' => $datos['id_buzon'],
                                 'generaFolio' => $nGeneraFolio
-                            ])->throw();
+                            ]);
+                        if($datosArchivo->failed()){
+                            $comentario = "No se pudo generar el archivo PDF.";
+                            throw new Exception($comentario);
+                        }
                     }
 
                     if ($nGeneraArchivo == 0 && $nGeneraFolio == 1) {
@@ -986,11 +992,14 @@ class FirmaController extends Controller
                     ->first();
                 $datosDocumentoBuzonD1->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
 
+
+                //actualizar, se deja accion se hizo desde fuzon de firma con datos de envio 
                 $documentoBuzonBitacoraD1 = DocumentoBuzonBitacora::create([
-                    'id_documento_buzon' => $datosDocumentoBuzonD1["id_documento_buzon"],
+                    'id_documento_buzon' => $IDDocBuzon,
                     'id_accion' => 2,
                     'fecha' => $dFechaCreacion,
-                    'id_usuario' => $IDUsuario
+                    'id_usuario' => $IDUsuario,
+                    'informacion_solicitud' => ["buzon_destino" => $buzonDestino,"id_tipo_destino"=>1,"mensaje" => "Der. Automática por Firma Electrónica"],
                 ]);
             }
             DB::commit();
