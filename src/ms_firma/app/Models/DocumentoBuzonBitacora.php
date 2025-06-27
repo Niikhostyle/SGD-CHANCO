@@ -20,6 +20,9 @@ class DocumentoBuzonBitacora extends Model{
         'mensaje_respuesta'
     ];
 
+    protected $casts = [
+        'informacion_solicitud' => 'array',
+    ];
 
     public function rel_documento_buzon()
     {

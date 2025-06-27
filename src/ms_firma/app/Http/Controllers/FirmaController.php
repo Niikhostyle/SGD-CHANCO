@@ -420,6 +420,7 @@ class FirmaController extends Controller
                 } else //firma tradicional
                 {
                     //dd("firma tradicional");
+                    Log::info("Firma DOC ".$sArchivo." por RUT ".$nRutFirma." Forma Tradicional");
                     $aRespuestaFirma = $classFirma->setRUN($nRutFirma)
                         ->addPDF($sArchivo, $sDescipcion, $layout)
                         ->sign();
@@ -569,7 +570,7 @@ class FirmaController extends Controller
                             $fAnexos = $this->firmaAnexos($datos['id_documento'], $datosBitacora, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma);
                             
                             
-                            Log::error($fAnexos);
+                            //Log::error($fAnexos);
 
                             if (isset($fAnexos['status'])) {
                                 if ($fAnexos['status'] == "400") {
@@ -676,9 +677,9 @@ class FirmaController extends Controller
     public function deleteImg($sImg)
     {
         //elimina imagen de firma
-        $filename = storage_path('app/public/files/imagen_firma/' . $sImg);
-        if (file_exists($filename))
-            unlink($filename);
+        // $filename = storage_path('app/public/files/imagen_firma/' . $sImg);
+        // if (file_exists($filename))
+        //     unlink($filename);
     }
 
     public function callHash($sArchivo, $layout, $ultimaPag = 0, $nNombreArchivoFirmado, $nRut,$retry=0)
@@ -695,12 +696,12 @@ class FirmaController extends Controller
             $nPagina = $layout['page'];
         else
             $nPagina = $ultimaPag;
-
+        
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-
         $estado = shell_exec($cmd.' 2>&1');
         Log::info("Firma DOC ".$sArchivo." por RUT ".$nRut." Estado :" . $estado);
-        if ($estado != null) //firma ok
+        Log::info($cmd);
+        if ($estado != null || $estado != '') //firma ok
         {
             $aSalida = array();
             if (!file_exists($sPathArchivoFirmado)) {

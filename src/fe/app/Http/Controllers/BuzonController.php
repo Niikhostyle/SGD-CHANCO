@@ -635,10 +635,15 @@ class BuzonController extends Controller
                     'id_documento_buzon' => $request->idDocumentoBuzon,
                     'id_usuario' => Auth::user()->id,
                     'id_buzon' => $request->idBuzon
-                ])->throw();
+                ]);
 
-            dd($datosArchivo->status());
-
+            if($datosArchivo->failed()){
+                dd($datosArchivo->getBody());
+                return response()->json([
+                    'status' => 'error',
+                    'comentario' => $datosArchivo->json()
+                ], 400);
+            }
             return $datosArchivo->json();
         } catch (\Exception $e) {
             return response()->json(["msg" => $e->getMessage()], 500);
@@ -845,7 +850,7 @@ class BuzonController extends Controller
                     'fecha' => date('Y-m-d H:i:s'),
                     'id_usuario' => Auth::user()->id,
                     'comentario' => "Devolución: " . $request->comentarioPrincipal,
-                    'informacion_solicitud' => ["buzon_destino" => $request->destinatarioPrincipal, "id_tipo_destino"=>1],
+                    'informacion_solicitud' => ["buzon_destino" => $request->destinatarioPrincipal, "id_tipo_destino"=>1,"mensaje" => "Devolución: " . $request->comentarioPrincipal],
                     
                 ]);
                 DB::commit();

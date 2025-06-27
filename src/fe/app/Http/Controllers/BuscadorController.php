@@ -218,13 +218,13 @@ class BuscadorController extends Controller
     public function bitacora($idDocumento)
     {
         //consultar si exixte registro actualizdo, sino actualizar bitácora
-        $derivaciones =  DocumentoBuzon::where('id_documento', $idDocumento)->get()->pluck('id_documento_buzon')->toArray();
-        $consulta = DocumentoBuzonBitacora::whereIn('id_documento_buzon',$derivaciones)
-        ->where('id_accion', 2)
-        ->whereNotNull('informacion_solicitud')->get()->toArray();
-        if (count($consulta) == 0) {
-            $this->fixbitacora($idDocumento);
-        }
+        // $derivaciones =  DocumentoBuzon::where('id_documento', $idDocumento)->get()->pluck('id_documento_buzon')->toArray();
+        // $consulta = DocumentoBuzonBitacora::whereIn('id_documento_buzon',$derivaciones)
+        // ->where('id_accion', 2)
+        // ->whereNotNull('informacion_solicitud')->get()->toArray();
+        // if (count($consulta) == 0) {
+        //     $this->fixbitacora($idDocumento);
+        // }
 
         $info = Documento::with([
             'tipo_documento' => function($query) {
@@ -256,7 +256,7 @@ class BuscadorController extends Controller
                     if($dest){
                         $value["buzon_destino"] = $dest->nombre;
                         $value["id_tipo_destino"] = $value["informacion_solicitud"]["id_tipo_destino"] ?? $nodo["id_tipo_destino"];
-                        $value["mensaje"][] = $value["informacion_solicitud"]["mensaje"];
+                        $value["mensaje"][] = $value["informacion_solicitud"]["mensaje"] ?? '';
                     } else {
                         $value["buzon_destino"] = null;
                         $value["id_tipo_destino"] = $nodo["id_tipo_destino"];
@@ -637,17 +637,23 @@ public function fixbitacora($idDocumento = null){
     ini_set('memory_limit', '-1');
     set_time_limit(0);
 
+   
     if($idDocumento == null){
-       return false;
+        $anio = request()->input('anio',date('Y'));
+        $documentos = Documento::Where("anio_tramitacion",$anio)->orderBy('id_documento', 'ASC')->get('id_documento');
+    }else{
+        $documentos = Documento::Where("id_documento",'>=',$idDocumento)->orderBy('id_documento', 'ASC')->get('id_documento');
     }
     
-    $documentos = Documento::Where("id_documento",$idDocumento)->orderBy('id_documento', 'ASC')->get('id_documento');
+    //$documentos = Documento::Where("id_documento",$idDocumento)->orderBy('id_documento', 'ASC')->get('id_documento');
     $derivaciones = DocumentoBuzon::All();
     foreach ($documentos as $documento) {
         Log::info("Iniciando Actualización Bitácora ID: " . $documento->id_documento);
+        dump("Iniciando Actualización Bitácora ID: " . $documento->id_documento);
         $derivacion = $derivaciones->where('id_documento', $documento->id_documento);
         $arbol = $this->getArbolDocumentoBuzon($documento->id_documento,$derivacion);
         Log::info("Actualización Bitácora ".$documento->id_documento." aplicada!");
+        dump("Actualización Bitácora ".$documento->id_documento." aplicada!");
     }
 }
 
@@ -664,7 +670,7 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                 //corregir registro y agregar destino a registro
                 if ($bitacora[0]['id_accion'] == 2) {
                     Log::info($bitacora[0]['id_documento_buzon_bitacora']. " > Actualizando registro" );
-                    
+                    dump($bitacora[0]['id_documento_buzon_bitacora']. " > Actualizando registro");
                     DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $bitacora[0]['id_documento_buzon_bitacora'])
                         ->update([
                             'id_documento_buzon' => $padreId,
@@ -674,6 +680,9 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                 } else {
                     //buscar en los registros del padre si hay envio a buzón
                     $padreBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $padreId)->where('id_accion', 2)->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+
+                    //dump($padreBitacora);
+
                     if (count($padreBitacora) > 0) {
                         $reg = array_filter($padreBitacora, function ($item) use ($hijo) {
                             return (isset($item['informacion_solicitud']['buzon_destino']) && $item['informacion_solicitud']['buzon_destino'] == $hijo->id_buzon)
@@ -681,6 +690,7 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                         });
                         if (count($reg) > 0) {
                             Log::info($bitacora[0]['id_documento_buzon_bitacora']." > Existe registro de envio a buzón, actualizando mensaje");
+                            dump($bitacora[0]['id_documento_buzon_bitacora']." > Existe registro de envio a buzón, actualizando mensaje");
                             $reg = reset($reg);
                             //actualizar registro
                             DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg['id_documento_buzon_bitacora'])
@@ -689,13 +699,14 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                                 ]);
                             //dump($reg);
                         } else {
-                            //dump("No existe registro de envio a buzón, actualizando alguno de los disponoibles");
+                            dump("No existe registro de envio a buzón, actualizando alguno de los disponibles");
                             $reg1 = array_filter($padreBitacora, function ($item) use ($hijo) {
                                 return !isset($item['informacion_solicitud']['buzon_destino']);
                             });
                             if (count($reg1) > 0) {
                                 //actualizar registro
                                 Log::info($bitacora[0]['id_documento_buzon_bitacora']." > Actualizando Registro");
+                                dump($bitacora[0]['id_documento_buzon_bitacora']." > Actualizando Registro");
                                 $reg1 = reset($reg1);
                                 DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg1['id_documento_buzon_bitacora'])
                                     ->update([
@@ -703,7 +714,7 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                                     ]);
                             } else {
                                 Log::info($bitacora[0]['id_documento_buzon_bitacora']." > No existe registro de envio a buzón, no se puede actualizar");
-
+                                dump($bitacora[0]['id_documento_buzon_bitacora']." > No existe registro de envio a buzón, no se puede actualizar");
                                 //agregar registro de envio a buzón
                                 // DocumentoBuzonBitacora::create([
                                 //     'id_documento_buzon' => $padreId,
@@ -717,9 +728,42 @@ private function getArbolDocumentoBuzon($idDocumento, $derivaciones, $padreId = 
                             }
                         }
                     } else {
+                        dump($padreId." > No hay historial para DocBuzon");
                         //dump($padreBitacora);
                         //agregar registro de envio a buzón
                     }
+                }
+            }else{
+                //dump(">--");
+                //buscando en los envíos del padre si hay alguno no editado para agregar este envío
+                $padreBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $padreId)->where('id_accion', 2)->whereNull('informacion_solicitud')->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+                //si no esta en padre, revisar si en este docbuzon está el registro, si es asi actualizar
+                //dump($padreBitacora);
+                if(count($padreBitacora)==0){
+                    $padreBitacora = DocumentoBuzonBitacora::where('id_documento_buzon', $hijo->id_documento_buzon)->where('id_accion', 2)->orderBy('id_documento_buzon_bitacora')->get()->toArray();
+                    $reg = array_filter($padreBitacora, function ($item) use ($hijo) {
+                        return (isset($item['informacion_solicitud']['buzon_destino']) && $item['informacion_solicitud']['buzon_destino'] == $hijo->id_buzon)
+                            && (isset($item['informacion_solicitud']['id_tipo_destino']) && $item['informacion_solicitud']['id_tipo_destino'] == $hijo->id_tipo_destino);
+                    });
+                    $reg = reset($reg);
+                    if(isset($reg['id_documento_buzon_bitacora'])){
+                        //dump("> registro en hijo a modificar");
+                         DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg['id_documento_buzon_bitacora'])
+                            ->update([
+                                'id_documento_buzon'=>$hijo->id_documento_buzon_padre,
+                            ]);
+                        //dump($reg);
+                        //dump("< registro en hijo a modificar");
+                    }
+
+                }else{
+                    //actualizar registro de envío sin info destino 
+                    $reg=reset($padreBitacora); 
+                    dump($reg['id_documento_buzon_bitacora'] ." > actualizando info envío");
+                    DocumentoBuzonBitacora::where('id_documento_buzon_bitacora', $reg['id_documento_buzon_bitacora'])
+                    ->update([
+                        'informacion_solicitud' => ["buzon_destino" => $hijo->id_buzon, "id_tipo_destino"=>$hijo->id_tipo_destino,"mensaje" => ($hijo->id_tipo_destino==1)?$hijo->comentario_principal:$hijo->comentario_secundario],
+                    ]);
                 }
             }
             $resultado[] = [
