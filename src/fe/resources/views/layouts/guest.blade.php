@@ -19,9 +19,10 @@
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="stylesheet" href="{{ mix('css/app.css') }}">
         <link rel="stylesheet" href="{{ env('CODIGO_SGD').'/css/custom.css' }}">
-        <!-- Bootstrap 3.4.1 -->
-        <link rel="stylesheet" href="css/inicio/bootstrap.min.css">
         <link rel="stylesheet" href="css/inicio/font-awesome.min.css">
+        <!-- Bootstrap 3.4.1 -->
+        {{-- <link rel="stylesheet" href="css/inicio/bootstrap.min.css">
+        
         <link rel="stylesheet" href="css/inicio/ionicons.min.css">
         <link rel="stylesheet" href="css/inicio/gijgo.min.css"  type="text/css" />
         <link rel="stylesheet" href="css/inicio/AdminLTE.min.css">
@@ -30,20 +31,21 @@
         <link rel="stylesheet" href="css/inicio/pace.min.css">
         <link rel="stylesheet" href="css/inicio/adminlte_config.css">
         <link rel="stylesheet" href="css/admin_custom.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"> --}}
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
 
 
     </head>
-    <body class="row hold-transition skin-blue ">        
+    <body class="d-flex flex-column hold-transition skin-blue ">        
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
 
 
-        <footer class="footer_login  m-b-0 text-sm">
-            <div class="row">
-                <div class="col-md-12  text-center">
+        <footer class="footer_login w-100 m-b-0 text-sm bg-light">
+            <div class="">
+                <div class="  text-center">
                   <span class="help-block m-r-20 m-l-20">
                   {!! env('FOOTER_TXT') !!}
                   </span>
@@ -55,13 +57,13 @@
 
         </body>
 
-  <!-- jQuery 3.3.1 -->
+  {{-- <!-- jQuery 3.3.1 -->
   <script src="js/inicio/jquery.min.js"></script>
   <!-- Bootstrap 3.4.1 -->
   <script src="js/inicio/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
   <script src="js/inicio/pace.min.js"></script>
   <script src="js/inicio/jquery.slimscroll.min.js"></script>
-  <script src="js/inicio/adminlte.js"></script>
+  <script src="js/inicio/adminlte.js"></script> --}}
 
   <!-- page script -->
   <script type="text/javascript">
