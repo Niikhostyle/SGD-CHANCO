@@ -24,9 +24,9 @@
                         </div>
                     @endif -->
                     <div class="box-body">
-                       <div class="d-flex img-logos mb-5 justify-content-center">
-                            <img class="img img-fluid w-50 " src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo_home">
-                            <img class="img img-fluid w-50 " src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2_home">
+                        <div class="align-items-center d-flex img-logos justify-content-center mb-5">
+                            <img class="img img-fluid w-50 h-100" src="{{ asset(env('CODIGO_SGD').'/img/logo1.png') }}" alt="" id="logo_home">
+                            <img class="img img-fluid w-50 h-100" src="{{ asset(env('CODIGO_SGD').'/img/logo2.png') }}" alt="" id="logo2_home">
                         </div>
                         <div class="row">
                             <div class="col-12 text-center">
