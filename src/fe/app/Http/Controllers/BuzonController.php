@@ -586,8 +586,6 @@ class BuzonController extends Controller
     public function firmar_documento($id, Request $request)
     {
         $sesion_key =  AppServiceProvider::session_key_general();
-
-
         $datosFea = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(60)
             ->put(env('API_SGD_FIRMA','http://sgd_ms_firma:3333').'/api/sgd-firma/firmar_archivo', [
@@ -596,13 +594,18 @@ class BuzonController extends Controller
                 'id_usuario' => Auth::user()->id,
                 'id_buzon' => $request->buzon
             ]);
+
         if($datosFea->failed()){
             return response()->json([
                 'status' => 'error',
                 'comentario' => $datosFea->json()['data']['comentario']
             ], 500);
         }
-        return $datosFea->json();
+
+        return json_encode(["status"=>"200","comentario"=>"Documento firmado correctamente."]);
+
+        return json_decode($datosFea->getBody());
+        //return $datosFea->json();
     }
 
     public function archivar_documento($buzon, $id,Request $request)
@@ -799,34 +802,20 @@ class BuzonController extends Controller
         foreach ($request->acciones as $accion) {
             $acciones[] = ['id_accion' => (int)$accion];
         }
-        //$sesion_key = AppServiceProvider::session_key_general();
-        // $accionDocumento = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
-        //     ->timeout(30)
-        //     ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/devolver', [
-        //         'carpeta' => 1,
-        //         //'id_documento_buzon' => $request->hiddIdDocumentoBuzon,
-        //         //'id_buzon' => $request->buzon,
-        //         'id_usuario' => Auth::user()->id,
-        //         'acciones' => json_encode($acciones),
-        //         'destinatarioPrincipal' => $request->destinatarioPrincipal,
-        //         'destinatarioOtros' => $request->destinatarioOtros,
-        //         'comentarioPrincipal' => $request->comentarioPrincipal,
-        //         'comentarioOtros' => $request->comentarioOtros
-        //     ])->throw();
-
-        // $datosRequest = $request->json()->all();
+       
         try {
             DB::beginTransaction();
-            //tendria que comprobar que sea de carpeta 1
+            //debe comprobar que sea carpeta 1
             if (1 == 1) //por recibir, para devolver
             {
                 
-                //se copia el envia a enviado
-                $datosUpdate = DocumentoBuzon::find($request->hiddIdDocumentoBuzon);
+                //se copia la derivación a enviado
+                //se bloquea registro para que no se modifique hasta terminada la transacción
+                $datosUpdate = DocumentoBuzon::lockForUpdate()->find($request->hiddIdDocumentoBuzon);
                 $datosUpdate->id_estado_documento = 2;
                 $datosUpdate->id_carpeta = 3;
                 $datosUpdate->save();
-                //crear envio a buzon anterior
+                //crear derivación a buzon anterior
                 $datosDocumentoBuzon = DocumentoBuzon::create([
                     'id_documento' => $datosUpdate->id_documento,
                     'id_buzon' => $request->destinatarioPrincipal,

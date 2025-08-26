@@ -37,7 +37,7 @@
     <section class="content bg">
         <div class="container">
             <div class="d-flex align-items-center">
-                <div class="bg-white box box-login my-2 my-md-3 p-3 p-md-5">
+                <div class="bg-white box-login  my-2 my-md-3 p-3 p-md-5  box ">
                     @if (session('status'))
                         <div class="mb-4 font-medium text-sm text-green-600">
                             {{ session('status') }}
@@ -54,10 +54,29 @@
                                 <h1 id="span-titulo" style="color:#2E71EA;font-size: 25px;word-spacing: 2px;">Bienvenido/a</h1>
                             </div>
                         </div>
+
+
+                <p class="text-center">Ingresar con:</p>
+                @if (config('sgd.claveunica_enabled'))
+                        @if (session('claveunica'))
+                            <div class="mb-4 font-medium text-sm text-danger">
+                                {{ session('claveunica') }}
+                            </div>
+                        @endif
+                        <div class="d-flex justify-content-center py-3">
+                    <a class="btn-cu btn-m btn-color-estandar" type="button" href="{{ route('claveunica.autenticar') }}" aria-label="Continuar con ClaveÚnica">
+                        <span class="cl-claveunica" aria-hidden="true"></span>
+                        <span class="texto" aria-hidden="true">ClaveÚnica</span>
+                    </a>
+                </div>
+                <div>
+                <hr data-content="O" class="hr-text">
+                </div>
+                 @endif
                         <div class="">
                             <x-jet-validation-errors class="mb-12" />
                             @if (session('status'))
-                                <div class="mb-4 font-medium text-sm ">
+                                <div class="mb-4 font-medium text-sm text-danger">
                                     {{ session('status') }}
                                 </div>
                             @endif
@@ -99,10 +118,10 @@
                             </form>
                         </div>
                         <div class=" pt-5">
-                        <div class="d-flex">
-                            <div class="d-flex  text-center text-base text-bold">
-                                <sub>{!! env('GENTILEZA_TXT') !!}                            
-                                <img class="img img-responsive" style="width:75px" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home"></sub>
+                        <div class="">
+                            <div class="d-flex flex-column align-items-center text-center text-base text-bold">
+                                <sub class="mb-2 text-secondary">{!! env('GENTILEZA_TXT') !!}</sub>                            
+                                <img class="img img-responsive logo-3" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
                             </div>
                             </div>
                         </div>

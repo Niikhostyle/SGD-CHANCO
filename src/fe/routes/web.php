@@ -16,7 +16,9 @@ use App\Http\Controllers\PLCController;
 use App\Http\Controllers\PanelController;
 use App\Http\Controllers\AuditoriaFoliosController;
 use App\Http\Controllers\DocDigitalController;
+use App\Http\Controllers\ClaveUnicaController;
 use App\Http\Middleware\PermisosMiddleware;
+
 
 use App\Jobs\Firma;
 
@@ -185,9 +187,8 @@ Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_perfil/{filen
 
 
 //verificacion archivos
-Route::get('pdf/{id}', [DescargaPdfController::class, 'descarga'])->name('pdf.descarga');
-
-Route::get('Firma', [DescargaPdfController::class, 'descarga']);
+// Route::get('pdf/{id}', [DescargaPdfController::class, 'descarga'])->name('pdf.descarga');
+// Route::get('Firma', [DescargaPdfController::class, 'descarga']);
 
 //Route::put('/firmamasiva', function () {
 //    Firma::dispatch("Mensaje de firma");
@@ -221,6 +222,12 @@ Route::middleware(['auth:sanctum', 'verified'])->get('transparencia', [PLCContro
 Route::middleware(['auth:sanctum', 'verified'])->get('transparencia/getitems', [PLCController::class, 'getItems'])->name('plc.transparenciagetitems');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc', [PLCController::class, 'getDoc'])->name('plc.transparenciagetDoc');
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento_plc_anexo', [PLCController::class, 'getDocAnexo'])->name('plc.transparenciagetDocAnexo');
+
+//claveunica
+Route::get('/claveunica', [ClaveUnicaController::class, 'autenticar'])->name('claveunica.autenticar');
+Route::get('/claveunica/callback', [ClaveUnicaController::class, 'callback'])->name('claveunica.callback');
+Route::post('/postlogin', [ClaveUnicaController::class, 'postlogin'])->name('claveunica.postlogin');
+Route::get('/claveunica/logout', [ClaveUnicaController::class, 'logout'])->name('claveunica.logout');
 
 //docDigital
 Route::middleware(['auth:sanctum', 'verified'])->get('docdigital', [DocDigitalController::class, 'index'])->name('docdigital.index');

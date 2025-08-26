@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -89,7 +89,7 @@ class ClaveUnicaController extends BaseController
             $dbuser = User::where("rut", $rut)->first();
             //no existe usuario, enviar a pedir correo
             if (!$dbuser) {
-                //return view("auth.login")->withErrors(['claveunica'=>'RUT No registrado en el sistema']);
+                return view("auth.login")->withErrors(['claveunica'=>'RUT No registrado en el sistema']);
                 //return Inertia::render('Auth/Login')->withErrors(['claveunica'=>'RUT No registrado en el sistema']);
             }
 

@@ -52,8 +52,8 @@ certificados/fullchain.pem
 certificados/fullchain6.pem
 certificados/privkey.pem
 certificados/privkey6.pem
-certificados/sgd.padrelascasas.cl.cert
-certificados/sgd.padrelascasas.cl.key
+certificados/certificado.cert
+certificados/certificado.key
 src/fe/public/favicon.ico
 src/fe/public/css/custom.css
 src/fe/public/img/fondo_login.jpg
@@ -72,3 +72,4 @@ src/fe/composer.lock
 src/fe/package-lock.json
 src/fe/composer.lock
 src/fe/package-lock.json
+logs/*

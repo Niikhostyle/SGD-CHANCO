@@ -61,7 +61,7 @@ class FirmaController extends Controller
                     throw new Exception($comentario);
                 }
 
-                //verificar restrinccion firma subrogante
+                //verificar restriccion firma subrogante
                 if (isset($DatosFirma['id_usuario_sr']) && $DatosFirma['id_usuario_sr'] !== 0 && $DatosFirma['restringir_sr'] == 1 &&  $DatosFirma['id_tipo_firma'] == 2) {
                     if ($DatosFirma['id_usuario_sr'] == 10000) {
                         $comentario = "No existe subrogante definido.";
@@ -416,6 +416,7 @@ class FirmaController extends Controller
                 if ($fileSize_mb >= 5) //firma hash  
                 {
                     $aRespuestaFirma = $this->callHash($sArchivo, $layout, 0, $nNombreArchivoCargar, $nRutFirma);
+                    Log::info("Firma DOC ".$sArchivo." por RUT ".$nRutFirma." Forma JAVA");
                     $nfh = 1;
                 } else //firma tradicional
                 {
@@ -698,11 +699,12 @@ class FirmaController extends Controller
             $nPagina = $ultimaPag;
         
         $cmd = "java -jar " . $classFilePath . " -a '" . env('PLCSGD_API_URL') . "' -e '" . env('PLCSGD_API_ENTITY') . "' -f '" . $sArchivo . "' -i " . $layout['filename'] . " -o " . $sPathArchivoFirmado . " -k " . env('PLCSGD_SECRETO') . " -p " . env('PLCSGD_API_PURPOSE') . " -r " . $nRut . " -t " . env('PLCSGD_API_TOKEN_KEY') . " -u '" . $layout['llx'] . "," . $layout['lly'] . "," . $layout['urx'] . "," . $layout['ury'] . "' -s " . $nPagina;
-        $estado = shell_exec($cmd.' 2>&1');
-        Log::info("Firma DOC ".$sArchivo." por RUT ".$nRut." Estado :" . $estado);
+        $estado = shell_exec($cmd);
+        Log::info("Firma DOC ".$sArchivo." por RUT ".$nRut." Estado :>" . var_dump($estado)."<");
         Log::info($cmd);
-        if ($estado != null || $estado != '') //firma ok
+        if ($estado == null || $estado == '') //firma ok
         {
+            Log::info("Firma Hash OK");
             $aSalida = array();
             if (!file_exists($sPathArchivoFirmado)) {
                 
@@ -724,7 +726,7 @@ class FirmaController extends Controller
             }
         } else {
             $aSalida = array("status" => "400", "error" => "Excepción en comando de firma");
-            Log::error($cmd. " CON ERROR > salida " . var_dump($estado));
+            Log::Info($cmd. " CON ERROR > salida " . var_dump($estado));
         }
         
         return $aSalida;

@@ -6,5 +6,8 @@ return [
     'visarmasivo_enabled' => (boolean) env('VISARMASIVO', false),
     //habilitar filtro por defecto pendientes
     'recibidos_solo_pendientes'=>(boolean) env('FILTRO_PENDINTES', false),
+    //habilitar clavbe unica
+    'claveunica_enabled'=>(boolean) env('CLAVEUNICA_ENABLED', false),
+    
 
 ];

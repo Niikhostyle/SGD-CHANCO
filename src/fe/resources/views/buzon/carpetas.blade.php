@@ -2723,8 +2723,9 @@
                         accion: 7
                     },
                     success: function(data) {
+                        console.log(data)
                         if (data.status == '200') {
-                            toastr.success(data.data, "¡Aviso!");
+                            toastr.success(data.comentario, "¡Aviso!");
                             habilita_boton('btn-recibir-submit');
                             habilita_boton('btn_cerrar_guardar');
                             habilita_boton('btn-guardar-submit');
@@ -2744,7 +2745,7 @@
                             recarga_grilla_recibidos();
                             recarga_grilla_despachados();
                         } else {
-                            toastr.error(data.data.comentario, "¡Aviso!");
+                            toastr.error(data.comentario, "¡Aviso!");
                             habilita_boton('btn-recibir-submit');
                             habilita_boton('btn-recibir-submit');
                             habilita_boton('btn_cerrar_guardar');

@@ -192,7 +192,7 @@ class DocumentoController extends Controller
                 //2: crea o actualiza dest principal
                 //3: elimina dest secundario y crea nuevamente
 
-                $datosDocumento = Documento::findOrFail($datosRequest['id_documento']);
+                $datosDocumento = Documento::lockForUpdate()->findOrFail($datosRequest['id_documento']);
 
                 if ($datosDocumento->id_documento != '') {
                     $dFechaCreacion = date('Y-m-d H:i:s');
@@ -251,7 +251,7 @@ class DocumentoController extends Controller
 
                         if ($datosRequest['carpeta'] == 2) //actualiza estado si se edita, se deja en pendiente
                         {
-                            DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
+                            DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 4]);
                             DocumentoBuzonBitacora::create([
                                 'id_documento_buzon' => $datosRequest["id_documento_buzon"],
                                 'id_accion' => 4,
@@ -648,7 +648,7 @@ class DocumentoController extends Controller
                     //$estadoDocumentoFinal = 7;        
                     $estadoDocumentoActual = array('4', '9', '11'); //"4,9,11"; deberia ir con whereIn  
 
-                    $datosUpdate = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
+                    $datosUpdate = DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"]);
                     $id_carpeta = $datosUpdate->id_carpeta;
                     switch ($datosUpdate->id_estado_documento) {
                         case (4):
@@ -677,7 +677,7 @@ class DocumentoController extends Controller
                     if (!isset($datosRequest['acciones_solicitadas']))
                         return $this->respondFail('Falla al enviar documento: Acciones solicitadas no válidas.');
 
-                    $datosDocumentoBuzonD1 = DocumentoBuzon::where('id_documento', $datosRequest['id_documento'])
+                    $datosDocumentoBuzonD1 = DocumentoBuzon::lockForUpdate()->where('id_documento', $datosRequest['id_documento'])
                         ->where('id_documento_buzon_padre', $datosRequest['id_documento_buzon'])
                         ->where('id_tipo_destino', '1')
                         ->whereIn('id_estado_documento', $estadoDocumentoActual)
@@ -712,7 +712,7 @@ class DocumentoController extends Controller
                         ->select(['id_documento_buzon','id_buzon'])
                         ->get();
                     foreach ($datosDocumentoBuzonD2 as $dato) {
-                        DocumentoBuzon::find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
+                        DocumentoBuzon::lockForUpdate()->find($dato["id_documento_buzon"])->update(['id_estado_documento' => 3, 'fecha' => $dFechaCreacion]);
                     }
 
                     foreach ($datosDocumentoBuzonD2 as $dato) {
@@ -756,13 +756,9 @@ class DocumentoController extends Controller
                 //****** SI SE AGREGA EL CAMPO PROCESADO EN EL JSON POR CADA ACCION SE DEBE ACTUALIZAR A TRUE AL HACER EL CAMBIO DE ESTADO.    
                 //agregar estados 10 y 12
 
-                $datosDocumento = Documento::find($datosRequest["id_documento"]);
-                $idTipoDocumento = $datosDocumento->id_tipo_documento;
-
-
                 if ($request->accion == 3) // por recibir
                 {
-                    $datosDocBuzon = DocumentoBuzon::find($datosRequest["id_documento_buzon"]);
+                    $datosDocBuzon = DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"]);
                     $idDocBuzonPadre = $datosDocBuzon->id_documento_buzon_padre;
 
                     $datosDocumento = Documento::find($datosRequest["id_documento"]);
@@ -773,9 +769,7 @@ class DocumentoController extends Controller
 
                     //actualizar recibido en buzon padre si es principal
                     if ($datosDocBuzon->id_tipo_destino == 1)
-                        DocumentoBuzon::find($idDocBuzonPadre)->update(['recibido' => true]);
-
-
+                        DocumentoBuzon::lockForUpdate()->find($idDocBuzonPadre)->update(['recibido' => true]);
 
                     // ASIGNACION FOLIO EN LA RECEPCIÓN    
                     $datosJsonTipoDocumento = json_decode($datosDocumento['json_tipo_documento'], true);
@@ -813,21 +807,21 @@ class DocumentoController extends Controller
                 }
                 // firmar (cambia estado a en firma)
                 if ($request->accion == 7) {
-                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 9]);
-                    Documento::find($datosRequest["id_documento"])->update(['estado_tramitacion' => 2]);
+                    DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 9]);
+                    Documento::lockForUpdate()->find($datosRequest["id_documento"])->update(['estado_tramitacion' => 2]);
                 }
 
                 if ($request->accion == 10) // finalizado
                 {
-                    Documento::find($datosRequest["id_documento"])->update(['finalizado' => true]);
-                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 13])->update(['estado_tramitacion' => 4]);
+                    Documento::lockForUpdate()->find($datosRequest["id_documento"])->update(['finalizado' => true]);
+                    DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 13])->update(['estado_tramitacion' => 4]);
                     //actualizar flujos                    
                 }
 
                 // visar (cambia estado a en visacion)
                 if ($request->accion == 6){
-                    DocumentoBuzon::find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 11]);
-                    Documento::find($datosRequest["id_documento"])->update(['estado_tramitacion' => 2]);
+                    DocumentoBuzon::lockForUpdate()->find($datosRequest["id_documento_buzon"])->update(['id_estado_documento' => 11]);
+                    Documento::lockForUpdate()->find($datosRequest["id_documento"])->update(['estado_tramitacion' => 2]);
                 } 
                     
                 //registrar accion en bitacora
@@ -1457,7 +1451,6 @@ class DocumentoController extends Controller
                 }
             } catch (ModelNotFoundException $e) {
                 DB::rollBack();
-
                 return "501";
             }
         }

@@ -221,7 +221,7 @@
                 <div class="card-body">
                     <div class="row text-right" id="logo4_panel">
                         <div class="col-12">
-                            <img class="logo_panel" src="{{ asset(env('CODIGO_SGD').'/img/logo4.png') }}" />
+                            <img class="logo_panel logo-4" src="{{ asset(env('CODIGO_SGD').'/img/logo4.png') }}" />
                         </div>
                     </div>
                 </div>

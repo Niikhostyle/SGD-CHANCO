@@ -17,8 +17,8 @@
 
 
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        <link rel="stylesheet" href="{{ mix('css/app.css') }}">
         <link rel="stylesheet" href="{{ env('CODIGO_SGD').'/css/custom.css' }}">
+        <link rel="stylesheet" href="{{ mix('css/app.css') }}">
         <link rel="stylesheet" href="css/inicio/font-awesome.min.css">
         <!-- Bootstrap 3.4.1 -->
         {{-- <link rel="stylesheet" href="css/inicio/bootstrap.min.css">
