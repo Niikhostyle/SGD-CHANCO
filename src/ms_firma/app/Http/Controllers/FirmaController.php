@@ -325,9 +325,13 @@ class FirmaController extends Controller
 
                 $pdf = new PDF();
 
-                //leer si la version de PDF es 1.4, en caso contrario, transformarlo
+                //leer si la version de PDF es 1.4, solo si no es generado en el sistema, en caso contrario, transformarlo
                 //$pdf->setPdfVersion('1.4');
-                $sArchivo = $this->convertPDF($sNombreArchivo);
+                if($datosJsonTipoDocumento["id_tipo_origen"] != 1)
+                        $sArchivo = $this->convertPDF($sNombreArchivo);
+                else
+                        $sArchivo =  storage_path('app/public/files/'.$sNombreArchivo);
+
 
                 $pageCount = $pdf->setSourceFile($sArchivo);
                 //$pageCount = 1;
