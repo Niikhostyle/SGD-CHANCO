@@ -4,9 +4,12 @@
     background-repeat: no-repeat;
     background-size: cover;
 }
-.box {
-    opacity: 1!important;
+.box-login{
+    background-color: rgb(255 255 255 / 90%) !important;
 }
-.logo_panel{
-    width:100px;
+.logo-3{
+    width: 100px;
+}
+.logo-4{
+    width: 100px;
 }

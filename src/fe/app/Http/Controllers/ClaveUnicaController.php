@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Routing\Controller as BaseController;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Facades\Http;
 
 class ClaveUnicaController extends BaseController
 {
@@ -20,12 +25,7 @@ class ClaveUnicaController extends BaseController
         $client_id      = env("CLAVEUNICA_CLIENT_ID");
         $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
 
-        //ver si es denunciante o funcionario
-        $stateInfo =[
-            "token"=>csrf_token(),
-            "tipo"=> 'denuncia'
-        ];
-        $state             = base64_encode(json_encode($stateInfo));
+        $state             = csrf_token();
         $scope          = 'openid run name';
 
         $params         = '?client_id=' . $client_id .
@@ -39,20 +39,21 @@ class ClaveUnicaController extends BaseController
 
     public function callback(Request $request)
     {
+        //evitar acceder a esta ruta si esta autentificado
+        if (Auth::check()) {
+            return redirect()->route('panel.index');
+        }
         $code   = $request->input('code');
         $state  = $request->input('state');
-        
-        $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
-        $client_id      = env("CLAVEUNICA_CLIENT_ID",'123456');
-        $client_secret  = env("CLAVEUNICA_SECRET_ID",'123456');
-        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
-        $scope = 'openid+run+name';
 
+        $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
+        $client_id      = env("CLAVEUNICA_CLIENT_ID", '123456');
+        $client_secret  = env("CLAVEUNICA_SECRET_ID", '123456');
+        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
         $client = new \GuzzleHttp\Client();
         try {
             $response = $client->request('POST', $url_base, [
                 'form_params' => [
-
                     'client_id'     => $client_id,
                     'client_secret' => $client_secret,
                     'redirect_uri'  => $redirect_uri,
@@ -61,17 +62,14 @@ class ClaveUnicaController extends BaseController
                     'state'         => $state,
                 ]
             ])->getBody();
+
             $token = $response->getContents();
 
             if (!isset(json_decode($token)->access_token)) {
                 return redirect()->route('login');
             }
             $access_token = json_decode($token)->access_token;
-            
-            //leer variable si es login denuncia o login funcionario
-            //decode state para ver que tipo de login recibo
-            $state = json_decode(base64_decode($state));
-            //dd($access_token);
+
             $url_base = "https://accounts.claveunica.gob.cl/openid/userinfo/";
 
             $response = $client->post($url_base, [
@@ -86,17 +84,32 @@ class ClaveUnicaController extends BaseController
             //$nombre=implode(" ",$userClaveUnica["name"]['nombres'])." ".implode(" ",$userClaveUnica["name"]["apellidos"]);
 
             //revisar si rut tiene usuario creado
-            $dbuser = User::where("rut", $rut)->first();
-            //no existe usuario, enviar a pedir correo
-            if (!$dbuser) {
-                return view("auth.login")->withErrors(['claveunica'=>'RUT No registrado en el sistema']);
-                //return Inertia::render('Auth/Login')->withErrors(['claveunica'=>'RUT No registrado en el sistema']);
-            }
+            $dbuser = User::where("run", $rut)->first();
 
+            //no existe usuario, mostrar mensaje de error
+            if (!$dbuser) {        
+                return redirect()->route('login')
+                    ->with('claveunica', 'RUT No registrado en el sistema');
+            }
+            //lo autentificamos y enviamos al panel
             Auth::login($dbuser);
-                return redirect()->route('index');
-        } catch (\Exception $ex) {
-            //return Inertia::render("Auth/Login")->withErrors(['claveunica'=>$ex->getMessage()]);
+           // dd($dbuser);
+            return redirect()->route('panel.index');
+        } catch (ClientException $e) {
+            //bad request, token no valido
+            if($e->getCode()==400){
+                return redirect()->route('login')
+                ->with('claveunica', 'Error al autenticar con Clave Única, intente nuevamente');
+            }
+            //otros errores
+            echo Psr7\Message::toString($e->getRequest());
+            echo "<hr>";
+            echo Psr7\Message::toString($e->getResponse());
+
+        } catch (ServerException $e) {
+            //error 500, de servidor claveunica
+            return redirect()->route('login')
+                ->with('claveunica', 'Error en el servicio de Clave Única, intente mas tarde o con otro método de ingreso');
         }
     }
 
@@ -144,21 +157,13 @@ class ClaveUnicaController extends BaseController
 
     public function logout()
     {
-        /* Nos iremos al cerrar sesión en clave única y luego volvermos a nuestro sistema */
-        if (env('APP_ENV') == 'local') {
-            /* Si estamos desarrollando cerramos localmente no más */
-            return redirect()->route('logout');
-        } else {
-            /** Cerrar sesión clave única */
-            /* Url para cerrar sesión en clave única */
-            $url_logout     = "https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect=";
+        /** Cerrar sesión clave única */
+        /* Url para cerrar sesión en clave única */
+        $url_logout     = "https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect=";
 
-            /* Url para luego cerrar sesión en nuestro sisetema */
-            $url_redirect   = env('APP_URL') . "/logout";
-            $url            = $url_logout . urlencode($url_redirect);
-            return redirect($url);
-        }
-
-        /** REVISAR LoginController, ahí está el logout local */
+        /* Url para luego cerrar sesión en nuestro sisetema */
+        $url_redirect   = env('APP_URL') . "/logout";
+        $url            = $url_logout . urlencode($url_redirect);
+        return redirect($url);
     }
 }

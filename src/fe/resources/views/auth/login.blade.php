@@ -57,29 +57,36 @@
 
 
                 <p class="text-center">Ingresar con:</p>
-                @if (config('sgd.claveunica_enabled'))
+                    @if (config('sgd.claveunica_enabled'))
+                    <div>
                         @if (session('claveunica'))
-                            <div class="mb-4 font-medium text-sm text-danger">
+                            <div class="alert alert-danger mb-4 text-center font-medium text-sm text-danger">
                                 {{ session('claveunica') }}
                             </div>
                         @endif
                         <div class="d-flex justify-content-center py-3">
-                    <a class="btn-cu btn-m btn-color-estandar" type="button" href="{{ route('claveunica.autenticar') }}" aria-label="Continuar con ClaveÚnica">
-                        <span class="cl-claveunica" aria-hidden="true"></span>
-                        <span class="texto" aria-hidden="true">ClaveÚnica</span>
-                    </a>
-                </div>
-                <div>
-                <hr data-content="O" class="hr-text">
-                </div>
-                 @endif
-                        <div class="">
-                            <x-jet-validation-errors class="mb-12" />
+                            <a class="btn-cu btn-m btn-color-estandar w-100 rounded-middle" type="button" href="{{ route('claveunica.autenticar') }}" aria-label="Continuar con ClaveÚnica">
+                                <span class="cl-claveunica" aria-hidden="true"></span>
+                                <span class="texto" aria-hidden="true">ClaveÚnica</span>
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                    <div>
+                        @if (config('sgd.claveunica_enabled'))
+                        <a class="btn-cu btn-m btn-light w-100 rounded-middle" type="button" href="javascript:toggleLoginMail()" aria-label="Continuar con Correo Institucional">
+                                <span class="align-content-center fa fa-envelope mx-2" ></span>
+                                <span class="texto" aria-hidden="true">Correo Institucional</span>
+                        </a>
+                        @endif
+                         <x-jet-validation-errors class="alert alert-danger mb-4 text-center font-medium text-sm text-danger" />
                             @if (session('status'))
                                 <div class="mb-4 font-medium text-sm text-danger">
                                     {{ session('status') }}
                                 </div>
                             @endif
+                        <div id="contenedor-userlogin" @if (config('sgd.claveunica_enabled')) class="d-none" @endif >
+                           
                             <form method="POST" action="{{ route('login') }}">
                                 @csrf
                                 <div class="">
@@ -127,8 +134,35 @@
                         </div>
                      </div>
                  </div>
+                 </div>
+                <!-- /.box-body -->
+
             </div>
         </div>
     </section>
+
+    @if (config('sgd.claveunica_enabled'))
+        <!-- Si está activado claveunica, deslogear en claveunica en segundo plano -->
+    <script>
+        setTimeout(function() {
+            //deslogear de claveunica en segundo plano
+            console.log("Redirigiendo a logout de claveunica");
+            window.location.href = "{{ route('claveunica.logout') }}";
+        }, 1000); // 1000 milliseconds = 1 seconds
+
+        function toggleLoginMail(){
+            var contenedorLogin=$("#contenedor-userlogin");
+            var btnLoginMail=$("#btn-login-mail");
+            if(contenedorLogin.hasClass('d-none')){
+                contenedorLogin.removeClass('d-none');
+                btnLoginMail.addClass('d-none');
+            }else{
+                contenedorLogin.addClass('d-none');
+                btnLoginMail.removeClass('d-none');
+            }
+        }
+    </script>
+    @endif
+  
 </x-guest-layout>
     <!-- /.content -->
