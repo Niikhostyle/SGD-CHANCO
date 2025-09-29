@@ -51,6 +51,10 @@ Route::middleware(['auth:sanctum', 'verified',PermisosMiddleware::class.':admin'
     Route::put('usuarios/{id}', [UsuarioController::class, 'estado'])->name('usuarios.estado');
     Route::post('buscar_usuarios', [UsuarioController::class, 'buscar'])->name('usuarios.buscar');
 });
+//actualizar perfil
+Route::middleware(['auth:sanctum', 'verified'])->post('usuarios/perfil/guardar', [UsuarioController::class, 'update_perfil'])->name('usuarios.update_perfil');
+
+
 
 //Documentos
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador',[BuscadorController::class,'index'])->name('buscador.index');

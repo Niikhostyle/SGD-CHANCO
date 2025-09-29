@@ -207,6 +207,81 @@ class UsuarioController extends Controller
         return $response_json;
     }
 
+
+    //actualizar datos de perfil
+    public function update_perfil(UpdateUsuario $request){
+
+        if(Auth::user()->id != $request->form_id_usuario){
+            return response()->json(['status'=>'error','data'=>['comentario'=>'No tiene permisos para actualizar este perfil.']]);
+        }
+        
+        if($request->hasFile('form_imagen_firma'))
+            $uploadImg = $this->uploadFile($request);
+        else
+            $uploadImg = $request->hiddFirma;
+
+        if($request->hasFile('form_foto'))
+            $uploadFoto = $this->uploadFotoPerfil($request);
+        else
+            $uploadFoto = $request->hiddFoto;
+            
+        $sesion_key =  AppServiceProvider::session_key_general();
+        $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
+        ->timeout(10)
+        ->put(env('API_SGD_USUARIOS','http://sgd_ms_usuarios:3333').'/api/sgd-usuarios/actualizar', [
+            'id'=>$request->form_id_usuario,
+            'run'=>$request->run,
+            'nombres'=>$request->nombres,
+            'primer_apellido'=>$request->primer_apellido,
+            'segundo_apellido'=>$request->segundo_apellido,
+            'email'=>$request->email,
+            'password'=>$request->password,
+            'confirmar_password'=>$request->re_password,
+            'aplica_fea'=>$request->aplica_fea,
+            'genera_pdf'=>$request->aplica_genera_pdf,
+            'id_estado_usuario'=>$request->id_estado_usuario,
+            'id_perfil'=>$request->id_perfil,
+            'imagen_firma'=>$uploadImg,
+            'numero_contacto'=>$request->form_contacto,
+            'cargo'=>$request->form_cargo,
+            'img_perfil'=>$uploadFoto
+        ]);
+
+        /*
+        //dd($response);
+        if(isset($request->buzonusuario)){ 
+        foreach($request->buzonusuario as $buzon){
+            $registro = BuzonUsuario::where('id_usuario', '=', $request->form_id_usuario)->where('id_buzon', '=', $buzon)->first();
+            if(!$registro){
+                BuzonUsuario::create([
+                    'id_usuario' => $request->form_id_usuario,
+                    'id_buzon' => $buzon,
+                    'id_tipo_firma' => 2,
+                    'restringir_sr' =>null,
+                    'id_usuario_sr' => null
+                ]);
+            }
+
+        }
+        //elimina buzones no asociados al usuario (menos el personal)
+        $buzones = $request->buzonusuario;
+        //dd($request->form_id_usuario);
+        $buzonpersonal=BuzonUsuario::where("id_usuario",$request->form_id_usuario)
+            ->whereHas('buzon',function($q){
+                $q->where('id_tipo_buzon', 1);
+            })->first();
+        
+        if($buzonpersonal)
+            $buzones[] = $buzonpersonal->id_buzon;
+
+        BuzonUsuario::where('id_usuario','=', $request->form_id_usuario)->whereNotIn('id_buzon',$buzones)->delete();
+        }
+
+        */
+        $response_json = response()->json($response->json());        
+        return $response_json;
+    }
+
     public function estado($id)
     {
         $sesion_key = AppServiceProvider::session_key_general();
