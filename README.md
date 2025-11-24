@@ -7,38 +7,45 @@ La estructura de carpetas del proyecto es la siguiente:
   3. /src >> código fuente de front-end y microservicios
 
 ### 2. Clonar repositorio
-Para clonar el repositorio por HHTP ejecutar en el ambiente donde se requiera:
+Para clonar el repositorio, debe solicitar clave de repositorio, posteriormente, por SSH ejecutar en el ambiente donde se requiera:
 ```bash
-$git clone https://tide.codebasehq.com/plc-sgd-2021/sgd.git
-``` 
-Para clonar el repositorio por SSH ejecutar en el ambiente donde se requiera:
-```bash
-$git clone git@codebasehq.com:tide/plc-sgd-2021/sgd.git
+https://x-token-auth:[APP-TOKEN]@bitbucket.org/padrelascasas/sgd.git
 ``` 
 
-### 3. Crear archivos de configuración
-Una vez clonado el repositorio se debe crear manualmente el archivo .env del front-end y el archivo .env de los microservicios debido a que estos archivos no estarán versionados. 
-Para realizar esto se debe ejecutar desde la raiz del proyecto:
+### 3. Modificar Variable de entorno
+
+Una vez clonado el repositorio se debe modificar manualmente el archivo .env que se encuentra en la carpeta raíz, según las necesidades del proyecto
 ```bash
-$cd configs/fe && cp .env.base .env && cd ../ms && cp .env.base .env && cd ../..
+
+APP_HTTP_PORT : puerto http
+APP_HTTPS_PORT : puerto https
+APP_URL : URL pública del proyecto
+APP_DOMINIO : dominio del proyecto
+
 ``` 
-Cualquier modificacion sobre estos archivos .env debe ser realizada manualmente en todos los ambientes donde se requiera reflejar los ajustes. 
+Cualquier modificación sobre estos archivos .env debe ser realizada antes de ejecutar los siguientes comandos
 
-
-### 4. Crear directorios para volumenes de datos de BD y Archivos 
-Una vez creados los archivos de configuracion se debe crear manualmente la estructura de directorios utilizados como volumenes de datos para BD y archivos. 
-Para realizar esto se debe ejecutar desde la raiz del proyecto:
-```bash
-$cd data && mkdir bd && mkdir files && cd bd && mkdir data && mkdir log && mkdir scripts && cd ../..
-``` 
-
-
-### 5. Crear, levantar, ver o bajar estructura de contenedores  
-Para ejecutar se debe contar con make y docker-compose instalado. 
-Para crear y levantar la estructura de contenedores recreando las imagenes ejecutar:
+### 4. Crear, levantar, ver o bajar estructura de contenedores
+Para instalar dependencias y configurar el proyecto por primera vez
 ```bash
 $make sgd_up_build
 ``` 
+
+### 5. Ejecutar migrations, seeders y personalización   
+Para ejecutar los migrations contra la BD ejecutar:
+```bash
+$make sgd_migrate
+``` 
+Para ejecutar los seeders contra la BD ejecutar:
+```bash
+$make sgd_seed
+```
+Para personalizar imágenes y logos (copiar imágenes y contenido en ```configs/customize``` ):
+```bash
+$make sgd_customize
+```
+
+### 6. Crear, levantar, ver o bajar estructura de contenedores  
 Para levantar la estructura de contenedores usando imagenes creadas anteriormente ejecutar:
 ```bash
 $make sgd_up
@@ -50,14 +57,4 @@ $make sgd_view
 Para bajar la estructura de contenedores creados ejecutar:
 ```bash
 $make sgd_down
-``` 
-
-### 6. Ejecutar migrations y seeders  
-Para ejecutar los migrations contra la BD ejecutar:
-```bash
-$make sgd_migrate
-``` 
-Para ejecutar los seeders contra la BD ejecutar:
-```bash
-$make sgd_seed
 ``` 
