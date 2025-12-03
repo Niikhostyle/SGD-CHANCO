@@ -65,7 +65,7 @@ class FirmarDerivar implements ShouldQueue
 
         $datosFea = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
-        ->put(env('API_SGD_FIRMA','http://sgd_ms_firma:3333').'/api/sgd-firma/firmar_archivo', [  
+        ->put(config('sgd.api_firma').'/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$this->documento_buzon,          
             'id_documento'=>$this->documento,
             'id_usuario'=>$this->user,
@@ -74,7 +74,7 @@ class FirmarDerivar implements ShouldQueue
         
         $datosFD = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])
         ->timeout(100)               
-        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/firmar_derivar', [
+        ->put(config('sgd.api_documento').'/api/sgd-documentos/firmar_derivar', [
             'nombre_buzon'=>$datosBuzon->nombre_buzon,
             'nombre_corto_buzon'=>$datosBuzon->nombre_corto,
             'tipo_buzon'=>'2',
@@ -86,7 +86,7 @@ class FirmarDerivar implements ShouldQueue
             'destinatarioPrincipal'=>$this->buzon_destino,
             'acciones_solicitadas'=>json_encode($jsonAcciones),
             'destinatarioOtros'=>null,
-            'json_respuesta_a'=>$datosDocumento->json_respuesta_a,
+            //'json_respuesta_a'=>$datosDocumento->json_respuesta_a,
             'id_tipo_destino'=>1,
             'carpeta'=>2,
             'titular'=> null,            

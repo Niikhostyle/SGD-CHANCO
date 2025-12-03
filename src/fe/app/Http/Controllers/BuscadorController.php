@@ -37,7 +37,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
             ]), 'json')
-            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentos');
+            ->get(config('sgd.api_documento').'/api/sgd-documentos/listarDocumentos');
 
         if ($lista_documento->failed()) {
             $mensaje = $lista_documento->json()['data']['comentario'];
@@ -54,7 +54,7 @@ class BuscadorController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(30)
-            ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
+            ->get(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/ver_todos');
 
         if ($listado_tiposdoc->failed()) {
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -73,7 +73,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'texto_busqueda' => '',
             ]), 'json')
-            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
+            ->get(config('sgd.api_buzones').'/api/sgd-buzones/listar_todos');
 
         if ($listado_buzones->failed()) {
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -117,7 +117,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_usuario' => Auth::user()->id,
             ]), 'json')
-            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarDocumentos');
+            ->get(config('sgd.api_documento').'/api/sgd-documentos/listarDocumentos');
 
         if ($lista_documento->failed()) {
             $mensaje = $lista_documento->json()['data']['comentario'];
@@ -134,7 +134,7 @@ class BuscadorController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
             ->timeout(30)
-            ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
+            ->get(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/ver_todos');
 
         if ($listado_tiposdoc->failed()) {
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -153,7 +153,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'texto_busqueda' => '',
             ]), 'json')
-            ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
+            ->get(config('sgd.api_buzones').'/api/sgd-buzones/listar_todos');
 
         if ($listado_buzones->failed()) {
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -195,7 +195,7 @@ class BuscadorController extends Controller
             ->withBody(json_encode([
                 'id_documento' => $id,
             ]), 'json')
-            ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/ver')->throw();
+            ->get(config('sgd.api_documento').'/api/sgd-documentos/ver')->throw();
 
         if ($lista_bitacora->failed()) {
             $mensaje = $lista_bitacora->json()['data']['comentario'];
@@ -457,7 +457,7 @@ class BuscadorController extends Controller
                                         join buzon b on db.id_buzon = b.id_buzon
                                         join estado_tramitacion et on et.id = d.estado_tramitacion 
                                         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
-                                        left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
+                                        left join documento d2 on d2.referencias::text like '%\"materia\": \"'||d.materia ||'\"%'
                                     where 
                                         d.id_nivel_acceso < 3
                                         AND db.id_tipo_destino = 1 
@@ -493,7 +493,7 @@ class BuscadorController extends Controller
                                         join buzon b on b.id_buzon = db.id_buzon
                                         join tipo_documento td on td.id_tipo_documento = d.id_tipo_documento
                                         join estado_tramitacion et on et.id = d.estado_tramitacion 
-                                        left join documento d2 on d2.json_respuesta_a::text like '%\"materia\": \"'||d.materia ||'\"%'
+                                        left join documento d2 on d2.referencias::text like '%\"materia\": \"'||d.materia ||'\"%'
                                         LEFT JOIN documento_buzon dbo ON db.id_documento = dbo.id_documento  AND dbo.id_documento_buzon_padre is null
                                         LEFT JOIN buzon bo ON bo.id_buzon = dbo.id_buzon
                                     where

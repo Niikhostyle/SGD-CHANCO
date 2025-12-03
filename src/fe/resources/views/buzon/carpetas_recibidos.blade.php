@@ -1067,12 +1067,19 @@
     }
 
     function responder_recibidos(id_documento) {
-        $("input[name='hiddIdResponder']").val('');
-        $("input[name='hiddIdResponder']").val(id_documento);
+        // $("input[name='hiddIdResponder']").val('');
+        // $("input[name='hiddIdResponder']").val(id_documento);
+        
+
         fn_grilla_despachados();
+       
         cambio_texto_boton_carpetas('Despachados');
         $('#nav-despachados-tab').tab('show');
         $("#add_documento").trigger("click");
+
+        $("form#form_crear_editar").append("<input type='hidden'  name='documentos_respuesta[]' value='"+id_documento+"' />");
+        let contador = $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").length;
+        $('#contador_respuesta_a').text(contador);
     }
     
 

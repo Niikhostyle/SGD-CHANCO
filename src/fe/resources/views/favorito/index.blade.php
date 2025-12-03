@@ -54,7 +54,7 @@
                                             
                                             @foreach($lista_favoritos['data'] as $list)
                                             <tr >
-                                                <td>{{$list['identificador']}}</td>
+                                                <td> <a  onclick="visualizar_documento({{$list['id_documento']}})"  href="#">{{$list['id_documento']}}</a></td>
                                                 <td>{{$list['fecha_documento']}}</td>
                                                 <td>{{$list['tipo_documento']}}</td>
                                                 <td>{{$list['buzon_origen']}}</td>
@@ -66,7 +66,7 @@
                                                             <i class="fas fa-bars"></i>
                                                         </button>
                                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                            <a class="dropdown-item btn-menu-ver" onclick="visualizar_documento({{$list['id_documento']}})"  href="#"><i class="fas fa-eye text-blue"></i> Ver</a>
+                                                           
                                                             <a class="dropdown-item btn-menu-deshabilitar" onclick="del_favorito({{$list['id_documento']}})" href="#"><i class="fas fa-trash-alt text-red"></i> Quitar</a>
                                                         </div>
                                                     </div>
@@ -111,7 +111,7 @@
                         <br>
                         <div class="form-row">
                             <div class="col-md-12">
-                                <ul class="list-group list-group-horizontal">
+                                <ul class="list-group ">
                                     <ul class="list-group list-group-horizontal-md">
                                         <li class="list-group-item col-md-2 col-12"><b>Estado:</b> <br><i><span id="idAsignado">No Asignado</span></i></li>
                                         <li class="list-group-item col-md-2 col-12"><b>Folio:</b> <br><i><span id="idFolio">No Asignado</span></i></li>
@@ -153,8 +153,9 @@
                         <div class="form-row">
                             <div class="col-md-4 mb-3">
                                 <label for="inputState">Respuesta a:</label>
-                                <select id="form_respuesta_a" name="respuesta_a" class="form-control form-disabled">                                  
-                                </select>
+                                <div>    
+                                    <a href="#" class="btn bg-lightblue" onclick="ver_documentos_respuesta_a()"><i class="fa fa-search"></i> <span class="d-none d-sm-inline">Ver</span> <span id="contador_respuesta_a" class="badge badge-light"></span></a>&nbsp;
+                                </div>
                             </div>
                             <div class="col-md-8 mb-3">
                                 <label for="inputState">Materia:</label>
@@ -218,6 +219,13 @@
 
                         </div>
 
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea1">Documentos de Referencia</label>
+                            <div class="card-body card-archivos" id="cargar_referencias">
+                                <div id="contenedor_documentos_referencia" class="mb-2"></div>
+                            </div>
+                        </div>
+
                         <div class="form-group row_anexo">
                             <label for="exampleFormControlTextarea1">Anexos:</label>
                             
@@ -236,42 +244,6 @@
                                 <div id="dropzone-otros" class="dropzone-files dropzone-none"></div>                                                          
                             </div>
 
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-8 mb-3">
-                                <label for="inputState">Destinatario Principal:</label>
-                                <input type="text" class="form-control form-disabled" id="form_destinatario_principal_el" data-role="tagsinput">
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="inputState">Acciones Solicitadas:</label><br>
-                                <select id="form_acciones_solicitadas_el" class="form-control form-disabled" multiple="multiple">                                    
-                                    @foreach($listadoAcciones as $accion)
-                                    @if($accion['id_tipo_accion'] == 1)
-                                        <option value="{{$accion['id_accion']}}">{{$accion['nombre']}}</option>
-                                    @endif    
-                                @endforeach     
-                                </select>
-                                </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Comentario a Destinatario Principal:</label>
-                                <textarea class="form-control form-disabled"  id="form_comentario_el"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12 mb-3">
-                                <label for="inputState">Otro(s) Destinatario(s):</label>
-                                <input type="text" class="form-control form-disabled" id="form_otros_destinatarios_el" data-role="tagsinput">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-12">
-                                <label for="floatingTextarea">Comentario(s) Otro(s) Destinatario(s)</label>
-                                <textarea class="form-control form-disabled" id="form_comentario_otro_el"></textarea>
-                            </div>
                         </div>
                                                 
                         <div class="form-row">                                
@@ -426,6 +398,7 @@ $(document).ready(function(){
             order: [[ 1, 'desc' ]], 
             responsive: true,
             language: lenguaje_datatable
+
         });
 
 
@@ -438,6 +411,7 @@ $(document).ready(function(){
 
 const editor_cuerpo = CKEDITOR.replace('form_cuerpo');
 const listadoBuzones = @json($listadoBuzones);
+const estadosTramitacion = @json($listadoEstadoTramitacion);
 
 owl = $('.owl-carousel').owlCarousel(); 
 
@@ -705,16 +679,54 @@ function cargar_datos_grilla_interno(id_documento)
                     var sDivActualPrev = "";
                     var sDivActualNext = "";
                     var sDivIzq = "";
-                    var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
+                    var jsonRespuesta = data.data.referencias.respuesta_a; 
+                    var jsonReferenciasAnexos = data.data.referencias.anexos; 
+
                     var jsonDocResponder = data.data.rel_responder;
-                    $('#form_respuesta_a').empty();
+                    $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").remove();
+                    $('#contador_respuesta_a').text(jsonRespuesta.length);
                     for (let j in jsonRespuesta) 
                     {                           
                         //completa carrusel lado izq
                         sDivIzq += ' <div class="item"><div class="item_display" ><a href="" onclick="visualizar_documento_alerta('+jsonRespuesta[j]['identificador']+','+id_buzon+','+idBuzonOrigen+',\''+jsonRespuesta[j]['materia']+'\')">'+jsonRespuesta[j]['identificador']+'</a><p>'+moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY')+'</p></div></div>';                               
-                        $('#form_respuesta_a').append("<option selected>"+jsonRespuesta[j]['identificador']+"-"+jsonRespuesta[j]['materia']+"</option>");
+                        //$('#form_respuesta_a').append("<option selected>"+jsonRespuesta[j]['identificador']+"-"+jsonRespuesta[j]['materia']+"</option>");
+                         $("form#form_crear_editar").append("<input type='hidden' name='documentos_respuesta[]' value='"+jsonRespuesta[j]['id_documento']+"' />");
 
                     }
+
+                    //REFERENCIAS SGD
+                    //carga los documentos que son referencias de SGD
+                    $("#contenedor_documentos_referencia").html("");
+                    if(jsonReferenciasAnexos!=null && jsonReferenciasAnexos.length>0){
+                        jsonReferenciasAnexos.forEach(function(value) {
+                            $("form#form_crear_editar").append("<input type='hidden' name='documentos_referencias[]' value='"+value.id_documento+"' />");
+                            //crear elementos en vista
+                            let el =$("<div></div>");
+                            el.addClass("file-container");
+                            el.append($("<img>",{src:"/img/pdf.png", width:83, height:94}));
+                            el.append($("<button>",{
+                                type:"button",
+                                class:"btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle",
+                                title:"Descargar",
+                                style:"mdargin-left: 3px;",
+                                click:function(e){
+                                    e.stopPropagation();
+                                    console.log( "descargar referencia",$(this));
+                                    window.open(route('buscador.descargar_plc')+"?idDocumento="+value.id_documento, '_blank');
+                                }
+                            }).html($("<i>",{class:"fa fa-download"})));
+
+                            
+                            el.append($("<p>",{
+                                style:"width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;"
+                            }).text(value.tipodoc+" - "+value.identificador));   
+
+                            $("#contenedor_documentos_referencia").append(el);
+
+                        });
+                        
+                    }
+
 
                     //completar carrusel lado der
                     var sDivDer = "";
@@ -768,6 +780,59 @@ function autoRefresh() {
     window.setTimeout(function(){
                         location.reload();
                     },2000);
+}
+
+function ver_documentos_respuesta_a(){
+    
+    let seleccionados =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+        return $(this).val();
+    }).get();
+    console.log(seleccionados);
+    let params = new URLSearchParams();
+    seleccionados.forEach(e => {
+        params.append('seleccionados[]', e);
+    });
+    if(seleccionados.length==0){
+        params.append('seleccionados[]', 0);
+    }
+
+    let id_buzon = $("input[name='hiddIdBuzon']").val();
+    $.getJSON(route('documentos.informacionresumen')+'?'+params.toString(), function (response) {
+        console.log(response);
+        if(response.length==0){
+            toastr.info('No hay documentos seleccionados', 'Información');
+            return;
+        }
+        let html = "<ul class='text-left'>";
+        response.forEach(element => {
+            if(element.estado_tramitacion.id > 2)
+                html+="<li><a target='_blank' class='underline' href='"+route('buscador.descargar_plc')+"?idDocumento="+element.id_documento+"' >"+element.id_documento+" - "+element.materia+"</a></li>";
+            else
+                html+="<li>"+element.id_documento+" - "+element.materia+"</li>";
+        });
+        html+="</ul>";
+
+        Swal.fire({
+            title: "Documentos de Respuesta",
+            html: html,
+            icon: "info",
+            //showDenyButton: true,
+            //showCancelButton: true,
+            confirmButtonText: "Cerrar",
+            showCancelButton: false,
+            //denyButtonText: `Cerrar`
+        }).then((result) => {
+            if(result.value){
+                $('#btn_respuesta_a').trigger('click');
+            }     
+        });
+
+
+
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        toastr.error('Error al obtener los datos de documentos pendientes: '+errorThrown, textStatus, errorThrown);
+    });
+
 }
 
 </script>

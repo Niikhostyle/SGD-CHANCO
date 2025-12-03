@@ -1,30 +1,32 @@
+<div class="modal fade" id="PDFModal">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="PDFModalSGDLabel">-</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
 
-<div class="modal fade" id="PDFModal" >
- <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="PDFModalSGDLabel">-</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-    <div role="toolbar" id="toolbar" class="d-none">
-        <div id="pager">
-            <button class="btn btn-sm btn-info" data-pager="prev"> < </button>
-            <button class="btn btn-sm btn-info" data-pager="next"> > </button>
+                <div role="toolbar" id="toolbar" class="d-none">
+                    <div id="pager">
+                        <button class="btn btn-sm btn-info" data-pager="prev">
+                            < </button>
+                                <button class="btn btn-sm btn-info" data-pager="next"> > </button>
+                    </div>
+                    <div id="page-mode">
+                        <label>
+                            Página
+                            <input type="number" value="2" min="1" />
+                        </label>
+                    </div>
+                </div>
+                <div id="viewport-container">
+                    <div role="main" id="viewport"></div>
+                </div>
+            </div>
         </div>
-        <div id="page-mode">
-            <label>
-                Página
-                <input type="number" value="2" min="1" />
-            </label>
-        </div>
-    </div>
-    <div id="viewport-container">
-        <div role="main" id="viewport"></div>
-    </div>
     </div>
 </div>
 

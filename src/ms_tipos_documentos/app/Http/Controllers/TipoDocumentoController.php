@@ -26,7 +26,7 @@ class TipoDocumentoController extends Controller{
         {
             try 
             {
-                $datosTipoDoc = TipoDocumento::all('id_tipo_documento','nombre','id_tipo_origen','id_tipo_flujo')
+                $datosTipoDoc = TipoDocumento::all('id_tipo_documento','nombre','id_tipo_origen','id_tipo_flujo','descripcion')
                                             ->sortBy('nombre');
           
                 return $this->respondSuccess($datosTipoDoc, 200);

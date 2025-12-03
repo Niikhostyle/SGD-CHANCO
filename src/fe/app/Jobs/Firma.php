@@ -53,7 +53,7 @@ class Firma implements ShouldQueue
     {   
         $datosFea = Http::withHeaders(['key'=>$this->sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)        
-        ->put(env('API_SGD_FIRMA','http://sgd_ms_firma:3333').'/api/sgd-firma/firmar_archivo', [  
+        ->put(config('sgd.api_firma').'/api/sgd-firma/firmar_archivo', [  
             'id_documento_buzon'=>$this->documento_buzon,          
             'id_documento'=>$this->documento,
             'id_usuario'=>$this->user,

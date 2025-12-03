@@ -15,5 +15,11 @@ class TipoDestino extends Model
      * @var array
      */
     protected $fillable = [];
+
+    //relacion a muchos documentobuzon
+    public function documentosBuzon()
+    {
+        return $this->hasMany('App\Models\DocumentoBuzon', 'id_tipo_destino');
+    }
    
 }

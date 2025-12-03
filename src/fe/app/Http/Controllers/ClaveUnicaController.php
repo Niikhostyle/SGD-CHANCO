@@ -22,10 +22,10 @@ class ClaveUnicaController extends BaseController
     {
         /* Primer paso, redireccionar al login de clave única */
         $url_base       = "https://accounts.claveunica.gob.cl/openid/authorize/";
-        $client_id      = env("CLAVEUNICA_CLIENT_ID");
-        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
+        $client_id      = config('sgd.claveunica_clientid');
+        $redirect_uri   = urlencode(route('claveunica.callback'));   //urlencode(config('app.url') . "/claveunica/callback");
 
-        $state             = csrf_token();
+        $state             = csrf_token().date('YmdHis');
         $scope          = 'openid run name';
 
         $params         = '?client_id=' . $client_id .
@@ -47,9 +47,9 @@ class ClaveUnicaController extends BaseController
         $state  = $request->input('state');
 
         $url_base       = "https://accounts.claveunica.gob.cl/openid/token/";
-        $client_id      = env("CLAVEUNICA_CLIENT_ID", '123456');
-        $client_secret  = env("CLAVEUNICA_SECRET_ID", '123456');
-        $redirect_uri   = urlencode(env('APP_URL') . "/claveunica/callback");
+        $client_id      = config('sgd.claveunica_clientid');
+        $client_secret  = config('sgd.claveunica_secretid');
+        $redirect_uri   = urlencode(route('claveunica.callback'));   //urlencode(config('app.url') . "/claveunica/callback");
         $client = new \GuzzleHttp\Client();
         try {
             $response = $client->request('POST', $url_base, [
@@ -81,8 +81,7 @@ class ClaveUnicaController extends BaseController
             $userClaveUnica = json_decode($response, true);
 
             $rut = $userClaveUnica["RolUnico"]['numero'] . "-" . $userClaveUnica["RolUnico"]["DV"];
-            //$nombre=implode(" ",$userClaveUnica["name"]['nombres'])." ".implode(" ",$userClaveUnica["name"]["apellidos"]);
-
+          
             //revisar si rut tiene usuario creado
             $dbuser = User::where("run", $rut)->first();
 
@@ -162,7 +161,7 @@ class ClaveUnicaController extends BaseController
         $url_logout     = "https://accounts.claveunica.gob.cl/api/v1/accounts/app/logout?redirect=";
 
         /* Url para luego cerrar sesión en nuestro sisetema */
-        $url_redirect   = env('APP_URL') . "/logout";
+        $url_redirect   = route('claveunica.logout');//)config('app.url') . "/logout";
         $url            = $url_logout . urlencode($url_redirect);
         return redirect($url);
     }

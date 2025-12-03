@@ -98,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
                     'id_usuario' => Auth::user()->id,
                     'year_actual' => session('year'),
                 ]), 'json')
-                ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/menu');
+                ->get(config('sgd.api_buzones').'/api/sgd-buzones/menu');
             
             //dd($menuBuzon["data"]);    
 

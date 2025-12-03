@@ -4,6 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Buzon;
+use App\Models\Documento;
+use App\Models\TipoDestino;
 
 class DocumentoBuzon extends Model{
 
@@ -35,6 +38,17 @@ class DocumentoBuzon extends Model{
     {
         return $this->belongsTo(Documento::class, 'id_documento', 'id_documento');
     }
+
+    public function tipoDestino()
+    {
+        return $this->belongsTo(TipoDestino::class, 'id_tipo_destino', 'id_tipo_destino');
+    }
+
+    public function estadoDocumentoBuzon()
+    {
+        return $this->belongsTo(EstadoDocumento::class, 'id_estado_documento', 'id_estado_documento');
+    }
+
     public function bitacora(){
         return $this->hasMany(DocumentoBuzonBitacora::class, 'id_documento_buzon', 'id_documento_buzon');
     }

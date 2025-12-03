@@ -18,7 +18,7 @@ class TipoDocumentoController extends Controller
 
         $listado_tiposdoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver_todos');
+        ->get(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/ver_todos');
 
         if($listado_tiposdoc->failed()){
             $mensaje = $listado_tiposdoc->json()['data']['comentario'];
@@ -93,7 +93,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
+        ->get(config('sgd.api_buzones').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -144,7 +144,7 @@ class TipoDocumentoController extends Controller
 
         $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->post(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/crear', [
+        ->post(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/crear', [
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
             'nombre_corto_firma'=>$request->nombre_corto_firma,
@@ -179,7 +179,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'id_tipo_documento' => $id,
         ]), 'json')
-        ->get(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/ver');
+        ->get(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/ver');
 
         return $datosTipoDoc->json();
     }
@@ -190,7 +190,7 @@ class TipoDocumentoController extends Controller
 
         $accionTipoDoc = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(20)
-        ->put(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/actualizar', [
+        ->put(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/actualizar', [
             'id_tipo_documento'=>$request->hiddTipoDocumento,
             'nombre'=>$request->nombre,
             'nombre_corto'=>$request->nombre_corto,
@@ -225,7 +225,7 @@ class TipoDocumentoController extends Controller
         ->withBody(json_encode([
             'id_tipo_documento' => $id,
         ]), 'json')
-        ->delete(env('API_SGD_TIPO_DOCUMENTOS','http://sgd_ms_tipos_documentos:3333').'/api/sgd-tipodoc/eliminar');
+        ->delete(config('sgd.api_tipo_documento').'/api/sgd-tipodoc/eliminar');
 
         return $accionTipoDoc->json();
     }

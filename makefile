@@ -1,15 +1,37 @@
 include .env
+DBPASSWORD := $(shell tr -dc 'A-Za-z0-9!@#$%^&*()_+{}|:<>?=' < /dev/urandom | head -c 16)
+
 mensaje_inicio="************************ INICIO EJECUCION ************************"
 mensaje_fin="************************ FIN EJECUCION ************************"
 
+
 sgd:
 	@echo "=================== Debe especificar comando ==================="
-
+sgd_test:
+	sed -i 's/###APP_URL###/$(APP_URL)/g' configs/fe/.env.base
+	sed -i 's/###APP_PORT###/$(APP_HTTPS_PORT)/g' configs/fe/.env.base
+#	sed -i 's/###DB_PASSWORD###/$(DBPASSWORD)/g' configs/fe/.env.base
 sgd_up_build:
 	@echo $(mensaje_inicio)
 	@echo "=================== Copiando archivos de configuracion ==================="
 	test -f configs/fe/.env || cp configs/fe/.env.base configs/fe/.env
 	test -f configs/ms/.env || cp configs/ms/.env.base configs/ms/.env
+
+	@echo "=================== Configurando certificado ==================="
+
+	test -f certificados/$(APP_DOMINIO).cert || cp certificados/certificado.cert certificados/$(APP_DOMINIO).cert
+	test -f certificados/$(APP_DOMINIO).key || cp certificados/certificado.key certificados/$(APP_DOMINIO).key
+	
+	@echo "=================== Configurando variables de entorno ==================="
+	sed -i 's/###APP_URL###/$(APP_URL)/g' configs/fe/.env
+	sed -i 's/###APP_PORT###/$(APP_HTTPS_PORT)/g' configs/fe/.env
+#	sed -i 's/###DB_PASSWORD###/$(DBPASSWORD)/g' configs/fe/.env
+
+	sed -i 's/###APP_URL###/$(APP_URL)/g' configs/fe/.env
+	sed -i 's/###APP_PORT###/$(APP_HTTPS_PORT)/g' configs/ms/.env
+# sed -i 's/###DB_PASSWORD###/$(DBPASSWORD)/g' configs/ms/.env
+
+
 	@echo "=================== Creando imagenes y levantando contenedores ==================="
 	docker compose up -d --build
 	sleep 5
@@ -28,8 +50,14 @@ sgd_up_build:
 	docker exec -it -u 0 sgd_ms_verifica bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_notificaciones bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_descargas bash -c 'cd /src ; composer install'
-#agregar proteccion a carpetas de configuracion
 
+#agregar proteccion a carpetas de configuracion
+	docker exec -it sgd_fe composer update
+	docker exec -it sgd_fe php artisan ziggy:generate
+	docker exec -it sgd_fe php artisan optimize
+	docker exec -it sgd_fe php artisan view:clear
+
+	docker exec -it sgd_fe npm run dev
 	@echo $(mensaje_fin)
 
 sgd_up:

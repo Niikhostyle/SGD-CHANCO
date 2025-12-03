@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -265,7 +266,16 @@ class ArchivoController extends Controller
             if ($datosRequest['generaFolio'] == 1)
                 $this->estado_folio($nFolio, 0, $idTipoFolio, $datosRequest['id_buzon'], $idTipoDocumento, 0);
             DB::commit();
-            return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
+             return response()->json([
+                'status' => 200,
+                'data' => [
+                    'comentario' => 'Archivo pdf generado correctamente.',
+                    'folio'=>$nFolio,
+                    'tipoDoc'=>strtoupper($datosJsonTipoDocumento["nombre_corto"]),
+                    'anio'=>$fecha->format("Y"),
+                ]
+            ], 200);
+            //return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
         }catch (ModelNotFoundException $e) {
             db::statement("update bloqueo_folio set estado = 0, reversado = 1 where folio = " . $nFolio . " and tipo_folio = " . $idTipoFolio . " and buzon = " . $datosRequest['id_buzon'] . " and tipo_documento = " . $idTipoDocumento);
             DB::rollBack();
@@ -387,7 +397,16 @@ class ArchivoController extends Controller
 
             DB::commit();
 
-            return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
+            //return $this->respondSuccess("Archivo pdf generado correctamente.", 200);
+            return response()->json([
+                'status' => 200,
+                'data' => [
+                    'comentario' => 'Folio generado correctamente.',
+                    'folio'=>$nFolio,
+                    'tipoDoc'=>strtoupper($datosJsonTipoDocumento["nombre_corto"]),
+                    'anio'=>$fecha->format("Y"),
+                ]
+            ], 200);
         } catch (ModelNotFoundException $e) {
             db::statement("update bloqueo_folio set estado = 0, reversado = 1 where folio = " . $nFolio . " and tipo_folio = " . $idTipoFolio . " and buzon = " . $datosRequest['id_buzon'] . " and tipo_documento = " . $idTipoDocumento);
 
@@ -450,20 +469,15 @@ class ArchivoController extends Controller
             $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
             $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
 
-            //reemplazar path imagenes antes de generar pdf
-            //ej: src="http://192.168.1.101:82/files/editor/images/historia.jpg" por src="/src/storage/app/public/files/editor/images/historia.jpg" 
-
             $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
             $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-            // dd($datosDocumentosencabezado);
 
-            $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $sEncabezado, 'cuerpo' => $datosDocumentosCuerpo); //  $datosDocumentos['cuerpo']            
+            $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo);          
 
             $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
 
             return $pdf->download('vista_previa.pdf');
         } catch (ModelNotFoundException $e) {
-
             return response()->json([
                 'status' => 500,
                 'data' => [

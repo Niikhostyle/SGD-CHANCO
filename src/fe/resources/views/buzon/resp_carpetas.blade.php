@@ -4165,7 +4165,7 @@
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];
-                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
+                        var jsonRespuesta = $.parseJSON(data.data.referencias.respuesta_a);
                         var jsonDocResponder = data.data.rel_responder;
 
 

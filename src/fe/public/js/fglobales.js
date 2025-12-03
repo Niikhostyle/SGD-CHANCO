@@ -276,7 +276,7 @@ function cargar_datos_grilla(id_documento)
                     var sDivActualPrev = "";
                     var sDivActualNext = "";
                     var sDivIzq = "";
-                    var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a); 
+                    var jsonRespuesta = $.parseJSON(data.data.referencias.respuesta_a); 
                     var jsonDocResponder = data.data.rel_responder;
                     $('#form_respuesta_a').empty();
                     for (let j in jsonRespuesta) 

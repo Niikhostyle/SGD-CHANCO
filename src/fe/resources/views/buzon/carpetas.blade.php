@@ -122,23 +122,49 @@
                                 <li class="list-group-item col-md-2 col-12"><b>Estado:</b> <br><i><span id="idAsignado">No Asignado</span></i></li>
                                 <li class="list-group-item col-md-2 col-12"><b>Folio:</b> <br><i><span id="idFolio">No Asignado</span></i></li>
                                 <li class="list-group-item col-md-2 col-12"><b>Fecha:</b> <br><i><span id="idFecha">No Asignado</span></i></li>
+                                <li class="list-group-item col-md-2 col-12"><b>Fecha:</b> <br><i><span id="idFecha">No Asignado</span></i></li>
                                 <li class="list-group-item col-md-2 col-12 item-bitacora"><b>Bitácora:</b><br><p class=""><a class="btn btn-info btn-sm" id="boton-bitacora" href="javascript:void(0)" data-toggle="modal" data-target="#modalBitacoraSGD" data-id="" ><i class="fa fa-history"></i></a></p></li>
+                                {{-- <li class="list-group-item col-md-2 col-12"><b>Referencias:</b> <br><i><span id="idFecha"><a class="btn btn-info btn-sm" id="boton-ref">[BOTON]</a></span></i></li> --}}
                             </ul>
                         </div>
                     </div>
                     <br>
                     <div class="form-row">
                         <div class="col-md-3 mb-3">
-                            <label for="inputState">Tipo Documento:</label>
+                            <label for="inputState">Tipo Documento:&nbsp;<i class="fa fa-question-circle " role="button" title="pinche en el icono para mas información" data-toggle="modal" data-target="#modalAyudaTipoDocumento"></i></label>
                             <select id="form_tipo_documento" name="tipo_documento" class="form-control">
                                 <option value="">Seleccionar</option>
                                 @foreach($listado_tiposdoc as $list)
                                 <option value="{{$list['id_tipo_documento']}}">{{$list['nombre']}}</option>
                                 @endforeach
                             </select>
+
+
+                            <div class="modal fade" id="modalAyudaTipoDocumento" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-xl" role="document">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Información sobre tipos de Documentos</h5>
+                                    <a href="#" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    </a>
+                                </div>
+                                <div class="modal-body">
+                                    @foreach($listado_tiposdoc as $list)
+                                                <p><b>{{$list["nombre"]}}:</b>&nbsp;
+                                                {{$list['descripcion']}}</p>
+                                    @endforeach
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="#" type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</a>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="inputState">Nivel Acceso</label>
+                            <label for="inputState">Nivel Acceso&nbsp;<i class="fa fa-question-circle " role="button" data-toggle="tooltip" data-html="true" title="<p><b>Publico: </b>Documento puede ser visto en todo el sistema</p><p><b>Reservado: </b>puede ser buscado pero no ver su contenido. (contenido visible solo en los buzones que recibieron el documento)</p><p><b>Confidencial: </b>No se encontrará en el buscador de documentos. (visible solo en los buzones que recibieron el documento)</p>"></i></label>
                             <select class="form-control" id="form_nivel_acceso" name="nivel_acceso" required>
                                 <option value="">Seleccionar</option>
                                 @foreach($nivel_acceso as $dato)
@@ -163,12 +189,20 @@
                     <div class="form-row">
                         <div class="col-md-4 mb-3">
                             <label for="inputState">Respuesta a:</label>
+                            <!--
                             <select id="form_respuesta_a" name="respuesta_a" class="form-control" multiple="multiple" style="text-align:left !important">
                                 @foreach($listDocPendientesBuzon as $doc)
                                 <option value="{{$doc['value']}}">{{$doc['title']}}</option>
                                 @endforeach
-                            </select>
 
+                                
+                            </select>
+                            -->
+                            <br/>
+                            <a href="#" class="btn bg-lightblue" onclick="ver_documentos_respuesta_a()"><i class="fa fa-search"></i> <span class="d-none d-sm-inline">Ver</span> <span id="contador_respuesta_a" class="badge badge-light"></span></a>&nbsp;
+                            
+                            <button id="btn_respuesta_a" type="button" class="btn btn-primary" data-buzon="null" data-toggle="modal" data-target="#modalDocumentoRespuesta"><i class="fa fa-folder-plus"></i> <span class="d-none d-sm-inline">Seleccionar </span></button>
+                            
                         </div>
                         <div class="col-md-8 mb-3">
                             <label for="inputState">Materia:</label>
@@ -257,7 +291,16 @@
                         </div>
 
                     </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Documentos de Referencia <button id="btn_referencias_anexo" disabled class="btn btn-primary btn-xs" data-toggle="modal" 
+                        data-target="#modalDocumentoReferencia"><i class="fa fa-plus"></i></button></label>
 
+                        <div class="card-body card-archivos" id="cargar_referencias">
+                            <div id="contenedor_documentos_referencia" class="mb-2"></div>
+                            
+                        </div>
+
+                    </div>
 
                     <div class="form-group">
                         <label for="exampleFormControlTextarea1">Otros Archivos</label>
@@ -440,8 +483,13 @@
   </div>
 </div>
 
+
+
 @include('componentes.BitacoraModal')
+@include('componentes.DocumentoRespuestaModal')
+@include('componentes.DocumentoReferenciaModal')
 @include('componentes.PDFModal')
+
 
 @stop
 
@@ -983,6 +1031,7 @@
         $('#card_bitacora').hide();
         clear_form();
         deshabilita_campos();
+        
         $('#form_tipo_documento').prop("disabled", false);
         $("#form_crear_editar :input").prop("disabled", false);
         editor_cuerpo.setReadOnly(false);
@@ -999,17 +1048,28 @@
         }
         habilita_boton('btn-guardar-submit-edit');
 
+
         /* responder a */
 
         if (e.isTrigger && $("input[name='hiddIdResponder']").val() != '') {
+            /*
             $('#form_respuesta_a').multiselect({
                 numberDisplayed: 6
             });
             $('#form_respuesta_a').multiselect('deselectAll', true);
             $('#form_respuesta_a').multiselect('select', $("input[name='hiddIdResponder']").val());
             $('#form_respuesta_a').multiselect('refresh');
+            */
+
         } else
             $("input[name='hiddIdResponder']").val('');
+
+        //habilitar boton respuesta a
+        let idBuzon = $("input[name='hiddIdBuzon']").val();
+        
+
+        $("#btn_respuesta_a").data('buzon',idBuzon);
+
 
     });
 
@@ -1021,6 +1081,11 @@
         // tinymce.get("form_cuerpo").mode.set("readonly");
         // tinymce.get("form_distribucion").mode.set("readonly");
         $('#form_destinatario_principal').prop("disabled", true);
+        
+        $('#btn_respuesta_a').prop("disabled", true);
+        //$('#btn_respuesta_a').prop("disabled", true);
+        $('#btn_referencias_anexo').prop("disabled", true);
+
         $('#form_comentario_el').prop("disabled", true);
         $('#form_otros_destinatarios_el').prop("disabled", true);
         $('#form_comentario_otro_el').prop("disabled", true);
@@ -1030,6 +1095,7 @@
         $('#dropzone-principal').prop("disabled", true);
         $('#dropzone-otros').prop("disabled", true);
         $('#dropzone-anexo').prop("disabled", true);
+
 
         $(".dz-hidden-input").prop("disabled", true);
         isDelete = false;
@@ -1059,6 +1125,9 @@
         $('#dropzone-anexo').prop("disabled", false);
         $('#dropzone-otros').prop("disabled", false);
         $(".dz-hidden-input").prop("disabled", false);
+        
+        $('#btn_respuesta_a').prop("disabled", false);
+        $('#btn_referencias_anexo').prop("disabled", false);
     }
 
     function clear_form() {
@@ -1068,6 +1137,10 @@
         $('.btn-enviar-submit').hide();
         $('#addButton').html('');
         $(".item-bitacora").hide();
+        
+        $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").remove();
+        $("form#form_crear_editar").find("input[name='documentos_referencias[]']").remove();
+
         //inicializa formulario
 
         $('#form_crear_editar').trigger("reset");
@@ -1095,7 +1168,7 @@
         $(".row_archivar").hide();
 
         $('#form_acciones_solicitadas_el').multiselect('deselectAll', true);
-        $('#form_respuesta_a').multiselect('deselectAll', true);
+        //$('#form_respuesta_a').multiselect('deselectAll', true);
 
         $("#form_destinatario_principal").val(null);
         $("#form_destinatario_principal").trigger('change');
@@ -1181,12 +1254,13 @@
                         }
 
                         //habilita respuesta a: solo a flujo libre
-
+                        /*
                         if (idTipoFlujo != 1) {
                             $('#form_respuesta_a').multiselect('disable');
                             $('#form_respuesta_a').multiselect('deselectAll', true);
                         } else
                             $('#form_respuesta_a').multiselect('enable');
+                        */
 
                         if (data.data.id_tipo_origen == 1) //interno
                         {
@@ -1345,7 +1419,7 @@
         var distribucion = editor_distribucion.getData();
         // var cuerpo = tinymce.get("form_cuerpo").getContent();
         // var distribucion = tinymce.get("form_distribucion").getContent();
-        var responder = $('#form_respuesta_a').val();
+
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
@@ -1364,6 +1438,14 @@
                 aParaFirma.push($(this).val());
             }
         });
+
+        //responder a y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         setea_sesiones_recibidos();
         setea_sesiones_despachados();
@@ -1397,8 +1479,9 @@
                 encabezado: encabezado,
                 cuerpo: cuerpo,
                 distribucion: distribucion,
-                responder: responder,
                 buzon: hiddIdBuzon,
+                responder: respuesta_a,
+                referenciaAnexos: referenciaAnexos,
                 destinatarioPrincipal: destinatarioPrincipal,
                 destinatarioOtros: otrosDestinatarios,
                 comentarioPrincipal: comentarioPrincipal,
@@ -1619,6 +1702,13 @@
             }
         });
 
+        //guarda respuesta y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         $.ajax({
             url: route('documentos.update',{'buzon':hiddIdDocumentoBuzon,'id':hiddIdDocumento}),
@@ -1628,6 +1718,8 @@
                 _token: _token,
                 contestar_hasta: contestar_hasta,
                 buzon: hiddIdBuzon,
+                responder: respuesta_a,
+                referenciaAnexos: referenciaAnexos,
                 destinatarioPrincipal: destinatarioPrincipal,
                 destinatarioOtros: otrosDestinatarios,
                 comentarioPrincipal: comentarioPrincipal,
@@ -1698,6 +1790,7 @@
         var nivel_acceso = $("select[name='nivel_acceso']").val();
         var efectos_terceros = $("select[name='efectos_terceros']").val();
         var contestar_hasta = $("input[name='contestar_hasta']").val();
+
         var materia = $("input[name='materia']").val();
         var anterior = $("input[name='anterior']").val();
         var descripcion = $("textarea[name='descripcion']").val();
@@ -1724,6 +1817,14 @@
                 aParaFirma.push($(this).val());
             }
         });
+
+         //responder a y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         deshabilita_boton('btn-recibir-submit');
         deshabilita_boton('btn_cerrar_guardar');
@@ -1757,6 +1858,8 @@
                 cuerpo: cuerpo,
                 distribucion: distribucion,
                 buzon: hiddIdBuzon,
+                responder: respuesta_a,
+                referenciaAnexos: referenciaAnexos,
                 destinatarioPrincipal: destinatarioPrincipal,
                 destinatarioOtros: otrosDestinatarios,
                 comentarioPrincipal: comentarioPrincipal,
@@ -1777,49 +1880,6 @@
                     dropzoneAnexo.processQueue();
                     dropzoneOtros.processQueue();
                     dropzonePrincipal.processQueue();
-
-
-
-
-
-                    referenciaAnexos.forEach(function(o,i){
-                        //console.log(o);
-                        let item ={};
-                        //agregar algunos parametros
-                        item.hiddIdDocumento = hiddIdDocumento;
-                        item.hiddIdDocumentoBuzon = hiddIdDocumentoBuzon;
-                        item._token = _token;
-                        item.id_tipo_archivo = 2;
-                        item.name = o.name; 
-                        item.url =o.url;
-
-                        //ajax post para agregar referenciaSGD
-                        //console.log(item);
-                        new Promise(function(resolve, reject) {
-                            $.ajax({
-                                url: "{{route('archivo.uploadreferenciasgd')}}",
-                                type: 'POST',
-                                dataType: 'json',
-                                data:item,
-                                success:function(r){
-                                    resolve(r);
-                                },
-                                error:function(e){
-                                    reject(e)
-                                }
-                            });
-                        }).then(function(data) {
-                            referenciaAnexos.splice(i,1);
-                            //dropzoneAnexo.
-                            console.log('common data', data);
-                        }).catch(function(reason) {
-                            console.log('reason for rejection', reason)
-                            toastr.error("Error al cargar el archivo " + item.name + " " + reason.statusText);
-                        });
-                    });
-
-
-
                     intervalCarga = setInterval(function() {
                         varTermina = valida_carga();
                         if (varTermina == 1) {
@@ -1937,6 +1997,8 @@
         var comentarioOtros = $('#form_comentario_otro_el').val();
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
 
+        //respuesta a y referencias sgd
+
         //check para firma anexos
         var aParaFirma = [];
         $('input:checkbox[name="chkFirmaAnexo"]:checked').each(function() {
@@ -1944,6 +2006,14 @@
                 aParaFirma.push($(this).val());
             }
         });
+
+         //responder a y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         deshabilita_boton('btn-recibir-submit');
         deshabilita_boton('btn_cerrar_guardar');
@@ -1977,6 +2047,8 @@
                 cuerpo: cuerpo,
                 distribucion: distribucion,
                 buzon: hiddIdBuzon,
+                responder: respuesta_a,
+                referenciaAnexos: referenciaAnexos,
                 destinatarioPrincipal: destinatarioPrincipal,
                 destinatarioOtros: otrosDestinatarios,
                 comentarioPrincipal: comentarioPrincipal,
@@ -2095,6 +2167,15 @@
             }
         });
 
+
+        //responder a y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
+
         deshabilita_boton('btn-recibir-submit');
         deshabilita_boton('btn_cerrar_guardar');
         deshabilita_boton('btn-guardar-submit');
@@ -2128,6 +2209,8 @@
                 distribucion: distribucion,
                 buzon: hiddIdBuzon,
                 fecha_respuesta:fecha_respuesta,
+                responder: respuesta_a,
+                referenciaAnexos: referenciaAnexos,
                 destinatarioPrincipal: destinatarioPrincipal,
                 destinatarioOtros: otrosDestinatarios,
                 comentarioPrincipal: comentarioPrincipal,
@@ -2225,7 +2308,10 @@
         var hiddIdBuzon = $("input[name='hiddIdBuzon']").val();
         var hiddIdDocumento = $("input[name='hiddIdDocumento']").val();
         var hiddIdDocumentoBuzon = $("input[name='hiddIdDocumentoBuzon']").val();
-        var responder = $('#form_respuesta_a').val();
+        //var responder = $('#form_respuesta_a').val();
+        var responder = $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         var destinatarioPrincipal = $('#form_destinatario_principal').val()[0];
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
@@ -2831,7 +2917,14 @@
         var acciones_solicitadas = $('#form_acciones_solicitadas_el').val();
         var otrosDestinatarios = $('#form_otros_destinatarios_el').val();
         var tipoDestino = $("input[name='hiddIdTipoDestino']").val();
-        var responder = $('#form_respuesta_a').val();
+        
+        //responder a y referencias SGD
+        var respuesta_a =  $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").map(function() {
+            return $(this).val();
+        }).get();
+        var referenciaAnexos =  $("form#form_crear_editar").find("input[name='documentos_referencias[]']").map(function() {
+            return $(this).val();
+        }).get();
 
         if (destinatarioPrincipal !== undefined && acciones_solicitadas != "") {
             deshabilita_boton('btn-recibir-submit');
@@ -2891,6 +2984,8 @@
                                         acciones_solicitadas: acciones_solicitadas,
                                         hiddIdDocumento: hiddIdDocumento,
                                         hiddIdDocumentoBuzon: hiddIdDocumentoBuzon,
+                                        responder: respuesta_a,
+                                        referenciaAnexos: referenciaAnexos,
                                         carpeta: 2,
                                         opcionGuardar: 1,
                                         id_tipo_destino: tipoDestino
@@ -3709,7 +3804,7 @@
             var docBuzon = id_documento_buzon_padre;
         else --}}
         */
-            var docBuzon = id_documento_buzon;
+        var docBuzon = id_documento_buzon;
         $.ajax({
            // url: "/documentos/" + id_documento,
             url: route('documentos.ver',{'buzon':docBuzon,'id':id_documento}),
@@ -3735,7 +3830,11 @@
                         var nFlujo = json_tipo_doc['id_tipo_flujo'];
                         var jsonAcciones = json_tipo_doc['buzones_flujo'];
                         var jsonTipoAvance = json_tipo_doc['id_tipo_avance'];
-                        var jsonRespuesta = $.parseJSON(data.data.json_respuesta_a);
+                        console.log("refs",data.data.referencias)
+                        var jsonRespuesta = (data.data.referencias!=null && data.data.referencias.respuesta_a!=null)?data.data.referencias.respuesta_a:[];
+                        var jsonReferenciasAnexos = (data.data.referencias!=null && data.data.referencias.anexos!=null)?data.data.referencias.anexos:[];
+                        
+
                         var jsonDocResponder = data.data.rel_responder;
 
 
@@ -3744,6 +3843,7 @@
                         $("input[name='hiddBuzonPrimera']").val(0);
                         $("input[name='hiddBuzonUltima']").val(0);
                         $("input[name='hiddNroFirmas']").val(0);
+
                         if (typeof json_tipo_doc['derivar_primera_firma'] !== 'undefined') {
                             $("input[name='hiddPrimeraFirma']").val(json_tipo_doc['derivar_primera_firma']);
                         }
@@ -3783,21 +3883,6 @@
                         editor_cuerpo.setData(data.data.cuerpo);
                         //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
                         editor_distribucion.setData(data.data.distribucion);
-                        //tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
-                        // if(data.data.cuerpo !== null){
-                        //     tinymce.get("form_cuerpo").setContent(data.data.cuerpo);
-                        // }
-                        // else{
-                        //     tinymce.get("form_cuerpo").setContent('&nbsp;');
-                        // }
-
-                        //editor_distribucion.setData(data.data.plantilla_distribucion);
-                        // if(data.data.distribucion !== null){
-                        //     tinymce.get("form_distribucion").setContent(data.data.distribucion);
-                        // }
-                        // else{
-                        //     tinymce.get("form_distribucion").setContent('&nbsp;');
-                        // }
 
                         $("input[name='hiddIdDocumento']").val(data.data.id_documento);
                         $("input[name='hiddIdDocumentoBuzon']").val(id_documento_buzon);
@@ -3824,7 +3909,75 @@
                             $(".item-bitacora").show();
                             $("#boton-bitacora").data("id",data.data.id_documento);
                         }
-                       
+                       //habilitar boton respuesta a
+                       $('#contador_respuesta_a').text('');
+                       $("form#form_crear_editar").find("input[name='documentos_respuesta[]']").remove();
+
+                       //comprobar si el boton se debe desplegar (buzon origen el mismo que el actual)
+                       $("#btn_respuesta_a").data('buzon',idBuzon);
+                       $("#btn_respuesta_a").data('buzonorigen',data.data.rel_documento_buzon[0].id_buzon);
+                       //console.log("buzon_origen",data.data.rel_documento_buzon[0].id_buzon);
+                       if(data.data.rel_documento_buzon[0].id_buzon == idBuzon && accion > 0){
+                           $("#btn_respuesta_a").prop("disabled", false);
+                       }else{
+                           $("#btn_respuesta_a").prop("disabled", true);
+                       }
+                       //agrega los documentos a los que responde
+                       console.log("jsonRespuesta",jsonRespuesta);
+                        //carga los documentos a los que responde
+                        if(jsonRespuesta!=null && jsonRespuesta.length>0){
+                            jsonRespuesta.forEach(function(entry) {
+                                $("form#form_crear_editar").append("<input type='hidden' name='documentos_respuesta[]' value='"+entry.id_documento+"' />");
+                            });
+                            $('#contador_respuesta_a').text(jsonRespuesta.length);
+                        }
+
+                        
+                        //carga los documentos que son referencias de SGD
+                        $("#contenedor_documentos_referencia").html("");
+                        if(jsonReferenciasAnexos!=null && jsonReferenciasAnexos.length>0){
+                            jsonReferenciasAnexos.forEach(function(value) {
+                                $("form#form_crear_editar").append("<input type='hidden' name='documentos_referencias[]' value='"+value.id_documento+"' />");
+                                //crear elementos en vista
+                                let el =$("<div></div>");
+                                el.addClass("file-container");
+                                el.append($("<img>",{src:"/img/pdf.png", width:83, height:94}));
+                                el.append($("<button>",{
+                                    type:"button",
+                                    class:"btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle",
+                                    title:"Descargar",
+                                    style:"mdargin-left: 3px;",
+                                    click:function(e){
+                                        e.stopPropagation();
+                                        console.log( "descargar referencia",$(this));
+                                        window.open(route('buscador.descargar_plc')+"?idDocumento="+value.id_documento, '_blank');
+                                    }
+                                }).html($("<i>",{class:"fa fa-download"})));
+
+                                if(!$('#dropzone-anexo').prop("disabled")){
+                                    el.append($("<button>",{
+                                        type:"button",
+                                        class:"btn text-nowrap btn-min-w  btn-sm btn-arch btn-default btn-outline-secondary rounded-circle",
+                                        title:"Eliminar referencia",
+                                        style:"margin-left: -27px;",
+                                        click:function(e){
+                                            e.stopPropagation();
+                                            console.log( "eliminar referencia",$(this));
+                                            $(this).parent().remove();
+                                            $("form#form_crear_editar").find('input[name="documentos_referencias[]"][value='+value.id_documento+']').remove();
+                                        }
+                                    }).html($("<i>",{class:"fas fa-trash"})));
+                                }
+                                el.append($("<p>",{
+                                    style:"width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;"
+                                }).text(value.tipodoc+" - "+value.identificador));   
+
+                                $("#contenedor_documentos_referencia").append(el);
+
+                            });
+                            
+                        }
+
 
 
                         if (json_tipo_doc['id_tipo_origen'] == 1) //interno
@@ -4074,7 +4227,7 @@
                             if (accion == 1) {
                                 $('#form_destinatario_principal').prop("disabled", false);
                                 $('#form_acciones_solicitadas_el').multiselect('enable');
-                                $('#form_respuesta_a').multiselect('enable');
+                                //$('#form_respuesta_a').multiselect('enable');
 
                                 //quita accion 9 del listado
                                 $("#form_acciones_solicitadas_el option[value='9']").remove();
@@ -4082,7 +4235,8 @@
                             }
 
                             /* responder a */
-
+                            
+                            /*
                             //selecciona documentos en respuesta a
                             $('#form_respuesta_a').multiselect({
                                 numberDisplayed: 6
@@ -4091,6 +4245,8 @@
 
                             if (carpeta != 3 || (carpeta == 3 && accion == 0))
                                 $('#form_respuesta_a').empty();
+
+                            */
 
                             var sDivActualPrev = "";
                             var sDivActualNext = "";
@@ -4104,10 +4260,11 @@
                                 //completa carrusel lado izq
                                 sDivIzq += ' <div class="item"><div class="item_display"><a href="#" onclick="ver_recibidos_alerta(' + jsonRespuesta[j]['identificador'] + ',' + id_documento_buzon + ',' + docBuzon + ',\'' + jsonRespuesta[j]['materia'] + '\')">' + jsonRespuesta[j]['identificador'] + '</a><p>' + moment(jsonRespuesta[j]['created_at']).format('DD-MM-YYYY') + '</p></div></div>';
                             }
+                            
+                            //$('#form_respuesta_a').multiselect('rebuild');
+                            //$('#form_respuesta_a').multiselect('refresh');
 
-                            $('#form_respuesta_a').multiselect('rebuild');
-                            $('#form_respuesta_a').multiselect('refresh');
-
+                            
                             //completar carrusel lado der
                             var sDivDer = "";
                             for (let d in jsonDocResponder) {
@@ -4751,11 +4908,6 @@
 
                         if (carpeta == 3)
                             $('#card_desplegar_versiones').hide();
-
-
-
-
-
                     }
                 }
             },
@@ -4833,8 +4985,9 @@
     function ver_despachados(id_documento, id_documento_buzon, id_documento_buzon_padre) {
         $('#titulo_accion').html('Ver Documento ID '+id_documento);
         $('.row_cuerpo').show();
-        deshabilita_campos();
+        
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 3, 0);
+        deshabilita_campos();
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -4878,7 +5031,7 @@
         cargar_datos_grilla(id_documento, id_documento_buzon, id_documento_buzon_padre, 2, 1);
 
         $('#form_tipo_documento').prop("disabled", true);
-        $('#form_respuesta_a').multiselect('disable');
+       // $('#form_respuesta_a').multiselect('disable');
 
         $('.btn-guardar-submit').hide();
         $('.btn-guardar-submit-edit').hide();
@@ -5033,14 +5186,23 @@
     function activar_editar(nBotones) {
         $('#form_tipo_documento').prop("disabled", true);
         $("#form_crear_editar :input").prop("disabled", false);
+        
+        //habilitar solo si el buzon es es del mismo origen
+        if($("#btn_respuesta_a").data('buzon') == $("#btn_respuesta_a").data('buzonorigen')){
+            $("#btn_respuesta_a").prop("disabled", false);
+        }else{
+            $("#btn_respuesta_a").prop("disabled", true);
+        }
+        
+        $("#btn_referencias_anexo").prop("disabled", false);
         editor_cuerpo.setReadOnly(false);
         editor_distribucion.setReadOnly(false);
-        // tinymce.get("form_cuerpo").mode.set("design");
-        // tinymce.get("form_distribucion").mode.set("design");
+
         $('#dropzone-principal').prop("disabled", false);
         $('#dropzone-anexo').prop("disabled", false);
         $('#dropzone-otros').prop("disabled", false);
         $(".dz-hidden-input").prop("disabled", false);
+        
 
         if (nBotones == 1) {
             $('.btn-guardar-submit').show();
@@ -5216,7 +5378,7 @@
     }
 
     $(document).ready(function() {
-
+         $('[data-toggle="tooltip"]').tooltip();
         //$(".nuevo_documento").prop("disabled", true);
         $('#fDerivarMasivaDestPpal').select2();
         @if($log_firma != "")
@@ -5229,12 +5391,14 @@
             buttonWidth: '100%'
         });
 
+        /*
         $('#form_respuesta_a').multiselect({
             nonSelectedText: 'Seleccione Documentos',
             allSelectedText: 'Seleccionados',
             numberDisplayed: 4,
             buttonWidth: '100%'
         });
+        */
 
         timeoutId = "";
         
@@ -5305,6 +5469,28 @@
                 {data: 'nombre_archivo_original'},
             ],
         });
+
+        $("#documentosrespuesta-resultados").DataTable({
+            processing: true,
+            serverSide: true,
+            paging: false,
+            type: 'json',
+            searchDelay: 1200,
+            responsive: true,
+            ajax:{
+                url:"{{ route('buscador.referenciasgd') }}",
+            },
+            language: lenguaje_datatable,
+            //headers:[],
+            columns: [
+                {data: 'anio',title:'Año'},
+                {data: 'nombre_corto'},
+                {data: 'folio'},
+                {data: 'id_tipo_archivo'},
+                {data: 'nombre_archivo_original'},
+            ],
+        });
+
 
 
     });

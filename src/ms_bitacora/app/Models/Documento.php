@@ -17,7 +17,7 @@ class Documento extends Model{
         'identificador',
         'folio',
         'fecha',
-        'json_respuesta_a',
+        'referencias',
         'materia',
         'anterior',
         'descripcion',
@@ -28,7 +28,9 @@ class Documento extends Model{
         'archivo_existente',
         'finalizado'
     ];
-
+    protected $casts = [
+        'referencias'=>'array',    
+    ];
 
     public function rel_tipo_documento()
     {

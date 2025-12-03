@@ -5,6 +5,15 @@ use setasign\Fpdi\Fpdi;
 class PDF extends FPDI
 {
  
+    public $footer_txt = '';
+    public $footer_qr = '';
+    public $footer_id_txt = '';
+    public $footer_link = '';
+    public $url_qr = '';
+    public $tipo_origen = 0;
+    public $PageFirma = 0;
+    public $alto = 0;
+    
     function Footer()
     {
         //numero de página
@@ -20,18 +29,17 @@ class PDF extends FPDI
         //{
             $this->SetY(-20);
             $this->SetFont('Arial','',8);
-            $this->WriteHTML($this->footer_txt);            
+            $this->WriteHTML(mb_convert_encoding($this->footer_txt, 'ISO-8859-1', 'UTF-8'));            
 
             if ($this->tipo_origen == 2)       
             {
                 //solo si es documento externo
-                $distanceFromBottom = 30; // Píxeles desde el borde inferior
+                $distanceFromBottom = 23; // Píxeles desde el borde inferior
                 $imageY = $this->alto - $distanceFromBottom;
-
-                $this->Image($this->footer_qr,140,$imageY,0,0,'PNG',$this->url_qr);
+                $this->Image($this->footer_qr,170,$imageY,0,0,'PNG',$this->url_qr);
             }
             else
-                $this->Image($this->footer_qr,140,325,0,0,'PNG',$this->url_qr);
+                $this->Image($this->footer_qr,170,333,0,0,'PNG',$this->url_qr);
 
             $this->SetY(-15);
 

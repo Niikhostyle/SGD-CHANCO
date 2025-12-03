@@ -66,10 +66,15 @@ Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento',[Busc
 Route::middleware(['auth:sanctum', 'verified'])->get('descargar_documento2',[BuscadorController::class,'descargar'])->name('buscador.descargar');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscar_categorias',[BuscadorController::class,'buscar'])->name('buscador.categorias');
 Route::middleware(['auth:sanctum', 'verified'])->get('eliminar_documento',[BuzonController::class,'eliminar_documento_enviado'])->name('buzones.eliminar_documento_enviado');
+Route::middleware(['auth:sanctum', 'verified'])->get('documentosPendientes/{buzon}',[BuzonController::class,'documentosPendientes'])->name('documentos.documentospendientes'); 
+Route::middleware(['auth:sanctum', 'verified'])->get('informacionResumen',[BuzonController::class,'informacionResumen'])->name('documentos.informacionresumen'); 
+Route::middleware(['auth:sanctum', 'verified'])->get('documentosReferencia',[BuzonController::class,'documentosReferencia'])->name('documentos.documentosreferencia'); 
+Route::middleware(['auth:sanctum', 'verified'])->get('informacionseleccionados',[BuzonController::class,'informacionSeleccionados'])->name('documentos.informacionseleccionados'); 
 
 //version 2 - buscador
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador2', [BuscadorController::class, 'index2'])->name('buscador.index2');
 Route::middleware(['auth:sanctum', 'verified'])->get('buscadorListar2/', [BuscadorController::class, 'listar2'])->name('buscador.listar2');
+
 Route::middleware(['auth:sanctum', 'verified'])->get('buscarReferenciaSGD', [BuscadorController::class, 'buscarDocumentoReferencia'])->name('buscador.referenciasgd');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('buscador/{id}', [BuscadorController::class, 'show'])->name('buscador.show');

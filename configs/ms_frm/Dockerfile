@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) zip \
     #&& docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd
+    && docker-php-ext-install -j$(nproc) gd 
     #&& docker-php-ext-configure pdo_pgsql --with-pgsql \
     #&& docker-php-ext-install pdo_pgsql
 
@@ -22,6 +22,14 @@ RUN apt-get install -y ghostscript
     
 # Install supervisor
 RUN apt-get install -y supervisor
+
+#Install GD
+RUN apt-get install -y libgd-dev
+
+#Install Imagick PHP extension para generar QR
+RUN apt-get install -y libmagickwand-dev; \
+    pecl install imagick; \
+    docker-php-ext-enable imagick;
 
 #Instalar driver para pgsql
 RUN apt-get install -y libpq-dev \

@@ -17,7 +17,7 @@ class Documento extends Model{
         'identificador',
         'folio',
         'fecha',
-        'json_respuesta_a',
+        'referencias',
         'materia',
         'anterior',
         'descripcion',
@@ -32,7 +32,9 @@ class Documento extends Model{
         'distribucion'
     ];
 
-
+    protected $casts = [
+        'referencias'=>'array',    
+    ];
     public function rel_tipo_documento()
     {
         return $this->belongsTo(TipoDocumento::class, 'id_tipo_documento', 'id_tipo_documento');

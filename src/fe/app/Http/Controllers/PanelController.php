@@ -33,7 +33,7 @@ class PanelController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
+        ->get(config('sgd.api_buzones').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];

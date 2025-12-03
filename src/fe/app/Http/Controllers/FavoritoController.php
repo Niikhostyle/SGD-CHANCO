@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Documento;
 
 class FavoritoController extends Controller
 {
@@ -18,13 +19,14 @@ class FavoritoController extends Controller
      */
     public function index()
     {
+
         $sesion_key =  AppServiceProvider::session_key_general();
         $lista_favoritos = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(10)
         ->withBody(json_encode([
             'id_usuario' => Auth::user()->id,
         ]), 'json')
-        ->get(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/listarFavoritos');
+        ->get(config('sgd.api_documento').'/api/sgd-documentos/listarFavoritos');
 
         if($lista_favoritos->failed()){
             $mensaje= $lista_favoritos->json()['data']['comentario'];
@@ -40,6 +42,7 @@ class FavoritoController extends Controller
         //parametros
         $datosNivelAcceso = \App\Models\NivelAcceso::all('id_nivel_acceso', 'nombre');
         $datosAccion = \App\Models\Accion::all('id_accion', 'id_tipo_accion','nombre');
+        $datosEstadoTramitacion =  \App\Models\EstadoTramitacion::All();
 
         //listado de buzones
         $aBuzones = array();
@@ -48,7 +51,7 @@ class FavoritoController extends Controller
         ->withBody(json_encode([
             'texto_busqueda' => '',
         ]), 'json')
-        ->get(env('API_SGD_BUZONES','http://sgd_ms_buzones:3333').'/api/sgd-buzones/listar_todos');
+        ->get(config('sgd.api_buzones').'/api/sgd-buzones/listar_todos');
 
         if($listado_buzones->failed()){
             $mensaje = $listado_buzones->json()['data']['comentario'];
@@ -69,7 +72,8 @@ class FavoritoController extends Controller
             'lista_favoritos'=>$lista_favoritos,
             'listadoBuzones'=>$aBuzones,
             'listadoAcciones' => $datosAccion,
-            'nivel_acceso' => $datosNivelAcceso
+            'nivel_acceso' => $datosNivelAcceso,
+            'listadoEstadoTramitacion' => $datosEstadoTramitacion
         ]);
     }
 
@@ -78,7 +82,7 @@ class FavoritoController extends Controller
         $sesion_key = AppServiceProvider::session_key_general();
         $response = Http::withHeaders(['key'=>$sesion_key,'Content-Type'=>'application/json'])
         ->timeout(30)
-        ->put(env('API_SGD_DOCUMENTO','http://sgd_ms_documentos:3333').'/api/sgd-documentos/estadoFavorito', [
+        ->put(config('sgd.api_documento').'/api/sgd-documentos/estadoFavorito', [
             'id_documento' => $id,
             'id_usuario' => Auth::user()->id,
             'accion' => $request['accion']

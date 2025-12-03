@@ -2,6 +2,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Buzon;
+use App\Models\Documento;
+use App\Models\TipoDestino;
 
 class DocumentoBuzon extends Model{
 
@@ -36,6 +39,11 @@ class DocumentoBuzon extends Model{
     public function rel_documento()
     {
         return $this->belongsTo(Documento::class, 'id_documento', 'id_documento');
+    }
+
+    public function tipoDestino()
+    {
+        return $this->belongsTo(TipoDestino::class, 'id_tipo_destino', 'id_tipo_destino');
     }
 
     public function rel_documento_buzon_bitacora()
