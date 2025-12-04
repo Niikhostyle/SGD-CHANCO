@@ -637,6 +637,7 @@ public function fixbitacora($idDocumento = null){
     ini_set('memory_limit', '-1');
     set_time_limit(0);
 
+    $idDocumento = request()->input('idDocumento', $idDocumento);
    
     if($idDocumento == null){
         $anio = request()->input('anio',date('Y'));

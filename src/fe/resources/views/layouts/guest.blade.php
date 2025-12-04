@@ -44,7 +44,7 @@
             <div class="">
                 <div class="  text-center">
                   <span class="help-block m-r-20 m-l-20">
-                  {!! env('FOOTER_TXT') !!}
+                  {!! config('sgd.footer_txt') !!}
                   </span>
                 </div>
             </div>

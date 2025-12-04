@@ -127,7 +127,7 @@
                         <div class=" pt-5">
                         <div class="">
                             <div class="d-flex flex-column align-items-center text-center text-base text-bold">
-                                <sub class="mb-2 text-secondary">{!! env('GENTILEZA_TXT') !!}</sub>                            
+                                <sub class="mb-2 text-secondary">{!! config('sgd.txt_gentileza') !!}</sub>                            
                                 <img class="img img-responsive logo-3" src="{{ asset(env('CODIGO_SGD').'/img/logo3.png') }}" alt="" id="logo3_home">
                             </div>
                             </div>

@@ -130,7 +130,7 @@ async function get_tabla_documento_referencia(elemento_tabla='#tabla_documento_r
                     url:route('documentos.documentosreferencia'),
                     method: 'GET',
                     data: function (d) {
-                        d.buzon = $("#DocumentoReferencia_anio").val();
+                        d.anio = $("#DocumentoReferencia_anio").val();
                         d.tipo_documento = $("#tipo_documento_referencia").val();
                     },
                 },

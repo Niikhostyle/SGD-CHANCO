@@ -10,12 +10,14 @@ return [
     'api_folios'=>env('API_SGD_FOLIOS','http://sgd_ms_folios:3333'),
 
     //opciones
+    'txt_footer' => env('FOOTER_TXT', '2025 © MUNICIPALIDAD'),
+    'txt_gentileza' => env('GENTILEZA_TXT', ''),
     //N° registros por tabla (buzon)
     'ndocs_perpage' => (int) env('NDOCS_PERPAGE', 25),
     //habilitar visado masivo
     'visarmasivo_enabled' => (boolean) env('VISARMASIVO', false),
     //habilitar filtro por defecto pendientes
-    'recibidos_solo_pendientes'=>(boolean) env('FILTRO_PENDINTES', false),
+    'recibidos_solo_pendientes'=>(boolean) env('FILTRO_PENDIENTES', false),
     //habilitar clave unica
     'claveunica_enabled'=>(boolean) env('CLAVEUNICA_ENABLED', false),
     //clave unica clientid

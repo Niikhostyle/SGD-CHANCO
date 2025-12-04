@@ -193,7 +193,7 @@
             <div class="row">
                 <div class="col-md-12">
                 <span class="help-block m-r-20 m-l-20 text-center">
-                    {!! env('FOOTER_TXT') !!}
+                    {!! config('sgd.footer_txt') !!}
                 </span>
                 </div>
             </div>
