@@ -141,7 +141,8 @@ class FirmaController extends Controller
                     ->select('nombre_archivo_codificado', 'paginas_archivo', 'id_tipo_archivo', 'folio')
                     ->first();
 
-                //if(!isset($aDocumentoBuzon['nombre_archivo_codificado']))
+                $txt_footer_folio = "";
+                    
                 if (!isset($aDocumentoBuzon['nombre_archivo_codificado']) || !isset($aDocumentoBuzon['folio'])) //si no hay archivo o folio en ultima firma 
                 {
 
@@ -166,8 +167,6 @@ class FirmaController extends Controller
                         if (!isset($aDocumentoBuzon['nombre_archivo_codificado']))
                             $nGeneraArchivo = 1;
                     }
-
-                    $txt_footer_folio = "";
 
                     if ($nGeneraArchivo == 1) {
                         //generar pdf                    

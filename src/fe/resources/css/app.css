@@ -141,3 +141,13 @@ hr.hr-text::before {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+.tooltip-inner {
+    max-width: 500px;
+    padding: .25rem .5rem;
+    color: #ffffff;
+    text-align: center;
+    background-color: #09579c;
+    border-radius: .25rem;
+    text-align: left;
+}

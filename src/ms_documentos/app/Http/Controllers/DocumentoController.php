@@ -298,8 +298,21 @@ class DocumentoController extends Controller
                             $jsonRespuesta = array();
                             if ($datosRequest['referenciaAnexos'] != null) {
                                 foreach ($datosRequest['referenciaAnexos'] as $resp) {
-                                    $datosRespuesta = Documento::where('id_documento', '=', $resp)->select('id_documento', DB::raw("CONCAT(folio,'/',anio_tramitacion) as identificador"), DB::raw("(select nombre_corto from tipo_documento td where td.id_tipo_documento = id_tipo_documento limit 1) as tipodoc"), 'created_at')->first();
-                                    $jsonRespuesta[] = $datosRespuesta;
+                                    //$datosRespuesta = Documento::where('id_documento', '=', $resp)->select('id_documento', DB::raw("CONCAT(folio,'/',anio_tramitacion) as identificador"), DB::raw("(select nombre_corto from tipo_documento td where td.id_tipo_documento = id_tipo_documento limit 1) as tipodoc"), 'created_at')->first();
+                                    $datosRespuesta = Documento::where('id_documento', '=', $resp)->select('id_documento', 'folio','anio_tramitacion','id_tipo_documento','created_at')
+                                        ->with(['rel_tipo_documento' => function ($query) {
+                                            $query->select('id_tipo_documento', 'nombre_corto');
+                                        }])
+                                    ->first();
+
+                                    $anexo = [
+                                        'id_documento' => $datosRespuesta->id_documento,
+                                        'identificador' => $datosRespuesta->folio . '/' . $datosRespuesta->anio_tramitacion,
+                                        'tipodoc' => $datosRespuesta->rel_tipo_documento->nombre_corto,
+                                        'created_at' => $datosRespuesta->created_at
+                                    ];
+
+                                    $jsonRespuesta[] = $anexo;
                                 }
                                 $datosRequest["referencias"]['anexos'] = $jsonRespuesta;
                             }
@@ -1274,7 +1287,8 @@ class DocumentoController extends Controller
                             'documento_buzon_archivo.nombre_archivo_codificado as nombre_archivo_codificado',
                             'documento_buzon_archivo.id_documento_buzon as id_documento_buzon',
                             'na.nombre as nivel_acceso',
-                            'td.nombre as tipo_documento'
+                            'td.nombre as tipo_documento',
+                            'referencias'
                         )
                         ->where('documento.hash_validacion', '=', $datosRequest['hash_validacion'])
                         ->where('documento_buzon_archivo.version', '=', 1)

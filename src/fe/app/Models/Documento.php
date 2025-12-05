@@ -55,6 +55,9 @@ class Documento extends Model{
     {
         return $this->hasMany(TipoDocumentoBuzon::class, 'id_tipo_documento', 'id_tipo_documento')->select(['id_tipo_documento_buzon','id_buzon','orden']);
     }
+    public function nivelAcceso(){
+        return $this->belongsTo(NivelAcceso::class, 'id_nivel_acceso', 'id_nivel_acceso');
+    }
 
     public function tipo_documento(){
         return $this->belongsTo(TipoDocumento::class, 'id_tipo_documento', 'id_tipo_documento');

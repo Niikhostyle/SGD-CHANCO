@@ -78,16 +78,17 @@
     <div class="cover">
         <h1>Validación de Documentos</h1>
     </div>
-    @if($status==0)
+    
+    @if(isset($documento["id_documento"]))
 
-    @foreach($lista_documentos['data'] as $list)
+    
     <div class="row">
         <div class="col-md-6 col-xs-12">
             <div class="linea_content_header mt-0"></div>
             <div class="card">
                 <div class="card-body">
                     <table id="tabla_documento" class="table table-bordered">
-                        @if($list['id_nivel_acceso']==1)
+                        @if($documento['id_nivel_acceso']==1)
                         <tr>
                             <th colspan="2" scope="row"><i>Resultado</i></th>
                         </tr>
@@ -96,23 +97,23 @@
                         </tr>
                         <tr>
                             <th scope="row">Tipo</th>
-                            <td>{{$list['tipo_documento']}}</td>
+                            <td>{{$documento["rel_tipo_documento"]['nombre']}}</td>
                         </tr>
                         <tr>
                             <th scope="row">Folio</th>
-                            <td>{{$list['folio']}}</td>
+                            <td>{{$documento['folio']}}</td>
                         </tr>
                         <tr>
                             <th scope="row">Fecha</th>
-                            <td colspan="2">{{$list['fecha_documento']}}</td>
+                            <td colspan="2">{{  \Carbon\Carbon::parse($documento['fecha'])->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Materia</th>
-                            <td colspan="2">{{$list['materia']}}</td>
+                            <td colspan="2">{{$documento['materia']}}</td>
                         </tr>
                         <tr>
                             <th scope="row">Confidencialidad</th>
-                            <td>{{$list['nivel_acceso']}}</td>
+                            <td>{{$documento['nivelAcceso']["nombre"]}}</td>
                         </tr>
                         <tr>
                             <th colspan="2" scope="row"><i>Firmas Digitales</i></th>
@@ -143,31 +144,34 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                @if(count($anexos) > 0)
                                 <ul>
+                                @if(count($anexos) > 0)
                                     @foreach($anexos as $a)
                                     <li><b>{{$a->nombre_archivo_original}}</b> <a href="/download_publico_anexo?idDocumento={{$a->id_documento_buzon_archivo}}" target="_blank">Descargar</a></li>
                                     @endforeach
-                                </ul>
-                                @else
-                                No aplica
                                 @endif
+                                @if(isset($documento["referencias"]["anexos"]))
+                                    @foreach($documento["referencias"]["anexos"] as $a)
+                                    <li><b>{{$a["tipodoc"]}} {{$a["identificador"]}} </b> <a href="/descargar_docto?idDocumento={{$a['id_documento']}}" target="_blank">Descargar</a></li>
+                                    @endforeach
+                                @endif
+
+
+                                </ul>
                             </td>
                         </tr>
-                        @elseif($list['id_nivel_acceso']==2 || $list['id_nivel_acceso']==3)
+                        @elseif($documento['id_nivel_acceso']==2 || $documento['id_nivel_acceso']==3)
                         <tr>
-                            @if($list['hash_validacion']=!null)
                             <th scope="row">Resultado</th>
-                            <td class="valido">Codigo de documento valido</td>
-                            @endif
+                            <td class="valido">Código de documento válido</td>
                         </tr>
                         <tr>
                             <th scope="row">Folio</th>
-                            <td>{{$list['folio']}}</td>
+                            <td>{{$documento['folio']}}</td>
                         </tr>
                         <tr>
                             <th scope="row">Fecha</th>
-                            <td colspan="2">{{$list['fecha_documento']}}</td>
+                            <td colspan="2">{{$documento['fecha_documento']}}</td>
                         </tr>
                         @endif
                     </table>
@@ -176,23 +180,22 @@
             </div>
             <div class="row mt-5">
                 <div class="col-md-12">
-                    @if($list['id_nivel_acceso']==1)
-                    <p><a class="btn btn-success" href="/download_publico?idDocumento={{$list['id_documento']}}" target="_blank" class="fas fa-download"></i> Descargar</a></p>
+                    @if($documento['id_nivel_acceso']==1)
+                    <p><a class="btn btn-success" href="/download_publico?idDocumento={{$documento['id_documento']}}" target="_blank" class="fas fa-download"></i> Descargar</a></p>
                     @endif
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-xs-12 border">
-            @if($list['id_nivel_acceso']==1)
-            <embed class="pdf" src="/descargar_docto?idDocumento={{$list['id_documento']}}" width="100%" height="1000px">
+            @if($documento['id_nivel_acceso']==1)
+            <embed class="pdf" src="/descargar_docto?idDocumento={{$documento['id_documento']}}" width="100%" height="1000px">
             @endif
         </div>
     </div>
 
-    @endforeach
-    @endif
 
-    @if($status==1)
+    @else
+
     <div class="linea_content_header"></div>
     <div class="card" id="card_invalido" style="border: 2px;">
         <div class="card-body">

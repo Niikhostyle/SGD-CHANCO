@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Documento;
+use App\Models\DocumentoBuzon;
 use App\Models\DocumentoBuzonArchivo;
 use App\Models\DocumentoBuzonBitacora;
 use Illuminate\Http\Request;
@@ -70,40 +71,25 @@ class DocumentoValidadorController extends Controller
     {
 
         $codigo = $id;
-        //return $codigo;
-        $sesion_key =  AppServiceProvider::session_key_general();
-        $lista_documentos = Http::withHeaders(['key' => $sesion_key, 'Content-Type' => 'application/json'])
-            ->timeout(30)
-            ->withBody(json_encode([
-                'hash_validacion' => $codigo
-            ]), 'json')
-            ->get(config('sgd.api_documento').'/api/sgd-documentos/verificaDocumento');
-
-        //return $lista_documentos;
-        if ($lista_documentos->failed()) {
-            //return $lista_documentos ;
-            $mensaje = $lista_documentos->json()['data']['comentario'];
-
-            $lista_documentos = ['data' => [
-                0 => ['hash_validacion' => 'sin datos', 'folio' => 'sin datos', 'fecha_documento' => 'sin datos', 'materia' => 'sin datos', 'id_nivel_acceso' => '', 'version' => '']
-            ]];
-            toast($mensaje, 'error');
-        } else {
-            $lista_documentos->json();
-        }
-
-        $status = 1;
-        //dd($lista_documentos->json());
-        foreach ($lista_documentos['data'] as $list) {
-            if ($list['id_nivel_acceso'] == 2 || $list['id_nivel_acceso'] == 3 || $list['id_nivel_acceso'] == 1) {
-                $status = 0;
-            }
-        }
+        $documento = Documento::where('hash_validacion', $codigo)
+            ->with([
+                'rel_tipo_documento',
+                'nivelAcceso',
+                'rel_documento_buzon' => function ($query) {
+                    $query->Wherehas('archivos' , function ($query) {
+                            $query->where('version', 1);
+                        }
+                    )->with(['archivos'=>function($query){
+                        $query->where('version', 1);
+                    }]);
+                }
+            ])
+        ->first();
 
         $visadores = DocumentoBuzonBitacora::join('users', 'documento_buzon_bitacora.id_usuario', 'users.id')
             ->join('documento_buzon', 'documento_buzon.id_documento_buzon', 'documento_buzon_bitacora.id_documento_buzon')
             ->join('documento', 'documento.id_documento', 'documento_buzon.id_documento')
-            ->where('documento.id_documento', $list['id_documento'])
+            ->where('documento.id_documento', $documento->id_documento)
             ->where('id_accion', 6)
             ->orderBy('documento_buzon_bitacora.fecha', 'ASC')
             ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"), DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha"), DB::raw("ROW_NUMBER () OVER (ORDER BY documento_buzon_bitacora.fecha) as id_usuario"))
@@ -112,25 +98,24 @@ class DocumentoValidadorController extends Controller
         $firmantes = DocumentoBuzonBitacora::join('users', 'documento_buzon_bitacora.id_usuario', 'users.id')
             ->join('documento_buzon', 'documento_buzon.id_documento_buzon', 'documento_buzon_bitacora.id_documento_buzon')
             ->join('documento', 'documento.id_documento', 'documento_buzon.id_documento')
-            ->where('documento.id_documento', $list['id_documento'])
+            ->where('documento.id_documento', $documento->id_documento)
             ->where('id_accion', 7)
             ->orderBy('documento_buzon_bitacora.fecha', 'ASC')
             ->select(DB::raw("nombres||' '||primer_apellido||' '||segundo_apellido as usuario"), DB::raw("to_char(documento_buzon_bitacora.fecha,'DD/MM/YYYY HH24:MI:SS') as fecha"), DB::raw("ROW_NUMBER () OVER (ORDER BY  documento_buzon_bitacora.fecha) as id_usuario"))
             ->get();
 
         $anexos = DocumentoBuzonArchivo::join('documento_buzon as db', 'db.id_documento_buzon', 'documento_buzon_archivo.id_documento_buzon')
-            ->where('db.id_documento', $list['id_documento'])
+            ->where('db.id_documento', $documento->id_documento)
             ->where('documento_buzon_archivo.id_tipo_archivo', 2)
             ->select('documento_buzon_archivo.nombre_archivo_original', 'documento_buzon_archivo.nombre_archivo_codificado', 'db.id_documento', 'documento_buzon_archivo.id_documento_buzon_archivo')
             ->get();
-
 
         $datosVisarFirmar = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon.id_documento_buzon', '=', 'documento_buzon_bitacora.id_documento_buzon')
             ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
             ->join('accion', 'accion.id_accion', '=', 'documento_buzon_bitacora.id_accion')
             ->join('users', 'users.id', '=', 'documento_buzon_bitacora.id_usuario')
             ->join('buzon', 'buzon.id_buzon', '=', 'documento_buzon.id_buzon')
-            ->where('documento.id_documento', $list['id_documento'])
+            ->where('documento.id_documento', $documento->id_documento)
             ->whereIn('documento_buzon_bitacora.id_accion', array('4', '6', '7'))
             ->select(
                 'documento_buzon_bitacora.id_accion',
@@ -178,7 +163,13 @@ class DocumentoValidadorController extends Controller
             $txtVisadores = "No aplica";
 
         //dd($txtVisadores);
-        return View::make('validador.index_qr', ['lista_documentos' => $lista_documentos, 'visadores' => $visadores, 'firmantes' => $firmantes, 'anexos' => $anexos, 'status' => $status, 'txtVisadores' => $txtVisadores]);
+        return View::make('validador.index_qr', [
+            'documento' => $documento, 
+            'visadores' => $visadores, 
+            'firmantes' => $firmantes, 
+            'anexos' => $anexos,
+            'txtVisadores' => $txtVisadores
+        ]);
     }
 
     public function download(Request $request)

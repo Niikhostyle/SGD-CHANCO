@@ -454,7 +454,7 @@ class BuzonController extends Controller
                 'carpeta' => $request->carpeta,
                 'opcionGuardar' => $request->opcionGuardar,
                 'aParaFirma' => $request->aParaFirma
-            ]);
+            ])->throw();
 
         return $accionDocumento->json();
     }
@@ -1005,22 +1005,11 @@ class BuzonController extends Controller
             $sHash = hash('sha256', $sparamHash, false);
 
 
-            $jsonRespuesta = array();
-            if ($msVerTipoDoc['data']['id_tipo_flujo'] == 1) {
-                if ($DocumentoOriginal[0]->referencias != "" && $DocumentoOriginal[0]->referencias["respuesta_a"] != null) {
-                    foreach ($DocumentoOriginal[0]->referencias["respuesta_a"] as $resp) {
-                        $datosRespuesta = Documento::where('id_documento', '=', $resp)->select('id_documento', 'identificador', 'materia', 'created_at')->first();
-                        $jsonRespuesta[] = $datosRespuesta;
-                    }
-                }
-            }
-
             $documento = Documento::create([
                 'id_tipo_documento' => $DocumentoOriginal[0]->id_tipo_documento,
                 'id_nivel_acceso' => $DocumentoOriginal[0]->id_nivel_acceso,
                 'efectos_terceros' => $DocumentoOriginal[0]->efectos_terceros,
                 'json_tipo_documento' => json_encode($msVerTipoDoc['data']), //obtener de ms_tipos_documentos
-                'json_respuesta_a' => json_encode($jsonRespuesta),
                 'materia' => "(Copia) " . $DocumentoOriginal[0]->materia,
                 'anterior' => $DocumentoOriginal[0]->anterior,
                 'descripcion' => $DocumentoOriginal[0]->descripcion,
@@ -1236,13 +1225,18 @@ class BuzonController extends Controller
     public function documentosReferencia()
     {
         $anio = request()->anio!=null?(int)request()->anio:session('year');
+        $tipodoc = request()->tipo_documento!=null? request()->tipo_documento:[];
 
         $lista = Documento::where('anio_tramitacion', $anio)
              ->where('estado_tramitacion','>',3) //no incluir archivados
              ->select('id_documento','id_tipo_documento', 'materia',  'descripcion',  'fecha',  'folio', 'estado_tramitacion','anio_tramitacion')
-             ->with(['estado_tramitacion:id,nombre','tipo_documento:id_tipo_documento,nombre']);
-           
-        //dd(request()->seleccionados);
+             ->with(['estado_tramitacion:id,nombre','tipo_documento:id_tipo_documento,nombre,nombre_corto']);
+        
+        //filtro por tipo de documento
+        if(is_array($tipodoc)){
+            $lista->whereIn('id_tipo_documento', $tipodoc);
+        }
+                
         if(request()->seleccionados){
             if(is_array(request()->seleccionados))
                 $lista->whereIn('id_documento', request()->seleccionados);

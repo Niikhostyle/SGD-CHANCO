@@ -73,7 +73,7 @@ $().ready(function() {
             enableFiltering: true,
             multiple: true,
         });
-        $('#tipo_documento_referencia').multiselect('selectAll', true);
+        $('#tipo_documento_referencia').multiselect('deselectAll', true);
 
 
         //leer los documentos ya seleccionados
@@ -274,7 +274,7 @@ function aplicar_documentos_referencia(event){
 
                 el.append($("<p>",{
                     style:"width: 90px!important;word-break: break-all;font-size: 12px;line-height: 1;margin-top: 15px;margin-bottom: 5px;"
-                }).text(value.nombre_corto+" - "+value.folio +"/"+value.anio_tramitacion));   
+                }).text(value.tipo_documento.nombre_corto+" - "+value.folio +"/"+value.anio_tramitacion));   
 
                 $("#contenedor_documentos_referencia").append(el);
                

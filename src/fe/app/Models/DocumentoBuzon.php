@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Buzon;
 use App\Models\Documento;
 use App\Models\TipoDestino;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentoBuzon extends Model{
 
@@ -51,6 +52,9 @@ class DocumentoBuzon extends Model{
 
     public function bitacora(){
         return $this->hasMany(DocumentoBuzonBitacora::class, 'id_documento_buzon', 'id_documento_buzon');
+    }
+    public function archivos(): HasMany{
+        return $this->hasMany(DocumentoBuzonArchivo::class, 'id_documento_buzon', 'id_documento_buzon');
     }
 
     public function scopePendientes($query)

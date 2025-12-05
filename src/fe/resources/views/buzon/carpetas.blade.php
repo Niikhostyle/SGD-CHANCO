@@ -164,7 +164,8 @@
 
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="inputState">Nivel Acceso&nbsp;<i class="fa fa-question-circle " role="button" data-toggle="tooltip" data-html="true" title="<p><b>Publico: </b>Documento puede ser visto en todo el sistema</p><p><b>Reservado: </b>puede ser buscado pero no ver su contenido. (contenido visible solo en los buzones que recibieron el documento)</p><p><b>Confidencial: </b>No se encontrará en el buscador de documentos. (visible solo en los buzones que recibieron el documento)</p>"></i></label>
+                            <label for="inputState">Nivel Acceso&nbsp;<i class="fa fa-question-circle " role="button" data-trigger="hover" data-toggle="tooltip" data-html="true" 
+                            title="<p><b>Público: </b>El documento puede ser visualizado por cualquier usuario, sin restricciones de acceso.</p><p><b>Reservado: </b>El documento puede ser localizado mediante el buscador, pero su contenido no será visible. Solo podrán visualizar su contenido los usuarios pertenecientes a los buzones a los que fue enviado.</p><p><b>Confidencial: </b>El documento no aparecerá en el buscador del sistema. Solo podrán visualizar su contenido los usuarios pertenecientes a los buzones a los que fue enviado.</p>"></i></label>
                             <select class="form-control" id="form_nivel_acceso" name="nivel_acceso" required>
                                 <option value="">Seleccionar</option>
                                 @foreach($nivel_acceso as $dato)
@@ -624,6 +625,21 @@
     table > thead{
         background:rgba(0, 0, 0, .1);
     }
+    .tooltip.show {
+    opacity: 1;
+}
+    .tooltip-inner {
+     max-width: 500px;
+    padding: .75rem .75rem;
+    color: #000000;
+    text-align: center;
+    background-color: #f4f6f9;
+    border-radius: .25rem;
+    text-align: justify;
+    font-size: medium;
+    border: 1px solid #dedede;
+    border-radius: 25px;
+}
     
 
 </style>
