@@ -3022,7 +3022,7 @@
                                                     destinatarioPrincipal: destinatarioPrincipal,
                                                     destinatarioOtros: otrosDestinatarios,
                                                     acciones_solicitadas: acciones_solicitadas,
-                                                    responder: responder,
+                                                    responder: respuesta_a,
                                                     carpeta: 2
                                                 },
                                                 success: function(data) {
