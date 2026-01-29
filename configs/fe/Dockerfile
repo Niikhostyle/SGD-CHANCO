@@ -4,7 +4,7 @@ FROM php:8.0.9-apache
 
 #Instalar GIT, GnuPG, NodeJS y NPM
 RUN apt-get update && \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs
 
 
