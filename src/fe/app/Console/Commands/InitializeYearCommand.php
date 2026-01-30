@@ -56,7 +56,7 @@ class InitializeYearCommand extends Command
             $this->info("✓ Año {$year} inicializado correctamente");
 
             //continuar los contadores con tipo de asignacion de folio 4 (continuo)
-            $tiposDocumentoId = TipoDocumento::where('id_tipo_asignacion_folio', 4)
+            $tiposDocumentoId = TipoDocumento::where('id_tipo_folio', 4)
                 ->pluck('id_tipo_documento');
 
             $registros = TipoDocumentoBuzonFolio::whereIn('id_tipo_documento', $tiposDocumentoId)
