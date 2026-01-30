@@ -14,4 +14,7 @@ class TipoDocumento extends Model{
     public function documentos(){
         return $this->hasMany(Documento::class, 'id_tipo_documento', 'id_tipo_documento');
     }
+    public function tipo_asignacion_folio(){
+        return $this->belongsTo(TipoAsignacionFolio::class, 'id_tipo_asignacion_folio', 'id_tipo_asignacion_folio');
+    }
 }

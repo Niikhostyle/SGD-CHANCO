@@ -112,3 +112,8 @@ sgd_cert:
 	docker compose down
 	docker compose up -d
 	@echo $(mensaje_fin)
+sgd_init_anio:
+	@echo $(mensaje_inicio)
+	@echo "=================== Inicializando nuevo año ==================="
+	docker exec -it sgd_fe php artisan year:initialize
+	@echo $(mensaje_fin)

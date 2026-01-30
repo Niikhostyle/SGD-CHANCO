@@ -14,6 +14,6 @@ class Anio extends Model
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = ["id_anio", "descripcion", "estado"];
    
 }
