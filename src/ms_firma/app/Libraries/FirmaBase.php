@@ -76,6 +76,8 @@ class FirmaBase //extends FirmaDigitalBase
                 $aLayout = array('layout' => $layout);
 
                 $resultLayout = array_merge($data, $aLayout);
+            } else {
+                $resultLayout = $data;
             }
             
         } catch (Exception $e) {            

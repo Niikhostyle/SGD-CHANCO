@@ -287,6 +287,24 @@ services:
     networks:
       sgd_net:
           ipv4_address: 172.168.22.17     
+
+  sgd_ms_solicitudes:
+    image: sgd_ms_master:latest
+    container_name: sgd_ms_solicitudes
+    expose:
+      - "3333"
+    volumes:
+      - ./src/ms_solicitudes:/src
+      - ./data/files:/src/storage/app/public/files
+      - ./configs/ms/.env:/src/.env
+      - ./logs/sgd_ms_solicitudes:/src/storage/logs
+    depends_on:
+      - sgd_ms_usuarios
+      - sgd_ms_firma
+    restart: always
+    networks:
+      sgd_net:
+          ipv4_address: 172.168.22.19
   sgd_ms_cert:
     image: certbot/certbot:latest
     container_name: sgd_ms_cert

@@ -33,7 +33,8 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             TipoFirmaSeeder::class,
             AnioSeeder::class,
-            EstadoTramitacionSeeder::class
+            EstadoTramitacionSeeder::class,
+            SolModuleSeeder::class,
         ]);
 
     }

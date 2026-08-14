@@ -1099,4 +1099,102 @@ class FirmaController extends Controller
 
 
     }
+
+    /**
+     * Firma un PDF arbitrario (módulo Solicitudes u otros) con FirmaGob.
+     * Body JSON: id_usuario, pdf_base64, nombre_salida?, carpeta?
+     */
+    public function firmar_pdf(Request $request)
+    {
+        if (!$request->isJson()) {
+            return response()->json(['error' => 'Se requiere JSON'], 400);
+        }
+
+        try {
+            $datos = $request->json()->all();
+            $idUsuario = $datos['id_usuario'] ?? null;
+            $pdfBase64 = $datos['pdf_base64'] ?? null;
+            $carpeta = $datos['carpeta'] ?? 'solicitudes';
+            $nombreSalida = $datos['nombre_salida'] ?? ('firmado-' . time() . '.pdf');
+
+            if (!$idUsuario || !$pdfBase64) {
+                throw new Exception('id_usuario y pdf_base64 son obligatorios.');
+            }
+
+            $usuario = Users::where('id', $idUsuario)->first(['id', 'run', 'nombres', 'primer_apellido', 'segundo_apellido']);
+            if (!$usuario) {
+                throw new Exception('Usuario no encontrado.');
+            }
+
+            $runParts = explode('-', (string) $usuario->run);
+            $runSinDv = preg_replace('/\D/', '', $runParts[0] ?? '');
+            if ($runSinDv === '') {
+                $runSinDv = (string) env('PLCSGD_RUT', '22222222');
+            }
+
+            $dir = storage_path('app/public/files/' . trim($carpeta, '/'));
+            if (!is_dir($dir)) {
+                mkdir($dir, 0775, true);
+            }
+
+            $tmpName = 'tmp-' . $idUsuario . '-' . time() . '.pdf';
+            $tmpPath = $dir . DIRECTORY_SEPARATOR . $tmpName;
+            $pdfBinary = base64_decode($pdfBase64, true);
+            if ($pdfBinary === false || $pdfBinary === '') {
+                throw new Exception('pdf_base64 inválido.');
+            }
+            file_put_contents($tmpPath, $pdfBinary);
+
+            $firmaDigitalConfig = array(
+                'api'       => env('PLCSGD_API_URL'),
+                'purpose'   => env('PLCSGD_API_PURPOSE'),
+                'entity'    => env('PLCSGD_API_ENTITY'),
+                'tokenKey'  => env('PLCSGD_API_TOKEN_KEY'),
+                'secretKey' => env('PLCSGD_SECRETO')
+            );
+            $classFirma = new FirmaBase($firmaDigitalConfig);
+            $classFirma->setRUN($runSinDv);
+            $classFirma->addPDF($tmpPath, 'Solicitud firmada por ' . $usuario->nombres . ' ' . $usuario->primer_apellido, null);
+
+            $salida = $classFirma->sign();
+            @unlink($tmpPath);
+
+            if ($salida->failed()) {
+                Log::error('firmar_pdf FirmaGob error', ['status' => $salida->status(), 'body' => $salida->body()]);
+                throw new Exception('FirmaGob rechazó la firma (HTTP ' . $salida->status() . ').');
+            }
+
+            $json = $salida->json();
+            $content = $json['files'][0]['content'] ?? null;
+            if (!$content) {
+                // Sandbox a veces no devuelve content: devolver original
+                if (env('PLCSGD_API_TOKEN_KEY') === 'sandbox') {
+                    $outRel = trim($carpeta, '/') . '/' . basename($nombreSalida);
+                    file_put_contents(storage_path('app/public/files/' . $outRel), $pdfBinary);
+                    return response()->json([
+                        'ok' => true,
+                        'sandbox' => true,
+                        'path' => $outRel,
+                        'nombre' => basename($nombreSalida),
+                        'pdf_base64' => base64_encode($pdfBinary),
+                    ]);
+                }
+                throw new Exception('Respuesta FirmaGob sin content.');
+            }
+
+            $signed = base64_decode($content);
+            $outRel = trim($carpeta, '/') . '/' . basename($nombreSalida);
+            file_put_contents(storage_path('app/public/files/' . $outRel), $signed);
+
+            return response()->json([
+                'ok' => true,
+                'path' => $outRel,
+                'nombre' => basename($nombreSalida),
+                'pdf_base64' => base64_encode($signed),
+            ]);
+        } catch (Exception $e) {
+            Log::error('firmar_pdf: ' . $e->getMessage());
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 400);
+        }
+    }
 }

@@ -17,6 +17,7 @@ use App\Http\Controllers\PanelController;
 use App\Http\Controllers\AuditoriaFoliosController;
 use App\Http\Controllers\DocDigitalController;
 use App\Http\Controllers\ClaveUnicaController;
+use App\Http\Controllers\SolicitudModuleController;
 use App\Http\Middleware\PermisosMiddleware;
 
 
@@ -240,3 +241,20 @@ Route::get('/claveunica/logout', [ClaveUnicaController::class, 'logout'])->name(
 
 //docDigital
 Route::middleware(['auth:sanctum', 'verified'])->get('docdigital', [DocDigitalController::class, 'index'])->name('docdigital.index');
+// M�dulo Solicitudes
+Route::middleware(['auth:sanctum', 'verified'])->prefix('solicitudes')->group(function () {
+    Route::get('/', [SolicitudModuleController::class, 'index'])->name('solicitudes.index');
+    Route::get('/crear', [SolicitudModuleController::class, 'create'])->name('solicitudes.create');
+    Route::post('/', [SolicitudModuleController::class, 'store'])->name('solicitudes.store');
+    Route::get('/admin/panel', [SolicitudModuleController::class, 'admin'])->name('solicitudes.admin');
+    Route::post('/admin/rol', [SolicitudModuleController::class, 'adminSaveRol'])->name('solicitudes.admin.rol');
+    Route::post('/admin/departamento', [SolicitudModuleController::class, 'adminSaveDepartamento'])->name('solicitudes.admin.departamento');
+    Route::post('/admin/cargo', [SolicitudModuleController::class, 'adminSaveCargo'])->name('solicitudes.admin.cargo');
+    Route::post('/admin/tipo', [SolicitudModuleController::class, 'adminSaveTipo'])->name('solicitudes.admin.tipo');
+    Route::get('/rrhh/saldos', [SolicitudModuleController::class, 'rrhh'])->name('solicitudes.rrhh');
+    Route::post('/rrhh/movimiento', [SolicitudModuleController::class, 'rrhhMovimiento'])->name('solicitudes.rrhh.movimiento');
+    Route::get('/{id}/pdf', [SolicitudModuleController::class, 'pdf'])->name('solicitudes.pdf')->whereNumber('id');
+    Route::get('/{id}', [SolicitudModuleController::class, 'show'])->name('solicitudes.show')->whereNumber('id');
+    Route::post('/{id}/{accion}', [SolicitudModuleController::class, 'accion'])->name('solicitudes.accion')->whereNumber('id');
+    Route::delete('/{id}', [SolicitudModuleController::class, 'destroy'])->name('solicitudes.destroy')->whereNumber('id');
+});

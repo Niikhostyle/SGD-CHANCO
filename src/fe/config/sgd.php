@@ -8,6 +8,7 @@ return [
     'api_firma'=>env('API_SGD_FIRMA','http://sgd_ms_firma:3333'),
     'api_archivos'=>env('API_SGD_ARCHIVOS','http://sgd_ms_archivos:3333'),
     'api_folios'=>env('API_SGD_FOLIOS','http://sgd_ms_folios:3333'),
+    'api_solicitudes'=>env('API_SGD_SOLICITUDES','http://sgd_ms_solicitudes:3333'),
 
     //opciones
     'txt_footer' => env('FOOTER_TXT', '2025 © MUNICIPALIDAD'),

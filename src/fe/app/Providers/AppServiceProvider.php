@@ -183,6 +183,38 @@ class AppServiceProvider extends ServiceProvider
             );
             $event->menu->add(
                 [
+                    'text' => 'SOLICITUDES',
+                    'icon'    => 'fas fa-fw fa-file-signature',
+                    'submenu' => [
+                        [
+                            'text'       => 'Mis solicitudes',
+                            'icon'    => 'fas fa-fw fa-list',
+                            'icon_color' => 'blue',
+                            'url'        => route('solicitudes.index'),
+                        ],
+                        [
+                            'text'       => 'Nueva solicitud',
+                            'icon'    => 'fas fa-fw fa-plus',
+                            'icon_color' => 'green',
+                            'url'        => route('solicitudes.create'),
+                        ],
+                        [
+                            'text'       => 'RRHH / Saldos',
+                            'icon'    => 'fas fa-fw fa-calendar-check',
+                            'icon_color' => 'orange',
+                            'url'        => route('solicitudes.rrhh'),
+                        ],
+                        [
+                            'text'       => 'Administración',
+                            'icon'    => 'fas fa-fw fa-cog',
+                            'icon_color' => 'red',
+                            'url'        => route('solicitudes.admin'),
+                        ],
+                    ],
+                ]
+            );
+            $event->menu->add(
+                [
                     'text' => 'HERRAMIENTAS',
                     'icon'    => 'fas fa-fw fa-cogs',
                     'submenu' => [

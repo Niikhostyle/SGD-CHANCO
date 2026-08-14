@@ -50,6 +50,7 @@ sgd_up_build:
 	docker exec -it -u 0 sgd_ms_verifica bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_notificaciones bash -c 'cd /src ; composer install'
 	docker exec -it -u 0 sgd_ms_descargas bash -c 'cd /src ; composer install'
+	docker exec -it -u 0 sgd_ms_solicitudes bash -c 'cd /src ; composer install'
 
 #agregar proteccion a carpetas de configuracion
 	docker exec -it sgd_fe composer update

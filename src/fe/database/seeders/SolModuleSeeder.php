@@ -1,0 +1,101 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class SolModuleSeeder extends Seeder
+{
+    public function run()
+    {
+        $tipos = [
+            ['tipo_solicitud' => 'dias_administrativos', 'nombre' => 'Días administrativos', 'cuerpo' => '<p>Yo, {{nombre}}, RUN {{run}}, solicito días administrativos desde {{fecha_inicio}} hasta {{fecha_termino}} ({{total_dias}} días). Motivo: {{motivo}}.</p>'],
+            ['tipo_solicitud' => 'feriados_legales', 'nombre' => 'Feriados legales', 'cuerpo' => '<p>Yo, {{nombre}}, solicito feriado legal desde {{fecha_inicio}} hasta {{fecha_termino}} ({{total_dias}} días).</p>'],
+            ['tipo_solicitud' => 'dias_compensatorios', 'nombre' => 'Días compensatorios', 'cuerpo' => '<p>Yo, {{nombre}}, solicito días compensatorios desde {{fecha_inicio}} hasta {{fecha_termino}} ({{total_dias}} días). Ref: {{explicacion}}.</p>'],
+            ['tipo_solicitud' => 'licencia_medica', 'nombre' => 'Licencia médica', 'cuerpo' => '<p>Informo licencia médica desde {{fecha_inicio}} hasta {{fecha_termino}}.</p>'],
+            ['tipo_solicitud' => 'viaticos', 'nombre' => 'Viáticos', 'cuerpo' => '<p>Solicito viáticos a {{viaticos_destino}} desde {{fecha_inicio}} hasta {{fecha_termino}}.</p>'],
+        ];
+
+        foreach ($tipos as $t) {
+            $exists = DB::table('sol_tipo_documentos')
+                ->where('tipo_solicitud', $t['tipo_solicitud'])
+                ->whereNull('regimen_laboral')
+                ->exists();
+            if (!$exists) {
+                DB::table('sol_tipo_documentos')->insert([
+                    'tipo_solicitud' => $t['tipo_solicitud'],
+                    'regimen_laboral' => null,
+                    'nombre' => $t['nombre'],
+                    'activo' => true,
+                    'plantilla_cuerpo_html' => $t['cuerpo'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Admin SGD (id=1) como admin_solicitudes con FirmaGob
+        if (DB::table('users')->where('id', 1)->exists()) {
+            DB::table('sol_usuario_rol')->updateOrInsert(
+                ['user_id' => 1],
+                [
+                    'rol' => 'admin_solicitudes',
+                    'firmagob_enabled' => true,
+                    'regimen_laboral' => 'administrativo',
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+            DB::table('sol_saldos_anuales')->updateOrInsert(
+                ['user_id' => 1, 'anio' => (int) date('Y')],
+                [
+                    'dias_administrativos' => 6,
+                    'feriados_legales' => 15,
+                    'dias_compensatorios' => 5,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        }
+
+        // Nicolas Figueroa si existe
+        $nico = DB::table('users')->where('email', 'nfigueroa@chanco.cl')->first();
+        if ($nico) {
+            DB::table('sol_usuario_rol')->updateOrInsert(
+                ['user_id' => $nico->id],
+                [
+                    'rol' => 'admin_solicitudes',
+                    'firmagob_enabled' => true,
+                    'regimen_laboral' => 'administrativo',
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+            DB::table('sol_saldos_anuales')->updateOrInsert(
+                ['user_id' => $nico->id, 'anio' => (int) date('Y')],
+                [
+                    'dias_administrativos' => 6,
+                    'feriados_legales' => 15,
+                    'dias_compensatorios' => 5,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        }
+
+        if (!DB::table('sol_cargos')->where('nombre', 'Funcionario')->exists()) {
+            DB::table('sol_cargos')->insert(['nombre' => 'Funcionario', 'created_at' => now(), 'updated_at' => now()]);
+            DB::table('sol_cargos')->insert(['nombre' => 'Directivo', 'created_at' => now(), 'updated_at' => now()]);
+        }
+
+        if (!DB::table('sol_departamentos')->where('nombre', 'Dirección de Administración')->exists()) {
+            DB::table('sol_departamentos')->insert([
+                'nombre' => 'Dirección de Administración',
+                'directivo_id' => $nico->id ?? 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+}
