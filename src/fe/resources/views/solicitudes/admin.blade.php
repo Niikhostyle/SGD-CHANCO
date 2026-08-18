@@ -3,7 +3,8 @@
 @section('title', 'Admin Solicitudes')
 
 @section('content_header')
-    <h1>Administración del módulo Solicitudes</h1>
+    <h1 class="mb-0">Administración</h1>
+    <p class="text-muted mb-0">Roles, departamentos y cargos del módulo Solicitudes.</p>
 @stop
 
 @section('content')
@@ -120,37 +121,20 @@
 </div>
 
 <div class="card card-outline card-success">
-    <div class="card-header"><strong>Plantillas de documento</strong></div>
+    <div class="card-header">
+        <strong>Plantillas / tipos de solicitud</strong>
+        <a href="{{ route('solicitudes.tipos') }}" class="btn btn-sm btn-success float-right">Administrar tipos (flujo y plantillas)</a>
+    </div>
     <div class="card-body">
-        <form method="post" action="{{ route('solicitudes.admin.tipo') }}">@csrf
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label>Tipo solicitud</label>
-                    <select name="tipo_solicitud" class="form-control" required>
-                        @foreach(['dias_administrativos','feriados_legales','dias_compensatorios','licencia_medica','viaticos'] as $t)
-                            <option value="{{ $t }}">{{ $t }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group col-md-3">
-                    <label>Régimen (opcional)</label>
-                    <input type="text" name="regimen_laboral" class="form-control" placeholder="administrativo">
-                </div>
-                <div class="form-group col-md-6">
-                    <label>Nombre</label>
-                    <input type="text" name="nombre" class="form-control" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Cuerpo HTML (placeholders: {{nombre}}, {{fecha_inicio}}, {{motivo}}, …)</label>
-                <textarea name="plantilla_cuerpo_html" class="form-control" rows="4" required><p>Yo, {{nombre}}, solicito {{tipo_solicitud}} desde {{fecha_inicio}} hasta {{fecha_termino}} ({{total_dias}} días). Motivo: {{motivo}}</p></textarea>
-            </div>
-            <button class="btn btn-success">Guardar plantilla</button>
-        </form>
-        <hr>
+        <p class="text-muted">Las plantillas, el flujo de buzones y las firmas FEA se configuran en el apartado <a href="{{ route('solicitudes.tipos') }}">Tipos de solicitud</a>, equivalente a Tipos de documento del SGD.</p>
         <ul>
             @foreach($tipos as $t)
-                <li><b>{{ $t['nombre'] }}</b> — {{ $t['tipo_solicitud'] }} / {{ $t['regimen_laboral'] ?? 'general' }}</li>
+                <li>
+                    <b>{{ $t['nombre'] }}</b> — {{ $t['tipo_solicitud'] }} / {{ $t['categoria'] ?? '—' }}
+                    @foreach(($t['buzones_flujo'] ?? []) as $p)
+                        <span class="badge badge-secondary">{{ $p['nombre_buzon'] }}</span>
+                    @endforeach
+                </li>
             @endforeach
         </ul>
     </div>

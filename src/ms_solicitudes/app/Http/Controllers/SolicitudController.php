@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Sessions;
 use App\Models\SolSolicitud;
-use App\Models\SolUsuarioRol;
 use App\Models\User;
+use App\Services\FlujoService;
 use App\Services\PlantillaService;
 use App\Services\PdfFirmaService;
 use App\Services\RolService;
 use App\Services\SaldoService;
+use App\Services\SgdDocumentoService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,8 @@ class SolicitudController extends Controller
     protected $plantillas;
     protected $pdfs;
     protected $roles;
+    protected $flujo;
+    protected $sgd;
 
     public function __construct()
     {
@@ -28,6 +31,8 @@ class SolicitudController extends Controller
         $this->plantillas = new PlantillaService();
         $this->pdfs = new PdfFirmaService();
         $this->roles = new RolService();
+        $this->flujo = new FlujoService();
+        $this->sgd = new SgdDocumentoService();
     }
 
     protected function userId(Request $request): int
@@ -44,31 +49,38 @@ class SolicitudController extends Controller
         try {
             $uid = $this->userId($request);
             $rol = $this->roles->ensureRol($uid);
-            $q = SolSolicitud::with(['usuario', 'directivoAsignado', 'directivo', 'rrhh', 'alcalde'])->orderByDesc('id');
+            $q = SolSolicitud::with([
+                'usuario', 'directivoAsignado', 'directivo', 'rrhh', 'alcalde',
+                'buzonDestino', 'pasos', 'tipoDocumento',
+            ])->orderByDesc('id');
+
+            $misBuzones = $this->flujo->idsBuzonesUsuario($uid);
 
             if ($this->roles->isAdmin($uid)) {
                 // ve todo
-            } elseif ($rol->rol === 'directivo') {
-                $q->where(function ($qq) use ($uid) {
-                    $qq->where('user_id', $uid)
-                        ->orWhere('directivo_asignado_id', $uid)
-                        ->orWhere(function ($q2) use ($uid) {
-                            $q2->where('estado', 'pendiente_directivo')
-                                ->where(function ($inner) use ($uid) {
-                                    $inner->where('directivo_asignado_id', $uid)->orWhereNull('directivo_asignado_id');
-                                });
-                        });
-                });
-            } elseif ($rol->rol === 'rrhh') {
-                $q->where(function ($qq) use ($uid) {
-                    $qq->where('user_id', $uid)->orWhere('estado', 'pendiente_rrhh')->orWhere('rrhh_id', $uid);
-                });
-            } elseif ($rol->rol === 'alcalde') {
-                $q->where(function ($qq) use ($uid) {
-                    $qq->where('user_id', $uid)->orWhere('estado', 'pendiente_alcalde')->orWhere('alcalde_id', $uid);
-                });
             } else {
-                $q->where('user_id', $uid);
+                $q->where(function ($qq) use ($uid, $misBuzones, $rol) {
+                    $qq->where('user_id', $uid);
+                    if ($misBuzones) {
+                        $qq->orWhereIn('id_buzon_destino', $misBuzones)
+                            ->orWhereHas('pasos', function ($p) use ($misBuzones) {
+                                $p->whereIn('id_buzon', $misBuzones);
+                            });
+                    }
+                    if ($rol->rol === 'directivo') {
+                        $qq->orWhere('directivo_asignado_id', $uid)
+                            ->orWhere(function ($q2) use ($uid) {
+                                $q2->where('estado', 'pendiente_directivo')
+                                    ->where(function ($inner) use ($uid) {
+                                        $inner->where('directivo_asignado_id', $uid)->orWhereNull('directivo_asignado_id');
+                                    });
+                            });
+                    } elseif ($rol->rol === 'rrhh') {
+                        $qq->orWhere('estado', 'pendiente_rrhh')->orWhere('rrhh_id', $uid);
+                    } elseif ($rol->rol === 'alcalde') {
+                        $qq->orWhere('estado', 'pendiente_alcalde')->orWhere('alcalde_id', $uid);
+                    }
+                });
             }
 
             if ($request->get('estado')) {
@@ -76,6 +88,13 @@ class SolicitudController extends Controller
             }
             if ($request->get('tipo')) {
                 $q->where('tipo_solicitud', $request->get('tipo'));
+            }
+            if ($request->get('bandeja')) {
+                if ($misBuzones) {
+                    $q->where('estado', 'pendiente')->whereIn('id_buzon_destino', $misBuzones);
+                } else {
+                    $q->whereRaw('1=0');
+                }
             }
 
             return response()->json(['ok' => true, 'data' => $q->limit(200)->get()]);
@@ -87,9 +106,26 @@ class SolicitudController extends Controller
     public function ver(Request $request)
     {
         try {
-            $s = SolSolicitud::with(['usuario', 'directivoAsignado', 'directivo', 'rrhh', 'alcalde'])
-                ->findOrFail($request->get('id'));
-            return response()->json(['ok' => true, 'data' => $s]);
+            $uid = $this->userId($request);
+            $s = SolSolicitud::with([
+                'usuario', 'directivoAsignado', 'directivo', 'rrhh', 'alcalde',
+                'buzonDestino', 'pasos.usuarioAccion', 'bitacora.usuario', 'tipoDocumento',
+            ])->findOrFail($request->get('id') ?: $this->body($request)['id'] ?? null);
+            $this->assertPuedeVer($uid, $s);
+            $this->sgd->sincronizar($s);
+            $s->refresh()->load([
+                'usuario', 'directivoAsignado', 'directivo', 'rrhh', 'alcalde',
+                'buzonDestino', 'pasos.usuarioAccion', 'bitacora.usuario', 'tipoDocumento',
+            ]);
+            $paso = $this->flujo->pasoActual($s);
+            $puede = $this->roles->isAdmin($uid) || ($paso && $this->flujo->usuarioEnBuzon($uid, (int) $paso->id_buzon));
+            $data = $s->toArray();
+            $data['paso_actual_detalle'] = $paso ? $paso->toArray() : null;
+            $data['puede_actuar'] = $puede && $s->estado === 'pendiente' && empty($s->id_documento);
+            $data['es_solicitante'] = (int) $s->user_id === $uid;
+            $data['usa_flujo_buzones'] = $s->pasos->count() > 0;
+            $data['sgd'] = $this->sgd->detalleSgd($s);
+            return response()->json(['ok' => true, 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 404);
         }
@@ -101,7 +137,7 @@ class SolicitudController extends Controller
             $uid = $this->userId($request);
             $rol = $this->roles->ensureRol($uid);
             $tipo = $request->get('tipo');
-            $plantilla = $this->plantillas->resolver($tipo, $rol->regimen_laboral);
+            $plantilla = $this->plantillas->resolver($tipo, $rol->regimen_laboral, $request->get('id') ? (int) $request->get('id') : null);
             if (!$plantilla) {
                 return response()->json(['ok' => true, 'data' => [
                     'plantilla_cuerpo_html' => '<p>Solicito <strong>' . htmlspecialchars($tipo) . '</strong> desde {{fecha_inicio}} hasta {{fecha_termino}} ({{total_dias}} días).</p><p>Motivo: {{motivo}}</p>',
@@ -117,43 +153,65 @@ class SolicitudController extends Controller
     {
         try {
             $uid = $this->userId($request);
-            $datos = $request->json()->all();
+            $datos = $this->body($request);
             $user = User::findOrFail($uid);
             $rol = $this->roles->ensureRol($uid);
             $rol->load('departamento');
 
-            $tipo = $datos['tipo_solicitud'] ?? null;
+            $tipoId = $datos['sol_tipo_documento_id'] ?? $datos['id_tipo'] ?? null;
+            $tipoSlug = $datos['tipo_solicitud'] ?? null;
+            $plantilla = $this->plantillas->resolver($tipoSlug, $rol->regimen_laboral ?? ($datos['regimen_laboral'] ?? null), $tipoId ? (int) $tipoId : null);
+            if ($plantilla) {
+                $tipoSlug = $plantilla->tipo_solicitud;
+            }
             $inicio = $datos['fecha_inicio'] ?? null;
             $termino = $datos['fecha_termino'] ?? null;
-            if (!$tipo || !$inicio || !$termino) {
+            if (!$tipoSlug || !$inicio || !$termino) {
                 throw new Exception('tipo_solicitud, fecha_inicio y fecha_termino son obligatorios.');
             }
 
             $dias = $this->saldos->calcularDias($inicio, $termino);
-            $this->saldos->validarDisponibilidad($uid, $tipo, $dias);
+            $this->saldos->validarDisponibilidad(
+                $uid,
+                $tipoSlug,
+                $dias,
+                null,
+                $plantilla ? (bool) $plantilla->consume_saldo : null,
+                $plantilla ? ($plantilla->categoria ?? null) : null
+            );
 
-            $plantilla = $this->plantillas->resolver($tipo, $rol->regimen_laboral ?? ($datos['regimen_laboral'] ?? null));
+            if ($plantilla) {
+                $this->sgd->asegurarTipoSgd($plantilla);
+                $plantilla->refresh();
+            } else {
+                $this->sgd->asegurarTipoSgd(null);
+            }
+
             $cuerpo = $datos['documento_cuerpo_html'] ?? null;
             if (!$cuerpo && $plantilla) {
                 $cuerpo = $this->plantillas->renderCuerpo($plantilla, $user, array_merge($datos, [
-                    'tipo_solicitud' => $tipo,
+                    'tipo_solicitud' => $tipoSlug,
                     'fecha_inicio' => $inicio,
                     'fecha_termino' => $termino,
                     'total_dias' => $dias,
                 ]));
             }
 
+            $idBuzon = !empty($datos['id_buzon_destino']) ? (int) $datos['id_buzon_destino'] : null;
+
             DB::beginTransaction();
             $sol = SolSolicitud::create([
                 'user_id' => $uid,
+                'sol_tipo_documento_id' => $plantilla ? $plantilla->id : null,
                 'directivo_asignado_id' => $datos['directivo_asignado_id'] ?? ($rol->departamento->directivo_id ?? null),
+                'id_buzon_destino' => $idBuzon,
                 'mensaje_para_directivo' => $datos['mensaje_para_directivo'] ?? null,
-                'tipo_solicitud' => $tipo,
+                'tipo_solicitud' => $tipoSlug,
                 'regimen_laboral' => $rol->regimen_laboral ?? ($datos['regimen_laboral'] ?? null),
                 'fecha_inicio' => $inicio,
                 'fecha_termino' => $termino,
                 'total_dias' => $dias,
-                'estado' => 'pendiente_directivo',
+                'estado' => 'pendiente',
                 'observaciones' => $datos['observaciones'] ?? null,
                 'motivo' => $datos['motivo'] ?? null,
                 'explicacion' => $datos['explicacion'] ?? null,
@@ -166,19 +224,54 @@ class SolicitudController extends Controller
                 'licencia_emisor' => $datos['licencia_emisor'] ?? null,
                 'con_goce' => $datos['con_goce'] ?? true,
                 'documento_cuerpo_html' => $cuerpo,
-                'documento_distribucion_html' => $datos['documento_distribucion_html'] ?? ($plantilla->plantilla_distribucion_html ?? null),
+                'documento_distribucion_html' => $datos['documento_distribucion_html'] ?? ($plantilla ? $plantilla->plantilla_distribucion_html : null),
                 'solicitante_firmado_at' => date('Y-m-d H:i:s'),
             ]);
 
-            $this->pdfs->generarPdf($sol);
-            if (!empty($datos['usar_firmagob']) || $rol->firmagob_enabled) {
-                $this->pdfs->firmarConFirmaGob($sol->fresh(), $uid, $request->header('key'));
+            if ($plantilla) {
+                $snap = $this->flujo->snapshot($plantilla);
+                $this->flujo->instanciarPasos($sol, $snap, $idBuzon);
+            } elseif ($idBuzon) {
+                $this->flujo->instanciarPasos($sol, [
+                    'primer_buzon_editable' => true,
+                    'buzones_flujo' => [],
+                    'requiere_fe' => true,
+                ], $idBuzon);
+            } else {
+                $sol->estado = 'pendiente_directivo';
+                $sol->save();
             }
 
+            $this->flujo->registrar($sol, 'crear', $idBuzon, $uid, 'Solicitud creada');
+
+            if (!$idBuzon) {
+                throw new Exception('Debe seleccionar un buzón SGD de destino.');
+            }
+            $this->sgd->publicar(
+                $sol->load('usuario'),
+                $uid,
+                (string) $request->header('key'),
+                $idBuzon,
+                $plantilla,
+                (string) ($cuerpo ?: ''),
+                $datos['mensaje_para_directivo'] ?? ($datos['explicacion'] ?? null)
+            );
+
             DB::commit();
+
+            try {
+                $this->pdfs->generarPdf($sol->fresh());
+                $debeFirmar = !empty($datos['usar_firmagob']);
+                if ($debeFirmar) {
+                    $this->pdfs->firmarConFirmaGob($sol->fresh(), $uid, $request->header('key'));
+                }
+            } catch (Exception $fe) {
+                $this->flujo->registrar($sol->fresh(), 'firma_pendiente', $idBuzon, $uid, 'PDF/firma: ' . $fe->getMessage());
+            }
+
             $this->notificar($sol->fresh(), 'creada');
 
-            return response()->json(['ok' => true, 'data' => $sol->fresh()->load(['usuario', 'directivoAsignado'])]);
+            return response()->json(['ok' => true, 'data' => $sol->fresh()->load(['usuario', 'directivoAsignado', 'buzonDestino', 'pasos'])]);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
@@ -189,13 +282,13 @@ class SolicitudController extends Controller
     {
         try {
             $uid = $this->userId($request);
-            $datos = $request->json()->all();
-            $sol = SolSolicitud::findOrFail($datos['id']);
+            $datos = $this->body($request);
+            $sol = SolSolicitud::findOrFail($datos['id'] ?? $request->get('id'));
             if ((int) $sol->user_id !== $uid && !$this->roles->isAdmin($uid)) {
                 throw new Exception('No puede editar esta solicitud.');
             }
-            if ($sol->estado !== 'pendiente_directivo') {
-                throw new Exception('Solo se puede editar en estado pendiente_directivo.');
+            if (!in_array($sol->estado, ['pendiente_directivo', 'pendiente'], true)) {
+                throw new Exception('Solo se puede editar en estado pendiente.');
             }
             foreach (['motivo', 'explicacion', 'observaciones', 'documento_cuerpo_html', 'mensaje_para_directivo', 'viaticos_destino'] as $f) {
                 if (array_key_exists($f, $datos)) {
@@ -223,12 +316,70 @@ class SolicitudController extends Controller
             if ((int) $sol->user_id !== $uid && !$this->roles->isAdmin($uid)) {
                 throw new Exception('No autorizado.');
             }
-            if ($sol->estado !== 'pendiente_directivo' && !$this->roles->isAdmin($uid)) {
-                throw new Exception('Solo se puede eliminar en pendiente_directivo.');
+            if (!in_array($sol->estado, ['pendiente_directivo', 'pendiente'], true) && !$this->roles->isAdmin($uid)) {
+                throw new Exception('Solo se puede eliminar en pendiente.');
             }
             $sol->delete();
             return response()->json(['ok' => true]);
         } catch (Exception $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function actuarFlujo(Request $request)
+    {
+        try {
+            $uid = $this->userId($request);
+            $datos = $this->body($request);
+            $sol = SolSolicitud::with(['pasos', 'tipoDocumento'])->findOrFail($datos['id'] ?? $request->get('id'));
+            $accion = $datos['accion'] ?? '';
+            if (!in_array($accion, ['visar', 'firmar', 'rechazar'], true)) {
+                throw new Exception('Acción inválida.');
+            }
+            if ($sol->pasos->count() === 0) {
+                throw new Exception('Esta solicitud no usa flujo por buzones.');
+            }
+
+            $esAdmin = $this->roles->isAdmin($uid);
+            if (!$this->flujo->puedeActuar($uid, $sol, $esAdmin)) {
+                throw new Exception('No pertenece al buzón actual de esta solicitud.');
+            }
+
+            $requiereFe = true;
+            if (is_array($sol->json_tipo) && array_key_exists('requiere_fe', $sol->json_tipo)) {
+                $requiereFe = (bool) $sol->json_tipo['requiere_fe'];
+            } elseif ($sol->tipoDocumento) {
+                $requiereFe = (bool) $sol->tipoDocumento->requiere_fe;
+            }
+
+            if (!$sol->documento_pdf_path) {
+                $this->pdfs->generarPdf($sol);
+                $sol->refresh();
+            }
+
+            if ($accion === 'firmar' && $requiereFe) {
+                try {
+                    $this->pdfs->firmarConFirmaGob($sol->fresh(), $uid, $request->header('key'));
+                } catch (Exception $fe) {
+                    if (env('PLCSGD_API_TOKEN_KEY') === 'sandbox') {
+                        $this->flujo->registrar($sol->fresh(), 'firma_sandbox', $sol->id_buzon_destino, $uid, $fe->getMessage());
+                    } else {
+                        throw new Exception('No se pudo firmar con FirmaGob: ' . $fe->getMessage());
+                    }
+                }
+            }
+
+            DB::beginTransaction();
+            $sol = $this->flujo->actuar($sol->fresh()->load('pasos'), $uid, $accion, $datos['observaciones'] ?? null, $esAdmin);
+
+            DB::commit();
+            $this->notificar($sol->fresh(), $accion . '_buzon');
+            return response()->json([
+                'ok' => true,
+                'data' => $sol->fresh()->load(['usuario', 'buzonDestino', 'pasos.usuarioAccion', 'bitacora.usuario']),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
         }
     }
@@ -268,7 +419,7 @@ class SolicitudController extends Controller
         try {
             $uid = $this->userId($request);
             $this->roles->assertRoles($uid, [$etapa, 'admin_solicitudes']);
-            $datos = $request->json()->all();
+            $datos = $this->body($request);
             $sol = SolSolicitud::findOrFail($datos['id']);
             if ($sol->estado !== $estadoActual) {
                 throw new Exception("La solicitud no está en estado {$estadoActual}.");
@@ -323,7 +474,9 @@ class SolicitudController extends Controller
     public function pdf(Request $request)
     {
         try {
-            $sol = SolSolicitud::findOrFail($request->get('id'));
+            $uid = $this->userId($request);
+            $sol = SolSolicitud::with('pasos')->findOrFail($request->get('id') ?: ($this->body($request)['id'] ?? null));
+            $this->assertPuedeVer($uid, $sol);
             if (!$sol->documento_pdf_path) {
                 $this->pdfs->generarPdf($sol);
                 $sol->refresh();
@@ -340,6 +493,29 @@ class SolicitudController extends Controller
         } catch (Exception $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 404);
         }
+    }
+
+    protected function assertPuedeVer(int $uid, SolSolicitud $s): void
+    {
+        if ($this->roles->isAdmin($uid) || (int) $s->user_id === $uid) {
+            return;
+        }
+        $mis = $this->flujo->idsBuzonesUsuario($uid);
+        if ($mis) {
+            if (in_array((int) $s->id_buzon_destino, $mis, true)) {
+                return;
+            }
+            if ($s->pasos->contains(function ($p) use ($mis) {
+                return in_array((int) $p->id_buzon, $mis, true);
+            })) {
+                return;
+            }
+        }
+        $rol = $this->roles->ensureRol($uid);
+        if (in_array($rol->rol, ['directivo', 'rrhh', 'alcalde'], true)) {
+            return;
+        }
+        throw new Exception('No autorizado para ver esta solicitud.');
     }
 
     protected function notificar(SolSolicitud $sol, string $evento): void

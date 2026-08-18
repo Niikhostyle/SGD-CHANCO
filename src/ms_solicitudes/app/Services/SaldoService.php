@@ -25,13 +25,23 @@ class SaldoService
         );
     }
 
-    public function validarDisponibilidad(int $userId, string $tipo, int $dias, ?int $anio = null): void
+    public function validarDisponibilidad(int $userId, string $tipo, int $dias, ?int $anio = null, ?bool $consumeSaldo = null, ?string $categoria = null): void
     {
-        if (!isset(self::TIPOS_CON_SALDO[$tipo])) {
+        $debeValidar = $consumeSaldo === null
+            ? isset(self::TIPOS_CON_SALDO[$tipo])
+            : (bool) $consumeSaldo;
+        if (!$debeValidar) {
             return;
         }
+        $campo = self::TIPOS_CON_SALDO[$tipo] ?? null;
+        if (!$campo && $categoria === 'vacaciones') {
+            $campo = 'feriados_legales';
+        } elseif (!$campo && in_array($categoria, ['dias', 'compensatorios'], true)) {
+            $campo = 'dias_administrativos';
+        } elseif (!$campo) {
+            $campo = 'dias_administrativos';
+        }
         $saldo = $this->obtenerOCrear($userId, $anio);
-        $campo = self::TIPOS_CON_SALDO[$tipo];
         $disponible = (int) $saldo->{$campo};
         $usados = SolSolicitud::where('user_id', $userId)
             ->where('tipo_solicitud', $tipo)

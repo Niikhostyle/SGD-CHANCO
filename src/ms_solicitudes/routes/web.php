@@ -19,6 +19,7 @@ $router->group(['middleware' => ['auth']], function () use ($router) {
     $router->put('/api/sgd-solicitudes/rechazar-rrhh', 'SolicitudController@rechazarRrhh');
     $router->put('/api/sgd-solicitudes/firmar-alcalde', 'SolicitudController@firmarAlcalde');
     $router->put('/api/sgd-solicitudes/rechazar-alcalde', 'SolicitudController@rechazarAlcalde');
+    $router->put('/api/sgd-solicitudes/actuar', 'SolicitudController@actuarFlujo');
     $router->get('/api/sgd-solicitudes/pdf', 'SolicitudController@pdf');
     $router->get('/api/sgd-solicitudes/plantilla', 'SolicitudController@plantilla');
 
@@ -30,9 +31,14 @@ $router->group(['middleware' => ['auth']], function () use ($router) {
     $router->put('/api/sgd-solicitudes/departamentos', 'AdminController@actualizarDepartamento');
     $router->get('/api/sgd-solicitudes/roles', 'AdminController@roles');
     $router->put('/api/sgd-solicitudes/roles', 'AdminController@actualizarRol');
+    $router->get('/api/sgd-solicitudes/tipo-documentos/ver', 'AdminController@verTipoDocumento');
     $router->get('/api/sgd-solicitudes/tipo-documentos', 'AdminController@tipoDocumentos');
     $router->post('/api/sgd-solicitudes/tipo-documentos', 'AdminController@crearTipoDocumento');
     $router->put('/api/sgd-solicitudes/tipo-documentos', 'AdminController@actualizarTipoDocumento');
+    $router->delete('/api/sgd-solicitudes/tipo-documentos', 'AdminController@eliminarTipoDocumento');
+    $router->get('/api/sgd-solicitudes/buzones', 'AdminController@buzones');
+    $router->get('/api/sgd-solicitudes/configuraciones', 'AdminController@configuraciones');
+    $router->put('/api/sgd-solicitudes/configuraciones', 'AdminController@guardarConfiguraciones');
     $router->get('/api/sgd-solicitudes/usuarios-catalogo', 'AdminController@usuariosCatalogo');
 
     // RRHH saldos

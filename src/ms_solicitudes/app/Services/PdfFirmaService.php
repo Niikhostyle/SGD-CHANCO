@@ -23,9 +23,13 @@ class PdfFirmaService
             return htmlspecialchars((string) $v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         };
         $html .= '<h1>Solicitud #' . $solicitud->id . ' — ' . $esc($solicitud->tipo_solicitud) . '</h1>';
+        $fi = $solicitud->fecha_inicio;
+        $ft = $solicitud->fecha_termino;
+        $fiFmt = $fi instanceof \DateTimeInterface ? $fi->format('d-m-Y') : (string) $fi;
+        $ftFmt = $ft instanceof \DateTimeInterface ? $ft->format('d-m-Y') : (string) $ft;
         $html .= '<div class="meta"><strong>Solicitante:</strong> ' . $esc($user ? $user->nombreCompleto() : '') .
             '<br><strong>RUN:</strong> ' . $esc($user->run ?? '') .
-            '<br><strong>Período:</strong> ' . $esc((string) $solicitud->fecha_inicio) . ' al ' . $esc((string) $solicitud->fecha_termino) .
+            '<br><strong>Período:</strong> ' . $esc($fiFmt) . ' al ' . $esc($ftFmt) .
             ' (' . (int) $solicitud->total_dias . ' días)' .
             '<br><strong>Estado:</strong> ' . $esc($solicitud->estado) . '</div>';
         $html .= '<div class="box">' . ($solicitud->documento_cuerpo_html ?: '<p>Sin contenido</p>') . '</div>';

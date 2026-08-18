@@ -8,36 +8,54 @@ use App\Models\User;
 
 class PlantillaService
 {
-    public function resolver(string $tipoSolicitud, ?string $regimen = null): ?SolTipoDocumento
+    public function resolver(?string $tipoSolicitud, ?string $regimen = null, ?int $id = null): ?SolTipoDocumento
     {
+        if ($id) {
+            $doc = SolTipoDocumento::with('buzonesFlujo')->find($id);
+            if ($doc && $doc->activo) {
+                return $doc;
+            }
+        }
+        if (!$tipoSolicitud) {
+            return null;
+        }
         $q = SolTipoDocumento::where('tipo_solicitud', $tipoSolicitud)->where('activo', true);
         if ($regimen) {
             $doc = (clone $q)->where('regimen_laboral', $regimen)->first();
             if ($doc) {
-                return $doc;
+                return $doc->load('buzonesFlujo');
             }
         }
-        return $q->whereNull('regimen_laboral')->first() ?: $q->first();
+        $found = $q->whereNull('regimen_laboral')->first() ?: $q->first();
+        return $found ? $found->load('buzonesFlujo') : null;
+    }
+
+    public function mapaCampos(User $user, array $datos): array
+    {
+        $rol = SolUsuarioRol::where('user_id', $user->id)->with(['cargo', 'departamento'])->first();
+        return [
+            '{{nombre}}' => $user->nombreCompleto(),
+            '{{run}}' => $user->run ?? '',
+            '{{cargo}}' => $user->cargo ?? ($rol && $rol->cargo ? $rol->cargo->nombre : ''),
+            '{{departamento}}' => $rol && $rol->departamento ? $rol->departamento->nombre : '',
+            '{{tipo_solicitud}}' => $datos['tipo_solicitud'] ?? ($datos['nombre_tipo'] ?? ''),
+            '{{fecha_inicio}}' => !empty($datos['fecha_inicio']) ? date('d-m-Y', strtotime($datos['fecha_inicio'])) : '',
+            '{{fecha_termino}}' => !empty($datos['fecha_termino']) ? date('d-m-Y', strtotime($datos['fecha_termino'])) : '',
+            '{{total_dias}}' => (string) ($datos['total_dias'] ?? ''),
+            '{{motivo}}' => $datos['motivo'] ?? '',
+            '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
+            '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
+            '{{fecha}}' => date('d-m-Y'),
+        ];
+    }
+
+    public function renderHtml(?string $html, User $user, array $datos): string
+    {
+        return strtr($html ?: '', $this->mapaCampos($user, $datos));
     }
 
     public function renderCuerpo(SolTipoDocumento $plantilla, User $user, array $datos): string
     {
-        $html = $plantilla->plantilla_cuerpo_html ?: '';
-        $rol = SolUsuarioRol::where('user_id', $user->id)->first();
-        $map = [
-            '{{nombre}}' => $user->nombreCompleto(),
-            '{{run}}' => $user->run ?? '',
-            '{{cargo}}' => $user->cargo ?? ($rol->cargo->nombre ?? ''),
-            '{{departamento}}' => $rol && $rol->departamento ? $rol->departamento->nombre : '',
-            '{{tipo_solicitud}}' => $datos['tipo_solicitud'] ?? '',
-            '{{fecha_inicio}}' => $datos['fecha_inicio'] ?? '',
-            '{{fecha_termino}}' => $datos['fecha_termino'] ?? '',
-            '{{total_dias}}' => (string) ($datos['total_dias'] ?? ''),
-            '{{motivo}}' => $datos['motivo'] ?? '',
-            '{{explicacion}}' => $datos['explicacion'] ?? '',
-            '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
-            '{{fecha}}' => date('d-m-Y'),
-        ];
-        return strtr($html, $map);
+        return $this->renderHtml($plantilla->plantilla_cuerpo_html, $user, $datos);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SolModuleSeeder extends Seeder
 {
@@ -23,7 +24,7 @@ class SolModuleSeeder extends Seeder
                 ->whereNull('regimen_laboral')
                 ->exists();
             if (!$exists) {
-                DB::table('sol_tipo_documentos')->insert([
+                $row = [
                     'tipo_solicitud' => $t['tipo_solicitud'],
                     'regimen_laboral' => null,
                     'nombre' => $t['nombre'],
@@ -31,7 +32,15 @@ class SolModuleSeeder extends Seeder
                     'plantilla_cuerpo_html' => $t['cuerpo'],
                     'created_at' => now(),
                     'updated_at' => now(),
-                ]);
+                ];
+                if (Schema::hasColumn('sol_tipo_documentos', 'categoria')) {
+                    $row['categoria'] = $t['tipo_solicitud'] === 'feriados_legales' ? 'vacaciones' : ($t['tipo_solicitud'] === 'viaticos' ? 'viaticos' : ($t['tipo_solicitud'] === 'licencia_medica' ? 'licencias' : 'dias'));
+                    $row['consume_saldo'] = in_array($t['tipo_solicitud'], ['dias_administrativos', 'feriados_legales', 'dias_compensatorios'], true);
+                    $row['requiere_fe'] = true;
+                    $row['numero_firmas'] = 1;
+                    $row['primer_buzon_editable'] = true;
+                }
+                DB::table('sol_tipo_documentos')->insert($row);
             }
         }
 
@@ -96,6 +105,31 @@ class SolModuleSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+        }
+
+        if (Schema::hasTable('sol_configuraciones') && Schema::hasTable('buzon')) {
+            $now = now();
+            if (!DB::table('sol_configuraciones')->where('clave', 'buzon_alcalde_id')->exists()) {
+                $alcaldeId = DB::table('buzon')->whereNull('deleted_at')->whereRaw('lower(nombre) = ?', ['alcalde'])->value('id_buzon');
+                DB::table('sol_configuraciones')->insert([
+                    'clave' => 'buzon_alcalde_id',
+                    'valor' => $alcaldeId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+            if (!DB::table('sol_configuraciones')->where('clave', 'buzon_rrhh_id')->exists()) {
+                $rrhhId = DB::table('buzon')->whereNull('deleted_at')->whereRaw("nombre ilike ?", ['%departamento de personal%'])->value('id_buzon');
+                if (!$rrhhId) {
+                    $rrhhId = DB::table('buzon')->whereNull('deleted_at')->whereRaw("nombre ilike ?", ['%recursos humanos%'])->value('id_buzon');
+                }
+                DB::table('sol_configuraciones')->insert([
+                    'clave' => 'buzon_rrhh_id',
+                    'valor' => $rrhhId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
         }
     }
 }

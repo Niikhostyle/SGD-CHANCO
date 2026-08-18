@@ -3,7 +3,8 @@
 @section('title', 'RRHH Saldos')
 
 @section('content_header')
-    <h1>RRHH — Saldos anuales</h1>
+    <h1 class="mb-0">Saldos de días</h1>
+    <p class="text-muted mb-0">Cargue o descuente días administrativos, feriados o compensatorios.</p>
 @stop
 
 @section('content')
@@ -18,7 +19,7 @@
             <input type="hidden" name="anio" value="{{ $anio }}">
             <div class="form-group col-md-3">
                 <label>Usuario</label>
-                <select name="user_id" class="form-control" required>
+                <select name="user_id" class="form-control select2" required>
                     @foreach($usuarios as $u)
                         <option value="{{ $u['id'] }}">{{ $u['nombres'] }} {{ $u['primer_apellido'] }}</option>
                     @endforeach
@@ -87,4 +88,10 @@
         </table>
     </div>
 </div>
+@stop
+
+@section('js')
+<script>
+$(function () { $('.select2').select2({ width: '100%' }); });
+</script>
 @stop

@@ -193,6 +193,12 @@ class AppServiceProvider extends ServiceProvider
                             'url'        => route('solicitudes.index'),
                         ],
                         [
+                            'text'       => 'Pendientes de buzón',
+                            'icon'    => 'fas fa-fw fa-inbox',
+                            'icon_color' => 'orange',
+                            'url'        => route('solicitudes.index', ['bandeja' => 1]),
+                        ],
+                        [
                             'text'       => 'Nueva solicitud',
                             'icon'    => 'fas fa-fw fa-plus',
                             'icon_color' => 'green',
@@ -203,6 +209,12 @@ class AppServiceProvider extends ServiceProvider
                             'icon'    => 'fas fa-fw fa-calendar-check',
                             'icon_color' => 'orange',
                             'url'        => route('solicitudes.rrhh'),
+                        ],
+                        [
+                            'text'       => 'Plantillas',
+                            'icon'    => 'fas fa-fw fa-file-alt',
+                            'icon_color' => 'teal',
+                            'url'        => route('solicitudes.tipos'),
                         ],
                         [
                             'text'       => 'Administración',

@@ -47,7 +47,7 @@ class RrhhController extends Controller
         try {
             $uid = $this->userId($request);
             $this->roles->assertRoles($uid, ['rrhh', 'admin_solicitudes']);
-            $d = $request->json()->all();
+            $d = $this->body($request);
             $saldo = $this->saldos->registrarMovimiento(
                 (int) $d['user_id'],
                 $uid,

@@ -250,7 +250,10 @@ Route::middleware(['auth:sanctum', 'verified'])->prefix('solicitudes')->group(fu
     Route::post('/admin/rol', [SolicitudModuleController::class, 'adminSaveRol'])->name('solicitudes.admin.rol');
     Route::post('/admin/departamento', [SolicitudModuleController::class, 'adminSaveDepartamento'])->name('solicitudes.admin.departamento');
     Route::post('/admin/cargo', [SolicitudModuleController::class, 'adminSaveCargo'])->name('solicitudes.admin.cargo');
-    Route::post('/admin/tipo', [SolicitudModuleController::class, 'adminSaveTipo'])->name('solicitudes.admin.tipo');
+    Route::get('/admin/tipos', [SolicitudModuleController::class, 'tipos'])->name('solicitudes.tipos');
+    Route::post('/admin/tipos', [SolicitudModuleController::class, 'tiposSave'])->name('solicitudes.tipos.save');
+    Route::post('/admin/tipos/config', [SolicitudModuleController::class, 'tiposConfig'])->name('solicitudes.tipos.config');
+    Route::delete('/admin/tipos/{id}', [SolicitudModuleController::class, 'tiposDelete'])->name('solicitudes.tipos.delete')->whereNumber('id');
     Route::get('/rrhh/saldos', [SolicitudModuleController::class, 'rrhh'])->name('solicitudes.rrhh');
     Route::post('/rrhh/movimiento', [SolicitudModuleController::class, 'rrhhMovimiento'])->name('solicitudes.rrhh.movimiento');
     Route::get('/{id}/pdf', [SolicitudModuleController::class, 'pdf'])->name('solicitudes.pdf')->whereNumber('id');
