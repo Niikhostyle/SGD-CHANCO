@@ -170,7 +170,7 @@ class SolicitudController extends Controller
                 throw new Exception('tipo_solicitud, fecha_inicio y fecha_termino son obligatorios.');
             }
 
-            $dias = $this->saldos->calcularDias($inicio, $termino);
+            $dias = $this->saldos->calcularDias($inicio, $termino, $plantilla ? ($plantilla->categoria ?? null) : null);
             $this->saldos->validarDisponibilidad(
                 $uid,
                 $tipoSlug,
@@ -294,7 +294,12 @@ class SolicitudController extends Controller
             if (!empty($datos['fecha_inicio']) && !empty($datos['fecha_termino'])) {
                 $sol->fecha_inicio = $datos['fecha_inicio'];
                 $sol->fecha_termino = $datos['fecha_termino'];
-                $sol->total_dias = $this->saldos->calcularDias($datos['fecha_inicio'], $datos['fecha_termino']);
+                $cat = null;
+                if ($sol->sol_tipo_documento_id) {
+                    $p = $this->plantillas->resolver(null, null, (int) $sol->sol_tipo_documento_id);
+                    $cat = $p ? ($p->categoria ?? null) : null;
+                }
+                $sol->total_dias = $this->saldos->calcularDias($datos['fecha_inicio'], $datos['fecha_termino'], $cat);
             }
             $sol->save();
             $this->pdfs->generarPdf($sol);

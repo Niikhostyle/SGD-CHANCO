@@ -83,13 +83,20 @@ class SaldoService
         return $saldo->fresh();
     }
 
-    public function calcularDias(string $inicio, string $termino): int
+    public function calcularDias(string $inicio, string $termino, ?string $categoria = null): int
     {
         $a = Carbon::parse($inicio)->startOfDay();
         $b = Carbon::parse($termino)->startOfDay();
         if ($b->lt($a)) {
             throw new Exception('La fecha de término debe ser mayor o igual a la de inicio.');
         }
-        return $a->diffInDays($b) + 1;
+        if (in_array($categoria, ['licencias'], true)) {
+            return $a->diffInDays($b) + 1;
+        }
+        $n = FeriadosChile::contarHabiles($a, $b);
+        if ($n < 1) {
+            throw new Exception('El período no incluye días hábiles (lunes a viernes, sin feriados de Chile).');
+        }
+        return $n;
     }
 }

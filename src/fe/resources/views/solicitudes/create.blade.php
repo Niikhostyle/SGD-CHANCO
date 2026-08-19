@@ -54,8 +54,9 @@
                     <input type="date" name="fecha_termino" id="fecha_termino" class="form-control" value="{{ old('fecha_termino') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label>Días</label>
+                    <label>Días hábiles</label>
                     <input type="text" id="total_dias_vista" class="form-control" readonly placeholder="—" tabindex="-1">
+                    <small class="text-muted">Lunes a viernes, sin feriados de Chile.</small>
                 </div>
             </div>
             <div class="form-group mb-0">
@@ -158,12 +159,83 @@
         var p = String(iso).split('-');
         return p.length === 3 ? (p[2] + '-' + p[1] + '-' + p[0]) : iso;
     }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function ymd(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+    function parseIso(iso) {
+        var p = String(iso).split('-');
+        return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    }
+    function domingoPascua(anio) {
+        var a = anio % 19, b = Math.floor(anio / 100), c = anio % 100;
+        var d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+        var g = Math.floor((b - f + 1) / 3);
+        var h = (19 * a + b - d - g + 15) % 30;
+        var i = Math.floor(c / 4), k = c % 4;
+        var l = (32 + 2 * e + 2 * i - h - k) % 7;
+        var m = Math.floor((a + 11 * h + 22 * l) / 451);
+        var mes = Math.floor((h + l - 7 * m + 114) / 31);
+        var dia = ((h + l - 7 * m + 114) % 31) + 1;
+        return new Date(anio, mes - 1, dia);
+    }
+    function addDays(d, n) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+    }
+    function trasladoLunes(d) {
+        var dow = d.getDay();
+        if (dow === 2) return addDays(d, -1);
+        if (dow === 3 || dow === 4 || dow === 5) return addDays(d, (8 - dow) % 7 || 7);
+        return d;
+    }
+    function feriadosChile(anio) {
+        var set = {};
+        function add(d) { set[ymd(d)] = true; }
+        add(new Date(anio, 0, 1));
+        var pascua = domingoPascua(anio);
+        add(addDays(pascua, -2));
+        add(addDays(pascua, -1));
+        add(new Date(anio, 4, 1));
+        add(new Date(anio, 4, 21));
+        add(trasladoLunes(new Date(anio, 5, 20)));
+        add(trasladoLunes(new Date(anio, 5, 29)));
+        add(trasladoLunes(new Date(anio, 6, 16)));
+        add(trasladoLunes(new Date(anio, 7, 15)));
+        add(new Date(anio, 8, 18));
+        add(new Date(anio, 8, 19));
+        var d18 = new Date(anio, 8, 18);
+        if (d18.getDay() === 2) add(new Date(anio, 8, 17));
+        if (new Date(anio, 8, 19).getDay() === 1) add(new Date(anio, 8, 20));
+        add(trasladoLunes(new Date(anio, 9, 12)));
+        add(trasladoLunes(new Date(anio, 9, 31)));
+        add(trasladoLunes(new Date(anio, 10, 1)));
+        add(new Date(anio, 11, 8));
+        add(new Date(anio, 11, 25));
+        return set;
+    }
+    var feriadosCache = {};
+    function esHabil(d) {
+        var dow = d.getDay();
+        if (dow === 0 || dow === 6) return false;
+        var y = d.getFullYear();
+        if (!feriadosCache[y]) feriadosCache[y] = feriadosChile(y);
+        return !feriadosCache[y][ymd(d)];
+    }
     function dias() {
         var a = $('#fecha_inicio').val(), b = $('#fecha_termino').val();
         if (!a || !b) return '';
-        var d1 = new Date(a + 'T00:00:00'), d2 = new Date(b + 'T00:00:00');
+        var d1 = parseIso(a), d2 = parseIso(b);
         if (d2 < d1) return '';
-        return Math.round((d2 - d1) / 86400000) + 1;
+        var t = tipoActual();
+        if (t && t.categoria === 'licencias') {
+            return Math.round((d2 - d1) / 86400000) + 1;
+        }
+        var n = 0, cur = new Date(d1.getTime());
+        while (cur <= d2) {
+            if (esHabil(cur)) n++;
+            cur = addDays(cur, 1);
+        }
+        return n;
     }
     function fill(html) {
         var t = tipoActual();
@@ -205,7 +277,16 @@
         var cat = t ? (t.categoria || '') : '';
         $('#campos-viaticos').toggle(cat === 'viaticos');
         $('#campos-licencia').toggle(cat === 'licencias');
-        $('#total_dias_vista').val(dias() ? (dias() + ' día(s)') : '—');
+        var nDias = dias();
+        var tVista = tipoActual();
+        var esLic = tVista && tVista.categoria === 'licencias';
+        if (nDias === '' || nDias === null) {
+            $('#total_dias_vista').val('—');
+        } else if (esLic) {
+            $('#total_dias_vista').val(nDias + ' día(s) corridos');
+        } else {
+            $('#total_dias_vista').val(nDias + ' día(s) hábil(es)');
+        }
         setSide('#preview-encabezado', fill(t ? (t.plantilla_encabezado_html || '') : ''));
         setSide('#preview-distribucion', fill(t ? (t.plantilla_distribucion_html || '') : ''));
         if (!forzar && usuarioEdito) return;
