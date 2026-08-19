@@ -155,7 +155,7 @@ class ArchivoController extends Controller
             //reemplazar valores en encabezado solo si viene folio 
             //Nº {t_folio} {t_anio} {t_fecha}
 
-            $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+            $aMeses = array("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre");
 
             //unificacion para set encabezado de fecha cuando viene fecha seteada o cuando es actual    
             //if ($datosRequest['generaFolio'] == 1)
@@ -164,12 +164,9 @@ class ArchivoController extends Controller
             $sEncabezado = $datosDocumentos['encabezado'];
             $sCuerpo = $datosDocumentos['cuerpo'];
 
-            $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-            $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
-            $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
-            $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
-            $tPlantillaDistribucion = str_replace('{t_anio}', date('Y'), $tPlantillaDistribucion);
-            $tPlantillaDistribucion = str_replace('{t_fecha}', $sfecha, $tPlantillaDistribucion);
+            $sEncabezado = $this->reemplazarTokensFecha($sEncabezado, $sfecha);
+            $sCuerpo = $this->reemplazarTokensFecha($sCuerpo, $sfecha);
+            $tPlantillaDistribucion = $this->reemplazarTokensFecha($tPlantillaDistribucion, $sfecha);
 
             if ($datosRequest['generaFolio'] == 1) {
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
@@ -181,9 +178,9 @@ class ArchivoController extends Controller
                 $tPlantillaDistribucion = str_replace('{t_folio}', 'SIN FOLIO', $tPlantillaDistribucion);
             }
 
-            $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
-            $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
-            $datosDocumentosDistribucion = str_replace(env('APP_URL'), storage_path('app/public'), $tPlantillaDistribucion);
+            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($sCuerpo);
+            $datosDocumentosencabezado = $this->incrustarImagenesPdf($sEncabezado);
+            $datosDocumentosDistribucion = $this->incrustarImagenesPdf($tPlantillaDistribucion);
 
             //espacio visadores 
 
@@ -203,6 +200,7 @@ class ArchivoController extends Controller
             $altoTotal = $nEspacioVisadores + $nEspacioDistribucion + $nAltoFirmas;
 
             $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo, 'visadores' => $sDatosVisadores, 'distribucion' => $datosDocumentosDistribucion, 'altoFirmas' => $nAltoFirmas, 'altoDistribucion' => $nEspacioDistribucion, 'altoTotal' => $altoTotal);
+            PDF::setOptions(['isRemoteEnabled' => true, 'chroot' => storage_path('app/public')]);
             PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
             //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);  
 
@@ -451,7 +449,7 @@ class ArchivoController extends Controller
             $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
 
             $datosDocumentos = Documento::findOrFail($nDocumento);
-            $aMeses = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+            $aMeses = array("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre");
 
             //OBTENCION DE FOLIO
             // si existe folio (por alguna razon, no volver a foliar)
@@ -477,20 +475,19 @@ class ArchivoController extends Controller
             //Nº {t_folio} {t_anio} {t_fecha}    
 
             $sEncabezado = $datosDocumentos['encabezado'];
-            $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado); //$datosDocumentos['folio']
-            $sEncabezado = str_replace('{t_anio}', date('Y'), $sEncabezado);
-            $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
+            $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
+            $sEncabezado = $this->reemplazarTokensFecha($sEncabezado, $sfecha);
 
             $sCuerpo = $datosDocumentos['cuerpo'];
-            $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo); //$datosDocumentos['folio']
-            $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
-            $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+            $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);
+            $sCuerpo = $this->reemplazarTokensFecha($sCuerpo, $sfecha);
 
-            $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
-            $datosDocumentosencabezado = str_replace(env('APP_URL'), storage_path('app/public'), $sEncabezado);
+            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($sCuerpo);
+            $datosDocumentosencabezado = $this->incrustarImagenesPdf($sEncabezado);
 
-            $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo);          
+            $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo);
 
+            PDF::setOptions(['isRemoteEnabled' => true, 'chroot' => storage_path('app/public')]);
             $pdf = PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait');
 
             return $pdf->download('vista_previa.pdf');
@@ -623,6 +620,81 @@ class ArchivoController extends Controller
 
 
         return $txtVisadores;
+    }
+
+    protected function reemplazarTokensFecha($html, $sfecha)
+    {
+        $html = $html ?: '';
+        $html = str_replace(['{t_anio}', '{{anio}}'], date('Y'), $html);
+        $html = str_replace(['{t_fecha}', '{{fecha}}'], $sfecha, $html);
+        return $html;
+    }
+
+    protected function incrustarImagenesPdf($html)
+    {
+        $html = $html ?: '';
+        $appUrl = rtrim((string) env('APP_URL'), '/');
+        if ($appUrl !== '') {
+            $html = str_replace($appUrl, storage_path('app/public'), $html);
+        }
+        return preg_replace_callback('/<img\b[^>]*>/i', function ($m) {
+            $tag = $m[0];
+            if (!preg_match('/\bsrc\s*=\s*["\']([^"\']+)["\']/i', $tag, $sm)) {
+                return $tag;
+            }
+            $src = html_entity_decode($sm[1], ENT_QUOTES, 'UTF-8');
+            $local = $this->rutaLocalImagen($src);
+            if (!$local) {
+                return $tag;
+            }
+            $mime = @mime_content_type($local);
+            if (!$mime || strpos($mime, 'image/') !== 0) {
+                $ext = strtolower(pathinfo($local, PATHINFO_EXTENSION));
+                $map = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif'];
+                $mime = $map[$ext] ?? 'image/png';
+            }
+            $data = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($local));
+            return preg_replace('/\bsrc\s*=\s*["\'][^"\']+["\']/i', 'src="' . $data . '"', $tag, 1);
+        }, $html);
+    }
+
+    protected function rutaLocalImagen($src)
+    {
+        $src = trim(str_replace('\\', '/', (string) $src));
+        if ($src === '' || stripos($src, 'data:') === 0) {
+            return null;
+        }
+        if (is_file($src) && is_readable($src)) {
+            return $src;
+        }
+        $path = parse_url($src, PHP_URL_PATH);
+        if (!$path) {
+            $path = $src;
+        }
+        $path = urldecode($path);
+        $marcadores = ['/files/', '/storage/files/'];
+        foreach ($marcadores as $needle) {
+            $p = strpos($path, $needle);
+            if ($p === false) {
+                continue;
+            }
+            $rel = ltrim(substr($path, $p + strlen($needle)), '/');
+            $local = storage_path('app/public/files/' . $rel);
+            if (is_file($local) && is_readable($local)) {
+                return $local;
+            }
+        }
+        $candidates = [
+            storage_path('app/public' . $path),
+            storage_path('app/public/files' . $path),
+            $path,
+        ];
+        foreach ($candidates as $c) {
+            if (is_file($c) && is_readable($c)) {
+                return $c;
+            }
+        }
+        return null;
     }
 
     public function estado_folio($folio, $estado, $tipo_folio, $buzon, $tipo_documento, $reversado)

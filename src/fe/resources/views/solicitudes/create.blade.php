@@ -276,13 +276,14 @@
             '@{{explicacion}}': $('#motivo').val() || '',
             '@{{viaticos_destino}}': $('#viaticos_destino').val() || '',
             '@{{fecha}}': (function () {
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
                 var d = new Date();
-                return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
+                return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
             })(),
             '@{{anio}}': String(new Date().getFullYear()),
             '{t_anio}': String(new Date().getFullYear()),
             '{t_fecha}': (function () {
-                var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
                 var d = new Date();
                 return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
             })(),

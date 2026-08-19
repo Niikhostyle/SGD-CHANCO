@@ -320,8 +320,6 @@ class SgdDocumentoService
             throw new Exception('El documento SGD se creó pero no se pudo enviar al buzón: ' . $this->errorHttp($enviar));
         }
 
-        $this->copiarPdfPrincipal((int) $idDocumento, (int) $destHop->id_documento_buzon);
-
         $sol->id_documento = $idDocumento;
         $sol->id_documento_buzon = $idDocBuzon;
         $sol->id_tipo_documento = $idTipo;
@@ -377,42 +375,6 @@ class SgdDocumentoService
         if (!$existe) {
             throw new Exception('El PDF de la solicitud no quedó adjunto al documento.');
         }
-    }
-
-    protected function copiarPdfPrincipal(int $idDocumento, int $idHopDestino): void
-    {
-        $pdf = DB::table('documento_buzon_archivo as a')
-            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'a.id_documento_buzon')
-            ->where('db.id_documento', $idDocumento)
-            ->where('a.id_tipo_archivo', 1)
-            ->where('a.version', 1)
-            ->orderByDesc('a.id_documento_buzon_archivo')
-            ->select('a.nombre_archivo_original', 'a.nombre_archivo_codificado')
-            ->first();
-        if (!$pdf) {
-            return;
-        }
-        $ya = DB::table('documento_buzon_archivo')
-            ->where('id_documento_buzon', $idHopDestino)
-            ->where('id_tipo_archivo', 1)
-            ->where('version', 1)
-            ->where('nombre_archivo_codificado', $pdf->nombre_archivo_codificado)
-            ->exists();
-        if ($ya) {
-            return;
-        }
-        DB::table('documento_buzon_archivo')
-            ->where('id_documento_buzon', $idHopDestino)
-            ->where('id_tipo_archivo', 1)
-            ->increment('version');
-        DB::table('documento_buzon_archivo')->insert([
-            'id_documento_buzon' => $idHopDestino,
-            'id_tipo_archivo' => 1,
-            'nombre_archivo_original' => $pdf->nombre_archivo_original,
-            'nombre_archivo_codificado' => $pdf->nombre_archivo_codificado,
-            'version' => 1,
-            'fecha' => date('Y-m-d H:i:s'),
-        ]);
     }
 
     public function hopActual(?int $idDocumento): ?object

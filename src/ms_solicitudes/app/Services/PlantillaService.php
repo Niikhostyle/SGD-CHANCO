@@ -45,7 +45,7 @@ class PlantillaService
             '{{motivo}}' => $datos['motivo'] ?? '',
             '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
             '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
-            '{{fecha}}' => date('d-m-Y'),
+            '{{fecha}}' => $this->fechaLarga(),
             '{{anio}}' => date('Y'),
             '{t_anio}' => date('Y'),
             '{t_fecha}' => $this->fechaLarga(),
@@ -55,7 +55,7 @@ class PlantillaService
 
     protected function fechaLarga(): string
     {
-        $meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         $n = (int) date('n');
         return date('d') . ' de ' . $meses[$n - 1] . ' del ' . date('Y');
     }

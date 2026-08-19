@@ -544,10 +544,10 @@
             '@{{motivo}}': 'Asuntos personales',
             '@{{explicacion}}': 'Asuntos personales',
             '@{{viaticos_destino}}': 'Talca',
-            '@{{fecha}}': pad2(hoy.getDate()) + '-' + pad2(hoy.getMonth() + 1) + '-' + hoy.getFullYear(),
+            '@{{fecha}}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
             '@{{anio}}': String(hoy.getFullYear()),
             '{t_anio}': String(hoy.getFullYear()),
-            '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
+            '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
             '{t_folio}': 'SIN FOLIO'
         };
         var out = html || '';
