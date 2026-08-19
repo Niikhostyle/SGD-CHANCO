@@ -246,7 +246,7 @@
         }
         if (ckIniciando) return;
         ckIniciando = true;
-        var edEnc = CKEDITOR.replace('plantilla_encabezado_html', Object.assign({ height: 120 }, ckCfg));
+        var edEnc = CKEDITOR.replace('plantilla_encabezado_html', Object.assign({ height: 280 }, ckCfg));
         var edCuerpo = CKEDITOR.replace('plantilla_cuerpo_html', Object.assign({ height: 280 }, ckCfg));
         var edDist = CKEDITOR.replace('plantilla_distribucion_html', Object.assign({ height: 100 }, ckCfg));
         var left = 3;
