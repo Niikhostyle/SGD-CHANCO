@@ -211,9 +211,28 @@
                 <tbody></tbody>
             </table>
 
+            <button type="button" class="btn btn-outline-primary" id="btn-vista-previa"><i class="fas fa-eye"></i> Ver vista previa</button>
             <button class="btn btn-success" type="submit"><i class="fas fa-save"></i> Guardar plantilla</button>
             <button class="btn btn-default" type="button" id="btn-reset">Limpiar</button>
         </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-vista-previa" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document" style="max-width:900px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista previa del documento</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" style="background:#cfcfcf">
+                <p class="text-center text-muted mb-2" style="font-size:12px">Datos de ejemplo (como al crear una solicitud de días)</p>
+                <div id="sol-hoja-preview" style="max-width:794px;min-height:800px;margin:0 auto;background:#fff;padding:48px 56px;box-shadow:0 2px 12px rgba(0,0,0,.25);font-family:DejaVu Sans, Arial, sans-serif;font-size:13px;color:#222;line-height:1.45"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
     </div>
 </div>
 @stop
@@ -365,6 +384,48 @@
         setEditor('plantilla_distribucion_html', '');
     });
     $('#btn-cerrar-form').on('click', ocultarForm);
+
+    function editorHtml(name) {
+        return CKEDITOR.instances[name] ? CKEDITOR.instances[name].getData() : ($('#' + name).val() || '');
+    }
+    function fillEjemplo(html) {
+        var hoy = new Date();
+        var map = {
+            '@{{nombre}}': 'JUAN PEREZ GONZALEZ',
+            '@{{run}}': '12.345.678-9',
+            '@{{cargo}}': 'Administrativo',
+            '@{{departamento}}': 'Dirección de Administración',
+            '@{{tipo_solicitud}}': $('#nombre').val() || 'Días administrativos',
+            '@{{fecha_inicio}}': '19-08-2026',
+            '@{{fecha_termino}}': '26-08-2026',
+            '@{{total_dias}}': '6',
+            '@{{motivo}}': 'Asuntos personales',
+            '@{{explicacion}}': 'Asuntos personales',
+            '@{{viaticos_destino}}': 'Talca',
+            '@{{fecha}}': pad2(hoy.getDate()) + '-' + pad2(hoy.getMonth() + 1) + '-' + hoy.getFullYear()
+        };
+        var out = html || '';
+        Object.keys(map).forEach(function (k) { out = out.split(k).join(map[k]); });
+        return out;
+    }
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    $('#btn-vista-previa').on('click', function () {
+        if (!ckListo) {
+            alert('Espere a que cargue el editor.');
+            return;
+        }
+        var enc = fillEjemplo(editorHtml('plantilla_encabezado_html'));
+        var cuerpo = fillEjemplo(editorHtml('plantilla_cuerpo_html') || cuerpoDefault);
+        var dist = fillEjemplo(editorHtml('plantilla_distribucion_html'));
+        var html = '';
+        if (enc && enc.replace(/<[^>]+>/g, '').trim()) html += '<div class="mb-4">' + enc + '</div>';
+        html += '<div>' + (cuerpo || '<p class="text-muted">Sin texto</p>') + '</div>';
+        if (dist && dist.replace(/<[^>]+>/g, '').trim()) {
+            html += '<hr><p class="mb-1"><strong>Distribución</strong></p><div>' + dist + '</div>';
+        }
+        $('#sol-hoja-preview').html(html);
+        $('#modal-vista-previa').modal('show');
+    });
 
     $('.btn-editar').on('click', function () {
         var id = Number($(this).data('id'));

@@ -68,10 +68,20 @@ class SolicitudModuleController extends Controller
             }
         }
         $yo = auth()->user();
+        $departamento = '';
+        try {
+            $departamento = (string) (DB::table('sol_usuario_rol as r')
+                ->leftJoin('sol_departamentos as d', 'd.id', '=', 'r.departamento_id')
+                ->where('r.user_id', $yo->id)
+                ->value('d.nombre') ?? '');
+        } catch (\Throwable $e) {
+            $departamento = '';
+        }
         $yoDatos = [
             'nombre' => trim(($yo->nombres ?? '') . ' ' . ($yo->primer_apellido ?? '') . ' ' . ($yo->segundo_apellido ?? '')),
             'run' => $yo->run ?? '',
             'cargo' => $yo->cargo ?? '',
+            'departamento' => $departamento,
         ];
         return view('solicitudes.create', compact('tipos', 'buzones', 'yoDatos'));
     }

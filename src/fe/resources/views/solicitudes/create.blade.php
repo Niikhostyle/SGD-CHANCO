@@ -113,7 +113,12 @@
     </div>
 
     <div class="card card-outline card-success">
-        <div class="card-header"><strong>Documento</strong> <small class="text-muted">— puede revisar o ajustar el texto antes de enviar</small></div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><strong>Documento</strong> <small class="text-muted">— puede revisar o ajustar el texto antes de enviar</small></span>
+            <button type="button" class="btn btn-outline-primary" id="btn-vista-previa">
+                <i class="fas fa-eye"></i> Ver vista previa
+            </button>
+        </div>
         <div class="card-body">
             <div id="preview-encabezado" class="border rounded p-2 mb-3 bg-light" style="display:none"></div>
             <textarea name="documento_cuerpo_html" id="documento_cuerpo_html" class="form-control">{{ old('documento_cuerpo_html') }}</textarea>
@@ -121,10 +126,28 @@
         </div>
         <div class="card-footer">
             <button class="btn btn-success btn-lg" type="submit"><i class="fas fa-paper-plane"></i> Firmar y enviar al buzón</button>
+            <button type="button" class="btn btn-outline-primary btn-lg" id="btn-vista-previa-2"><i class="fas fa-eye"></i> Ver vista previa</button>
             <a href="{{ route('solicitudes.index') }}" class="btn btn-default btn-lg">Cancelar</a>
         </div>
     </div>
 </form>
+
+<div class="modal fade" id="modal-vista-previa" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document" style="max-width:900px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vista previa del documento</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar"><span>&times;</span></button>
+            </div>
+            <div class="modal-body" style="background:#cfcfcf">
+                <div id="sol-hoja-preview" style="max-width:794px;min-height:800px;margin:0 auto;background:#fff;padding:48px 56px;box-shadow:0 2px 12px rgba(0,0,0,.25);font-family:DejaVu Sans, Arial, sans-serif;font-size:13px;color:#222;line-height:1.45"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 @stop
 
 @section('js')
@@ -244,7 +267,7 @@
             '@{{nombre}}': yo.nombre || '',
             '@{{run}}': yo.run || '',
             '@{{cargo}}': yo.cargo || '',
-            '@{{departamento}}': '',
+            '@{{departamento}}': yo.departamento || '',
             '@{{tipo_solicitud}}': t ? (t.nombre || '') : '',
             '@{{fecha_inicio}}': fmtFecha($('#fecha_inicio').val()),
             '@{{fecha_termino}}': fmtFecha($('#fecha_termino').val()),
@@ -300,6 +323,25 @@
         });
     }
 
+    function abrirVistaPrevia() {
+        var t = tipoActual();
+        if (!t) {
+            alert('Elija primero el tipo de solicitud.');
+            return;
+        }
+        var enc = fill(t.plantilla_encabezado_html || '');
+        var cuerpo = editor.getData() || fill(t.plantilla_cuerpo_html || '');
+        var dist = fill(t.plantilla_distribucion_html || '');
+        var html = '';
+        if (enc && enc.replace(/<[^>]+>/g, '').trim()) html += '<div class="mb-4">' + enc + '</div>';
+        html += '<div>' + (cuerpo || '<p class="text-muted">Sin texto</p>') + '</div>';
+        if (dist && dist.replace(/<[^>]+>/g, '').trim()) {
+            html += '<hr><p class="mb-1"><strong>Distribución</strong></p><div>' + dist + '</div>';
+        }
+        $('#sol-hoja-preview').html(html);
+        $('#modal-vista-previa').modal('show');
+    }
+    $('#btn-vista-previa, #btn-vista-previa-2').on('click', abrirVistaPrevia);
     $('#sol_tipo_documento_id').on('change', function () { usuarioEdito = false; refrescarDoc(true); });
     $('#fecha_inicio, #fecha_termino, #motivo, #viaticos_destino').on('change input', function () { refrescarDoc(false); });
     $('#id_buzon_destino').on('change', function () {
