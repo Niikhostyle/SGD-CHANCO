@@ -52,8 +52,9 @@ class ArchivoController extends Controller
 
             $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
 
-            if (!$aInfoUsuarios['genera_pdf'])
+            if (!$aInfoUsuarios['genera_pdf'] && empty($datosRequest['forzar'])) {
                 return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
+            }
 
             //verifica que no se genere 2 veces
             //busca en bitacora
@@ -67,8 +68,17 @@ class ArchivoController extends Controller
                 ->where('version', 1)
                 ->first();
 
-            if (isset($existePdfGenerado['id_documento_buzon']) && isset($existeDocPpal['id_documento_buzon']))
+            if (isset($existePdfGenerado['id_documento_buzon']) && isset($existeDocPpal['id_documento_buzon'])) {
+                if (!empty($datosRequest['forzar'])) {
+                    return $this->respondSuccess([
+                        'comentario' => 'El archivo PDF ya fue generado.',
+                        'folio' => Documento::find($nDocumento)->folio ?? null,
+                        'anio' => date('Y'),
+                        'tipoDoc' => '',
+                    ], 200);
+                }
                 return $this->respondError('El archivo PDF ya fue generado.', 400);
+            }
 
             $datosDocumentos = Documento::findOrFail($nDocumento);
 

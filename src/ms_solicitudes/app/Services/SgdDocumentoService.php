@@ -286,10 +286,29 @@ class SgdDocumentoService
             throw new Exception('No se pudo asignar el buzón destino SGD: ' . $this->errorHttp($actualizar));
         }
 
+        $destHop = DB::table('documento_buzon')
+            ->where('id_documento', $idDocumento)
+            ->where('id_documento_buzon_padre', $idDocBuzon)
+            ->where('id_tipo_destino', 1)
+            ->where('id_buzon', $idBuzonDestino)
+            ->orderByDesc('id_documento_buzon')
+            ->first();
+        if (!$destHop) {
+            throw new Exception('No se creó el buzón de destino para el director.');
+        }
+
+        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+
         $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
         if ($requiereFe) {
             $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+            DB::table('documento_buzon')->where('id_documento_buzon', $idDocBuzon)->update([
+                'id_estado_documento' => 1,
+                'id_carpeta' => 3,
+            ]);
         }
+
+        $this->copiarPdfPrincipal((int) $idDocumento, (int) $destHop->id_documento_buzon);
 
         $enviar = $this->http($sessionKey)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
             'id_documento' => $idDocumento,
@@ -312,7 +331,7 @@ class SgdDocumentoService
         $sol->id_tipo_documento = $idTipo;
         $sol->save();
 
-        $this->flujo->registrar($sol, 'enviar_sgd', $idBuzonDestino, $uid, 'Documento SGD #' . $idDocumento . ' enviado al buzón destino (Por Recibir), firmado por el solicitante.');
+        $this->flujo->registrar($sol, 'enviar_sgd', $idBuzonDestino, $uid, 'Documento SGD #' . $idDocumento . ' enviado al buzón destino (Por Recibir), con PDF y firma del solicitante.');
 
         return [
             'id_documento' => $idDocumento,
@@ -334,6 +353,70 @@ class SgdDocumentoService
         if ($res->failed()) {
             throw new Exception('No se pudo firmar la solicitud del funcionario: ' . $this->errorHttp($res));
         }
+    }
+
+    protected function generarPdfSgd(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid): void
+    {
+        $api = rtrim(env('API_SGD_ARCHIVOS', 'http://sgd_ms_archivos:3333'), '/');
+        $res = $this->http($sessionKey)->timeout(120)->put($api . '/api/sgd-archivos/generar_archivo_pdf', [
+            'id_documento' => $idDocumento,
+            'id_documento_buzon' => $idDocBuzon,
+            'id_usuario' => $uid,
+            'id_buzon' => $idOrigen,
+            'generaFolio' => 0,
+            'forzar' => 1,
+        ]);
+        if ($res->failed()) {
+            $msg = $this->errorHttp($res);
+            if (stripos($msg, 'ya fue generado') === false) {
+                throw new Exception('No se pudo generar el PDF de la solicitud: ' . $msg);
+            }
+        }
+        $existe = DB::table('documento_buzon_archivo as a')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'a.id_documento_buzon')
+            ->where('db.id_documento', $idDocumento)
+            ->where('a.id_tipo_archivo', 1)
+            ->where('a.version', 1)
+            ->exists();
+        if (!$existe) {
+            throw new Exception('El PDF de la solicitud no quedó adjunto al documento.');
+        }
+    }
+
+    protected function copiarPdfPrincipal(int $idDocumento, int $idHopDestino): void
+    {
+        $pdf = DB::table('documento_buzon_archivo as a')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'a.id_documento_buzon')
+            ->where('db.id_documento', $idDocumento)
+            ->where('a.id_tipo_archivo', 1)
+            ->where('a.version', 1)
+            ->orderByDesc('a.id_documento_buzon_archivo')
+            ->select('a.nombre_archivo_original', 'a.nombre_archivo_codificado')
+            ->first();
+        if (!$pdf) {
+            return;
+        }
+        $ya = DB::table('documento_buzon_archivo')
+            ->where('id_documento_buzon', $idHopDestino)
+            ->where('id_tipo_archivo', 1)
+            ->where('version', 1)
+            ->where('nombre_archivo_codificado', $pdf->nombre_archivo_codificado)
+            ->exists();
+        if ($ya) {
+            return;
+        }
+        DB::table('documento_buzon_archivo')
+            ->where('id_documento_buzon', $idHopDestino)
+            ->where('id_tipo_archivo', 1)
+            ->increment('version');
+        DB::table('documento_buzon_archivo')->insert([
+            'id_documento_buzon' => $idHopDestino,
+            'id_tipo_archivo' => 1,
+            'nombre_archivo_original' => $pdf->nombre_archivo_original,
+            'nombre_archivo_codificado' => $pdf->nombre_archivo_codificado,
+            'version' => 1,
+            'fecha' => date('Y-m-d H:i:s'),
+        ]);
     }
 
     public function hopActual(?int $idDocumento): ?object
