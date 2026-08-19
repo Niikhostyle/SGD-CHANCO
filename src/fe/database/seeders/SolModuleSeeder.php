@@ -34,7 +34,13 @@ class SolModuleSeeder extends Seeder
                     'updated_at' => now(),
                 ];
                 if (Schema::hasColumn('sol_tipo_documentos', 'categoria')) {
-                    $row['categoria'] = $t['tipo_solicitud'] === 'feriados_legales' ? 'vacaciones' : ($t['tipo_solicitud'] === 'viaticos' ? 'viaticos' : ($t['tipo_solicitud'] === 'licencia_medica' ? 'licencias' : 'dias'));
+                    $row['categoria'] = $t['tipo_solicitud'] === 'feriados_legales'
+                        ? 'vacaciones'
+                        : ($t['tipo_solicitud'] === 'viaticos'
+                            ? 'viaticos'
+                            : ($t['tipo_solicitud'] === 'licencia_medica'
+                                ? 'licencias'
+                                : ($t['tipo_solicitud'] === 'dias_compensatorios' ? 'compensatorios' : 'dias')));
                     $row['consume_saldo'] = in_array($t['tipo_solicitud'], ['dias_administrativos', 'feriados_legales', 'dias_compensatorios'], true);
                     $row['requiere_fe'] = true;
                     $row['numero_firmas'] = 1;

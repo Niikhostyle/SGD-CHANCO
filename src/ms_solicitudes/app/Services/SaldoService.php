@@ -36,7 +36,9 @@ class SaldoService
         $campo = self::TIPOS_CON_SALDO[$tipo] ?? null;
         if (!$campo && $categoria === 'vacaciones') {
             $campo = 'feriados_legales';
-        } elseif (!$campo && in_array($categoria, ['dias', 'compensatorios'], true)) {
+        } elseif (!$campo && $categoria === 'compensatorios') {
+            $campo = 'dias_compensatorios';
+        } elseif (!$campo && in_array($categoria, ['dias'], true)) {
             $campo = 'dias_administrativos';
         } elseif (!$campo) {
             $campo = 'dias_administrativos';

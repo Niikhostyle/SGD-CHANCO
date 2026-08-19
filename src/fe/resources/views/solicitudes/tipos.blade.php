@@ -63,16 +63,28 @@
             </thead>
             <tbody>
             @php
-                $catNom = ['dias' => 'Permisos / días', 'vacaciones' => 'Feriado legal', 'viaticos' => 'Viáticos', 'licencias' => 'Licencia médica', 'otro' => 'Otro'];
+                $catNom = [
+                    'dias' => 'Días administrativos',
+                    'compensatorios' => 'Días compensatorios',
+                    'vacaciones' => 'Feriado legal',
+                    'viaticos' => 'Viáticos',
+                    'licencias' => 'Licencia médica',
+                    'otro' => 'Otro',
+                ];
             @endphp
             @forelse($tipos as $t)
                 <tr>
                     <td><b>{{ $t['nombre'] }}</b></td>
                     <td>{{ $catNom[$t['categoria'] ?? ''] ?? ($t['categoria'] ?? '—') }}</td>
                     <td>{{ !empty($t['consume_saldo']) ? 'Sí' : 'No' }}</td>
-                    <td>{{ (int) ($t['numero_firmas'] ?? 0) ?: '—' }}</td>
-                    <td class="text-right">
-                        <button type="button" class="btn btn-sm btn-info btn-editar" data-id="{{ $t['id'] }}">Editar plantilla</button>
+                    <td>@if(!empty($t['numero_firmas'])){{ (int) $t['numero_firmas'] }}@else—@endif</td>
+                    <td class="text-right text-nowrap">
+                        <button type="button" class="btn btn-sm btn-info btn-editar" data-id="{{ $t['id'] }}">Editar</button>
+                        <form method="post" action="{{ route('solicitudes.tipos.delete', $t['id']) }}" class="d-inline" onsubmit="return confirm('¿Borrar esta plantilla?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Borrar</button>
+                        </form>
                     </td>
                 </tr>
             @empty
@@ -103,19 +115,21 @@
                 <div class="form-group col-md-6">
                     <label>Qué tipo de trámite es</label>
                     <select name="categoria" id="categoria" class="form-control">
-                        <option value="dias">Permiso / días administrativos o compensatorios</option>
+                        <option value="dias">Días administrativos</option>
+                        <option value="compensatorios">Días compensatorios</option>
                         <option value="vacaciones">Feriado legal / vacaciones</option>
                         <option value="viaticos">Viáticos</option>
                         <option value="licencias">Licencia médica</option>
                         <option value="otro">Otro</option>
                     </select>
+                    <small class="text-muted">Administrativos y compensatorios son trámites distintos y descuentan saldos distintos.</small>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <div class="custom-control custom-switch">
                         <input type="hidden" name="consume_saldo" value="0">
-                        <input type="checkbox" class="custom-control-input" name="consume_saldo" id="consume_saldo" value="1">
+                        <input type="checkbox" class="custom-control-input" name="consume_saldo" id="consume_saldo" value="1" checked>
                         <label class="custom-control-label" for="consume_saldo">Descuenta del saldo de días</label>
                     </div>
                 </div>
@@ -292,8 +306,23 @@
         return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').substring(0, 40);
     }
+    function slugPorCategoria(cat) {
+        var map = {
+            dias: 'dias_administrativos',
+            compensatorios: 'dias_compensatorios',
+            vacaciones: 'feriados_legales',
+            viaticos: 'viaticos',
+            licencias: 'licencia_medica'
+        };
+        return map[cat] || slugify($('#nombre').val());
+    }
+    $('#categoria').on('change', function () {
+        var c = $(this).val();
+        $('#tipo_solicitud').val(slugPorCategoria(c));
+        $('#consume_saldo').prop('checked', c === 'dias' || c === 'compensatorios' || c === 'vacaciones');
+    });
     $('#nombre').on('input', function () {
-        if (!$('#tipo_id').val()) $('#tipo_solicitud').val(slugify(this.value));
+        if (!$('#tipo_id').val() && $('#categoria').val() === 'otro') $('#tipo_solicitud').val(slugify(this.value));
     });
 
     $('.btn-campo').on('click', function () {
@@ -348,7 +377,7 @@
         $('#tabla-flujo tbody tr').each(function (i) {
             $(this).find('input[type=checkbox]').attr('name', 'flujo_acciones[' + i + '][]');
         });
-        if (!$('#tipo_solicitud').val()) $('#tipo_solicitud').val(slugify($('#nombre').val()));
+        if (!$('#tipo_solicitud').val()) $('#tipo_solicitud').val(slugPorCategoria($('#categoria').val()) || slugify($('#nombre').val()));
     });
     $('#btn-add-buzon').on('click', function () {
         var sel = $('#sel-buzon');
@@ -363,8 +392,9 @@
         $('#form-title').text('Nueva plantilla');
         $('#tipo_id').val('');
         $('#form-tipo')[0].reset();
-        $('#requiere_fe, #activo').prop('checked', true);
-        $('#consume_saldo').prop('checked', false);
+        $('#requiere_fe, #activo, #consume_saldo').prop('checked', true);
+        $('#categoria').val('dias');
+        $('#tipo_solicitud').val('dias_administrativos');
         $('#tabla-flujo tbody').empty();
         idx = 0;
         $('#numero_firmas').val('3');

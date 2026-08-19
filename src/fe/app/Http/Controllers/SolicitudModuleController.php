@@ -253,11 +253,34 @@ class SolicitudModuleController extends Controller
         $tipos = $this->client()->get($this->api() . '/api/sgd-solicitudes/tipo-documentos');
         $buzones = $this->client()->get($this->api() . '/api/sgd-solicitudes/buzones');
         $cfg = $this->client()->get($this->api() . '/api/sgd-solicitudes/configuraciones');
+        $lista = $tipos->ok() ? ($tipos->json()['data'] ?? []) : [];
+        $error = $tipos->failed() ? ($tipos->json()['message'] ?? ('Error al cargar tipos (HTTP ' . $tipos->status() . ')')) : null;
+        if (!$lista) {
+            try {
+                $flujos = DB::table('sol_tipo_documento_buzon')->orderBy('orden')->get()->groupBy('sol_tipo_documento_id');
+                $lista = DB::table('sol_tipo_documentos')->orderBy('nombre')->get()->map(function ($t) use ($flujos) {
+                    $row = (array) $t;
+                    $row['buzones_flujo'] = array_values(($flujos[$t->id] ?? collect())->map(function ($p) {
+                        $a = (array) $p;
+                        if (!empty($a['acciones']) && is_string($a['acciones'])) {
+                            $a['acciones'] = json_decode($a['acciones'], true) ?: [];
+                        }
+                        return $a;
+                    })->all());
+                    return $row;
+                })->all();
+                if ($lista) {
+                    $error = null;
+                }
+            } catch (\Throwable $e) {
+                // se mantiene el error de la API
+            }
+        }
         return view('solicitudes.tipos', [
-            'tipos' => $tipos->ok() ? ($tipos->json()['data'] ?? []) : [],
+            'tipos' => $lista,
             'buzones' => $buzones->ok() ? ($buzones->json()['data'] ?? []) : [],
             'config' => $cfg->ok() ? ($cfg->json()['data'] ?? []) : [],
-            'error' => $tipos->failed() ? ($tipos->json()['message'] ?? 'Error al cargar tipos') : null,
+            'error' => $error,
         ]);
     }
 
@@ -317,7 +340,7 @@ class SolicitudModuleController extends Controller
     public function tiposDelete($id)
     {
         $res = $this->client()->delete($this->api() . '/api/sgd-solicitudes/tipo-documentos?id=' . (int) $id);
-        toast(($res->json()['ok'] ?? false) ? 'Tipo desactivado' : ($res->json()['message'] ?? 'Error'), ($res->json()['ok'] ?? false) ? 'success' : 'error');
+        toast(($res->json()['ok'] ?? false) ? 'Plantilla borrada' : ($res->json()['message'] ?? 'Error'), ($res->json()['ok'] ?? false) ? 'success' : 'error');
         return back();
     }
 

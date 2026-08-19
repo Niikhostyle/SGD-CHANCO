@@ -10,6 +10,7 @@ use App\Models\SolTipoDocumento;
 use App\Models\SolUsuarioRol;
 use App\Models\User;
 use App\Services\FlujoService;
+use App\Services\RolService;
 use App\Services\SgdDocumentoService;
 use Exception;
 use Illuminate\Http\Request;
@@ -216,9 +217,10 @@ class AdminController extends Controller
     {
         try {
             $this->assertAdmin($request);
-            $t = SolTipoDocumento::findOrFail($request->get('id') ?? $request->json('id'));
-            $t->activo = false;
-            $t->save();
+            $t = SolTipoDocumento::findOrFail($request->get('id') ?? $request->json('id') ?? $request->input('id'));
+            DB::table('sol_solicitudes')->where('sol_tipo_documento_id', $t->id)->update(['sol_tipo_documento_id' => null]);
+            $t->buzonesFlujo()->delete();
+            $t->delete();
             return response()->json(['ok' => true]);
         } catch (Exception $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
@@ -281,17 +283,26 @@ class AdminController extends Controller
 
     protected function payloadTipo(array $d): array
     {
-        $slug = $d['tipo_solicitud'] ?? null;
+        $cat = $d['categoria'] ?? 'dias';
+        $slugPorCat = [
+            'dias' => 'dias_administrativos',
+            'compensatorios' => 'dias_compensatorios',
+            'vacaciones' => 'feriados_legales',
+            'viaticos' => 'viaticos',
+            'licencias' => 'licencia_medica',
+        ];
+        $slug = $slugPorCat[$cat] ?? ($d['tipo_solicitud'] ?? null);
         if (!$slug && !empty($d['nombre'])) {
             $slug = preg_replace('/[^a-z0-9_]+/', '_', strtolower($d['nombre']));
         }
+        $consumeDefault = in_array($cat, ['dias', 'compensatorios', 'vacaciones'], true);
         return [
             'tipo_solicitud' => $slug,
             'regimen_laboral' => !empty($d['regimen_laboral']) ? $d['regimen_laboral'] : null,
             'nombre' => $d['nombre'],
             'activo' => $this->asBool($d['activo'] ?? null, true),
-            'categoria' => $d['categoria'] ?? 'dias',
-            'consume_saldo' => $this->asBool($d['consume_saldo'] ?? null, false),
+            'categoria' => $cat,
+            'consume_saldo' => $this->asBool($d['consume_saldo'] ?? null, $consumeDefault),
             'requiere_fe' => $this->asBool($d['requiere_fe'] ?? null, true),
             'numero_firmas' => max(2, (int) ($d['numero_firmas'] ?? 3)),
             'primer_buzon_editable' => $this->asBool($d['primer_buzon_editable'] ?? null, true),
