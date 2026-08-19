@@ -151,20 +151,20 @@
 
             <hr>
             <h5 class="mb-2">2. Texto del documento</h5>
-            <p class="text-muted">Redacte como en Word. Use los botones para insertar datos que se rellenan solos al crear la solicitud (nombre, fechas, motivo…).</p>
+            <p class="text-muted">Redacte como en Word. Use los botones para insertar datos que se rellenan solos al crear la solicitud: nombre, fechas, motivo, etc.</p>
 
             <div class="mb-2" id="btns-campos">
                 <span class="text-muted mr-2">Insertar dato:</span>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{nombre}}' }}">Nombre</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{run}}' }}">RUN</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{cargo}}' }}">Cargo</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{fecha_inicio}}' }}">Fecha inicio</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{fecha_termino}}' }}">Fecha término</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{total_dias}}' }}">N° de días</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{motivo}}' }}">Motivo</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{viaticos_destino}}' }}">Destino viático</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{departamento}}' }}">Departamento</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{{ '{{fecha}}' }}">Fecha de hoy</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{nombre}}">Nombre</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{run}}">RUN</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{cargo}}">Cargo</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha_inicio}}">Fecha inicio</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha_termino}}">Fecha término</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{total_dias}}">N. de dias</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{motivo}}">Motivo</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{viaticos_destino}}">Destino viatico</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{departamento}}">Departamento</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha}}">Fecha de hoy</button>
             </div>
 
             <div class="form-group">
