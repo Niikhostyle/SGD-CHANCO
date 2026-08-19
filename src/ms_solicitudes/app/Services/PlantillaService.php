@@ -46,7 +46,18 @@ class PlantillaService
             '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
             '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
             '{{fecha}}' => date('d-m-Y'),
+            '{{anio}}' => date('Y'),
+            '{t_anio}' => date('Y'),
+            '{t_fecha}' => $this->fechaLarga(),
+            '{t_folio}' => (string) ($datos['folio'] ?? 'SIN FOLIO'),
         ];
+    }
+
+    protected function fechaLarga(): string
+    {
+        $meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        $n = (int) date('n');
+        return date('d') . ' de ' . $meses[$n - 1] . ' del ' . date('Y');
     }
 
     public function renderHtml(?string $html, User $user, array $datos): string

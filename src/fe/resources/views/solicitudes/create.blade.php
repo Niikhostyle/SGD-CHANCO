@@ -278,7 +278,15 @@
             '@{{fecha}}': (function () {
                 var d = new Date();
                 return ('0' + d.getDate()).slice(-2) + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + d.getFullYear();
-            })()
+            })(),
+            '@{{anio}}': String(new Date().getFullYear()),
+            '{t_anio}': String(new Date().getFullYear()),
+            '{t_fecha}': (function () {
+                var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+                var d = new Date();
+                return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
+            })(),
+            '{t_folio}': 'SIN FOLIO'
         };
         var out = html || '';
         Object.keys(map).forEach(function (k) {

@@ -266,6 +266,9 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{viaticos_destino}}">Destino viatico</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{departamento}}">Departamento</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha}}">Fecha de hoy</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_anio}">Año</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_fecha}">Fecha larga</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_folio}">Folio</button>
             </div>
 
             <div class="form-group">
@@ -541,7 +544,11 @@
             '@{{motivo}}': 'Asuntos personales',
             '@{{explicacion}}': 'Asuntos personales',
             '@{{viaticos_destino}}': 'Talca',
-            '@{{fecha}}': pad2(hoy.getDate()) + '-' + pad2(hoy.getMonth() + 1) + '-' + hoy.getFullYear()
+            '@{{fecha}}': pad2(hoy.getDate()) + '-' + pad2(hoy.getMonth() + 1) + '-' + hoy.getFullYear(),
+            '@{{anio}}': String(hoy.getFullYear()),
+            '{t_anio}': String(hoy.getFullYear()),
+            '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
+            '{t_folio}': 'SIN FOLIO'
         };
         var out = html || '';
         Object.keys(map).forEach(function (k) { out = out.split(k).join(map[k]); });

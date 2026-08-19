@@ -148,6 +148,9 @@ class ArchivoController extends Controller
             } else {
                 $fecha = date_create_from_format('Y-m-d H:i:s', $datosDocumentos['fecha']);
             }
+            if (!$fecha) {
+                $fecha = new \DateTime();
+            }
 
             //reemplazar valores en encabezado solo si viene folio 
             //Nº {t_folio} {t_anio} {t_fecha}
@@ -165,13 +168,17 @@ class ArchivoController extends Controller
             $sEncabezado = str_replace('{t_fecha}', $sfecha, $sEncabezado);
             $sCuerpo = str_replace('{t_anio}', date('Y'), $sCuerpo);
             $sCuerpo = str_replace('{t_fecha}', $sfecha, $sCuerpo);
+            $tPlantillaDistribucion = str_replace('{t_anio}', date('Y'), $tPlantillaDistribucion);
+            $tPlantillaDistribucion = str_replace('{t_fecha}', $sfecha, $tPlantillaDistribucion);
 
             if ($datosRequest['generaFolio'] == 1) {
                 $sEncabezado = str_replace('{t_folio}', $nFolio, $sEncabezado);
                 $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);
-            }else{
+                $tPlantillaDistribucion = str_replace('{t_folio}', $nFolio, $tPlantillaDistribucion);
+            } else {
                 $sEncabezado = str_replace('{t_folio}', 'SIN FOLIO', $sEncabezado);
                 $sCuerpo = str_replace('{t_folio}', 'SIN FOLIO', $sCuerpo);
+                $tPlantillaDistribucion = str_replace('{t_folio}', 'SIN FOLIO', $tPlantillaDistribucion);
             }
 
             $datosDocumentosCuerpo = str_replace(env('APP_URL'), storage_path('app/public'), $sCuerpo);
