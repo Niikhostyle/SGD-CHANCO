@@ -71,51 +71,79 @@ class FlujoService
 
     public function asegurarCadena(array $flujo, ?int $idBuzonDestino, bool $editable): array
     {
-        if ($idBuzonDestino) {
-            $buzon = Buzon::find($idBuzonDestino);
-            $primero = [
-                'id_buzon' => $idBuzonDestino,
-                'nombre_buzon' => $buzon ? $buzon->nombre : 'Buzón',
+        $rrhh = $this->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
+        $alcalde = $this->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
+        $out = [];
+
+        if ($rrhh) {
+            $out[] = [
+                'id_buzon' => (int) $rrhh->id_buzon,
+                'nombre_buzon' => $rrhh->nombre,
                 'orden' => 1,
-                'acciones' => ['visar', 'firmar'],
+                'acciones' => ['visar'],
             ];
-            if (!$flujo) {
-                $flujo = [$primero];
-            } elseif ($editable) {
-                $flujo[0]['id_buzon'] = $primero['id_buzon'];
-                $flujo[0]['nombre_buzon'] = $primero['nombre_buzon'];
-                if (empty($flujo[0]['acciones'])) {
-                    $flujo[0]['acciones'] = ['visar', 'firmar'];
-                }
-            }
         }
 
-        $ids = array_map('intval', array_column($flujo, 'id_buzon'));
-        // Solo se completa Directivo → RRHH → Alcalde si el tipo no trae una cadena propia.
-        if (count($flujo) <= 1) {
-            $rrhh = $this->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
-            $alcalde = $this->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
-
-            if ($rrhh && !in_array((int) $rrhh->id_buzon, $ids, true)) {
-                $flujo[] = [
-                    'id_buzon' => (int) $rrhh->id_buzon,
-                    'nombre_buzon' => $rrhh->nombre,
-                    'orden' => count($flujo) + 1,
+        $idDirector = $idBuzonDestino ? (int) $idBuzonDestino : 0;
+        if ($idDirector && $rrhh && $idDirector === (int) $rrhh->id_buzon) {
+            $idDirector = 0;
+        }
+        if ($idDirector && $alcalde && $idDirector === (int) $alcalde->id_buzon) {
+            $idDirector = 0;
+        }
+        if ($idDirector) {
+            $buzon = Buzon::find($idDirector);
+            $out[] = [
+                'id_buzon' => $idDirector,
+                'nombre_buzon' => $buzon ? $buzon->nombre : 'Dirección',
+                'orden' => count($out) + 1,
+                'acciones' => ['firmar'],
+            ];
+        } elseif ($flujo) {
+            foreach ($flujo as $paso) {
+                $id = (int) ($paso['id_buzon'] ?? 0);
+                if (!$id) {
+                    continue;
+                }
+                if ($rrhh && $id === (int) $rrhh->id_buzon) {
+                    continue;
+                }
+                if ($alcalde && $id === (int) $alcalde->id_buzon) {
+                    continue;
+                }
+                $out[] = [
+                    'id_buzon' => $id,
+                    'nombre_buzon' => $paso['nombre_buzon'] ?? 'Buzón',
+                    'orden' => count($out) + 1,
                     'acciones' => ['firmar'],
                 ];
-                $ids[] = (int) $rrhh->id_buzon;
+                break;
             }
-            if ($alcalde && !in_array((int) $alcalde->id_buzon, $ids, true)) {
-                $flujo[] = [
+        }
+
+        if ($alcalde) {
+            $ya = false;
+            foreach ($out as $p) {
+                if ((int) $p['id_buzon'] === (int) $alcalde->id_buzon) {
+                    $ya = true;
+                    break;
+                }
+            }
+            if (!$ya) {
+                $out[] = [
                     'id_buzon' => (int) $alcalde->id_buzon,
                     'nombre_buzon' => $alcalde->nombre,
-                    'orden' => count($flujo) + 1,
-                    'acciones' => ['firmar', 'finalizar'],
+                    'orden' => count($out) + 1,
+                    'acciones' => ['firmar'],
                 ];
             }
         }
 
-        foreach ($flujo as $i => &$p) {
+        if (!$out) {
+            throw new Exception('Configure el buzón de Departamento de Personal y seleccione el buzón del director.');
+        }
+
+        foreach ($out as $i => &$p) {
             $p['orden'] = $i + 1;
             if (empty($p['acciones'])) {
                 $p['acciones'] = ['firmar'];
@@ -123,7 +151,7 @@ class FlujoService
         }
         unset($p);
 
-        return array_values($flujo);
+        return array_values($out);
     }
 
     public function resolverBuzonConfig(string $clave, array $nombres): ?Buzon
@@ -244,6 +272,7 @@ class FlujoService
             $paso->save();
             $sol->estado = 'rechazada';
             $sol->observaciones = $obs;
+            $this->marcarDecisionAlcalde($sol, $uid, $paso, 'denegado', $obs);
             $sol->save();
             $this->registrar($sol, 'rechazar', (int) $paso->id_buzon, $uid, $obs);
             return $sol->fresh();
@@ -261,7 +290,7 @@ class FlujoService
         $paso->observaciones = $obs;
         $paso->decidido_at = date('Y-m-d H:i:s');
         $paso->save();
-        $this->marcarActor($sol, $uid, $paso, $obs);
+        $this->marcarActor($sol, $uid, $paso, $obs, $accion);
         $this->registrar($sol, $accion, (int) $paso->id_buzon, $uid, $obs);
 
         $siguiente = $sol->pasos()->where('orden', '>', $paso->orden)->orderBy('orden')->first();
@@ -284,14 +313,12 @@ class FlujoService
         return $sol->fresh();
     }
 
-    public function marcarActor(SolSolicitud $sol, int $uid, SolSolicitudBuzon $paso, ?string $obs = null): void
+    public function marcarActor(SolSolicitud $sol, int $uid, SolSolicitudBuzon $paso, ?string $obs = null, string $accion = 'firmar'): void
     {
         $nombre = mb_strtolower((string) ($paso->nombre_buzon ?? ''));
         $now = date('Y-m-d H:i:s');
         if (mb_strpos($nombre, 'alcalde') !== false || mb_strpos($nombre, 'alcald') !== false) {
-            $sol->alcalde_id = $uid;
-            $sol->alcalde_decidido_at = $now;
-            $sol->alcalde_observaciones = $obs;
+            $this->marcarDecisionAlcalde($sol, $uid, $paso, $accion === 'rechazar' ? 'denegado' : 'autorizado', $obs);
         } elseif (preg_match('/rrhh|recursos humanos|personal/', $nombre)) {
             $sol->rrhh_id = $uid;
             $sol->rrhh_decidido_at = $now;
@@ -302,6 +329,29 @@ class FlujoService
             $sol->directivo_observaciones = $obs;
         }
         $sol->save();
+    }
+
+    public function esBuzonAlcalde(int $idBuzon, ?string $nombre = null): bool
+    {
+        $alc = $this->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
+        if ($alc && (int) $alc->id_buzon === $idBuzon) {
+            return true;
+        }
+        $n = mb_strtolower((string) $nombre);
+        return $n !== '' && (mb_strpos($n, 'alcalde') !== false || mb_strpos($n, 'alcald') !== false);
+    }
+
+    public function marcarDecisionAlcalde(SolSolicitud $sol, int $uid, $paso, string $decision, ?string $obs = null): void
+    {
+        $idBuzon = is_object($paso) ? (int) $paso->id_buzon : (int) $paso;
+        $nombre = is_object($paso) ? ($paso->nombre_buzon ?? '') : '';
+        if (!$this->esBuzonAlcalde($idBuzon, $nombre)) {
+            return;
+        }
+        $sol->alcalde_id = $uid;
+        $sol->alcalde_decidido_at = date('Y-m-d H:i:s');
+        $sol->alcalde_observaciones = $obs;
+        $sol->alcalde_decision = $decision;
     }
 
     public function registrar(SolSolicitud $sol, string $accion, ?int $idBuzon, ?int $uid, ?string $comentario = null): void

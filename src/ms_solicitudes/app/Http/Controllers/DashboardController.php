@@ -22,7 +22,7 @@ class DashboardController extends Controller
             $roles = new RolService();
             $saldos = new SaldoService();
             $rol = $roles->ensureRol($uid);
-            $saldo = $saldos->obtenerOCrear($uid);
+            $saldo = $saldos->resumen($uid);
 
             $mias = SolSolicitud::where('user_id', $uid)->count();
             $flujo = new \App\Services\FlujoService();

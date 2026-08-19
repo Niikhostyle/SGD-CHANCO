@@ -125,6 +125,8 @@ class SolicitudController extends Controller
             $data['es_solicitante'] = (int) $s->user_id === $uid;
             $data['usa_flujo_buzones'] = $s->pasos->count() > 0;
             $data['sgd'] = $this->sgd->detalleSgd($s);
+            $data['saldo'] = $this->saldos->resumen((int) $s->user_id);
+            $data['puede_ver_saldos'] = $this->roles->puedeGestionarSaldos($uid) || (int) $s->user_id === $uid;
             return response()->json(['ok' => true, 'data' => $data]);
         } catch (Exception $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 404);
@@ -194,6 +196,7 @@ class SolicitudController extends Controller
                     'fecha_inicio' => $inicio,
                     'fecha_termino' => $termino,
                     'total_dias' => $dias,
+                    'categoria' => $plantilla->categoria ?? null,
                 ]));
             }
 
@@ -507,7 +510,7 @@ class SolicitudController extends Controller
 
     protected function assertPuedeVer(int $uid, SolSolicitud $s): void
     {
-        if ($this->roles->isAdmin($uid) || (int) $s->user_id === $uid) {
+        if ($this->roles->isAdmin($uid) || (int) $s->user_id === $uid || $this->roles->puedeGestionarSaldos($uid)) {
             return;
         }
         $mis = $this->flujo->idsBuzonesUsuario($uid);

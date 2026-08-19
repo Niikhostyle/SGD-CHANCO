@@ -47,4 +47,18 @@ class RolService
         $rol = $this->ensureRol($userId);
         return $rol->rol === 'admin_solicitudes';
     }
+
+    public function puedeGestionarSaldos(int $userId): bool
+    {
+        if ($this->isAdmin($userId)) {
+            return true;
+        }
+        $rol = $this->ensureRol($userId);
+        if ($rol->rol === 'rrhh') {
+            return true;
+        }
+        $flujo = new FlujoService();
+        $rrhh = $flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
+        return $rrhh ? $flujo->usuarioEnBuzon($userId, (int) $rrhh->id_buzon) : false;
+    }
 }

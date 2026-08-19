@@ -34,12 +34,7 @@
 @endphp
 
 @if(!empty($dashboard['saldo']))
-<div class="alert alert-light border">
-    Saldo {{ $dashboard['saldo']['anio'] ?? date('Y') }}:
-    administrativos <b>{{ $dashboard['saldo']['dias_administrativos'] ?? 0 }}</b> ·
-    feriados <b>{{ $dashboard['saldo']['feriados_legales'] ?? 0 }}</b> ·
-    compensatorios <b>{{ $dashboard['saldo']['dias_compensatorios'] ?? 0 }}</b>
-</div>
+    @include('solicitudes._saldos', ['saldo' => $dashboard['saldo']])
 @endif
 
 <div class="card">
@@ -63,9 +58,13 @@
                 <a href="{{ route('solicitudes.index') }}" class="btn btn-sm btn-default ml-2">Ver todas</a>
             @endif
             <div class="ml-auto">
-                <a href="{{ route('solicitudes.tipos') }}" class="btn btn-sm btn-outline-secondary">Plantillas</a>
-                <a href="{{ route('solicitudes.rrhh') }}" class="btn btn-sm btn-outline-secondary">Saldos</a>
-                <a href="{{ route('solicitudes.admin') }}" class="btn btn-sm btn-outline-secondary">Admin</a>
+                @if(!empty($esAdmin))
+                    <a href="{{ route('solicitudes.tipos') }}" class="btn btn-sm btn-outline-secondary">Plantillas</a>
+                    <a href="{{ route('solicitudes.admin') }}" class="btn btn-sm btn-outline-secondary">Admin</a>
+                @endif
+                @if(!empty($puedeSaldos))
+                    <a href="{{ route('solicitudes.rrhh') }}" class="btn btn-sm btn-outline-secondary">Saldos</a>
+                @endif
             </div>
         </form>
     </div>

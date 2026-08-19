@@ -119,7 +119,7 @@ class SgdDocumentoService
             $rrhh = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
             $alcalde = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
             if ($rrhh) {
-                $pasos[] = ['id_buzon' => (int) $rrhh->id_buzon, 'acciones' => [6, 7, 11]];
+                $pasos[] = ['id_buzon' => (int) $rrhh->id_buzon, 'acciones' => [6, 11]];
             }
             if ($alcalde) {
                 $pasos[] = ['id_buzon' => (int) $alcalde->id_buzon, 'acciones' => [7, 10]];
@@ -200,13 +200,17 @@ class SgdDocumentoService
             : $this->asegurarTipoSgd($plantilla);
         $user = $sol->usuario;
         $datosPlantilla = [
-            'tipo_solicitud' => $plantilla ? $plantilla->nombre : $sol->tipo_solicitud,
+            'tipo_solicitud' => $plantilla ? $plantilla->tipo_solicitud : $sol->tipo_solicitud,
+            'nombre_tipo' => $plantilla ? $plantilla->nombre : $sol->tipo_solicitud,
+            'categoria' => $plantilla ? $plantilla->categoria : null,
             'fecha_inicio' => $sol->fecha_inicio,
             'fecha_termino' => $sol->fecha_termino,
             'total_dias' => $sol->total_dias,
             'motivo' => $sol->motivo,
             'explicacion' => $sol->explicacion ?: $sol->motivo,
             'viaticos_destino' => $sol->viaticos_destino,
+            'alcalde_decision' => $sol->alcalde_decision ?? null,
+            'alcalde_observaciones' => $sol->alcalde_observaciones ?? null,
         ];
         $plantillas = new PlantillaService();
         $encabezado = '';
@@ -223,6 +227,21 @@ class SgdDocumentoService
         $ft = $sol->fecha_termino instanceof \DateTimeInterface ? $sol->fecha_termino->format('d-m-Y') : (string) $sol->fecha_termino;
         $materia = ($plantilla ? $plantilla->nombre : $sol->tipo_solicitud) . ' — ' . ($user ? $user->nombreCompleto() : '') . ' (' . $fi . ' a ' . $ft . ')';
 
+        $dp = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
+        $idEnviar = $dp ? (int) $dp->id_buzon : $idBuzonDestino;
+        $acciones = $dp ? [6, 11] : [6, 7, 11];
+        $buzonDir = Buzon::find($idBuzonDestino);
+        $saldo = (new SaldoService())->resumen((int) $sol->user_id);
+        $txtSaldo = 'Saldo ' . $saldo['anio'] . ': administrativos ' . $saldo['dias_administrativos']
+            . ', feriados ' . $saldo['feriados_legales']
+            . ', compensatorios ' . $saldo['dias_compensatorios']
+            . '. Solicita ' . (int) $sol->total_dias . ' día(s).';
+        $txtFlujo = 'Flujo: 1) firma funcionario · 2) visación Departamento de Personal · 3) firma director'
+            . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
+            . ' · 4) firma alcalde.';
+        $comentario = trim((string) $comentario . "\n" . $txtSaldo . "\n" . $txtFlujo);
+        $descripcion = trim((string) ($sol->motivo ?: $sol->explicacion ?: '') . ' — ' . $txtSaldo);
+
         $crear = $this->http($sessionKey)->post($this->apiDocumentos() . '/api/sgd-documentos/crear', [
             'id_tipo_documento' => $idTipo,
             'id_nivel_acceso' => 1,
@@ -230,7 +249,7 @@ class SgdDocumentoService
             'referencias' => ['respuesta_a' => null],
             'materia' => mb_substr($materia, 0, 240),
             'anterior' => null,
-            'descripcion' => $sol->motivo ?: $sol->explicacion,
+            'descripcion' => $descripcion,
             'encabezado' => $encabezado,
             'cuerpo' => $cuerpo ?: '<p>Solicitud</p>',
             'distribucion' => $distribucion,
@@ -253,7 +272,6 @@ class SgdDocumentoService
         }
         $idDocBuzon = (int) $origenHop->id_documento_buzon;
 
-        $acciones = [6, 7, 11];
         $actualizar = $this->http($sessionKey)->put($this->apiDocumentos() . '/api/sgd-documentos/actualizar', [
             'id_tipo_documento' => $idTipo,
             'id_nivel_acceso' => 1,
@@ -264,14 +282,14 @@ class SgdDocumentoService
             'referenciaAnexos' => null,
             'materia' => mb_substr($materia, 0, 240),
             'anterior' => null,
-            'descripcion' => $sol->motivo ?: $sol->explicacion,
+            'descripcion' => $descripcion,
             'encabezado' => $encabezado,
             'cuerpo' => $cuerpo ?: '<p>Solicitud</p>',
             'distribucion' => $distribucion,
             'id_buzon' => $idOrigen,
             'contestar_hasta' => null,
             'id_usuario' => $uid,
-            'destinatarioPrincipal' => $idBuzonDestino,
+            'destinatarioPrincipal' => $idEnviar,
             'destinatarioPrincipal2' => null,
             'destinatarioOtros' => '',
             'acciones_solicitadas' => $acciones,
@@ -290,11 +308,11 @@ class SgdDocumentoService
             ->where('id_documento', $idDocumento)
             ->where('id_documento_buzon_padre', $idDocBuzon)
             ->where('id_tipo_destino', 1)
-            ->where('id_buzon', $idBuzonDestino)
+            ->where('id_buzon', $idEnviar)
             ->orderByDesc('id_documento_buzon')
             ->first();
         if (!$destHop) {
-            throw new Exception('No se creó el buzón de destino para el director.');
+            throw new Exception('No se creó el buzón de destino (Departamento de Personal).');
         }
 
         $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
@@ -309,7 +327,7 @@ class SgdDocumentoService
             'id_documento_buzon' => $idDocBuzon,
             'id_buzon' => $idOrigen,
             'id_usuario' => $uid,
-            'destinatarioPrincipal' => $idBuzonDestino,
+            'destinatarioPrincipal' => $idEnviar,
             'acciones_solicitadas' => $acciones,
             'destinatarioOtros' => '',
             'responder' => null,
@@ -325,7 +343,7 @@ class SgdDocumentoService
         $sol->id_tipo_documento = $idTipo;
         $sol->save();
 
-        $this->flujo->registrar($sol, 'enviar_sgd', $idBuzonDestino, $uid, 'Documento SGD #' . $idDocumento . ' enviado al buzón destino (Por Recibir), con PDF y firma del solicitante.');
+        $this->flujo->registrar($sol, 'enviar_sgd', $idEnviar, $uid, 'Documento SGD #' . $idDocumento . ' firmado por el funcionario y enviado a visación de Departamento de Personal.');
 
         return [
             'id_documento' => $idDocumento,
@@ -439,6 +457,31 @@ class SgdDocumentoService
         } elseif ($sol->estado !== 'rechazada') {
             $sol->estado = 'pendiente';
         }
+
+        $alc = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
+        if ($alc && empty($sol->alcalde_decision)) {
+            $firmaAlc = DB::table('documento_buzon_bitacora as bb')
+                ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
+                ->where('db.id_documento', $sol->id_documento)
+                ->where('db.id_buzon', $alc->id_buzon)
+                ->where('bb.id_accion', 7)
+                ->orderByDesc('bb.id_documento_buzon_bitacora')
+                ->select('bb.id_usuario', 'bb.comentario', 'bb.mensaje_respuesta')
+                ->first();
+            if ($firmaAlc) {
+                $sol->alcalde_decision = 'autorizado';
+                $sol->alcalde_id = $firmaAlc->id_usuario ?: $sol->alcalde_id;
+                $sol->alcalde_decidido_at = $sol->alcalde_decidido_at ?: date('Y-m-d H:i:s');
+                $obs = $firmaAlc->mensaje_respuesta ?: $firmaAlc->comentario;
+                if ($obs) {
+                    $sol->alcalde_observaciones = $obs;
+                }
+            }
+        }
+        if ($sol->estado === 'rechazada' && $alc && empty($sol->alcalde_decision)) {
+            $sol->alcalde_decision = 'denegado';
+        }
+
         $sol->save();
         return $sol;
     }

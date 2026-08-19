@@ -51,6 +51,22 @@
         <p class="mb-1"><b>Período:</b> {{ $fmt($solicitud['fecha_inicio']) }} → {{ $fmt($solicitud['fecha_termino']) }} ({{ $solicitud['total_dias'] }} días)</p>
         <p class="mb-3"><b>Motivo:</b> {{ $solicitud['motivo'] ?? '—' }}</p>
 
+        @if(!empty($solicitud['saldo']) && (!empty($solicitud['puede_ver_saldos']) || !empty($solicitud['es_solicitante'])))
+            <h5 class="mt-2">Días del funcionario</h5>
+            @include('solicitudes._saldos', ['saldo' => $solicitud['saldo']])
+        @endif
+
+        @php
+            $dec = $solicitud['alcalde_decision'] ?? null;
+        @endphp
+        <div class="border rounded p-3 mb-3 {{ $dec === 'autorizado' ? 'border-success' : ($dec === 'denegado' ? 'border-danger' : 'border-secondary') }}">
+            <h5 class="mb-2">Uso exclusivo del alcalde</h5>
+            <p class="mb-1"><b>Autorizado:</b> {{ $dec === 'autorizado' ? 'X' : '______' }}
+                &nbsp;&nbsp;&nbsp;<b>Denegado:</b> {{ $dec === 'denegado' ? 'X' : '______' }}</p>
+            <p class="mb-2"><b>Observaciones:</b> {{ $solicitud['alcalde_observaciones'] ?: '________________' }}</p>
+            <small class="text-muted">En el buzón del alcalde: <b>Firmar</b> autoriza el permiso; <b>Rechazar</b> lo deniega. El comentario del buzón queda como observación. La firma electrónica del alcalde es la autorización oficial (el PDF no se reescribe después de firmado).</small>
+        </div>
+
         @if(!empty($solicitud['documento_cuerpo_html']))
             <div class="border rounded p-3 bg-light mb-3">{!! $solicitud['documento_cuerpo_html'] !!}</div>
         @endif
@@ -61,7 +77,7 @@
                 <ol class="mb-3 pl-3">
                     <li>Ábralo en el buzón.</li>
                     <li>Recíbalo (pasa a Recibidos).</li>
-                    <li>Vise o firme, y derívelo al siguiente buzón.</li>
+                    <li>Personal visa y deriva al director. El director firma y deriva al alcalde.</li>
                 </ol>
                 @if(!empty($solicitud['sgd']['id_buzon']))
                     <a class="btn btn-primary" href="{{ url('buzonesCarpetas/'.$solicitud['sgd']['id_buzon']) }}">Abrir el buzón</a>

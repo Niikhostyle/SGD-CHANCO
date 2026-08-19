@@ -32,6 +32,48 @@ class SolicitudModuleController extends Controller
         ])->asJson()->timeout(180);
     }
 
+    protected function esAdminSolicitudes(): bool
+    {
+        $u = auth()->user();
+        if (!$u) {
+            return false;
+        }
+        if ((int) $u->id_perfil === 1) {
+            return true;
+        }
+        try {
+            return DB::table('sol_usuario_rol')->where('user_id', $u->id)->where('rol', 'admin_solicitudes')->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    protected function puedeVerSaldos(): bool
+    {
+        if ($this->esAdminSolicitudes()) {
+            return true;
+        }
+        $u = auth()->user();
+        if (!$u) {
+            return false;
+        }
+        try {
+            if (DB::table('sol_usuario_rol')->where('user_id', $u->id)->where('rol', 'rrhh')->exists()) {
+                return true;
+            }
+            $idRrhh = DB::table('sol_configuraciones')->where('clave', 'buzon_rrhh_id')->value('valor');
+            if (!$idRrhh) {
+                $idRrhh = DB::table('buzon')->whereNull('deleted_at')->whereRaw("nombre ilike ?", ['%departamento de personal%'])->value('id_buzon');
+            }
+            if (!$idRrhh) {
+                return false;
+            }
+            return DB::table('buzon_usuario')->where('id_usuario', $u->id)->where('id_buzon', (int) $idRrhh)->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     public function index(Request $request)
     {
         $dash = $this->client()->get($this->api() . '/api/sgd-solicitudes/dashboard');
@@ -47,7 +89,9 @@ class SolicitudModuleController extends Controller
         if ($dash->failed() || $list->failed()) {
             toast(($list->json()['message'] ?? $dash->json()['message'] ?? 'Error al cargar solicitudes'), 'error');
         }
-        return view('solicitudes.index', compact('dashboard', 'solicitudes', 'tiposFiltro'));
+        $esAdmin = $this->esAdminSolicitudes();
+        $puedeSaldos = $this->puedeVerSaldos();
+        return view('solicitudes.index', compact('dashboard', 'solicitudes', 'tiposFiltro', 'esAdmin', 'puedeSaldos'));
     }
 
     public function create()
@@ -88,7 +132,9 @@ class SolicitudModuleController extends Controller
             'cargo' => $yo->cargo ?? '',
             'departamento' => $departamento,
         ];
-        return view('solicitudes.create', compact('tipos', 'buzones', 'yoDatos'));
+        $dash = $this->client()->get($this->api() . '/api/sgd-solicitudes/dashboard');
+        $saldo = $dash->ok() ? ($dash->json()['data']['saldo'] ?? []) : [];
+        return view('solicitudes.create', compact('tipos', 'buzones', 'yoDatos', 'saldo'));
     }
 
     public function store(Request $request)
@@ -207,6 +253,9 @@ class SolicitudModuleController extends Controller
 
     public function admin()
     {
+        if (!$this->esAdminSolicitudes()) {
+            abort(403, 'Solo administradores pueden ver Administración de solicitudes.');
+        }
         $roles = $this->client()->get($this->api() . '/api/sgd-solicitudes/roles');
         $deps = $this->client()->get($this->api() . '/api/sgd-solicitudes/departamentos');
         $cargos = $this->client()->get($this->api() . '/api/sgd-solicitudes/cargos');
@@ -255,6 +304,9 @@ class SolicitudModuleController extends Controller
 
     public function tipos()
     {
+        if (!$this->esAdminSolicitudes()) {
+            abort(403, 'Solo administradores pueden ver las plantillas.');
+        }
         $tipos = $this->client()->get($this->api() . '/api/sgd-solicitudes/tipo-documentos');
         $buzones = $this->client()->get($this->api() . '/api/sgd-solicitudes/buzones');
         $cfg = $this->client()->get($this->api() . '/api/sgd-solicitudes/configuraciones');
@@ -318,6 +370,9 @@ class SolicitudModuleController extends Controller
 
     public function tiposConfig(Request $request)
     {
+        if (!$this->esAdminSolicitudes()) {
+            abort(403);
+        }
         $res = $this->client()->put($this->api() . '/api/sgd-solicitudes/configuraciones', [
             'buzon_rrhh_id' => $request->input('buzon_rrhh_id') ?: null,
             'buzon_alcalde_id' => $request->input('buzon_alcalde_id') ?: null,
@@ -328,6 +383,9 @@ class SolicitudModuleController extends Controller
 
     public function tiposSave(Request $request)
     {
+        if (!$this->esAdminSolicitudes()) {
+            abort(403);
+        }
         $acciones = $request->input('flujo_acciones', []);
         $flujo = [];
         foreach ($request->input('flujo_id_buzon', []) as $i => $idBuzon) {
@@ -383,6 +441,9 @@ class SolicitudModuleController extends Controller
 
     public function tiposDelete($id)
     {
+        if (!$this->esAdminSolicitudes()) {
+            abort(403);
+        }
         $res = $this->client()->delete($this->api() . '/api/sgd-solicitudes/tipo-documentos?id=' . (int) $id);
         toast(($res->json()['ok'] ?? false) ? 'Plantilla borrada' : ($res->json()['message'] ?? 'Error'), ($res->json()['ok'] ?? false) ? 'success' : 'error');
         return back();
@@ -390,6 +451,9 @@ class SolicitudModuleController extends Controller
 
     public function rrhh(Request $request)
     {
+        if (!$this->puedeVerSaldos()) {
+            abort(403, 'Solo Departamento de Personal y administradores pueden ver los saldos.');
+        }
         $anio = $request->get('anio', date('Y'));
         $res = $this->client()->get($this->api() . '/api/sgd-solicitudes/saldos', ['anio' => $anio]);
         $users = $this->client()->get($this->api() . '/api/sgd-solicitudes/usuarios-catalogo');
@@ -403,6 +467,9 @@ class SolicitudModuleController extends Controller
 
     public function rrhhMovimiento(Request $request)
     {
+        if (!$this->puedeVerSaldos()) {
+            abort(403);
+        }
         $res = $this->client()->post($this->api() . '/api/sgd-solicitudes/saldos/movimiento', $request->all());
         toast(($res->json()['ok'] ?? false) ? 'Movimiento registrado' : ($res->json()['message'] ?? 'Error'), ($res->json()['ok'] ?? false) ? 'success' : 'error');
         return back();

@@ -33,6 +33,8 @@ class PlantillaService
     public function mapaCampos(User $user, array $datos): array
     {
         $rol = SolUsuarioRol::where('user_id', $user->id)->with(['cargo', 'departamento'])->first();
+        $saldos = $this->datosSaldo($user, $datos);
+        $decision = $datos['alcalde_decision'] ?? null;
         return [
             '{{nombre}}' => $user->nombreCompleto(),
             '{{run}}' => $user->run ?? '',
@@ -50,6 +52,29 @@ class PlantillaService
             '{t_anio}' => date('Y'),
             '{t_fecha}' => $this->fechaLarga(),
             '{t_folio}' => (string) ($datos['folio'] ?? 'SIN FOLIO'),
+            '{{ha_solicitado}}' => (string) $saldos['ha_solicitado'],
+            '{{solicita}}' => (string) $saldos['solicita'],
+            '{{saldo}}' => (string) $saldos['saldo'],
+            '{{total}}' => (string) $saldos['total'],
+            '{{alcalde_autorizado}}' => $decision === 'autorizado' ? 'X' : '______',
+            '{{alcalde_denegado}}' => $decision === 'denegado' ? 'X' : '______',
+            '{{alcalde_observaciones}}' => (string) ($datos['alcalde_observaciones'] ?? '________________'),
+        ];
+    }
+
+    protected function datosSaldo(User $user, array $datos): array
+    {
+        $saldos = new SaldoService();
+        $resumen = $saldos->resumen((int) $user->id);
+        $campo = $saldos->campoPorPlantilla($datos['tipo_solicitud'] ?? null, $datos['categoria'] ?? null) ?: 'dias_administrativos';
+        $ha = (int) ($resumen['usados'][$campo] ?? 0);
+        $asig = (int) ($resumen['asignados'][$campo] ?? 0);
+        $solicita = (int) ($datos['total_dias'] ?? 0);
+        return [
+            'ha_solicitado' => $ha,
+            'solicita' => $solicita,
+            'saldo' => max(0, $asig - $ha - $solicita),
+            'total' => $asig,
         ];
     }
 

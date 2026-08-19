@@ -269,7 +269,15 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_anio}">Año</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_fecha}">Fecha larga</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_folio}">Folio</button>
+                <button type="button" class="btn btn-xs btn-outline-info btn-campo" data-campo="@{{ha_solicitado}}">Ha solicitado</button>
+                <button type="button" class="btn btn-xs btn-outline-info btn-campo" data-campo="@{{solicita}}">Solicita</button>
+                <button type="button" class="btn btn-xs btn-outline-info btn-campo" data-campo="@{{saldo}}">Saldo</button>
+                <button type="button" class="btn btn-xs btn-outline-info btn-campo" data-campo="@{{total}}">Total anual</button>
+                <button type="button" class="btn btn-xs btn-outline-dark btn-campo" data-campo="@{{alcalde_autorizado}}">Alcalde autorizado</button>
+                <button type="button" class="btn btn-xs btn-outline-dark btn-campo" data-campo="@{{alcalde_denegado}}">Alcalde denegado</button>
+                <button type="button" class="btn btn-xs btn-outline-dark btn-campo" data-campo="@{{alcalde_observaciones}}">Obs. alcalde</button>
             </div>
+            <p class="small text-muted mb-2">Personal: Ha solicitado / Solicita / Saldo / Total se calculan al crear. Alcalde: Firmar en el buzón = Autorizar; Rechazar = Denegar; el comentario son las observaciones. En el PDF esas marcas quedan en blanco hasta que el alcalde decide (la firma electrónica es la autorización).</p>
 
             <div class="form-group">
                 <label>Encabezado</label>
@@ -548,7 +556,14 @@
             '@{{anio}}': String(hoy.getFullYear()),
             '{t_anio}': String(hoy.getFullYear()),
             '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
-            '{t_folio}': 'SIN FOLIO'
+            '{t_folio}': 'SIN FOLIO',
+            '@{{ha_solicitado}}': '2',
+            '@{{solicita}}': '6',
+            '@{{saldo}}': '4',
+            '@{{total}}': '12',
+            '@{{alcalde_autorizado}}': '______',
+            '@{{alcalde_denegado}}': '______',
+            '@{{alcalde_observaciones}}': '________________'
         };
         var out = html || '';
         Object.keys(map).forEach(function (k) { out = out.split(k).join(map[k]); });

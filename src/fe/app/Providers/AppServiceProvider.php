@@ -185,44 +185,73 @@ class AppServiceProvider extends ServiceProvider
                 [
                     'text' => 'SOLICITUDES',
                     'icon'    => 'fas fa-fw fa-file-signature',
-                    'submenu' => [
-                        [
-                            'text'       => 'Mis solicitudes',
-                            'icon'    => 'fas fa-fw fa-list',
-                            'icon_color' => 'blue',
-                            'url'        => route('solicitudes.index'),
-                        ],
-                        [
-                            'text'       => 'Pendientes de buzón',
-                            'icon'    => 'fas fa-fw fa-inbox',
-                            'icon_color' => 'orange',
-                            'url'        => route('solicitudes.index', ['bandeja' => 1]),
-                        ],
-                        [
-                            'text'       => 'Nueva solicitud',
-                            'icon'    => 'fas fa-fw fa-plus',
-                            'icon_color' => 'green',
-                            'url'        => route('solicitudes.create'),
-                        ],
-                        [
-                            'text'       => 'RRHH / Saldos',
-                            'icon'    => 'fas fa-fw fa-calendar-check',
-                            'icon_color' => 'orange',
-                            'url'        => route('solicitudes.rrhh'),
-                        ],
-                        [
-                            'text'       => 'Plantillas',
-                            'icon'    => 'fas fa-fw fa-file-alt',
-                            'icon_color' => 'teal',
-                            'url'        => route('solicitudes.tipos'),
-                        ],
-                        [
-                            'text'       => 'Administración',
-                            'icon'    => 'fas fa-fw fa-cog',
-                            'icon_color' => 'red',
-                            'url'        => route('solicitudes.admin'),
-                        ],
-                    ],
+                    'submenu' => (function () {
+                        $u = Auth::user();
+                        $esAdmin = $u && ((int) $u->id_perfil === 1);
+                        $puedeSaldos = $esAdmin;
+                        try {
+                            if ($u && !$esAdmin) {
+                                $esAdmin = DB::table('sol_usuario_rol')->where('user_id', $u->id)->where('rol', 'admin_solicitudes')->exists();
+                            }
+                            if ($u && ($esAdmin || DB::table('sol_usuario_rol')->where('user_id', $u->id)->where('rol', 'rrhh')->exists())) {
+                                $puedeSaldos = true;
+                            }
+                            if ($u && !$puedeSaldos) {
+                                $idRrhh = DB::table('sol_configuraciones')->where('clave', 'buzon_rrhh_id')->value('valor');
+                                if (!$idRrhh) {
+                                    $idRrhh = DB::table('buzon')->whereNull('deleted_at')->whereRaw('nombre ilike ?', ['%departamento de personal%'])->value('id_buzon');
+                                }
+                                if ($idRrhh) {
+                                    $puedeSaldos = DB::table('buzon_usuario')->where('id_usuario', $u->id)->where('id_buzon', (int) $idRrhh)->exists();
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            // tablas de solicitudes aún no migradas
+                        }
+                        $items = [
+                            [
+                                'text'       => 'Mis solicitudes',
+                                'icon'    => 'fas fa-fw fa-list',
+                                'icon_color' => 'blue',
+                                'url'        => route('solicitudes.index'),
+                            ],
+                            [
+                                'text'       => 'Pendientes de buzón',
+                                'icon'    => 'fas fa-fw fa-inbox',
+                                'icon_color' => 'orange',
+                                'url'        => route('solicitudes.index', ['bandeja' => 1]),
+                            ],
+                            [
+                                'text'       => 'Nueva solicitud',
+                                'icon'    => 'fas fa-fw fa-plus',
+                                'icon_color' => 'green',
+                                'url'        => route('solicitudes.create'),
+                            ],
+                        ];
+                        if ($puedeSaldos) {
+                            $items[] = [
+                                'text'       => 'RRHH / Saldos',
+                                'icon'    => 'fas fa-fw fa-calendar-check',
+                                'icon_color' => 'orange',
+                                'url'        => route('solicitudes.rrhh'),
+                            ];
+                        }
+                        if ($esAdmin) {
+                            $items[] = [
+                                'text'       => 'Plantillas',
+                                'icon'    => 'fas fa-fw fa-file-alt',
+                                'icon_color' => 'teal',
+                                'url'        => route('solicitudes.tipos'),
+                            ];
+                            $items[] = [
+                                'text'       => 'Administración',
+                                'icon'    => 'fas fa-fw fa-cog',
+                                'icon_color' => 'red',
+                                'url'        => route('solicitudes.admin'),
+                            ];
+                        }
+                        return $items;
+                    })(),
                 ]
             );
             $event->menu->add(

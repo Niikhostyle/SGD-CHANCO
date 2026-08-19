@@ -33,27 +33,85 @@ class SaldoService
         if (!$debeValidar) {
             return;
         }
-        $campo = self::TIPOS_CON_SALDO[$tipo] ?? null;
-        if (!$campo && $categoria === 'vacaciones') {
-            $campo = 'feriados_legales';
-        } elseif (!$campo && $categoria === 'compensatorios') {
-            $campo = 'dias_compensatorios';
-        } elseif (!$campo && in_array($categoria, ['dias'], true)) {
-            $campo = 'dias_administrativos';
-        } elseif (!$campo) {
-            $campo = 'dias_administrativos';
+        $campo = $this->campoPorPlantilla($tipo, $categoria) ?: 'dias_administrativos';
+        $anio = $anio ?: (int) date('Y');
+        $restante = $this->restante($userId, $campo, $anio);
+        if ($restante <= 0) {
+            throw new Exception('No tiene días disponibles de este tipo. No puede crear la solicitud.');
         }
-        $saldo = $this->obtenerOCrear($userId, $anio);
-        $disponible = (int) $saldo->{$campo};
-        $usados = SolSolicitud::where('user_id', $userId)
-            ->where('tipo_solicitud', $tipo)
-            ->whereYear('fecha_inicio', $anio ?: date('Y'))
-            ->whereNotIn('estado', ['rechazada'])
-            ->sum('total_dias');
-        $restante = $disponible - (int) $usados;
         if ($dias > $restante) {
-            throw new Exception("Saldo insuficiente para {$tipo}. Disponible: {$restante}, solicitado: {$dias}.");
+            throw new Exception("Saldo insuficiente. Le quedan {$restante} día(s) y está pidiendo {$dias}.");
         }
+    }
+
+    public function resumen(int $userId, ?int $anio = null): array
+    {
+        $anio = $anio ?: (int) date('Y');
+        $saldo = $this->obtenerOCrear($userId, $anio);
+        $campos = ['dias_administrativos', 'feriados_legales', 'dias_compensatorios'];
+        $out = ['anio' => $anio, 'user_id' => $userId];
+        foreach ($campos as $campo) {
+            $asig = (int) $saldo->{$campo};
+            $usado = $this->usadosEnAnio($userId, $anio, $campo);
+            $out[$campo] = max(0, $asig - $usado);
+            $out['asignados'][$campo] = $asig;
+            $out['usados'][$campo] = $usado;
+        }
+        return $out;
+    }
+
+    public function restante(int $userId, string $campo, ?int $anio = null): int
+    {
+        $r = $this->resumen($userId, $anio);
+        return (int) ($r[$campo] ?? 0);
+    }
+
+    public function campoPorPlantilla(?string $tipo, ?string $categoria): ?string
+    {
+        if ($tipo && isset(self::TIPOS_CON_SALDO[$tipo])) {
+            return self::TIPOS_CON_SALDO[$tipo];
+        }
+        if ($categoria === 'vacaciones') {
+            return 'feriados_legales';
+        }
+        if ($categoria === 'compensatorios') {
+            return 'dias_compensatorios';
+        }
+        if ($categoria === 'dias') {
+            return 'dias_administrativos';
+        }
+        return null;
+    }
+
+    protected function usadosEnAnio(int $userId, int $anio, string $campo): int
+    {
+        $q = SolSolicitud::query()
+            ->where('sol_solicitudes.user_id', $userId)
+            ->whereYear('sol_solicitudes.fecha_inicio', $anio)
+            ->whereNotIn('sol_solicitudes.estado', ['rechazada']);
+        if ($campo === 'dias_administrativos') {
+            $q->where(function ($w) {
+                $w->whereIn('tipo_solicitud', ['dias_administrativos', 'dias'])
+                    ->orWhereHas('tipoDocumento', function ($t) {
+                        $t->where('categoria', 'dias');
+                    });
+            });
+        } elseif ($campo === 'dias_compensatorios') {
+            $q->where(function ($w) {
+                $w->where('tipo_solicitud', 'dias_compensatorios')
+                    ->orWhereHas('tipoDocumento', function ($t) {
+                        $t->where('categoria', 'compensatorios');
+                    });
+            });
+        } elseif ($campo === 'feriados_legales') {
+            $q->where(function ($w) {
+                $w->whereIn('tipo_solicitud', ['feriados_legales', 'vacaciones'])
+                    ->orWhereHas('tipoDocumento', function ($t) {
+                        $t->where('categoria', 'vacaciones');
+                    });
+            });
+        }
+        return (int) $q->sum('total_dias');
     }
 
     public function registrarMovimiento(int $userId, int $registradoPor, int $anio, string $tipo, string $permisoTipo, int $dias, ?string $motivo): SolSaldoAnual

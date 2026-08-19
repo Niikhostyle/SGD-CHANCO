@@ -68,18 +68,20 @@
             <thead>
                 <tr>
                     <th>Usuario</th>
-                    <th>Admin</th>
-                    <th>Feriados</th>
-                    <th>Compensatorios</th>
+                    <th class="text-center">Administrativos</th>
+                    <th class="text-center">Feriados</th>
+                    <th class="text-center">Compensatorios</th>
                 </tr>
             </thead>
             <tbody>
             @forelse($saldos as $s)
                 <tr>
-                    <td>{{ ($s['user']['nombres'] ?? '') }} {{ ($s['user']['primer_apellido'] ?? '') }}</td>
-                    <td>{{ $s['dias_administrativos'] }}</td>
-                    <td>{{ $s['feriados_legales'] }}</td>
-                    <td>{{ $s['dias_compensatorios'] }}</td>
+                    <td class="align-middle">
+                        <strong>{{ ($s['user']['nombres'] ?? '') }} {{ ($s['user']['primer_apellido'] ?? '') }}</strong>
+                    </td>
+                    <td class="text-center text-primary" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['dias_administrativos'] }}</td>
+                    <td class="text-center text-info" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['feriados_legales'] }}</td>
+                    <td class="text-center text-success" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['dias_compensatorios'] }}</td>
                 </tr>
             @empty
                 <tr><td colspan="4" class="text-center text-muted">Sin saldos</td></tr>

@@ -9,11 +9,18 @@
 
 @section('content')
 @if(empty($tipos))
-    <div class="alert alert-warning">Aún no hay plantillas. Un administrador debe crearlas en <a href="{{ route('solicitudes.tipos') }}">Plantillas</a>.</div>
+    <div class="alert alert-warning">Aún no hay plantillas. Un administrador debe crearlas.</div>
 @endif
 @if(empty($buzones))
     <div class="alert alert-danger">No hay buzones. Primero asigne buzones en el SGD.</div>
 @endif
+
+@if(!empty($saldo))
+    @include('solicitudes._saldos', ['saldo' => $saldo])
+@endif
+<div id="aviso-sin-dias" class="alert alert-danger" style="display:none">
+    No le quedan días de este tipo. No puede crear la solicitud. Elija otro tipo o pida a Personal que le cargue saldo.
+</div>
 
 <form method="post" action="{{ route('solicitudes.store') }}" id="form-solicitud">
     @csrf
@@ -32,6 +39,7 @@
                         <option value="{{ $t['id'] }}"
                             data-slug="{{ $t['tipo_solicitud'] }}"
                             data-categoria="{{ $t['categoria'] ?? 'dias' }}"
+                            data-consume="{{ !empty($t['consume_saldo']) ? '1' : '0' }}"
                             @if((string) old('sol_tipo_documento_id') === (string) $t['id']) selected @endif>
                             {{ $t['nombre'] }}
                         </option>
@@ -54,8 +62,9 @@
                     <input type="date" name="fecha_termino" id="fecha_termino" class="form-control" value="{{ old('fecha_termino') }}" required>
                 </div>
                 <div class="form-group col-md-4">
-                    <label>Días hábiles</label>
+                    <label>Días hábiles a pedir</label>
                     <input type="text" id="total_dias_vista" class="form-control" readonly placeholder="—" tabindex="-1">
+                    <div id="resto-tipo" class="mt-2 font-weight-bold" style="font-size:1.15rem"></div>
                     <small class="text-muted">Lunes a viernes, sin feriados de Chile.</small>
                 </div>
             </div>
@@ -95,10 +104,10 @@
     </div>
 
     <div class="card card-outline card-primary">
-        <div class="card-header"><strong>3. ¿A qué buzón se envía?</strong></div>
+        <div class="card-header"><strong>3. Buzón del director (después de Personal)</strong></div>
         <div class="card-body">
             <div class="form-group mb-2">
-                <label>Buzón de su jefatura o unidad</label>
+                <label>Buzón de su jefatura o dirección</label>
                 <select id="id_buzon_destino" class="form-control">
                     <option value="">— Busque el nombre del buzón —</option>
                     @foreach($buzones as $b)
@@ -107,7 +116,7 @@
                         </option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">Queda en <b>Por Recibir</b> de ese buzón. Allí se recibe, visa, firma y deriva, igual que cualquier documento.</small>
+                <small class="form-text text-muted">Usted firma al enviar. Luego visa <b>Departamento de Personal</b>, firma el <b>director</b> de este buzón y al final el <b>alcalde</b>.</small>
             </div>
         </div>
     </div>
@@ -125,7 +134,7 @@
             <div id="preview-distribucion" class="border rounded p-2 mt-3 bg-light" style="display:none"></div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-success btn-lg" type="submit"><i class="fas fa-paper-plane"></i> Firmar y enviar al buzón</button>
+            <button class="btn btn-success btn-lg" type="submit" id="btn-enviar-sol"><i class="fas fa-paper-plane"></i> Firmar y enviar al buzón</button>
             <button type="button" class="btn btn-outline-primary btn-lg" id="btn-vista-previa-2"><i class="fas fa-eye"></i> Ver vista previa</button>
             <a href="{{ route('solicitudes.index') }}" class="btn btn-default btn-lg">Cancelar</a>
         </div>
@@ -151,7 +160,7 @@
 @stop
 
 @section('js')
-<script>window.SOL_TIPOS = @json($tipos); window.SOL_YO = @json($yoDatos ?? ['nombre'=>'','run'=>'','cargo'=>'']);</script>
+<script>window.SOL_TIPOS = @json($tipos); window.SOL_YO = @json($yoDatos ?? ['nombre'=>'','run'=>'','cargo'=>'']); window.SOL_SALDO = @json($saldo ?? []);</script>
 <script src="{{ url('js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ url('js/ckfinder/ckfinder.js') }}"></script>
 <script>
@@ -260,6 +269,20 @@
         }
         return n;
     }
+    function rrhh() {
+        var t = tipoActual();
+        var s = window.SOL_SALDO || {};
+        var campo = campoSaldo(t) || 'dias_administrativos';
+        var asig = Number((s.asignados && s.asignados[campo]) != null ? s.asignados[campo] : (s[campo] || 0));
+        var usado = Number((s.usados && s.usados[campo]) != null ? s.usados[campo] : 0);
+        var pide = Number(dias() || 0);
+        return {
+            ha: usado,
+            solicita: pide,
+            saldo: Math.max(0, asig - usado - pide),
+            total: asig
+        };
+    }
     function fill(html) {
         var t = tipoActual();
         var yo = window.SOL_YO || {};
@@ -287,7 +310,14 @@
                 var d = new Date();
                 return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
             })(),
-            '{t_folio}': 'SIN FOLIO'
+            '{t_folio}': 'SIN FOLIO',
+            '@{{ha_solicitado}}': String(rrhh().ha),
+            '@{{solicita}}': String(rrhh().solicita),
+            '@{{saldo}}': String(rrhh().saldo),
+            '@{{total}}': String(rrhh().total),
+            '@{{alcalde_autorizado}}': '______',
+            '@{{alcalde_denegado}}': '______',
+            '@{{alcalde_observaciones}}': '________________'
         };
         var out = html || '';
         Object.keys(map).forEach(function (k) {
@@ -319,6 +349,7 @@
         } else {
             $('#total_dias_vista').val(nDias + ' día(s) hábil(es)');
         }
+        actualizarSaldoTipo();
         setSide('#preview-encabezado', fill(t ? (t.plantilla_encabezado_html || '') : ''));
         setSide('#preview-distribucion', fill(t ? (t.plantilla_distribucion_html || '') : ''));
         if (!forzar && usuarioEdito) return;
@@ -357,12 +388,67 @@
         $('#id_buzon_destino_val').val($(this).val() || '');
     }).trigger('change');
 
+    function campoSaldo(t) {
+        if (!t) return null;
+        var cat = t.categoria || '';
+        var slug = t.tipo_solicitud || '';
+        if (slug === 'dias_compensatorios' || cat === 'compensatorios') return 'dias_compensatorios';
+        if (slug === 'feriados_legales' || cat === 'vacaciones') return 'feriados_legales';
+        if (slug === 'dias_administrativos' || cat === 'dias') return 'dias_administrativos';
+        if (t.consume_saldo) return 'dias_administrativos';
+        return null;
+    }
+    function restanteTipo(t) {
+        var campo = campoSaldo(t);
+        if (!campo) return null;
+        var s = window.SOL_SALDO || {};
+        return Number(s[campo] || 0);
+    }
+    function consumeSaldo(t) {
+        if (!t) return false;
+        if (String(t.consume_saldo) === '1' || t.consume_saldo === true || t.consume_saldo === 1) return true;
+        return campoSaldo(t) !== null && t.categoria !== 'licencias' && t.categoria !== 'viaticos';
+    }
+    function actualizarSaldoTipo() {
+        var t = tipoActual();
+        var resto = restanteTipo(t);
+        var nDias = Number(dias() || 0);
+        var box = $('#resto-tipo');
+        var aviso = $('#aviso-sin-dias');
+        var btn = $('#btn-enviar-sol');
+        if (!t || !consumeSaldo(t)) {
+            box.text('');
+            aviso.hide();
+            btn.prop('disabled', false);
+            return true;
+        }
+        box.text('Le quedan ' + resto + ' día(s) de este tipo');
+        if (resto <= 0) {
+            aviso.show();
+            btn.prop('disabled', true);
+            return false;
+        }
+        aviso.hide();
+        if (nDias > resto) {
+            box.append(' — está pidiendo más de las que tiene');
+            btn.prop('disabled', true);
+            return false;
+        }
+        btn.prop('disabled', false);
+        return true;
+    }
+
     $('#form-solicitud').on('submit', function (e) {
         editor.updateElement();
         $('#id_buzon_destino_val').val($('#id_buzon_destino').val() || '');
         if (!$('#id_buzon_destino_val').val()) {
             e.preventDefault();
-            alert('Elija el buzón de destino.');
+            alert('Elija el buzón del director.');
+            return;
+        }
+        if (!actualizarSaldoTipo()) {
+            e.preventDefault();
+            alert('No tiene días disponibles de este tipo.');
         }
     });
     editor.on('instanceReady', function () {

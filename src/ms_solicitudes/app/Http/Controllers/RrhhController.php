@@ -33,9 +33,18 @@ class RrhhController extends Controller
     {
         try {
             $uid = $this->userId($request);
-            $this->roles->assertRoles($uid, ['rrhh', 'admin_solicitudes']);
+            if (!$this->roles->puedeGestionarSaldos($uid)) {
+                throw new Exception('No autorizado para ver saldos. Debe pertenecer al buzón Departamento de Personal o ser administrador.');
+            }
             $anio = (int) ($request->get('anio') ?: date('Y'));
-            $data = SolSaldoAnual::with('user')->where('anio', $anio)->orderBy('user_id')->get();
+            $data = SolSaldoAnual::with('user')->where('anio', $anio)->orderBy('user_id')->get()->map(function ($s) use ($anio) {
+                $row = $s->toArray();
+                $row['restantes'] = $this->saldos->resumen((int) $s->user_id, $anio);
+                $row['dias_administrativos'] = $row['restantes']['dias_administrativos'];
+                $row['feriados_legales'] = $row['restantes']['feriados_legales'];
+                $row['dias_compensatorios'] = $row['restantes']['dias_compensatorios'];
+                return $row;
+            });
             return response()->json(['ok' => true, 'data' => $data, 'anio' => $anio]);
         } catch (Exception $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
@@ -46,7 +55,9 @@ class RrhhController extends Controller
     {
         try {
             $uid = $this->userId($request);
-            $this->roles->assertRoles($uid, ['rrhh', 'admin_solicitudes']);
+            if (!$this->roles->puedeGestionarSaldos($uid)) {
+                throw new Exception('No autorizado para registrar movimientos de saldo.');
+            }
             $d = $this->body($request);
             $saldo = $this->saldos->registrarMovimiento(
                 (int) $d['user_id'],

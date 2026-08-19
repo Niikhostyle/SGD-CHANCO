@@ -22,7 +22,7 @@ class SolSolicitud extends Model
         'solicitante_firma_path', 'solicitante_firmado_at',
         'directivo_id', 'directivo_decidido_at', 'directivo_observaciones', 'directivo_firma_path',
         'rrhh_id', 'rrhh_decidido_at', 'rrhh_observaciones', 'rrhh_firma_path',
-        'alcalde_id', 'alcalde_decidido_at', 'alcalde_observaciones', 'alcalde_firma_path',
+        'alcalde_id', 'alcalde_decidido_at', 'alcalde_observaciones', 'alcalde_firma_path', 'alcalde_decision',
         'documento_pdf_path',
     ];
 
