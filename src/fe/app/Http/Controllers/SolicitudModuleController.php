@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Providers\AppServiceProvider;
 use App\Models\Buzon;
+use App\Models\TipoAvance;
+use App\Models\TipoAsignacionFolio;
+use App\Models\TipoFlujo;
+use App\Models\TipoFolio;
+use App\Models\TipoOrigen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -276,11 +281,38 @@ class SolicitudModuleController extends Controller
                 // se mantiene el error de la API
             }
         }
+        $datosFlujo = collect();
+        $datosOrigen = collect();
+        $datosAvance = collect();
+        $datosFolio = collect();
+        $datosAsignacionFolio = [];
+        try {
+            $datosFlujo = TipoFlujo::all('id_tipo_flujo', 'nombre');
+            $datosOrigen = TipoOrigen::all('id_tipo_origen', 'nombre');
+            $datosAvance = TipoAvance::all('id_tipo_avance', 'nombre');
+            $datosFolio = TipoFolio::all('id_tipo_folio', 'nombre');
+            $datosAsignacionFolio = TipoAsignacionFolio::all('id_tipo_asignacion_folio', 'nombre')->toArray();
+            $ordenIds = [1, 2, 5, 3, 4];
+            $idsOrdenados = array_flip($ordenIds);
+            $ids = array_column($datosAsignacionFolio, 'id_tipo_asignacion_folio');
+            if ($ids) {
+                array_multisort(array_map(function ($id) use ($idsOrdenados) {
+                    return $idsOrdenados[$id] ?? 99;
+                }, $ids), $datosAsignacionFolio);
+            }
+        } catch (\Throwable $e) {
+            // catálogos SGD no disponibles
+        }
         return view('solicitudes.tipos', [
             'tipos' => $lista,
             'buzones' => $buzones->ok() ? ($buzones->json()['data'] ?? []) : [],
             'config' => $cfg->ok() ? ($cfg->json()['data'] ?? []) : [],
             'error' => $error,
+            'datosFlujo' => $datosFlujo,
+            'datosOrigen' => $datosOrigen,
+            'datosAvance' => $datosAvance,
+            'datosFolio' => $datosFolio,
+            'datosAsignacionFolio' => $datosAsignacionFolio,
         ]);
     }
 
@@ -313,12 +345,24 @@ class SolicitudModuleController extends Controller
         $payload = [
             'id' => $request->input('id') ?: null,
             'nombre' => $request->input('nombre'),
+            'descripcion' => $request->input('descripcion'),
+            'nombre_corto' => $request->input('nombre_corto'),
+            'nombre_corto_firma' => $request->input('nombre_corto_firma'),
             'tipo_solicitud' => $request->input('tipo_solicitud'),
             'categoria' => $request->input('categoria', 'dias'),
             'regimen_laboral' => $request->input('regimen_laboral'),
+            'tipo_origen' => $request->input('tipo_origen'),
+            'tipo_flujo' => $request->input('tipo_flujo'),
+            'tipo_avance' => $request->input('tipo_avance'),
+            'tipo_folio' => $request->input('tipo_folio'),
+            'tipo_asignacion_folio' => $request->input('tipo_asignacion_folio'),
             'consume_saldo' => $request->boolean('consume_saldo'),
             'requiere_fe' => $request->boolean('requiere_fe'),
-            'numero_firmas' => (int) $request->input('numero_firmas', 3),
+            'numero_firmas' => (int) $request->input('numero_firmas', 0),
+            'derivar_primera_firma' => $request->boolean('derivar_primera_firma'),
+            'derivar_ultima_firma' => $request->boolean('derivar_ultima_firma'),
+            'buzon_primera_firma' => $request->input('buzon_primera_firma') ?: null,
+            'buzon_ultima_firma' => $request->input('buzon_ultima_firma') ?: null,
             'primer_buzon_editable' => $request->boolean('primer_buzon_editable'),
             'activo' => $request->has('activo') ? $request->boolean('activo') : true,
             'plantilla_encabezado_html' => $request->input('plantilla_encabezado_html'),

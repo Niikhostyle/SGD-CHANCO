@@ -45,28 +45,41 @@ class SgdDocumentoService
     {
         $slug = $plantilla ? $plantilla->tipo_solicitud : 'solicitud';
         $nombre = $plantilla ? $plantilla->nombre : 'Solicitud municipal';
-        $corto = 'SOL-' . strtoupper(substr(preg_replace('/[^a-z0-9]+/i', '', $slug), 0, 12));
+        $corto = $plantilla && $plantilla->nombre_corto
+            ? $plantilla->nombre_corto
+            : ('SOL-' . strtoupper(substr(preg_replace('/[^a-z0-9]+/i', '', $slug), 0, 12)));
 
-        $existente = DB::table('tipo_documento')->where('nombre_corto', $corto)->first();
+        $existente = null;
+        if ($plantilla && $plantilla->id_tipo_documento) {
+            $existente = DB::table('tipo_documento')->where('id_tipo_documento', (int) $plantilla->id_tipo_documento)->first();
+        }
+        if (!$existente) {
+            $existente = DB::table('tipo_documento')->where('nombre_corto', $corto)->first();
+        }
         $now = date('Y-m-d H:i:s');
 
-        $nFirmas = $plantilla ? (int) $plantilla->numero_firmas : 3;
-        if ($nFirmas < 2) {
-            $nFirmas = 3;
+        $nFirmas = $plantilla ? (int) $plantilla->numero_firmas : 0;
+        $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
+        if ($requiereFe && $nFirmas < 1) {
+            $nFirmas = 1;
         }
 
         $payload = [
             'nombre' => $nombre,
             'nombre_corto' => $corto,
-            'nombre_corto_firma' => $corto,
-            'descripcion' => 'Tipo SGD generado por el módulo Solicitudes. Flujo por buzones igual que un documento controlado.',
-            'id_tipo_origen' => 1,
-            'id_tipo_flujo' => 2,
-            'id_tipo_avance' => 1,
-            'id_tipo_folio' => 3,
-            'id_tipo_asignacion_folio' => 3,
-            'requiere_fe' => $plantilla ? (bool) $plantilla->requiere_fe : true,
-            'numero_firmas' => $nFirmas,
+            'nombre_corto_firma' => ($plantilla && $plantilla->nombre_corto_firma) ? $plantilla->nombre_corto_firma : $corto,
+            'descripcion' => ($plantilla && $plantilla->descripcion) ? $plantilla->descripcion : ('Solicitud: ' . $nombre),
+            'id_tipo_origen' => (int) ($plantilla && $plantilla->id_tipo_origen ? $plantilla->id_tipo_origen : 1),
+            'id_tipo_flujo' => (int) ($plantilla && $plantilla->id_tipo_flujo ? $plantilla->id_tipo_flujo : 2),
+            'id_tipo_avance' => (int) ($plantilla && $plantilla->id_tipo_avance ? $plantilla->id_tipo_avance : 1),
+            'id_tipo_folio' => (int) ($plantilla && $plantilla->id_tipo_folio ? $plantilla->id_tipo_folio : 3),
+            'id_tipo_asignacion_folio' => (int) ($plantilla && $plantilla->id_tipo_asignacion_folio ? $plantilla->id_tipo_asignacion_folio : 3),
+            'requiere_fe' => $requiereFe,
+            'numero_firmas' => $nFirmas ?: null,
+            'derivar_primera_firma' => (int) ($plantilla && $plantilla->derivar_primera_firma ? 1 : 0),
+            'derivar_ultima_firma' => (int) ($plantilla && $plantilla->derivar_ultima_firma ? 1 : 0),
+            'buzon_primera_firma' => $plantilla ? ($plantilla->buzon_primera_firma ?: null) : null,
+            'buzon_ultima_firma' => $plantilla ? ($plantilla->buzon_ultima_firma ?: null) : null,
             'plantilla_encabezado' => $plantilla ? ($plantilla->plantilla_encabezado_html ?? null) : null,
             'plantilla_cuerpo' => $plantilla ? ($plantilla->plantilla_cuerpo_html ?? null) : null,
             'plantilla_distribucion' => $plantilla ? ($plantilla->plantilla_distribucion_html ?? null) : null,
@@ -373,7 +386,7 @@ class SgdDocumentoService
                 ? (json_decode($doc->json_tipo_documento, true) ?: [])
                 : (array) $doc->json_tipo_documento;
         }
-        $nReq = max(2, (int) ($jsonTipo['numero_firmas'] ?? ($sol->tipoDocumento->numero_firmas ?? 3)));
+        $nReq = max(1, (int) ($jsonTipo['numero_firmas'] ?? ($sol->tipoDocumento->numero_firmas ?? 1)));
         $nHechas = (int) DB::table('documento_buzon_bitacora as bb')
             ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
             ->where('db.id_documento', $sol->id_documento)

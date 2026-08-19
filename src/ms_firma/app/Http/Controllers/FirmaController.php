@@ -44,7 +44,7 @@ class FirmaController extends Controller
                 $datos = $request->json()->all();
 
                 //GENERACIÓN IMAGEN PARA FIRMA
-                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run', 'nombres', 'primer_apellido', 'segundo_apellido', 'img_firma', 'aplica_fea', 'id']);
+                $aInfoUsuarios = Users::where('id', $datos['id_usuario'])->first(['run', 'nombres', 'primer_apellido', 'segundo_apellido', 'img_firma', 'aplica_fea', 'id', 'cargo']);
                 $sNombre = $aInfoUsuarios['nombres'] . ' ' . $aInfoUsuarios['primer_apellido'] . ' ' . $aInfoUsuarios['segundo_apellido'];
                 $sNombreImg = $aInfoUsuarios['run'] . date('dmYHis') . '.png';
                 $sNombreImgAnexo = $aInfoUsuarios['run'] . date('dmYHis') . '_a.png';
@@ -102,7 +102,11 @@ class FirmaController extends Controller
                     $font->size(34);
                 });
 
-                $string = wordwrap($DatosFirma['cargo_firma'], 35) . ' ' . $DatosFirma['sigla'];
+                $cargoSello = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
+                if ($cargoSello === '') {
+                    $cargoSello = (string) ($DatosFirma['cargo_firma'] ?? '');
+                }
+                $string = wordwrap($cargoSello, 35) . ' ' . $DatosFirma['sigla'];
                 $img->text($string, 330, 235, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
                     $font->size(34);
@@ -818,7 +822,11 @@ class FirmaController extends Controller
                     $font->size(34);
                 });
 
-                $string = wordwrap($datosFirma['cargo_firma'], 35) . ' ' . $datosFirma['sigla'];
+                $cargoAnexo = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
+                if ($cargoAnexo === '') {
+                    $cargoAnexo = (string) ($datosFirma['cargo_firma'] ?? '');
+                }
+                $string = wordwrap($cargoAnexo, 35) . ' ' . $datosFirma['sigla'];
                 $imgAnexo->text($string, 330, 235, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
                     $font->size(34);

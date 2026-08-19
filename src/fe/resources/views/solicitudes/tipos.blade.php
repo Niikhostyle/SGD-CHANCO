@@ -106,12 +106,121 @@
             <input type="hidden" name="id" id="tipo_id" value="">
             <input type="hidden" name="tipo_solicitud" id="tipo_solicitud" value="">
 
-            <h5 class="mb-3">1. Datos de la plantilla</h5>
+            <h5 class="mb-3">1. Datos de la plantilla (igual que un tipo de documento)</h5>
             <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label>Nombre que verá el funcionario</label>
+                <div class="form-group col-md-5">
+                    <label>Nombre</label>
                     <input type="text" name="nombre" id="nombre" class="form-control" required placeholder="Ej. Días administrativos">
                 </div>
+                <div class="form-group col-md-7">
+                    <label>Descripción</label>
+                    <input type="text" name="descripcion" id="descripcion" class="form-control" placeholder="">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label>Nombre corto</label>
+                    <input type="text" name="nombre_corto" id="nombre_corto" class="form-control" required>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Origen</label>
+                    <select class="form-control" name="tipo_origen" id="form_tipo_origen" required>
+                        <option value="">Seleccionar</option>
+                        @foreach($datosOrigen as $dato)
+                            <option value="{{ $dato['id_tipo_origen'] }}">{{ $dato['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Tipo Flujo</label>
+                    <select class="form-control" name="tipo_flujo" id="form_tipo_flujo" required>
+                        <option value="">Seleccionar</option>
+                        @foreach($datosFlujo as $dato)
+                            <option value="{{ $dato['id_tipo_flujo'] }}">{{ $dato['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Tipo Avance</label>
+                    <select class="form-control" name="tipo_avance" id="form_tipo_avance" required>
+                        <option value="">Seleccionar</option>
+                        @foreach($datosAvance as $dato)
+                            <option value="{{ $dato['id_tipo_avance'] }}">{{ $dato['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label>Tipo Folio</label>
+                    <select class="form-control" name="tipo_folio" id="form_tipo_folio" required>
+                        <option value="">Seleccionar</option>
+                        @foreach($datosFolio as $dato)
+                            <option value="{{ $dato['id_tipo_folio'] }}">{{ $dato['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>Asignación Folio y Fecha</label>
+                    <select class="form-control" name="tipo_asignacion_folio" id="form_tipo_asignacion_folio" required>
+                        <option value="">Seleccionar</option>
+                        @foreach($datosAsignacionFolio as $dato)
+                            <option value="{{ $dato['id_tipo_asignacion_folio'] }}">{{ $dato['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Requiere FE</label>
+                    <select class="form-control" name="requiere_fe" id="form_fe" required>
+                        <option value="">Seleccionar</option>
+                        <option value="1">Si</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Número de Firmas</label>
+                    <select class="form-control" name="numero_firmas" id="form_numero_firmas">
+                        <option value="">Seleccionar</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Nombre Firma Folio</label>
+                    <input type="text" class="form-control" name="nombre_corto_firma" id="form_nombre_ff">
+                </div>
+            </div>
+            <div class="form-row" id="opDerivacion" style="display:none">
+                <div class="form-group col-md-6">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="chkPrimera" name="derivar_primera_firma" value="1">
+                        <label class="custom-control-label" for="chkPrimera">Derivar luego de la <b>primera firma</b></label>
+                    </div>
+                    <select class="form-control mt-1" id="selectPrimera" name="buzon_primera_firma">
+                        <option value="">— Buzón —</option>
+                        @foreach($buzones as $b)
+                            <option value="{{ $b['id_buzon'] }}">{{ $b['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="chkSegunda" name="derivar_ultima_firma" value="1">
+                        <label class="custom-control-label" for="chkSegunda">Derivar luego de la <b>última firma</b></label>
+                    </div>
+                    <select class="form-control mt-1" id="selectSegunda" name="buzon_ultima_firma">
+                        <option value="">— Buzón —</option>
+                        @foreach($buzones as $b)
+                            <option value="{{ $b['id_buzon'] }}">{{ $b['nombre'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
                 <div class="form-group col-md-6">
                     <label>Qué tipo de trámite es</label>
                     <select name="categoria" id="categoria" class="form-control">
@@ -122,43 +231,21 @@
                         <option value="licencias">Licencia médica</option>
                         <option value="otro">Otro</option>
                     </select>
-                    <small class="text-muted">Administrativos y compensatorios son trámites distintos y descuentan saldos distintos.</small>
+                    <small class="text-muted">Administrativos y compensatorios descuentan saldos distintos.</small>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <div class="custom-control custom-switch">
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <div class="custom-control custom-switch mb-3">
                         <input type="hidden" name="consume_saldo" value="0">
                         <input type="checkbox" class="custom-control-input" name="consume_saldo" id="consume_saldo" value="1" checked>
                         <label class="custom-control-label" for="consume_saldo">Descuenta del saldo de días</label>
                     </div>
                 </div>
-                <div class="form-group col-md-4">
-                    <div class="custom-control custom-switch">
-                        <input type="hidden" name="requiere_fe" value="0">
-                        <input type="checkbox" class="custom-control-input" name="requiere_fe" id="requiere_fe" value="1" checked>
-                        <label class="custom-control-label" for="requiere_fe">Requiere firma electrónica</label>
-                    </div>
-                </div>
-                <div class="form-group col-md-4">
-                    <div class="custom-control custom-switch">
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <div class="custom-control custom-switch mb-3">
                         <input type="hidden" name="activo" value="0">
                         <input type="checkbox" class="custom-control-input" name="activo" id="activo" value="1" checked>
                         <label class="custom-control-label" for="activo">Visible para los funcionarios</label>
                     </div>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-4">
-                    <label>Número de firmas (incluye la del solicitante)</label>
-                    <select name="numero_firmas" id="numero_firmas" class="form-control">
-                        <option value="2">2</option>
-                        <option value="3" selected>3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                    </select>
-                    <small class="text-muted">Al crear, el funcionario ya firma. Luego firman los buzones del recorrido. Con 1 firma el trámite se cerraría en la jefatura.</small>
                 </div>
             </div>
             <input type="hidden" name="primer_buzon_editable" value="1">
@@ -322,8 +409,26 @@
         $('#consume_saldo').prop('checked', c === 'dias' || c === 'compensatorios' || c === 'vacaciones');
     });
     $('#nombre').on('input', function () {
-        if (!$('#tipo_id').val() && $('#categoria').val() === 'otro') $('#tipo_solicitud').val(slugify(this.value));
+        if (!$('#tipo_id').val()) {
+            if (!$('#nombre_corto').val() || $('#nombre_corto').data('auto') !== false) {
+                $('#nombre_corto').val(slugify(this.value).replace(/_/g, '-').substring(0, 20).toUpperCase());
+            }
+            if ($('#categoria').val() === 'otro') $('#tipo_solicitud').val(slugify(this.value));
+        }
     });
+    function syncFeFirmas() {
+        var fe = $('#form_fe').val();
+        if (fe === '0') {
+            $('#form_numero_firmas').val('').prop('disabled', true);
+            $('#opDerivacion').hide();
+        } else {
+            $('#form_numero_firmas').prop('disabled', false);
+            var n = Number($('#form_numero_firmas').val() || 0);
+            $('#opDerivacion').toggle(n >= 1);
+        }
+    }
+    $('#form_fe').on('change', syncFeFirmas);
+    $('#form_numero_firmas').on('change', syncFeFirmas);
 
     $('.btn-campo').on('click', function () {
         var inst = (CKEDITOR.instances[editorActivo] || CKEDITOR.instances.plantilla_cuerpo_html);
@@ -378,6 +483,7 @@
             $(this).find('input[type=checkbox]').attr('name', 'flujo_acciones[' + i + '][]');
         });
         if (!$('#tipo_solicitud').val()) $('#tipo_solicitud').val(slugPorCategoria($('#categoria').val()) || slugify($('#nombre').val()));
+        $('#form_numero_firmas').prop('disabled', false);
     });
     $('#btn-add-buzon').on('click', function () {
         var sel = $('#sel-buzon');
@@ -392,12 +498,15 @@
         $('#form-title').text('Nueva plantilla');
         $('#tipo_id').val('');
         $('#form-tipo')[0].reset();
-        $('#requiere_fe, #activo, #consume_saldo').prop('checked', true);
+        $('#activo, #consume_saldo').prop('checked', true);
         $('#categoria').val('dias');
         $('#tipo_solicitud').val('dias_administrativos');
         $('#tabla-flujo tbody').empty();
         idx = 0;
-        $('#numero_firmas').val('3');
+        $('#form_fe').val('1');
+        $('#form_numero_firmas').val('3').prop('disabled', false);
+        $('#chkPrimera, #chkSegunda').prop('checked', false);
+        syncFeFirmas();
     }
     $('#btn-nuevo').on('click', function () {
         limpiarCampos();
@@ -465,11 +574,24 @@
         $('#form-title').text('Editar: ' + t.nombre);
         $('#tipo_id').val(t.id);
         $('#nombre').val(t.nombre);
+        $('#descripcion').val(t.descripcion || '');
+        $('#nombre_corto').val(t.nombre_corto || '');
+        $('#form_nombre_ff').val(t.nombre_corto_firma || '');
         $('#tipo_solicitud').val(t.tipo_solicitud);
         $('#categoria').val(t.categoria || 'dias');
-        $('#numero_firmas').val(t.numero_firmas && Number(t.numero_firmas) >= 2 ? t.numero_firmas : 3);
+        $('#form_tipo_origen').val(t.id_tipo_origen || '');
+        $('#form_tipo_flujo').val(t.id_tipo_flujo || '');
+        $('#form_tipo_avance').val(t.id_tipo_avance || '');
+        $('#form_tipo_folio').val(t.id_tipo_folio || '');
+        $('#form_tipo_asignacion_folio').val(t.id_tipo_asignacion_folio || '');
+        $('#form_fe').val(t.requiere_fe === false || t.requiere_fe === 0 || t.requiere_fe === '0' ? '0' : '1');
+        $('#form_numero_firmas').val(t.numero_firmas ? String(t.numero_firmas) : '');
+        $('#chkPrimera').prop('checked', !!(t.derivar_primera_firma && Number(t.derivar_primera_firma)));
+        $('#chkSegunda').prop('checked', !!(t.derivar_ultima_firma && Number(t.derivar_ultima_firma)));
+        $('#selectPrimera').val(t.buzon_primera_firma || '');
+        $('#selectSegunda').val(t.buzon_ultima_firma || '');
         $('#consume_saldo').prop('checked', !!t.consume_saldo);
-        $('#requiere_fe').prop('checked', t.requiere_fe !== false);
+        syncFeFirmas();
         $('#activo').prop('checked', t.activo !== false);
         mostrarForm();
         setEditor('plantilla_encabezado_html', t.plantilla_encabezado_html || '');

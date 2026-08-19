@@ -296,17 +296,29 @@ class AdminController extends Controller
             $slug = preg_replace('/[^a-z0-9_]+/', '_', strtolower($d['nombre']));
         }
         $consumeDefault = in_array($cat, ['dias', 'compensatorios', 'vacaciones'], true);
+        $nFirmas = (int) ($d['numero_firmas'] ?? 0);
         return [
             'tipo_solicitud' => $slug,
             'regimen_laboral' => !empty($d['regimen_laboral']) ? $d['regimen_laboral'] : null,
             'nombre' => $d['nombre'],
+            'descripcion' => $d['descripcion'] ?? null,
+            'nombre_corto' => $d['nombre_corto'] ?? null,
+            'nombre_corto_firma' => $d['nombre_corto_firma'] ?? ($d['nombre_ff'] ?? null),
+            'id_tipo_origen' => !empty($d['id_tipo_origen']) ? (int) $d['id_tipo_origen'] : (!empty($d['tipo_origen']) ? (int) $d['tipo_origen'] : null),
+            'id_tipo_flujo' => !empty($d['id_tipo_flujo']) ? (int) $d['id_tipo_flujo'] : (!empty($d['tipo_flujo']) ? (int) $d['tipo_flujo'] : null),
+            'id_tipo_avance' => !empty($d['id_tipo_avance']) ? (int) $d['id_tipo_avance'] : (!empty($d['tipo_avance']) ? (int) $d['tipo_avance'] : null),
+            'id_tipo_folio' => !empty($d['id_tipo_folio']) ? (int) $d['id_tipo_folio'] : (!empty($d['tipo_folio']) ? (int) $d['tipo_folio'] : null),
+            'id_tipo_asignacion_folio' => !empty($d['id_tipo_asignacion_folio']) ? (int) $d['id_tipo_asignacion_folio'] : (!empty($d['tipo_asignacion_folio']) ? (int) $d['tipo_asignacion_folio'] : null),
+            'derivar_primera_firma' => $this->asBool($d['derivar_primera_firma'] ?? $d['derivarPrimera'] ?? null, false) ? 1 : 0,
+            'derivar_ultima_firma' => $this->asBool($d['derivar_ultima_firma'] ?? $d['derivarUltima'] ?? null, false) ? 1 : 0,
+            'buzon_primera_firma' => !empty($d['buzon_primera_firma']) ? (int) $d['buzon_primera_firma'] : (!empty($d['buzonPrimera']) ? (int) $d['buzonPrimera'] : null),
+            'buzon_ultima_firma' => !empty($d['buzon_ultima_firma']) ? (int) $d['buzon_ultima_firma'] : (!empty($d['buzonUltima']) ? (int) $d['buzonUltima'] : null),
             'activo' => $this->asBool($d['activo'] ?? null, true),
             'categoria' => $cat,
             'consume_saldo' => $this->asBool($d['consume_saldo'] ?? null, $consumeDefault),
-            'requiere_fe' => $this->asBool($d['requiere_fe'] ?? null, true),
-            'numero_firmas' => max(2, (int) ($d['numero_firmas'] ?? 3)),
+            'requiere_fe' => $this->asBool($d['requiere_fe'] ?? $d['fe'] ?? null, true),
+            'numero_firmas' => $nFirmas > 0 ? $nFirmas : null,
             'primer_buzon_editable' => $this->asBool($d['primer_buzon_editable'] ?? null, true),
-            'id_tipo_documento' => !empty($d['id_tipo_documento']) ? (int) $d['id_tipo_documento'] : null,
             'plantilla_encabezado_html' => $d['plantilla_encabezado_html'] ?? null,
             'plantilla_cuerpo_html' => $d['plantilla_cuerpo_html'] ?? '<p>Solicitud</p>',
             'plantilla_distribucion_html' => $d['plantilla_distribucion_html'] ?? null,
