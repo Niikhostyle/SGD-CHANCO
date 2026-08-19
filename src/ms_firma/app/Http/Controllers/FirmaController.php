@@ -52,19 +52,33 @@ class FirmaController extends Controller
                 $dFechaCreacion = date('Y-m-d H:i:s');
 
                 $DatosFirma = Buzon::join('buzon_usuario', 'buzon_usuario.id_buzon', '=', 'buzon.id_buzon')
-                    ->join('tipo_firma', 'buzon_usuario.id_tipo_firma', '=', 'tipo_firma.id_tipo_firma')
+                    ->leftJoin('tipo_firma', 'buzon_usuario.id_tipo_firma', '=', 'tipo_firma.id_tipo_firma')
                     ->where('buzon.id_buzon', '=', $datos['id_buzon'])
                     ->where('buzon_usuario.id_usuario', '=', $datos['id_usuario'])
                     ->select('cargo_firma', 'tipo_firma.id_tipo_firma', 'sigla', 'restringir_sr', 'id_usuario_sr')
                     ->first();
 
-                if (!isset($DatosFirma['cargo_firma'])) {
-                    $comentario = "No existe cargo asociado al buzón.";
-                    throw new Exception($comentario);
+                $cantidadFirmas = $this->getNfirmas($datos['id_documento']);
+                $esPrimeraFirma = ((int) $cantidadFirmas === 0);
+                $cargoUsuario = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
+                $cargoBuzon = $DatosFirma ? trim((string) ($DatosFirma['cargo_firma'] ?? '')) : '';
+
+                if ($esPrimeraFirma) {
+                    $cargoSello = $cargoUsuario !== '' ? $cargoUsuario : $cargoBuzon;
+                    if ($cargoSello === '') {
+                        throw new Exception('No existe cargo en la ficha del usuario para la primera firma.');
+                    }
+                } else {
+                    if ($cargoBuzon === '') {
+                        throw new Exception('No existe cargo asociado al buzón.');
+                    }
+                    $cargoSello = $cargoBuzon;
                 }
 
+                $siglaSello = $DatosFirma ? (string) ($DatosFirma['sigla'] ?? '') : '';
+
                 //verificar restriccion firma subrogante
-                if (isset($DatosFirma['id_usuario_sr']) && $DatosFirma['id_usuario_sr'] !== 0 && $DatosFirma['restringir_sr'] == 1 &&  $DatosFirma['id_tipo_firma'] == 2) {
+                if ($DatosFirma && !empty($DatosFirma['id_usuario_sr']) && $DatosFirma['id_usuario_sr'] !== 0 && $DatosFirma['restringir_sr'] == 1 && $DatosFirma['id_tipo_firma'] == 2) {
                     if ($DatosFirma['id_usuario_sr'] == 10000) {
                         $comentario = "No existe subrogante definido.";
                         throw new Exception($comentario);
@@ -87,15 +101,6 @@ class FirmaController extends Controller
                     throw new Exception($comentario);
                 }
 
-                $cantidadFirmas = $this->getNfirmas($datos['id_documento']);
-                $esPrimeraFirma = ((int) $cantidadFirmas === 0);
-                $cargoSello = (string) ($DatosFirma['cargo_firma'] ?? '');
-                if ($esPrimeraFirma) {
-                    $cargoUsuario = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
-                    if ($cargoUsuario !== '') {
-                        $cargoSello = $cargoUsuario;
-                    }
-                }
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
                 
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
@@ -112,7 +117,7 @@ class FirmaController extends Controller
                     $font->size(34);
                 });
 
-                $string = wordwrap($cargoSello, 35) . ' ' . $DatosFirma['sigla'];
+                $string = trim(wordwrap($cargoSello, 35) . ' ' . $siglaSello);
                 $img->text($string, 330, 235, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
                     $font->size(34);
