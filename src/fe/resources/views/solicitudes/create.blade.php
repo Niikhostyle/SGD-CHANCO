@@ -19,6 +19,7 @@
     @csrf
     <input type="hidden" name="tipo_solicitud" id="tipo_solicitud" value="{{ old('tipo_solicitud') }}">
     <input type="hidden" name="id_buzon_destino" id="id_buzon_destino_val" value="{{ old('id_buzon_destino') }}">
+    <input type="hidden" name="usar_firmagob" value="1">
 
     <div class="card card-outline card-primary">
         <div class="card-header"><strong>1. ¿Qué pide?</strong></div>
@@ -118,14 +119,7 @@
             <div id="preview-distribucion" class="border rounded p-2 mt-3 bg-light" style="display:none"></div>
         </div>
         <div class="card-footer">
-            <details class="mb-3">
-                <summary class="text-muted" style="cursor:pointer">Opciones avanzadas</summary>
-                <div class="form-check mt-2">
-                    <input type="checkbox" class="form-check-input" name="usar_firmagob" id="usar_firmagob" value="1" @if(old('usar_firmagob')) checked @endif>
-                    <label class="form-check-label" for="usar_firmagob">Firmar con FirmaGob al crear (opcional)</label>
-                </div>
-            </details>
-            <button class="btn btn-success btn-lg" type="submit"><i class="fas fa-paper-plane"></i> Enviar al buzón</button>
+            <button class="btn btn-success btn-lg" type="submit"><i class="fas fa-paper-plane"></i> Firmar y enviar al buzón</button>
             <a href="{{ route('solicitudes.index') }}" class="btn btn-default btn-lg">Cancelar</a>
         </div>
     </div>

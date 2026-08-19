@@ -261,12 +261,8 @@ class SolicitudController extends Controller
 
             try {
                 $this->pdfs->generarPdf($sol->fresh());
-                $debeFirmar = !empty($datos['usar_firmagob']);
-                if ($debeFirmar) {
-                    $this->pdfs->firmarConFirmaGob($sol->fresh(), $uid, $request->header('key'));
-                }
             } catch (Exception $fe) {
-                $this->flujo->registrar($sol->fresh(), 'firma_pendiente', $idBuzon, $uid, 'PDF/firma: ' . $fe->getMessage());
+                $this->flujo->registrar($sol->fresh(), 'pdf_pendiente', $idBuzon, $uid, 'PDF: ' . $fe->getMessage());
             }
 
             $this->notificar($sol->fresh(), 'creada');

@@ -50,6 +50,11 @@ class SgdDocumentoService
         $existente = DB::table('tipo_documento')->where('nombre_corto', $corto)->first();
         $now = date('Y-m-d H:i:s');
 
+        $nFirmas = $plantilla ? (int) $plantilla->numero_firmas : 3;
+        if ($nFirmas < 2) {
+            $nFirmas = 3;
+        }
+
         $payload = [
             'nombre' => $nombre,
             'nombre_corto' => $corto,
@@ -61,7 +66,7 @@ class SgdDocumentoService
             'id_tipo_folio' => 3,
             'id_tipo_asignacion_folio' => 3,
             'requiere_fe' => $plantilla ? (bool) $plantilla->requiere_fe : true,
-            'numero_firmas' => $plantilla ? max(1, (int) $plantilla->numero_firmas) : 2,
+            'numero_firmas' => $nFirmas,
             'plantilla_encabezado' => $plantilla ? ($plantilla->plantilla_encabezado_html ?? null) : null,
             'plantilla_cuerpo' => $plantilla ? ($plantilla->plantilla_cuerpo_html ?? null) : null,
             'plantilla_distribucion' => $plantilla ? ($plantilla->plantilla_distribucion_html ?? null) : null,
@@ -81,21 +86,31 @@ class SgdDocumentoService
             $plantilla->save();
         }
 
-        $this->sincronizarCadenaTipo($idTipo);
+        $this->sincronizarCadenaTipo($idTipo, $plantilla);
         return $idTipo;
     }
 
-    public function sincronizarCadenaTipo(int $idTipo): void
+    public function sincronizarCadenaTipo(int $idTipo, ?SolTipoDocumento $plantilla = null): void
     {
-        $rrhh = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
-        $alcalde = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
-
         $pasos = [];
-        if ($rrhh) {
-            $pasos[] = ['buzon' => $rrhh, 'acciones' => [6, 7, 11]];
+        if ($plantilla) {
+            $plantilla->loadMissing('buzonesFlujo');
+            foreach ($plantilla->buzonesFlujo as $p) {
+                $pasos[] = [
+                    'id_buzon' => (int) $p->id_buzon,
+                    'acciones' => $this->accionesSgd($p->acciones),
+                ];
+            }
         }
-        if ($alcalde) {
-            $pasos[] = ['buzon' => $alcalde, 'acciones' => [7, 10]];
+        if (!$pasos) {
+            $rrhh = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
+            $alcalde = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
+            if ($rrhh) {
+                $pasos[] = ['id_buzon' => (int) $rrhh->id_buzon, 'acciones' => [6, 7, 11]];
+            }
+            if ($alcalde) {
+                $pasos[] = ['id_buzon' => (int) $alcalde->id_buzon, 'acciones' => [7, 10]];
+            }
         }
         if (!$pasos) {
             return;
@@ -110,9 +125,12 @@ class SgdDocumentoService
         $now = date('Y-m-d H:i:s');
         $orden = 1;
         foreach ($pasos as $paso) {
+            if (empty($paso['id_buzon'])) {
+                continue;
+            }
             $idTdb = (int) DB::table('tipo_documento_buzon')->insertGetId([
                 'id_tipo_documento' => $idTipo,
-                'id_buzon' => (int) $paso['buzon']->id_buzon,
+                'id_buzon' => (int) $paso['id_buzon'],
                 'orden' => $orden,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -127,6 +145,38 @@ class SgdDocumentoService
             }
             $orden++;
         }
+    }
+
+    protected function accionesSgd($acciones): array
+    {
+        if (is_string($acciones)) {
+            $acciones = array_filter(explode(',', $acciones));
+        }
+        $acciones = is_array($acciones) ? $acciones : [];
+        $ids = [];
+        foreach ($acciones as $a) {
+            $a = is_numeric($a) ? (int) $a : strtolower(trim((string) $a));
+            if ($a === 6 || $a === 'visar') {
+                $ids[] = 6;
+            } elseif ($a === 7 || $a === 'firmar') {
+                $ids[] = 7;
+            } elseif ($a === 11 || $a === 'derivar') {
+                $ids[] = 11;
+            } elseif ($a === 10 || $a === 'finalizar') {
+                $ids[] = 10;
+            }
+        }
+        $ids = array_values(array_unique($ids));
+        if (!$ids) {
+            return [6, 7, 11];
+        }
+        if (in_array(7, $ids, true) && !in_array(10, $ids, true) && !in_array(11, $ids, true)) {
+            $ids[] = 11;
+        }
+        if (in_array(7, $ids, true) && !in_array(6, $ids, true) && !in_array(10, $ids, true)) {
+            array_unshift($ids, 6);
+        }
+        return array_values(array_unique($ids));
     }
 
     public function publicar(SolSolicitud $sol, int $uid, string $sessionKey, int $idBuzonDestino, ?SolTipoDocumento $plantilla, string $cuerpo, ?string $comentario): array
@@ -223,6 +273,11 @@ class SgdDocumentoService
             throw new Exception('No se pudo asignar el buzón destino SGD: ' . $this->errorHttp($actualizar));
         }
 
+        $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
+        if ($requiereFe) {
+            $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+        }
+
         $enviar = $this->http($sessionKey)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
             'id_documento' => $idDocumento,
             'id_documento_buzon' => $idDocBuzon,
@@ -244,7 +299,7 @@ class SgdDocumentoService
         $sol->id_tipo_documento = $idTipo;
         $sol->save();
 
-        $this->flujo->registrar($sol, 'enviar_sgd', $idBuzonDestino, $uid, 'Documento SGD #' . $idDocumento . ' enviado al buzón destino (Por Recibir).');
+        $this->flujo->registrar($sol, 'enviar_sgd', $idBuzonDestino, $uid, 'Documento SGD #' . $idDocumento . ' enviado al buzón destino (Por Recibir), firmado por el solicitante.');
 
         return [
             'id_documento' => $idDocumento,
@@ -252,6 +307,20 @@ class SgdDocumentoService
             'id_tipo_documento' => $idTipo,
             'id_buzon_origen' => $idOrigen,
         ];
+    }
+
+    protected function firmarComoSolicitante(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid): void
+    {
+        $apiFirma = rtrim(env('API_SGD_FIRMA', 'http://sgd_ms_firma:3333'), '/');
+        $res = $this->http($sessionKey)->timeout(120)->put($apiFirma . '/api/sgd-firma/firmar_archivo', [
+            'id_documento_buzon' => $idDocBuzon,
+            'id_documento' => $idDocumento,
+            'id_usuario' => $uid,
+            'id_buzon' => $idOrigen,
+        ]);
+        if ($res->failed()) {
+            throw new Exception('No se pudo firmar la solicitud del funcionario: ' . $this->errorHttp($res));
+        }
     }
 
     public function hopActual(?int $idDocumento): ?object
@@ -298,12 +367,20 @@ class SgdDocumentoService
             ->where('id_documento', $sol->id_documento)
             ->whereIn('id_estado_documento', [13, 6])
             ->exists();
-        $ultimoFirmadoSinPendiente = !$hop && DB::table('documento_buzon')
-            ->where('id_documento', $sol->id_documento)
-            ->whereIn('id_estado_documento', [9, 10, 12, 13])
-            ->exists();
+        $jsonTipo = [];
+        if (!empty($doc->json_tipo_documento)) {
+            $jsonTipo = is_string($doc->json_tipo_documento)
+                ? (json_decode($doc->json_tipo_documento, true) ?: [])
+                : (array) $doc->json_tipo_documento;
+        }
+        $nReq = max(2, (int) ($jsonTipo['numero_firmas'] ?? ($sol->tipoDocumento->numero_firmas ?? 3)));
+        $nHechas = (int) DB::table('documento_buzon_bitacora as bb')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
+            ->where('db.id_documento', $sol->id_documento)
+            ->where('bb.id_accion', 7)
+            ->count();
 
-        if (!empty($doc->finalizado) || $final || $ultimoFirmadoSinPendiente) {
+        if (!empty($doc->finalizado) || $final || ($nHechas >= $nReq && !$hop)) {
             $sol->estado = 'completada';
         } elseif ($sol->estado !== 'rechazada') {
             $sol->estado = 'pendiente';

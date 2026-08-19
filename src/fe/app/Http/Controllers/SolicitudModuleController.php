@@ -109,7 +109,7 @@ class SolicitudModuleController extends Controller
             toast($res->json()['message'] ?? 'No se pudo crear la solicitud', 'error');
             return back()->withInput();
         }
-        toast('Solicitud enviada al buzón. Ya puede tramitarse como un documento SGD.', 'success');
+        toast('Solicitud firmada por usted y enviada al buzón. Sigue el trámite como un documento SGD.', 'success');
         return redirect()->route('solicitudes.show', ['id' => $res->json()['data']['id']]);
     }
 
@@ -285,7 +285,7 @@ class SolicitudModuleController extends Controller
             'regimen_laboral' => $request->input('regimen_laboral'),
             'consume_saldo' => $request->boolean('consume_saldo'),
             'requiere_fe' => $request->boolean('requiere_fe'),
-            'numero_firmas' => (int) $request->input('numero_firmas', 1),
+            'numero_firmas' => (int) $request->input('numero_firmas', 3),
             'primer_buzon_editable' => $request->boolean('primer_buzon_editable'),
             'activo' => $request->has('activo') ? $request->boolean('activo') : true,
             'plantilla_encabezado_html' => $request->input('plantilla_encabezado_html'),

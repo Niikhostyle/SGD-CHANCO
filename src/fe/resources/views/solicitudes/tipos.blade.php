@@ -57,7 +57,7 @@
                     <th>Nombre</th>
                     <th>Para qué sirve</th>
                     <th>Descuenta días</th>
-                    <th>Firma electrónica</th>
+                    <th>Firmas</th>
                     <th></th>
                 </tr>
             </thead>
@@ -70,7 +70,7 @@
                     <td><b>{{ $t['nombre'] }}</b></td>
                     <td>{{ $catNom[$t['categoria'] ?? ''] ?? ($t['categoria'] ?? '—') }}</td>
                     <td>{{ !empty($t['consume_saldo']) ? 'Sí' : 'No' }}</td>
-                    <td>{{ !empty($t['requiere_fe']) ? 'Sí' : 'No' }}</td>
+                    <td>{{ (int) ($t['numero_firmas'] ?? 0) ?: '—' }}</td>
                     <td class="text-right">
                         <button type="button" class="btn btn-sm btn-info btn-editar" data-id="{{ $t['id'] }}">Editar plantilla</button>
                     </td>
@@ -123,7 +123,7 @@
                     <div class="custom-control custom-switch">
                         <input type="hidden" name="requiere_fe" value="0">
                         <input type="checkbox" class="custom-control-input" name="requiere_fe" id="requiere_fe" value="1" checked>
-                        <label class="custom-control-label" for="requiere_fe">Pide firma electrónica (FirmaGob)</label>
+                        <label class="custom-control-label" for="requiere_fe">Requiere firma electrónica</label>
                     </div>
                 </div>
                 <div class="form-group col-md-4">
@@ -134,8 +134,20 @@
                     </div>
                 </div>
             </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label>Número de firmas (incluye la del solicitante)</label>
+                    <select name="numero_firmas" id="numero_firmas" class="form-control">
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <small class="text-muted">Al crear, el funcionario ya firma. Luego firman los buzones del recorrido. Con 1 firma el trámite se cerraría en la jefatura.</small>
+                </div>
+            </div>
             <input type="hidden" name="primer_buzon_editable" value="1">
-            <input type="hidden" name="numero_firmas" id="numero_firmas" value="1">
 
             <hr>
             <h5 class="mb-2">2. Texto del documento</h5>
@@ -169,8 +181,8 @@
             </div>
 
             <hr>
-            <h5 class="mb-2">3. Recorrido extra de buzones (opcional)</h5>
-            <p class="text-muted">Si lo deja vacío, se usa el recorrido por defecto: buzón elegido → RRHH → Alcalde.</p>
+            <h5 class="mb-2">3. Recorrido de buzones (derivaciones)</h5>
+            <p class="text-muted">Igual que un tipo de documento controlado. El funcionario elige el primer buzón al crear. Estos pasos son los siguientes (visar / firmar / cerrar).</p>
             <div class="form-row align-items-end mb-2">
                 <div class="col-md-8">
                     <label>Agregar buzón al recorrido</label>
@@ -336,6 +348,7 @@
         $('#consume_saldo').prop('checked', false);
         $('#tabla-flujo tbody').empty();
         idx = 0;
+        $('#numero_firmas').val('3');
     }
     $('#btn-nuevo').on('click', function () {
         limpiarCampos();
@@ -363,7 +376,7 @@
         $('#nombre').val(t.nombre);
         $('#tipo_solicitud').val(t.tipo_solicitud);
         $('#categoria').val(t.categoria || 'dias');
-        $('#numero_firmas').val(t.numero_firmas || 1);
+        $('#numero_firmas').val(t.numero_firmas && Number(t.numero_firmas) >= 2 ? t.numero_firmas : 3);
         $('#consume_saldo').prop('checked', !!t.consume_saldo);
         $('#requiere_fe').prop('checked', t.requiere_fe !== false);
         $('#activo').prop('checked', t.activo !== false);

@@ -293,7 +293,7 @@ class AdminController extends Controller
             'categoria' => $d['categoria'] ?? 'dias',
             'consume_saldo' => $this->asBool($d['consume_saldo'] ?? null, false),
             'requiere_fe' => $this->asBool($d['requiere_fe'] ?? null, true),
-            'numero_firmas' => (int) ($d['numero_firmas'] ?? 1),
+            'numero_firmas' => max(2, (int) ($d['numero_firmas'] ?? 3)),
             'primer_buzon_editable' => $this->asBool($d['primer_buzon_editable'] ?? null, true),
             'id_tipo_documento' => !empty($d['id_tipo_documento']) ? (int) $d['id_tipo_documento'] : null,
             'plantilla_encabezado_html' => $d['plantilla_encabezado_html'] ?? null,
