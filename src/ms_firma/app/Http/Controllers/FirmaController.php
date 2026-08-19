@@ -86,6 +86,16 @@ class FirmaController extends Controller
                     $comentario = "No existe imagen para firma asociada al usuario.";
                     throw new Exception($comentario);
                 }
+
+                $cantidadFirmas = $this->getNfirmas($datos['id_documento']);
+                $esPrimeraFirma = ((int) $cantidadFirmas === 0);
+                $cargoSello = (string) ($DatosFirma['cargo_firma'] ?? '');
+                if ($esPrimeraFirma) {
+                    $cargoUsuario = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
+                    if ($cargoUsuario !== '') {
+                        $cargoSello = $cargoUsuario;
+                    }
+                }
                 $img = Image::make(storage_path('app/public/files/imagen_firma/' . $aInfoUsuarios['img_firma']));
                 
                 $dFechaCreacionImg = date('d.m.Y H:i:s');
@@ -102,10 +112,6 @@ class FirmaController extends Controller
                     $font->size(34);
                 });
 
-                $cargoSello = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
-                if ($cargoSello === '') {
-                    $cargoSello = (string) ($DatosFirma['cargo_firma'] ?? '');
-                }
                 $string = wordwrap($cargoSello, 35) . ' ' . $DatosFirma['sigla'];
                 $img->text($string, 330, 235, function ($font) {
                     $font->file(storage_path('../public/calibri.ttf'));
@@ -130,11 +136,6 @@ class FirmaController extends Controller
                     $comentario = "Usuario no tiene permiso para realizar firma electrónica.";
                     throw new Exception($comentario);
                 }
-
-                
-                // calcular la cantidad de firmas en el documento
-                $cantidadFirmas = $this->getNfirmas($datos['id_documento']);// count($datosBitacora);
-
 
                 $aDocumentoBuzon = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
                     ->join('documento', 'documento_buzon.id_documento', '=', 'documento.id_documento')
@@ -596,7 +597,7 @@ class FirmaController extends Controller
                             }
 
                             //firma anexos asociados
-                            $fAnexos = $this->firmaAnexos($datos['id_documento'], $cantidadFirmas, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma);
+                            $fAnexos = $this->firmaAnexos($datos['id_documento'], $cantidadFirmas, $sNombre, $aInfoUsuarios['img_firma'], $DatosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma, $aInfoUsuarios['cargo'] ?? '');
                             
                             
                             //Log::error($fAnexos);
@@ -776,7 +777,7 @@ class FirmaController extends Controller
         return $aSalida;
     }
 
-    public function firmaAnexos($id_documento, $cantidadFirmas, $sNombre, $img_firma, $datosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma)
+    public function firmaAnexos($id_documento, $cantidadFirmas, $sNombre, $img_firma, $datosFirma, $sNombreImgAnexo, $layoutAnexo, $nRutFirma, $cargoUsuario = '')
     {
 
         //solo primera y segunda firma - para firmar anexo
@@ -822,9 +823,12 @@ class FirmaController extends Controller
                     $font->size(34);
                 });
 
-                $cargoAnexo = trim((string) ($aInfoUsuarios['cargo'] ?? ''));
-                if ($cargoAnexo === '') {
-                    $cargoAnexo = (string) ($datosFirma['cargo_firma'] ?? '');
+                $cargoAnexo = (string) ($datosFirma['cargo_firma'] ?? '');
+                if ((int) $cantidadFirmas === 0) {
+                    $cargoUsuario = trim((string) $cargoUsuario);
+                    if ($cargoUsuario !== '') {
+                        $cargoAnexo = $cargoUsuario;
+                    }
                 }
                 $string = wordwrap($cargoAnexo, 35) . ' ' . $datosFirma['sigla'];
                 $imgAnexo->text($string, 330, 235, function ($font) {
