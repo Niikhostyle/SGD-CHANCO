@@ -29,7 +29,7 @@ class SolicitudModuleController extends Controller
     {
         return Http::withHeaders([
             'key' => $this->key(),
-        ])->asJson()->timeout(120);
+        ])->asJson()->timeout(180);
     }
 
     public function index(Request $request)

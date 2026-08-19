@@ -302,15 +302,9 @@ class SgdDocumentoService
         $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
         if ($requiereFe) {
             $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
-            DB::table('documento_buzon')->where('id_documento_buzon', $idDocBuzon)->update([
-                'id_estado_documento' => 1,
-                'id_carpeta' => 3,
-            ]);
         }
 
-        $this->copiarPdfPrincipal((int) $idDocumento, (int) $destHop->id_documento_buzon);
-
-        $enviar = $this->http($sessionKey)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
+        $enviar = $this->http($sessionKey)->timeout(120)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
             'id_documento' => $idDocumento,
             'id_documento_buzon' => $idDocBuzon,
             'id_buzon' => $idOrigen,
@@ -325,6 +319,8 @@ class SgdDocumentoService
         if ($enviar->failed()) {
             throw new Exception('El documento SGD se creó pero no se pudo enviar al buzón: ' . $this->errorHttp($enviar));
         }
+
+        $this->copiarPdfPrincipal((int) $idDocumento, (int) $destHop->id_documento_buzon);
 
         $sol->id_documento = $idDocumento;
         $sol->id_documento_buzon = $idDocBuzon;
@@ -508,7 +504,7 @@ class SgdDocumentoService
     {
         return Http::withHeaders([
             'key' => $key,
-        ])->asJson()->timeout(60);
+        ])->asJson()->timeout(120);
     }
 
     protected function errorHttp($res): string

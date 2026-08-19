@@ -247,17 +247,23 @@ class SolicitudController extends Controller
             if (!$idBuzon) {
                 throw new Exception('Debe seleccionar un buzón SGD de destino.');
             }
-            $this->sgd->publicar(
-                $sol->load('usuario'),
-                $uid,
-                (string) $request->header('key'),
-                $idBuzon,
-                $plantilla,
-                (string) ($cuerpo ?: ''),
-                $datos['mensaje_para_directivo'] ?? ($datos['explicacion'] ?? null)
-            );
 
             DB::commit();
+
+            try {
+                $this->sgd->publicar(
+                    $sol->load('usuario'),
+                    $uid,
+                    (string) $request->header('key'),
+                    $idBuzon,
+                    $plantilla,
+                    (string) ($cuerpo ?: ''),
+                    $datos['mensaje_para_directivo'] ?? ($datos['explicacion'] ?? null)
+                );
+            } catch (Exception $pub) {
+                $this->flujo->registrar($sol->fresh(), 'error_sgd', $idBuzon, $uid, $pub->getMessage());
+                return response()->json(['ok' => false, 'message' => $pub->getMessage()], 400);
+            }
 
             try {
                 $this->pdfs->generarPdf($sol->fresh());
@@ -269,7 +275,10 @@ class SolicitudController extends Controller
 
             return response()->json(['ok' => true, 'data' => $sol->fresh()->load(['usuario', 'directivoAsignado', 'buzonDestino', 'pasos'])]);
         } catch (Exception $e) {
-            DB::rollBack();
+            try {
+                DB::rollBack();
+            } catch (Exception $ignored) {
+            }
             return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
         }
     }
