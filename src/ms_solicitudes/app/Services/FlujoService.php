@@ -23,7 +23,7 @@ class FlujoService
             'categoria' => $tipo->categoria,
             'consume_saldo' => (bool) $tipo->consume_saldo,
             'requiere_fe' => (bool) $tipo->requiere_fe,
-            'numero_firmas' => (bool) $tipo->requiere_fe ? max(4, (int) $tipo->numero_firmas) : (int) $tipo->numero_firmas,
+            'numero_firmas' => (bool) $tipo->requiere_fe ? max(3, (int) $tipo->numero_firmas) : (int) $tipo->numero_firmas,
             'primer_buzon_editable' => (bool) $tipo->primer_buzon_editable,
             'plantilla_cuerpo_html' => $tipo->plantilla_cuerpo_html,
             'plantilla_encabezado_html' => $tipo->plantilla_encabezado_html,
@@ -71,18 +71,10 @@ class FlujoService
 
     public function asegurarCadena(array $flujo, ?int $idBuzonDestino, bool $editable): array
     {
+        // Flujo libre guiado: director → visa Personal → firma alcalde → vuelve Personal.
         $rrhh = $this->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
         $alcalde = $this->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
         $out = [];
-
-        if ($rrhh) {
-            $out[] = [
-                'id_buzon' => (int) $rrhh->id_buzon,
-                'nombre_buzon' => $rrhh->nombre,
-                'orden' => 1,
-                'acciones' => ['visar'],
-            ];
-        }
 
         $idDirector = $idBuzonDestino ? (int) $idBuzonDestino : 0;
         if ($idDirector && $rrhh && $idDirector === (int) $rrhh->id_buzon) {
@@ -96,7 +88,7 @@ class FlujoService
             $out[] = [
                 'id_buzon' => $idDirector,
                 'nombre_buzon' => $buzon ? $buzon->nombre : 'Dirección',
-                'orden' => count($out) + 1,
+                'orden' => 1,
                 'acciones' => ['firmar'],
             ];
         } elseif ($flujo) {
@@ -114,11 +106,20 @@ class FlujoService
                 $out[] = [
                     'id_buzon' => $id,
                     'nombre_buzon' => $paso['nombre_buzon'] ?? 'Buzón',
-                    'orden' => count($out) + 1,
+                    'orden' => 1,
                     'acciones' => ['firmar'],
                 ];
                 break;
             }
+        }
+
+        if ($rrhh) {
+            $out[] = [
+                'id_buzon' => (int) $rrhh->id_buzon,
+                'nombre_buzon' => $rrhh->nombre,
+                'orden' => count($out) + 1,
+                'acciones' => ['visar'],
+            ];
         }
 
         if ($alcalde) {
@@ -139,8 +140,17 @@ class FlujoService
             }
         }
 
+        if ($rrhh) {
+            $out[] = [
+                'id_buzon' => (int) $rrhh->id_buzon,
+                'nombre_buzon' => $rrhh->nombre . ' (cierre)',
+                'orden' => count($out) + 1,
+                'acciones' => ['finalizar'],
+            ];
+        }
+
         if (!$out) {
-            throw new Exception('Configure el buzón de Departamento de Personal y seleccione el buzón del director.');
+            throw new Exception('Seleccione el buzón del director y configure Personal / Alcalde.');
         }
 
         foreach ($out as $i => &$p) {

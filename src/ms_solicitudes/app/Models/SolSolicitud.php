@@ -13,6 +13,7 @@ class SolSolicitud extends Model
         'mensaje_para_directivo',
         'otros_destinatarios', 'mensaje_otros_destinatarios',
         'tipo_solicitud', 'regimen_laboral', 'fecha_inicio', 'fecha_termino',
+        'jornada_inicio', 'jornada_termino',
         'total_dias', 'estado', 'paso_actual', 'observaciones', 'motivo', 'explicacion',
         'sobretiempo_referencia', 'viaticos_destino', 'viaticos_hora_inicio',
         'viaticos_hora_termino', 'licencia_folio', 'licencia_tipo',
@@ -29,6 +30,7 @@ class SolSolicitud extends Model
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_termino' => 'date',
+        'total_dias' => 'float',
         'con_goce' => 'boolean',
         'json_tipo' => 'array',
         'paso_actual' => 'integer',

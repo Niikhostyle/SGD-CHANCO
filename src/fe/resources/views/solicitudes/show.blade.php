@@ -48,7 +48,12 @@
     </div>
     <div class="card-body">
         <p class="mb-1"><b>Quién:</b> {{ trim(($solicitud['usuario']['nombres'] ?? '') . ' ' . ($solicitud['usuario']['primer_apellido'] ?? '')) }}</p>
-        <p class="mb-1"><b>Período:</b> {{ $fmt($solicitud['fecha_inicio']) }} → {{ $fmt($solicitud['fecha_termino']) }} ({{ $solicitud['total_dias'] }} días)</p>
+        <p class="mb-1"><b>Período:</b> {{ $fmt($solicitud['fecha_inicio']) }} → {{ $fmt($solicitud['fecha_termino']) }}
+            ({{ $solicitud['total_dias'] }} días
+            @if(!empty($solicitud['jornada_inicio']) || !empty($solicitud['jornada_termino']))
+                · jornada {{ strtoupper($solicitud['jornada_inicio'] ?? '') }}{{ !empty($solicitud['jornada_termino']) ? ' a '.strtoupper($solicitud['jornada_termino']) : '' }}
+            @endif)
+        </p>
         <p class="mb-3"><b>Motivo:</b> {{ $solicitud['motivo'] ?? '—' }}</p>
 
         @if(!empty($solicitud['saldo']) && (!empty($solicitud['puede_ver_saldos']) || !empty($solicitud['es_solicitante'])))
@@ -77,8 +82,9 @@
                 <ol class="mb-3 pl-3">
                     <li>Ábralo en el buzón.</li>
                     <li>Recíbalo (pasa a Recibidos).</li>
-                    <li>Personal visa (quedan las iniciales en el PDF, p. ej. ABC/nff) y se genera la firma del funcionario.</li>
-                    <li>Deriva al director; el director firma y deriva al alcalde.</li>
+                    <li>Usted firma al enviar; el documento llega al director de área.</li>
+                    <li>El director firma y deriva a Personal (visación).</li>
+                    <li>Personal visa y deriva al alcalde; el alcalde firma y el documento vuelve a Personal.</li>
                 </ol>
                 @if(!empty($solicitud['sgd']['id_buzon']))
                     <a class="btn btn-primary" href="{{ url('buzonesCarpetas/'.$solicitud['sgd']['id_buzon']) }}">Abrir el buzón</a>

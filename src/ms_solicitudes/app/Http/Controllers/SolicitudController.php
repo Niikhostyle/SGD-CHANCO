@@ -172,14 +172,24 @@ class SolicitudController extends Controller
                 throw new Exception('tipo_solicitud, fecha_inicio y fecha_termino son obligatorios.');
             }
 
-            $dias = $this->saldos->calcularDias($inicio, $termino, $plantilla ? ($plantilla->categoria ?? null) : null);
+            $jIni = $this->saldos->normalizarJornada($datos['jornada_inicio'] ?? null);
+            $jFin = $this->saldos->normalizarJornada($datos['jornada_termino'] ?? null);
+            $cat = $plantilla ? ($plantilla->categoria ?? null) : null;
+            if (in_array($cat, ['dias', 'compensatorios'], true)) {
+                $jIni = $jIni ?: 'am';
+                $jFin = $jFin ?: 'pm';
+            } else {
+                $jIni = null;
+                $jFin = null;
+            }
+            $dias = $this->saldos->calcularDias($inicio, $termino, $cat, $jIni, $jFin);
             $this->saldos->validarDisponibilidad(
                 $uid,
                 $tipoSlug,
                 $dias,
                 null,
                 $plantilla ? (bool) $plantilla->consume_saldo : null,
-                $plantilla ? ($plantilla->categoria ?? null) : null
+                $cat
             );
 
             if ($plantilla) {
@@ -195,6 +205,8 @@ class SolicitudController extends Controller
                     'tipo_solicitud' => $tipoSlug,
                     'fecha_inicio' => $inicio,
                     'fecha_termino' => $termino,
+                    'jornada_inicio' => $jIni,
+                    'jornada_termino' => $jFin,
                     'total_dias' => $dias,
                     'categoria' => $plantilla->categoria ?? null,
                 ]));
@@ -213,6 +225,8 @@ class SolicitudController extends Controller
                 'regimen_laboral' => $rol->regimen_laboral ?? ($datos['regimen_laboral'] ?? null),
                 'fecha_inicio' => $inicio,
                 'fecha_termino' => $termino,
+                'jornada_inicio' => $jIni,
+                'jornada_termino' => $jFin,
                 'total_dias' => $dias,
                 'estado' => 'pendiente',
                 'observaciones' => $datos['observaciones'] ?? null,

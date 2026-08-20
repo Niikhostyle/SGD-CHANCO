@@ -61,10 +61,17 @@ class SgdDocumentoService
         $nFirmas = $plantilla ? (int) $plantilla->numero_firmas : 0;
         $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
         if ($requiereFe) {
-            $nFirmas = $nFirmas >= 4 ? $nFirmas : 4;
+            // Solicitante + director + alcalde (la visación de Personal no es FE).
+            $nFirmas = $nFirmas >= 3 ? $nFirmas : 3;
         } else {
             $nFirmas = $nFirmas > 0 ? $nFirmas : 0;
         }
+
+        $rrhh = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
+        $idPersonal = $rrhh ? (int) $rrhh->id_buzon : null;
+        $buzonUltima = $plantilla && $plantilla->buzon_ultima_firma
+            ? (int) $plantilla->buzon_ultima_firma
+            : $idPersonal;
 
         $payload = [
             'nombre' => $nombre,
@@ -72,16 +79,16 @@ class SgdDocumentoService
             'nombre_corto_firma' => ($plantilla && $plantilla->nombre_corto_firma) ? $plantilla->nombre_corto_firma : $corto,
             'descripcion' => ($plantilla && $plantilla->descripcion) ? $plantilla->descripcion : ('Solicitud: ' . $nombre),
             'id_tipo_origen' => (int) ($plantilla && $plantilla->id_tipo_origen ? $plantilla->id_tipo_origen : 1),
-            'id_tipo_flujo' => (int) ($plantilla && $plantilla->id_tipo_flujo ? $plantilla->id_tipo_flujo : 2),
+            'id_tipo_flujo' => (int) ($plantilla && $plantilla->id_tipo_flujo ? $plantilla->id_tipo_flujo : 1),
             'id_tipo_avance' => (int) ($plantilla && $plantilla->id_tipo_avance ? $plantilla->id_tipo_avance : 1),
             'id_tipo_folio' => (int) ($plantilla && $plantilla->id_tipo_folio ? $plantilla->id_tipo_folio : 3),
             'id_tipo_asignacion_folio' => (int) ($plantilla && $plantilla->id_tipo_asignacion_folio ? $plantilla->id_tipo_asignacion_folio : 3),
             'requiere_fe' => $requiereFe,
             'numero_firmas' => $nFirmas ?: null,
             'derivar_primera_firma' => (int) ($plantilla && $plantilla->derivar_primera_firma ? 1 : 0),
-            'derivar_ultima_firma' => (int) ($plantilla && $plantilla->derivar_ultima_firma ? 1 : 0),
+            'derivar_ultima_firma' => 1,
             'buzon_primera_firma' => $plantilla ? ($plantilla->buzon_primera_firma ?: null) : null,
-            'buzon_ultima_firma' => $plantilla ? ($plantilla->buzon_ultima_firma ?: null) : null,
+            'buzon_ultima_firma' => $buzonUltima,
             'plantilla_encabezado' => $plantilla ? ($plantilla->plantilla_encabezado_html ?? null) : null,
             'plantilla_cuerpo' => $plantilla ? ($plantilla->plantilla_cuerpo_html ?? null) : null,
             'plantilla_distribucion' => $plantilla ? ($plantilla->plantilla_distribucion_html ?? null) : null,
@@ -130,11 +137,16 @@ class SgdDocumentoService
         if (!$pasos) {
             $rrhh = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
             $alcalde = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
+            // Flujo libre: el destino inicial lo elige el solicitante (director).
+            // Cadena de referencia del tipo: Personal (visar) → Alcalde (firmar) → Personal (cierre).
             if ($rrhh) {
                 $pasos[] = ['id_buzon' => (int) $rrhh->id_buzon, 'acciones' => [6, 11]];
             }
             if ($alcalde) {
-                $pasos[] = ['id_buzon' => (int) $alcalde->id_buzon, 'acciones' => [7, 10]];
+                $pasos[] = ['id_buzon' => (int) $alcalde->id_buzon, 'acciones' => [7, 11]];
+            }
+            if ($rrhh) {
+                $pasos[] = ['id_buzon' => (int) $rrhh->id_buzon, 'acciones' => [10]];
             }
         }
         if (!$pasos) {
@@ -215,6 +227,8 @@ class SgdDocumentoService
             'categoria' => $plantilla ? $plantilla->categoria : null,
             'fecha_inicio' => $sol->fecha_inicio,
             'fecha_termino' => $sol->fecha_termino,
+            'jornada_inicio' => $sol->jornada_inicio ?? null,
+            'jornada_termino' => $sol->jornada_termino ?? null,
             'total_dias' => $sol->total_dias,
             'motivo' => $sol->motivo,
             'explicacion' => $sol->explicacion ?: $sol->motivo,
@@ -237,18 +251,28 @@ class SgdDocumentoService
         $ft = $sol->fecha_termino instanceof \DateTimeInterface ? $sol->fecha_termino->format('d-m-Y') : (string) $sol->fecha_termino;
         $materia = ($plantilla ? $plantilla->nombre : $sol->tipo_solicitud) . ' — ' . ($user ? $user->nombreCompleto() : '') . ' (' . $fi . ' a ' . $ft . ')';
 
-        $dp = $this->flujo->resolverBuzonConfig('buzon_rrhh_id', ['departamento de personal', 'recursos humanos', 'rrhh']);
-        $idEnviar = $dp ? (int) $dp->id_buzon : $idBuzonDestino;
-        $acciones = $dp ? [6, 11] : [6, 7, 11];
-        $buzonDir = Buzon::find($idBuzonDestino);
+        // Flujo libre: primer destino = director elegido por el solicitante.
+        $idEnviar = (int) $idBuzonDestino;
+        if ($idEnviar < 1) {
+            throw new Exception('Debe seleccionar el buzón del director de área.');
+        }
+        $acciones = [7, 11]; // firmar + derivar
+        $buzonDir = Buzon::find($idEnviar);
         $saldo = (new SaldoService())->resumen((int) $sol->user_id);
+        $txtDias = rtrim(rtrim(number_format((float) $sol->total_dias, 1, '.', ''), '0'), '.');
+        $jIni = strtoupper((string) ($sol->jornada_inicio ?? ''));
+        $jFin = strtoupper((string) ($sol->jornada_termino ?? ''));
+        $txtJornada = '';
+        if (in_array($jIni, ['AM', 'PM'], true) || in_array($jFin, ['AM', 'PM'], true)) {
+            $txtJornada = ' Jornada: ' . ($jIni ?: '—') . ' a ' . ($jFin ?: '—') . '.';
+        }
         $txtSaldo = 'Saldo ' . $saldo['anio'] . ': administrativos ' . $saldo['dias_administrativos']
             . ', feriados ' . $saldo['feriados_legales']
             . ', compensatorios ' . $saldo['dias_compensatorios']
-            . '. Solicita ' . (int) $sol->total_dias . ' día(s).';
-        $txtFlujo = 'Flujo: 1) visación Departamento de Personal (iniciales en el PDF) · 2) firma FE del funcionario · 3) firma director'
+            . '. Solicita ' . $txtDias . ' día(s).' . $txtJornada;
+        $txtFlujo = 'Flujo libre: 1) firma solicitante al enviar · 2) firma director'
             . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
-            . ' · 4) firma alcalde.';
+            . ' · 3) visación Departamento de Personal · 4) firma alcalde · 5) vuelve a Personal.';
         $comentario = trim((string) $comentario . "\n" . $txtSaldo . "\n" . $txtFlujo);
         $descripcion = trim((string) ($sol->motivo ?: $sol->explicacion ?: '') . ' — ' . $txtSaldo);
 
@@ -322,15 +346,20 @@ class SgdDocumentoService
             ->orderByDesc('id_documento_buzon')
             ->first();
         if (!$destHop) {
-            throw new Exception('No se creó el buzón de destino (Departamento de Personal).');
+            throw new Exception('No se creó el buzón de destino (director).');
         }
 
-        // Igual que oficios: el PDF (y la FE del funcionario) se generan DESPUÉS de la
-        // visación de Personal, para que las iniciales queden impresas en el pie.
         $sol->id_documento = $idDocumento;
         $sol->id_documento_buzon = $idDocBuzon;
         $sol->id_tipo_documento = $idTipo;
         $sol->save();
+
+        // Firma del solicitante al enviar (antes de derivar al director).
+        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+        $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
+        if ($requiereFe) {
+            $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+        }
 
         $enviar = $this->http($sessionKey)->timeout(120)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
             'id_documento' => $idDocumento,
@@ -345,10 +374,18 @@ class SgdDocumentoService
             'carpeta' => 3,
         ]);
         if ($enviar->failed()) {
-            throw new Exception('El documento SGD se creó pero no se pudo enviar al buzón: ' . $this->errorHttp($enviar));
+            throw new Exception('El documento SGD se creó pero no se pudo enviar al buzón del director: ' . $this->errorHttp($enviar));
         }
 
-        $this->flujo->registrar($sol, 'enviar_sgd', $idEnviar, $uid, 'Documento SGD #' . $idDocumento . ' enviado a visación de Departamento de Personal. El PDF y la firma del funcionario se generan al visar (igual que un oficio).');
+        $this->flujo->registrar(
+            $sol,
+            'enviar_sgd',
+            $idEnviar,
+            $uid,
+            'Documento SGD #' . $idDocumento . ' firmado por el solicitante y enviado al director'
+                . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
+                . '. Luego: visa Personal → firma alcalde → vuelve a Personal.'
+        );
 
         return [
             'id_documento' => $idDocumento,

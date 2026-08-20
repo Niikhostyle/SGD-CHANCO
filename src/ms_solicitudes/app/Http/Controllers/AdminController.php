@@ -298,8 +298,8 @@ class AdminController extends Controller
         $consumeDefault = in_array($cat, ['dias', 'compensatorios', 'vacaciones'], true);
         $requiereFe = $this->asBool($d['requiere_fe'] ?? $d['fe'] ?? null, true);
         $nFirmas = (int) ($d['numero_firmas'] ?? 0);
-        if ($requiereFe && $nFirmas < 4) {
-            $nFirmas = 4;
+        if ($requiereFe && $nFirmas < 3) {
+            $nFirmas = 3;
         }
         return [
             'tipo_solicitud' => $slug,

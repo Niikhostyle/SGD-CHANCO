@@ -43,7 +43,7 @@ class SolModuleSeeder extends Seeder
                                 : ($t['tipo_solicitud'] === 'dias_compensatorios' ? 'compensatorios' : 'dias')));
                     $row['consume_saldo'] = in_array($t['tipo_solicitud'], ['dias_administrativos', 'feriados_legales', 'dias_compensatorios'], true);
                     $row['requiere_fe'] = true;
-                    $row['numero_firmas'] = 4;
+                    $row['numero_firmas'] = 3;
                     $row['primer_buzon_editable'] = true;
                 }
                 DB::table('sol_tipo_documentos')->insert($row);

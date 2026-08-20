@@ -21,16 +21,22 @@ class FeriadosChile
 
     public static function contarHabiles(Carbon $inicio, Carbon $termino): int
     {
-        $n = 0;
+        return count(self::listarHabiles($inicio, $termino));
+    }
+
+    /** @return Carbon[] */
+    public static function listarHabiles(Carbon $inicio, Carbon $termino): array
+    {
+        $out = [];
         $cur = $inicio->copy()->startOfDay();
         $fin = $termino->copy()->startOfDay();
         while ($cur->lte($fin)) {
             if (self::esHabil($cur)) {
-                $n++;
+                $out[] = $cur->copy();
             }
             $cur->addDay();
         }
-        return $n;
+        return $out;
     }
 
     /** @return array<string, string> Y-m-d => nombre */

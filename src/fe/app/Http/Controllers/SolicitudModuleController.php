@@ -144,6 +144,8 @@ class SolicitudModuleController extends Controller
             'tipo_solicitud' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_termino' => 'required|date|after_or_equal:fecha_inicio',
+            'jornada_inicio' => 'nullable|in:am,pm,AM,PM',
+            'jornada_termino' => 'nullable|in:am,pm,AM,PM',
             'motivo' => 'nullable|string',
             'explicacion' => 'nullable|string',
             'id_buzon_destino' => 'required|integer',
@@ -170,7 +172,7 @@ class SolicitudModuleController extends Controller
             toast($res->json()['message'] ?? 'No se pudo crear la solicitud', 'error');
             return back()->withInput();
         }
-        toast('Solicitud firmada por usted y enviada al buzón. Sigue el trámite como un documento SGD.', 'success');
+        toast('Solicitud firmada y enviada al director. Luego visa Personal, firma el alcalde y vuelve a Personal.', 'success');
         return redirect()->route('solicitudes.show', ['id' => $res->json()['data']['id']]);
     }
 

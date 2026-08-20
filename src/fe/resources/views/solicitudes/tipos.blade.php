@@ -188,7 +188,7 @@
                         <option value="5">5</option>
                         <option value="6">6</option>
                     </select>
-                    <small class="text-muted">Igual que un oficio: 4 estampas + visación de Personal.</small>
+                    <small class="text-muted">3 firmas FE (solicitante, director, alcalde) + visación de Personal.</small>
                 </div>
                 <div class="form-group col-md-2">
                     <label>Nombre Firma Folio</label>
@@ -263,6 +263,9 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha_inicio}}">Fecha inicio</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha_termino}}">Fecha término</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{total_dias}}">N. de dias</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada}}">Jornada</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada_inicio}}">Jornada inicio</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada_termino}}">Jornada término</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{motivo}}">Motivo</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{viaticos_destino}}">Destino viatico</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{departamento}}">Departamento</button>
@@ -436,9 +439,9 @@
         } else {
             $('#form_numero_firmas').prop('disabled', false);
             var n = Number($('#form_numero_firmas').val() || 0);
-            if (n < 4) {
-                $('#form_numero_firmas').val('4');
-                n = 4;
+            if (n < 3) {
+                $('#form_numero_firmas').val('3');
+                n = 3;
             }
             $('#opDerivacion').toggle(n >= 1);
         }
@@ -520,7 +523,7 @@
         $('#tabla-flujo tbody').empty();
         idx = 0;
         $('#form_fe').val('1');
-        $('#form_numero_firmas').val('4').prop('disabled', false);
+        $('#form_numero_firmas').val('3').prop('disabled', false);
         $('#chkPrimera, #chkSegunda').prop('checked', false);
         syncFeFirmas();
     }

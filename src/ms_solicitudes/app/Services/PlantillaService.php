@@ -44,6 +44,9 @@ class PlantillaService
             '{{fecha_inicio}}' => !empty($datos['fecha_inicio']) ? date('d-m-Y', strtotime($datos['fecha_inicio'])) : '',
             '{{fecha_termino}}' => !empty($datos['fecha_termino']) ? date('d-m-Y', strtotime($datos['fecha_termino'])) : '',
             '{{total_dias}}' => (string) ($datos['total_dias'] ?? ''),
+            '{{jornada_inicio}}' => strtoupper((string) ($datos['jornada_inicio'] ?? '')),
+            '{{jornada_termino}}' => strtoupper((string) ($datos['jornada_termino'] ?? '')),
+            '{{jornada}}' => $this->textoJornada($datos),
             '{{motivo}}' => $datos['motivo'] ?? '',
             '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
             '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
@@ -67,15 +70,28 @@ class PlantillaService
         $saldos = new SaldoService();
         $resumen = $saldos->resumen((int) $user->id);
         $campo = $saldos->campoPorPlantilla($datos['tipo_solicitud'] ?? null, $datos['categoria'] ?? null) ?: 'dias_administrativos';
-        $ha = (int) ($resumen['usados'][$campo] ?? 0);
-        $asig = (int) ($resumen['asignados'][$campo] ?? 0);
-        $solicita = (int) ($datos['total_dias'] ?? 0);
+        $ha = (float) ($resumen['usados'][$campo] ?? 0);
+        $asig = (float) ($resumen['asignados'][$campo] ?? 0);
+        $solicita = (float) ($datos['total_dias'] ?? 0);
         return [
             'ha_solicitado' => $ha,
             'solicita' => $solicita,
-            'saldo' => max(0, $asig - $ha - $solicita),
+            'saldo' => max(0, round($asig - $ha - $solicita, 1)),
             'total' => $asig,
         ];
+    }
+
+    protected function textoJornada(array $datos): string
+    {
+        $a = strtoupper(trim((string) ($datos['jornada_inicio'] ?? '')));
+        $b = strtoupper(trim((string) ($datos['jornada_termino'] ?? '')));
+        if ($a === '' && $b === '') {
+            return '';
+        }
+        if ($a === $b && $a !== '') {
+            return 'jornada ' . $a;
+        }
+        return trim(($a ?: '—') . ' a ' . ($b ?: '—'));
     }
 
     protected function fechaLarga(): string

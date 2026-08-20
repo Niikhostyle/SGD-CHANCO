@@ -53,19 +53,33 @@
         <div class="card-header"><strong>2. Fechas y motivo</strong></div>
         <div class="card-body">
             <div class="form-row">
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-3">
                     <label>Desde</label>
                     <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ old('fecha_inicio') }}" required>
                 </div>
-                <div class="form-group col-md-4">
+                <div class="form-group col-md-2" id="wrap-jornada-inicio" style="display:none">
+                    <label>Jornada inicio</label>
+                    <select name="jornada_inicio" id="jornada_inicio" class="form-control">
+                        <option value="am" @if(old('jornada_inicio', 'am') === 'am') selected @endif>AM</option>
+                        <option value="pm" @if(old('jornada_inicio') === 'pm') selected @endif>PM</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-3">
                     <label>Hasta</label>
                     <input type="date" name="fecha_termino" id="fecha_termino" class="form-control" value="{{ old('fecha_termino') }}" required>
                 </div>
-                <div class="form-group col-md-4">
-                    <label>Días hábiles a pedir</label>
+                <div class="form-group col-md-2" id="wrap-jornada-termino" style="display:none">
+                    <label>Jornada término</label>
+                    <select name="jornada_termino" id="jornada_termino" class="form-control">
+                        <option value="am" @if(old('jornada_termino') === 'am') selected @endif>AM</option>
+                        <option value="pm" @if(old('jornada_termino', 'pm') === 'pm') selected @endif>PM</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Días a pedir</label>
                     <input type="text" id="total_dias_vista" class="form-control" readonly placeholder="—" tabindex="-1">
                     <div id="resto-tipo" class="mt-2 font-weight-bold" style="font-size:1.15rem"></div>
-                    <small class="text-muted">Lunes a viernes, sin feriados de Chile.</small>
+                    <small class="text-muted" id="ayuda-dias">Lunes a viernes, sin feriados.</small>
                 </div>
             </div>
             <div class="form-group mb-0">
@@ -104,7 +118,7 @@
     </div>
 
     <div class="card card-outline card-primary">
-        <div class="card-header"><strong>3. Buzón del director (después de Personal)</strong></div>
+        <div class="card-header"><strong>3. Buzón del director de área</strong></div>
         <div class="card-body">
             <div class="form-group mb-2">
                 <label>Buzón de su jefatura o dirección</label>
@@ -116,7 +130,10 @@
                         </option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">Se envía a <b>Departamento de Personal</b> para visar (iniciales en el PDF, igual que un oficio). Al visar se genera el PDF y la firma del funcionario; luego firma el <b>director</b> de este buzón y al final el <b>alcalde</b>.</small>
+                <small class="form-text text-muted">
+                    Flujo libre: usted <b>firma al enviar</b> → firma el <b>director</b> de este buzón →
+                    visa <b>Departamento de Personal</b> → firma el <b>alcalde</b> → vuelve a <b>Personal</b>.
+                </small>
             </div>
         </div>
     </div>
@@ -134,7 +151,7 @@
             <div id="preview-distribucion" class="border rounded p-2 mt-3 bg-light" style="display:none"></div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-success btn-lg" type="submit" id="btn-enviar-sol"><i class="fas fa-paper-plane"></i> Enviar a Personal para visación</button>
+            <button class="btn btn-success btn-lg" type="submit" id="btn-enviar-sol"><i class="fas fa-paper-plane"></i> Firmar y enviar al director</button>
             <button type="button" class="btn btn-outline-primary btn-lg" id="btn-vista-previa-2"><i class="fas fa-eye"></i> Ver vista previa</button>
             <a href="{{ route('solicitudes.index') }}" class="btn btn-default btn-lg">Cancelar</a>
         </div>
@@ -253,6 +270,21 @@
         if (!feriadosCache[y]) feriadosCache[y] = feriadosChile(y);
         return !feriadosCache[y][ymd(d)];
     }
+    function permiteMedioDia(t) {
+        if (!t) return false;
+        var cat = t.categoria || '';
+        return cat === 'dias' || cat === 'compensatorios'
+            || t.tipo_solicitud === 'dias_administrativos'
+            || t.tipo_solicitud === 'dias_compensatorios';
+    }
+    function listarHabilesJs(d1, d2) {
+        var out = [], cur = new Date(d1.getTime());
+        while (cur <= d2) {
+            if (esHabil(cur)) out.push(new Date(cur.getTime()));
+            cur = addDays(cur, 1);
+        }
+        return out;
+    }
     function dias() {
         var a = $('#fecha_inicio').val(), b = $('#fecha_termino').val();
         if (!a || !b) return '';
@@ -262,12 +294,22 @@
         if (t && t.categoria === 'licencias') {
             return Math.round((d2 - d1) / 86400000) + 1;
         }
-        var n = 0, cur = new Date(d1.getTime());
-        while (cur <= d2) {
-            if (esHabil(cur)) n++;
-            cur = addDays(cur, 1);
+        var habiles = listarHabilesJs(d1, d2);
+        var n = habiles.length;
+        if (!n) return '';
+        if (!permiteMedioDia(t)) return n;
+        var ji = ($('#jornada_inicio').val() || 'am').toLowerCase();
+        var jt = ($('#jornada_termino').val() || 'pm').toLowerCase();
+        if (n === 1) {
+            return ji === jt ? 0.5 : 1;
         }
-        return n;
+        var total = 0;
+        for (var i = 0; i < n; i++) {
+            if (i === 0) total += (ji === 'pm') ? 0.5 : 1;
+            else if (i === n - 1) total += (jt === 'am') ? 0.5 : 1;
+            else total += 1;
+        }
+        return Math.round(total * 10) / 10;
     }
     function rrhh() {
         var t = tipoActual();
@@ -295,6 +337,15 @@
             '@{{fecha_inicio}}': fmtFecha($('#fecha_inicio').val()),
             '@{{fecha_termino}}': fmtFecha($('#fecha_termino').val()),
             '@{{total_dias}}': String(dias() || ''),
+            '@{{jornada_inicio}}': String(($('#jornada_inicio').val() || '').toUpperCase()),
+            '@{{jornada_termino}}': String(($('#jornada_termino').val() || '').toUpperCase()),
+            '@{{jornada}}': (function () {
+                var a = ($('#jornada_inicio').val() || '').toUpperCase();
+                var b = ($('#jornada_termino').val() || '').toUpperCase();
+                if (!a && !b) return '';
+                if (a === b) return 'jornada ' + a;
+                return (a || '—') + ' a ' + (b || '—');
+            })(),
             '@{{motivo}}': $('#motivo').val() || '',
             '@{{explicacion}}': $('#motivo').val() || '',
             '@{{viaticos_destino}}': $('#viaticos_destino').val() || '',
@@ -342,6 +393,11 @@
         var nDias = dias();
         var tVista = tipoActual();
         var esLic = tVista && tVista.categoria === 'licencias';
+        var medio = permiteMedioDia(tVista);
+        $('#wrap-jornada-inicio, #wrap-jornada-termino').toggle(!!medio);
+        $('#ayuda-dias').text(medio
+            ? 'Administrativos/compensatorios: puede pedir medio día (AM o PM).'
+            : 'Lunes a viernes, sin feriados.');
         if (nDias === '' || nDias === null) {
             $('#total_dias_vista').val('—');
         } else if (esLic) {
@@ -383,7 +439,7 @@
     }
     $('#btn-vista-previa, #btn-vista-previa-2').on('click', abrirVistaPrevia);
     $('#sol_tipo_documento_id').on('change', function () { usuarioEdito = false; refrescarDoc(true); });
-    $('#fecha_inicio, #fecha_termino, #motivo, #viaticos_destino').on('change input', function () { refrescarDoc(false); });
+    $('#fecha_inicio, #fecha_termino, #jornada_inicio, #jornada_termino, #motivo, #viaticos_destino').on('change input', function () { refrescarDoc(false); });
     $('#id_buzon_destino').on('change', function () {
         $('#id_buzon_destino_val').val($(this).val() || '');
     }).trigger('change');
