@@ -52,9 +52,11 @@ class ArchivoController extends Controller
 
             $aInfoUsuarios = Users::where('id', $datosRequest['id_usuario'])->first(['genera_pdf']);
 
-            if (!$aInfoUsuarios['genera_pdf'] && empty($datosRequest['forzar'])) {
+            if (!$aInfoUsuarios['genera_pdf'] && empty($datosRequest['forzar']) && empty($datosRequest['regenerar'])) {
                 return $this->respondError('Usuario no tiene permiso para generar pdf.', 400);
             }
+
+            $regenerar = !empty($datosRequest['regenerar']);
 
             //verifica que no se genere 2 veces
             //busca en bitacora
@@ -68,7 +70,7 @@ class ArchivoController extends Controller
                 ->where('version', 1)
                 ->first();
 
-            if (isset($existePdfGenerado['id_documento_buzon']) && isset($existeDocPpal['id_documento_buzon'])) {
+            if (!$regenerar && isset($existePdfGenerado['id_documento_buzon']) && isset($existeDocPpal['id_documento_buzon'])) {
                 if (!empty($datosRequest['forzar'])) {
                     return $this->respondSuccess([
                         'comentario' => 'El archivo PDF ya fue generado.',
@@ -78,6 +80,22 @@ class ArchivoController extends Controller
                     ], 200);
                 }
                 return $this->respondError('El archivo PDF ya fue generado.', 400);
+            }
+
+            if ($regenerar) {
+                // Igual que un oficio regenerado: archiva el PDF anterior y permite uno nuevo con visadores.
+                $docsPpales = DocumentoBuzonArchivo::join('documento_buzon', 'documento_buzon_archivo.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+                    ->where('documento_buzon.id_documento', $nDocumento)
+                    ->where('documento_buzon_archivo.id_tipo_archivo', 1)
+                    ->where('documento_buzon_archivo.version', 1)
+                    ->select('documento_buzon_archivo.*')
+                    ->get();
+                foreach ($docsPpales as $archFile) {
+                    DocumentoBuzonArchivo::find($archFile->id_documento_buzon_archivo)->update([
+                        'version' => (int) $archFile->version + 1,
+                    ]);
+                }
+                Documento::find($nDocumento)->update(['archivo_existente' => false, 'paginas_archivo' => null]);
             }
 
             $datosDocumentos = Documento::findOrFail($nDocumento);
@@ -664,7 +682,8 @@ class ArchivoController extends Controller
             $src = html_entity_decode($sm[1], ENT_QUOTES, 'UTF-8');
             $local = $this->rutaLocalImagen($src);
             if (!$local) {
-                return $tag;
+                // Evita el texto "Image not found or type unknown" de DomPDF.
+                return '';
             }
             $mime = @mime_content_type($local);
             if (!$mime || strpos($mime, 'image/') !== 0) {

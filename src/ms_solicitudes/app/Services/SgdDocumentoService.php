@@ -396,42 +396,14 @@ class SgdDocumentoService
     }
 
     /**
-     * Tras visar (acción 6): genera el PDF con iniciales y aplica la FE del solicitante.
-     * Así la visación queda como en el resto del SGD (ABC/nff).
+     * Tras visar (acción 6): regenera el PDF con iniciales (igual que un oficio)
+     * y reaplica las firmas FE ya hechas (solicitante/director) en el mismo orden.
      */
     public function trasVisar(int $idDocumento, string $sessionKey): array
     {
         $sol = \App\Models\SolSolicitud::where('id_documento', $idDocumento)->first();
         if (!$sol) {
             return ['aplicado' => false, 'motivo' => 'no_es_solicitud'];
-        }
-
-        $nFirmas = (int) DB::table('documento_buzon_bitacora as bb')
-            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
-            ->where('db.id_documento', $idDocumento)
-            ->where('bb.id_accion', 7)
-            ->count();
-        if ($nFirmas > 0) {
-            return ['aplicado' => false, 'motivo' => 'ya_firmado'];
-        }
-
-        $idDocBuzon = (int) ($sol->id_documento_buzon ?: 0);
-        $origenHop = DB::table('documento_buzon')
-            ->where('id_documento', $idDocumento)
-            ->whereNull('id_documento_buzon_padre')
-            ->orderBy('id_documento_buzon')
-            ->first();
-        if ($origenHop) {
-            $idDocBuzon = (int) $origenHop->id_documento_buzon;
-        }
-        if (!$idDocBuzon) {
-            throw new Exception('No se encontró el buzón de origen de la solicitud para generar el PDF.');
-        }
-
-        $idOrigen = (int) DB::table('documento_buzon')->where('id_documento_buzon', $idDocBuzon)->value('id_buzon');
-        $uid = (int) $sol->user_id;
-        if (!$idOrigen || !$uid) {
-            throw new Exception('Faltan datos del solicitante para firmar tras la visación.');
         }
 
         $nVisas = (int) DB::table('documento_buzon_bitacora as bb')
@@ -443,17 +415,86 @@ class SgdDocumentoService
             return ['aplicado' => false, 'motivo' => 'sin_visacion'];
         }
 
-        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+        $yaVisadoPdf = DB::table('sol_solicitud_bitacora')
+            ->where('solicitud_id', $sol->id)
+            ->where('accion', 'pdf_tras_visar')
+            ->exists();
+        if ($yaVisadoPdf) {
+            return ['aplicado' => false, 'motivo' => 'ya_aplicado'];
+        }
+
+        $origenHop = DB::table('documento_buzon')
+            ->where('id_documento', $idDocumento)
+            ->whereNull('id_documento_buzon_padre')
+            ->orderBy('id_documento_buzon')
+            ->first();
+        $idDocBuzon = $origenHop
+            ? (int) $origenHop->id_documento_buzon
+            : (int) ($sol->id_documento_buzon ?: 0);
+        if (!$idDocBuzon) {
+            throw new Exception('No se encontró el buzón de origen de la solicitud para generar el PDF.');
+        }
+        $idOrigen = (int) DB::table('documento_buzon')->where('id_documento_buzon', $idDocBuzon)->value('id_buzon');
+        $uid = (int) $sol->user_id;
+        if (!$idOrigen || !$uid) {
+            throw new Exception('Faltan datos del solicitante para firmar tras la visación.');
+        }
+
+        // Firmas FE previas (solicitante, director, …) para reaplicarlas sobre el PDF con visadores.
+        $firmasPrevias = DB::table('documento_buzon_bitacora as bb')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
+            ->where('db.id_documento', $idDocumento)
+            ->where('bb.id_accion', 7)
+            ->orderBy('bb.id_documento_buzon_bitacora')
+            ->select([
+                'bb.id_documento_buzon_bitacora',
+                'bb.id_usuario',
+                'bb.id_documento_buzon',
+                'db.id_buzon',
+            ])
+            ->get();
+
+        // Regenera el PDF ya con la bitácora de visación (acción 6), igual que un oficio.
+        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid, true);
+
+        // Quitar bitácora de FE para que ms_firma recoloque los sellos desde cero en el PDF nuevo.
+        $idsBitacoraFirma = $firmasPrevias->pluck('id_documento_buzon_bitacora')->filter()->values()->all();
+        if ($idsBitacoraFirma) {
+            DB::table('documento_buzon_bitacora')->whereIn('id_documento_buzon_bitacora', $idsBitacoraFirma)->delete();
+        }
 
         $plantilla = $sol->tipoDocumento;
         $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
         if ($requiereFe) {
-            $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+            if ($firmasPrevias->count()) {
+                foreach ($firmasPrevias as $f) {
+                    $this->firmarComoSolicitante(
+                        $sessionKey,
+                        $idDocumento,
+                        (int) $f->id_documento_buzon,
+                        (int) $f->id_buzon,
+                        (int) $f->id_usuario
+                    );
+                }
+            } else {
+                $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+            }
         }
 
-        $this->flujo->registrar($sol, 'pdf_tras_visar', $idOrigen, $uid, 'PDF generado con visación y firma del funcionario (documento #' . $idDocumento . ').');
+        $this->flujo->registrar(
+            $sol,
+            'pdf_tras_visar',
+            $idOrigen,
+            $uid,
+            'PDF regenerado con visación (iniciales) e igual que oficios. Documento #' . $idDocumento . '.'
+        );
 
-        return ['aplicado' => true, 'id_documento' => $idDocumento];
+        return [
+            'aplicado' => true,
+            'id_documento' => $idDocumento,
+            'firmas_reaplicadas' => $firmasPrevias->count(),
+            'visadores' => true,
+        ];
     }
 
     protected function firmarComoSolicitante(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid): void
@@ -470,17 +511,21 @@ class SgdDocumentoService
         }
     }
 
-    protected function generarPdfSgd(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid): void
+    protected function generarPdfSgd(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid, bool $regenerar = false): void
     {
         $api = rtrim(env('API_SGD_ARCHIVOS', 'http://sgd_ms_archivos:3333'), '/');
-        $res = $this->http($sessionKey)->timeout(120)->put($api . '/api/sgd-archivos/generar_archivo_pdf', [
+        $payload = [
             'id_documento' => $idDocumento,
             'id_documento_buzon' => $idDocBuzon,
             'id_usuario' => $uid,
             'id_buzon' => $idOrigen,
             'generaFolio' => 0,
             'forzar' => 1,
-        ]);
+        ];
+        if ($regenerar) {
+            $payload['regenerar'] = 1;
+        }
+        $res = $this->http($sessionKey)->timeout(120)->put($api . '/api/sgd-archivos/generar_archivo_pdf', $payload);
         if ($res->failed()) {
             $msg = $this->errorHttp($res);
             if (stripos($msg, 'ya fue generado') === false) {
