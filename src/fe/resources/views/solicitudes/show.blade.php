@@ -50,7 +50,18 @@
         <p class="mb-1"><b>Quién:</b> {{ trim(($solicitud['usuario']['nombres'] ?? '') . ' ' . ($solicitud['usuario']['primer_apellido'] ?? '')) }}</p>
         <p class="mb-1"><b>Período:</b> {{ $fmt($solicitud['fecha_inicio']) }} → {{ $fmt($solicitud['fecha_termino']) }}
             ({{ $solicitud['total_dias'] }} días
-            @if(!empty($solicitud['jornada_inicio']) || !empty($solicitud['jornada_termino']))
+            @php
+                $ji = strtolower((string) ($solicitud['jornada_inicio'] ?? ''));
+                $jt = strtolower((string) ($solicitud['jornada_termino'] ?? ''));
+                $esMedia = $ji && $ji === $jt && (float) ($solicitud['total_dias'] ?? 0) == 0.5;
+            @endphp
+            @if($esMedia)
+                · <span class="badge badge-info">media jornada {{ strtoupper($ji) }}
+                    {{ $ji === 'am' ? '08:30–13:00' : '13:00–17:30' }}</span>
+                <small class="text-muted">
+                    (trabaja {{ $ji === 'am' ? '13:00–17:30' : '08:30–13:00' }})
+                </small>
+            @elseif(!empty($solicitud['jornada_inicio']) || !empty($solicitud['jornada_termino']))
                 · jornada {{ strtoupper($solicitud['jornada_inicio'] ?? '') }}{{ !empty($solicitud['jornada_termino']) ? ' a '.strtoupper($solicitud['jornada_termino']) : '' }}
             @endif)
         </p>

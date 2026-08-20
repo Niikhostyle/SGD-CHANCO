@@ -47,6 +47,8 @@ class PlantillaService
             '{{jornada_inicio}}' => strtoupper((string) ($datos['jornada_inicio'] ?? '')),
             '{{jornada_termino}}' => strtoupper((string) ($datos['jornada_termino'] ?? '')),
             '{{jornada}}' => $this->textoJornada($datos),
+            '{{horario_permiso}}' => $this->horarioPermiso($datos),
+            '{{horario_trabaja}}' => $this->horarioTrabaja($datos),
             '{{motivo}}' => $datos['motivo'] ?? '',
             '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
             '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
@@ -88,10 +90,42 @@ class PlantillaService
         if ($a === '' && $b === '') {
             return '';
         }
-        if ($a === $b && $a !== '') {
+        if ($a === $b && $a === 'AM') {
+            return 'media jornada mañana (AM) 08:30 a 13:00';
+        }
+        if ($a === $b && $a === 'PM') {
+            return 'media jornada tarde (PM) 13:00 a 17:30';
+        }
+        if ($a === $b) {
             return 'jornada ' . $a;
         }
         return trim(($a ?: '—') . ' a ' . ($b ?: '—'));
+    }
+
+    protected function horarioPermiso(array $datos): string
+    {
+        $a = strtolower(trim((string) ($datos['jornada_inicio'] ?? '')));
+        $b = strtolower(trim((string) ($datos['jornada_termino'] ?? '')));
+        if ($a === 'am' && $b === 'am') {
+            return '08:30 a 13:00';
+        }
+        if ($a === 'pm' && $b === 'pm') {
+            return '13:00 a 17:30';
+        }
+        return '08:30 a 17:30';
+    }
+
+    protected function horarioTrabaja(array $datos): string
+    {
+        $a = strtolower(trim((string) ($datos['jornada_inicio'] ?? '')));
+        $b = strtolower(trim((string) ($datos['jornada_termino'] ?? '')));
+        if ($a === 'am' && $b === 'am') {
+            return '13:00 a 17:30';
+        }
+        if ($a === 'pm' && $b === 'pm') {
+            return '08:30 a 13:00';
+        }
+        return '';
     }
 
     protected function fechaLarga(): string

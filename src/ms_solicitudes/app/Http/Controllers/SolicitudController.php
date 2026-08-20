@@ -175,9 +175,18 @@ class SolicitudController extends Controller
             $jIni = $this->saldos->normalizarJornada($datos['jornada_inicio'] ?? null);
             $jFin = $this->saldos->normalizarJornada($datos['jornada_termino'] ?? null);
             $cat = $plantilla ? ($plantilla->categoria ?? null) : null;
+            $mediaJornada = !empty($datos['media_jornada']) && in_array((string) $datos['media_jornada'], ['1', 'true', 'on'], true);
+            $franja = $this->saldos->normalizarJornada($datos['media_franja'] ?? null);
             if (in_array($cat, ['dias', 'compensatorios'], true)) {
-                $jIni = $jIni ?: 'am';
-                $jFin = $jFin ?: 'pm';
+                if ($mediaJornada || $franja) {
+                    $franja = $franja ?: ($jIni ?: 'am');
+                    $jIni = $franja;
+                    $jFin = $franja;
+                    $termino = $inicio;
+                } else {
+                    $jIni = $jIni ?: 'am';
+                    $jFin = $jFin ?: 'pm';
+                }
             } else {
                 $jIni = null;
                 $jFin = null;

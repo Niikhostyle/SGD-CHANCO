@@ -146,6 +146,8 @@ class SolicitudModuleController extends Controller
             'fecha_termino' => 'required|date|after_or_equal:fecha_inicio',
             'jornada_inicio' => 'nullable|in:am,pm,AM,PM',
             'jornada_termino' => 'nullable|in:am,pm,AM,PM',
+            'media_jornada' => 'nullable',
+            'media_franja' => 'nullable|in:am,pm,AM,PM',
             'motivo' => 'nullable|string',
             'explicacion' => 'nullable|string',
             'id_buzon_destino' => 'required|integer',

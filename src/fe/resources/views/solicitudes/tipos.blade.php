@@ -264,6 +264,8 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha_termino}}">Fecha término</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{total_dias}}">N. de dias</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada}}">Jornada</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{horario_permiso}}">Horario permiso</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{horario_trabaja}}">Horario trabaja</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada_inicio}}">Jornada inicio</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{jornada_termino}}">Jornada término</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{motivo}}">Motivo</button>

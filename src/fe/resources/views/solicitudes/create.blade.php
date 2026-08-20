@@ -52,36 +52,62 @@
     <div class="card card-outline card-primary">
         <div class="card-header"><strong>2. Fechas y motivo</strong></div>
         <div class="card-body">
-            <div class="form-row">
-                <div class="form-group col-md-3">
+            <div class="mb-3" id="wrap-media-jornada" style="display:none">
+                <input type="hidden" name="media_jornada" id="media_jornada" value="{{ old('media_jornada', '0') }}">
+                <button type="button" class="btn btn-outline-primary" id="btn-media-jornada">
+                    <i class="fas fa-clock"></i> Permiso por media jornada
+                </button>
+                <small class="text-muted d-block mt-1">
+                    Jornada laboral: <b>08:30 a 17:30</b>. Puede pedir solo la mañana o solo la tarde (0,5 día).
+                </small>
+            </div>
+
+            <div class="form-row" id="fila-fechas-completo">
+                <div class="form-group col-md-4">
                     <label>Desde</label>
                     <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ old('fecha_inicio') }}" required>
                 </div>
-                <div class="form-group col-md-2" id="wrap-jornada-inicio" style="display:none">
-                    <label>Jornada inicio</label>
-                    <select name="jornada_inicio" id="jornada_inicio" class="form-control">
-                        <option value="am" @if(old('jornada_inicio', 'am') === 'am') selected @endif>AM</option>
-                        <option value="pm" @if(old('jornada_inicio') === 'pm') selected @endif>PM</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-3">
+                <div class="form-group col-md-4" id="wrap-fecha-termino">
                     <label>Hasta</label>
                     <input type="date" name="fecha_termino" id="fecha_termino" class="form-control" value="{{ old('fecha_termino') }}" required>
                 </div>
-                <div class="form-group col-md-2" id="wrap-jornada-termino" style="display:none">
-                    <label>Jornada término</label>
-                    <select name="jornada_termino" id="jornada_termino" class="form-control">
-                        <option value="am" @if(old('jornada_termino') === 'am') selected @endif>AM</option>
-                        <option value="pm" @if(old('jornada_termino', 'pm') === 'pm') selected @endif>PM</option>
-                    </select>
-                </div>
-                <div class="form-group col-md-2">
+                <div class="form-group col-md-4">
                     <label>Días a pedir</label>
                     <input type="text" id="total_dias_vista" class="form-control" readonly placeholder="—" tabindex="-1">
                     <div id="resto-tipo" class="mt-2 font-weight-bold" style="font-size:1.15rem"></div>
                     <small class="text-muted" id="ayuda-dias">Lunes a viernes, sin feriados.</small>
                 </div>
             </div>
+
+            <div id="panel-media-jornada" class="border rounded p-3 mb-3 bg-light" style="display:none">
+                <p class="mb-2 font-weight-bold">¿Qué media jornada pide permiso?</p>
+                <div class="form-row">
+                    <div class="form-group col-md-6 mb-2">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="media_am" name="media_franja" value="am" class="custom-control-input"
+                                @if(old('media_franja', old('jornada_inicio', 'am')) === 'am') checked @endif>
+                            <label class="custom-control-label" for="media_am">
+                                <b>Mañana (AM)</b> — 08:30 a 13:00<br>
+                                <small class="text-muted">Pide la mañana y trabaja la tarde (13:00 a 17:30).</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6 mb-2">
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="media_pm" name="media_franja" value="pm" class="custom-control-input"
+                                @if(old('media_franja', old('jornada_inicio')) === 'pm') checked @endif>
+                            <label class="custom-control-label" for="media_pm">
+                                <b>Tarde (PM)</b> — 13:00 a 17:30<br>
+                                <small class="text-muted">Pide la tarde y trabaja la mañana (08:30 a 13:00).</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="resumen-media" class="alert alert-info mb-0 py-2"></div>
+            </div>
+
+            <input type="hidden" name="jornada_inicio" id="jornada_inicio" value="{{ old('jornada_inicio', 'am') }}">
+            <input type="hidden" name="jornada_termino" id="jornada_termino" value="{{ old('jornada_termino', 'pm') }}">
             <div class="form-group mb-0">
                 <label>Motivo o comentario</label>
                 <textarea name="motivo" id="motivo" class="form-control" rows="2" placeholder="Ej. trámite personal, feriado programado…">{{ old('motivo') }}</textarea>
@@ -277,6 +303,57 @@
             || t.tipo_solicitud === 'dias_administrativos'
             || t.tipo_solicitud === 'dias_compensatorios';
     }
+    function esMediaJornada() {
+        return $('#media_jornada').val() === '1';
+    }
+    function franjaMedia() {
+        return ($('input[name=media_franja]:checked').val() || 'am').toLowerCase();
+    }
+    function horarioFranja(franja) {
+        return franja === 'pm'
+            ? { permiso: '13:00 a 17:30', trabaja: '08:30 a 13:00', label: 'tarde (PM)' }
+            : { permiso: '08:30 a 13:00', trabaja: '13:00 a 17:30', label: 'mañana (AM)' };
+    }
+    function sincronizarMediaJornada() {
+        var t = tipoActual();
+        var medioOk = permiteMedioDia(t);
+        $('#wrap-media-jornada').toggle(!!medioOk);
+        if (!medioOk) {
+            $('#media_jornada').val('0');
+            $('#panel-media-jornada').hide();
+            $('#btn-media-jornada').removeClass('btn-primary').addClass('btn-outline-primary');
+            $('#wrap-fecha-termino').show();
+            $('#fecha_termino').prop('required', true);
+            $('#jornada_inicio').val('am');
+            $('#jornada_termino').val('pm');
+            return;
+        }
+        if (esMediaJornada()) {
+            $('#btn-media-jornada').removeClass('btn-outline-primary').addClass('btn-primary');
+            $('#panel-media-jornada').show();
+            $('#wrap-fecha-termino').hide();
+            var f = $('#fecha_inicio').val();
+            if (f) $('#fecha_termino').val(f);
+            $('#fecha_termino').prop('required', false);
+            var franja = franjaMedia();
+            $('#jornada_inicio').val(franja);
+            $('#jornada_termino').val(franja);
+            var h = horarioFranja(franja);
+            var fechaTxt = fmtFecha($('#fecha_inicio').val()) || '—';
+            $('#resumen-media').html(
+                'El <b>' + fechaTxt + '</b> pide permiso en la <b>' + h.label + '</b> (' + h.permiso + ') ' +
+                'y trabaja en la otra media jornada (' + h.trabaja + '). Descuenta <b>0,5 día</b>.'
+            );
+        } else {
+            $('#btn-media-jornada').removeClass('btn-primary').addClass('btn-outline-primary');
+            $('#panel-media-jornada').hide();
+            $('#wrap-fecha-termino').show();
+            $('#fecha_termino').prop('required', true);
+            $('#jornada_inicio').val('am');
+            $('#jornada_termino').val('pm');
+            $('#resumen-media').empty();
+        }
+    }
     function listarHabilesJs(d1, d2) {
         var out = [], cur = new Date(d1.getTime());
         while (cur <= d2) {
@@ -286,8 +363,15 @@
         return out;
     }
     function dias() {
-        var a = $('#fecha_inicio').val(), b = $('#fecha_termino').val();
-        if (!a || !b) return '';
+        var a = $('#fecha_inicio').val();
+        if (!a) return '';
+        if (esMediaJornada() && permiteMedioDia(tipoActual())) {
+            var d = parseIso(a);
+            if (!esHabil(d)) return '';
+            return 0.5;
+        }
+        var b = $('#fecha_termino').val();
+        if (!b) return '';
         var d1 = parseIso(a), d2 = parseIso(b);
         if (d2 < d1) return '';
         var t = tipoActual();
@@ -340,12 +424,18 @@
             '@{{jornada_inicio}}': String(($('#jornada_inicio').val() || '').toUpperCase()),
             '@{{jornada_termino}}': String(($('#jornada_termino').val() || '').toUpperCase()),
             '@{{jornada}}': (function () {
+                if (esMediaJornada()) {
+                    var h = horarioFranja(franjaMedia());
+                    return 'media jornada ' + h.label + ' (' + h.permiso + ')';
+                }
                 var a = ($('#jornada_inicio').val() || '').toUpperCase();
                 var b = ($('#jornada_termino').val() || '').toUpperCase();
                 if (!a && !b) return '';
                 if (a === b) return 'jornada ' + a;
                 return (a || '—') + ' a ' + (b || '—');
             })(),
+            '@{{horario_permiso}}': esMediaJornada() ? horarioFranja(franjaMedia()).permiso : '08:30 a 17:30',
+            '@{{horario_trabaja}}': esMediaJornada() ? horarioFranja(franjaMedia()).trabaja : '',
             '@{{motivo}}': $('#motivo').val() || '',
             '@{{explicacion}}': $('#motivo').val() || '',
             '@{{viaticos_destino}}': $('#viaticos_destino').val() || '',
@@ -393,15 +483,18 @@
         var nDias = dias();
         var tVista = tipoActual();
         var esLic = tVista && tVista.categoria === 'licencias';
-        var medio = permiteMedioDia(tVista);
-        $('#wrap-jornada-inicio, #wrap-jornada-termino').toggle(!!medio);
-        $('#ayuda-dias').text(medio
-            ? 'Administrativos/compensatorios: puede pedir medio día (AM o PM).'
+        sincronizarMediaJornada();
+        $('#ayuda-dias').text(permiteMedioDia(tVista)
+            ? (esMediaJornada()
+                ? 'Media jornada: 0,5 día. Horario completo 08:30 a 17:30.'
+                : 'Día completo o active “Permiso por media jornada”.')
             : 'Lunes a viernes, sin feriados.');
         if (nDias === '' || nDias === null) {
             $('#total_dias_vista').val('—');
         } else if (esLic) {
             $('#total_dias_vista').val(nDias + ' día(s) corridos');
+        } else if (nDias === 0.5) {
+            $('#total_dias_vista').val('0,5 día (media jornada)');
         } else {
             $('#total_dias_vista').val(nDias + ' día(s) hábil(es)');
         }
@@ -439,7 +532,19 @@
     }
     $('#btn-vista-previa, #btn-vista-previa-2').on('click', abrirVistaPrevia);
     $('#sol_tipo_documento_id').on('change', function () { usuarioEdito = false; refrescarDoc(true); });
-    $('#fecha_inicio, #fecha_termino, #jornada_inicio, #jornada_termino, #motivo, #viaticos_destino').on('change input', function () { refrescarDoc(false); });
+    $('#fecha_inicio, #fecha_termino, #motivo, #viaticos_destino').on('change input', function () { refrescarDoc(false); });
+    $('#btn-media-jornada').on('click', function () {
+        if (!permiteMedioDia(tipoActual())) return;
+        $('#media_jornada').val(esMediaJornada() ? '0' : '1');
+        if (esMediaJornada() && !$('input[name=media_franja]:checked').length) {
+            $('#media_am').prop('checked', true);
+        }
+        refrescarDoc(false);
+    });
+    $('input[name=media_franja]').on('change', function () { refrescarDoc(false); });
+    $('#fecha_inicio').on('change', function () {
+        if (esMediaJornada()) $('#fecha_termino').val($(this).val() || '');
+    });
     $('#id_buzon_destino').on('change', function () {
         $('#id_buzon_destino_val').val($(this).val() || '');
     }).trigger('change');
@@ -496,10 +601,23 @@
 
     $('#form-solicitud').on('submit', function (e) {
         editor.updateElement();
+        sincronizarMediaJornada();
+        if (esMediaJornada()) {
+            var f = $('#fecha_inicio').val();
+            $('#fecha_termino').val(f || '');
+            var franja = franjaMedia();
+            $('#jornada_inicio').val(franja);
+            $('#jornada_termino').val(franja);
+        }
         $('#id_buzon_destino_val').val($('#id_buzon_destino').val() || '');
         if (!$('#id_buzon_destino_val').val()) {
             e.preventDefault();
             alert('Elija el buzón del director.');
+            return;
+        }
+        if (esMediaJornada() && dias() === '') {
+            e.preventDefault();
+            alert('Elija un día hábil para la media jornada.');
             return;
         }
         if (!actualizarSaldoTipo()) {
