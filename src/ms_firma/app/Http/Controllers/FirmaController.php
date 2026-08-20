@@ -132,10 +132,10 @@ class FirmaController extends Controller
                 $datosJsonTipoDocumento = json_decode($aInfoDocumento['json_tipo_documento'], true);
                 $idTipoAsigFolio = $datosJsonTipoDocumento['id_tipo_asignacion_folio'];
 
-                if (isset($datosJsonTipoDocumento['numero_firmas']))
-                    $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-                else
+                $nNroFirmas = (int) ($datosJsonTipoDocumento['numero_firmas'] ?? 4);
+                if ($nNroFirmas < 1 || $nNroFirmas > 6) {
                     $nNroFirmas = 4;
+                }
 
                 if (!$aInfoUsuarios['aplica_fea']) {
                     $comentario = "Usuario no tiene permiso para realizar firma electrónica.";
@@ -289,9 +289,7 @@ class FirmaController extends Controller
                     ->where('documento_buzon_bitacora.id_accion', 6)
                     ->get();
 
-                $nEspacioVisadores = 20;
-                if (count($datosVisar) > 0)
-                    $nEspacioVisadores = 40;
+                $nEspacioVisadores = 40;
 
                 $aUbicacionesFirma = array(
                     array(300, 240, 555, 325),
@@ -302,20 +300,24 @@ class FirmaController extends Controller
                     array(30, 40, 285, 125)
                 );
 
-                //posiciones desde donde comenzar a utilizar las ubicaciones del array anterior
+                // Misma grilla que oficios: 4 firmas = 2x2 (índices 2,3,4,5) + 40px de visación.
                 $aFirmaPosicion = array(
-                    '1' => array('0' => 4),
-                    '2' => array('0' => 4, '1' => 5),
-                    '3' => array('0' => 2, '1' => 3, '2' => 4),
-                    '4' => array('0' => 2, '1' => 3, '2' => 4, '3' => 5),
-                    '5' => array('0' => 0, '1' => 1, '2' => 2, '3' => 3, '4' => 4),
-                    '6' => array('0' => 0, '1' => 1, '2' => 2, '3' => 3, '4' => 4, '5' => 5)
+                    1 => array(0 => 4),
+                    2 => array(0 => 4, 1 => 5),
+                    3 => array(0 => 2, 1 => 3, 2 => 4),
+                    4 => array(0 => 2, 1 => 3, 2 => 4, 3 => 5),
+                    5 => array(0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4),
+                    6 => array(0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5)
                 );
 
-                //$aFirmaPosicion[5]; hay 5 firmas, parten desde la posicion 0 del array $aUbicacionesFirma
-                //cantidad de firmas $nNroFirmas
-                
-                $nPosFirma = $cantidadFirmas;
+                $nPosFirma = (int) $cantidadFirmas;
+                if (!isset($aFirmaPosicion[$nNroFirmas][$nPosFirma])) {
+                    $nNroFirmas = 4;
+                }
+                if (!isset($aFirmaPosicion[$nNroFirmas][$nPosFirma])) {
+                    $comentario = "No hay posición de estampa para esta firma.";
+                    throw new Exception($comentario);
+                }
                 $nPosCant = $aFirmaPosicion[$nNroFirmas][$nPosFirma];
 
                 $n_llx = $aUbicacionesFirma[$nPosCant][0];
@@ -720,12 +722,11 @@ class FirmaController extends Controller
 
     public function getNfirmas($idDoc){
         //acciones de firma en bitacora 
-        $datosBitacora = DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
+        return (int) DocumentoBuzonBitacora::join('documento_buzon', 'documento_buzon_bitacora.id_documento_buzon', '=', 'documento_buzon.id_documento_buzon')
             ->where('documento_buzon.id_documento', $idDoc)
             ->where('documento_buzon_bitacora.id_accion', 7)
-            ->get();
-
-        return count($datosBitacora);
+            ->distinct('documento_buzon_bitacora.id_documento_buzon_bitacora')
+            ->count('documento_buzon_bitacora.id_documento_buzon_bitacora');
     }
     
     public function anularFirma($id){

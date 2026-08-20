@@ -23,7 +23,7 @@ class FlujoService
             'categoria' => $tipo->categoria,
             'consume_saldo' => (bool) $tipo->consume_saldo,
             'requiere_fe' => (bool) $tipo->requiere_fe,
-            'numero_firmas' => (int) $tipo->numero_firmas,
+            'numero_firmas' => (bool) $tipo->requiere_fe ? max(4, (int) $tipo->numero_firmas) : (int) $tipo->numero_firmas,
             'primer_buzon_editable' => (bool) $tipo->primer_buzon_editable,
             'plantilla_cuerpo_html' => $tipo->plantilla_cuerpo_html,
             'plantilla_encabezado_html' => $tipo->plantilla_encabezado_html,

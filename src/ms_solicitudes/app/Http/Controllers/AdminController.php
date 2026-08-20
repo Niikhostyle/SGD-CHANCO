@@ -296,7 +296,11 @@ class AdminController extends Controller
             $slug = preg_replace('/[^a-z0-9_]+/', '_', strtolower($d['nombre']));
         }
         $consumeDefault = in_array($cat, ['dias', 'compensatorios', 'vacaciones'], true);
+        $requiereFe = $this->asBool($d['requiere_fe'] ?? $d['fe'] ?? null, true);
         $nFirmas = (int) ($d['numero_firmas'] ?? 0);
+        if ($requiereFe && $nFirmas < 4) {
+            $nFirmas = 4;
+        }
         return [
             'tipo_solicitud' => $slug,
             'regimen_laboral' => !empty($d['regimen_laboral']) ? $d['regimen_laboral'] : null,
@@ -316,7 +320,7 @@ class AdminController extends Controller
             'activo' => $this->asBool($d['activo'] ?? null, true),
             'categoria' => $cat,
             'consume_saldo' => $this->asBool($d['consume_saldo'] ?? null, $consumeDefault),
-            'requiere_fe' => $this->asBool($d['requiere_fe'] ?? $d['fe'] ?? null, true),
+            'requiere_fe' => $requiereFe,
             'numero_firmas' => $nFirmas > 0 ? $nFirmas : null,
             'primer_buzon_editable' => $this->asBool($d['primer_buzon_editable'] ?? null, true),
             'plantilla_encabezado_html' => $d['plantilla_encabezado_html'] ?? null,

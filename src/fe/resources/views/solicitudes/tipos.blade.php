@@ -188,6 +188,7 @@
                         <option value="5">5</option>
                         <option value="6">6</option>
                     </select>
+                    <small class="text-muted">Igual que un oficio: 4 estampas + visación de Personal.</small>
                 </div>
                 <div class="form-group col-md-2">
                     <label>Nombre Firma Folio</label>
@@ -435,6 +436,10 @@
         } else {
             $('#form_numero_firmas').prop('disabled', false);
             var n = Number($('#form_numero_firmas').val() || 0);
+            if (n < 4) {
+                $('#form_numero_firmas').val('4');
+                n = 4;
+            }
             $('#opDerivacion').toggle(n >= 1);
         }
     }
@@ -515,7 +520,7 @@
         $('#tabla-flujo tbody').empty();
         idx = 0;
         $('#form_fe').val('1');
-        $('#form_numero_firmas').val('3').prop('disabled', false);
+        $('#form_numero_firmas').val('4').prop('disabled', false);
         $('#chkPrimera, #chkSegunda').prop('checked', false);
         syncFeFirmas();
     }

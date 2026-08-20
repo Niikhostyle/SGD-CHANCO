@@ -60,8 +60,10 @@ class SgdDocumentoService
 
         $nFirmas = $plantilla ? (int) $plantilla->numero_firmas : 0;
         $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
-        if ($requiereFe && $nFirmas < 1) {
-            $nFirmas = 1;
+        if ($requiereFe) {
+            $nFirmas = $nFirmas >= 4 ? $nFirmas : 4;
+        } else {
+            $nFirmas = $nFirmas > 0 ? $nFirmas : 0;
         }
 
         $payload = [
@@ -94,9 +96,19 @@ class SgdDocumentoService
             $idTipo = (int) DB::table('tipo_documento')->insertGetId($payload, 'id_tipo_documento');
         }
 
-        if ($plantilla && (int) $plantilla->id_tipo_documento !== $idTipo) {
-            $plantilla->id_tipo_documento = $idTipo;
-            $plantilla->save();
+        if ($plantilla) {
+            $dirty = false;
+            if ((int) $plantilla->id_tipo_documento !== $idTipo) {
+                $plantilla->id_tipo_documento = $idTipo;
+                $dirty = true;
+            }
+            if ($requiereFe && (int) $plantilla->numero_firmas !== $nFirmas) {
+                $plantilla->numero_firmas = $nFirmas;
+                $dirty = true;
+            }
+            if ($dirty) {
+                $plantilla->save();
+            }
         }
 
         $this->sincronizarCadenaTipo($idTipo, $plantilla);
@@ -195,9 +207,7 @@ class SgdDocumentoService
     public function publicar(SolSolicitud $sol, int $uid, string $sessionKey, int $idBuzonDestino, ?SolTipoDocumento $plantilla, string $cuerpo, ?string $comentario): array
     {
         $idOrigen = $this->buzonOrigenUsuario($uid);
-        $idTipo = ($plantilla && $plantilla->id_tipo_documento)
-            ? (int) $plantilla->id_tipo_documento
-            : $this->asegurarTipoSgd($plantilla);
+        $idTipo = $this->asegurarTipoSgd($plantilla);
         $user = $sol->usuario;
         $datosPlantilla = [
             'tipo_solicitud' => $plantilla ? $plantilla->tipo_solicitud : $sol->tipo_solicitud,
@@ -445,21 +455,16 @@ class SgdDocumentoService
                 ? (json_decode($doc->json_tipo_documento, true) ?: [])
                 : (array) $doc->json_tipo_documento;
         }
-        $nReq = max(1, (int) ($jsonTipo['numero_firmas'] ?? ($sol->tipoDocumento->numero_firmas ?? 1)));
+        $nReq = max(1, (int) ($jsonTipo['numero_firmas'] ?? ($sol->tipoDocumento->numero_firmas ?? 4)));
         $nHechas = (int) DB::table('documento_buzon_bitacora as bb')
             ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
             ->where('db.id_documento', $sol->id_documento)
             ->where('bb.id_accion', 7)
             ->count();
 
-        if (!empty($doc->finalizado) || $final || ($nHechas >= $nReq && !$hop)) {
-            $sol->estado = 'completada';
-        } elseif ($sol->estado !== 'rechazada') {
-            $sol->estado = 'pendiente';
-        }
-
         $alc = $this->flujo->resolverBuzonConfig('buzon_alcalde_id', ['alcalde', 'alcaldía', 'alcaldia']);
-        if ($alc && empty($sol->alcalde_decision)) {
+        $firmaAlc = null;
+        if ($alc) {
             $firmaAlc = DB::table('documento_buzon_bitacora as bb')
                 ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
                 ->where('db.id_documento', $sol->id_documento)
@@ -468,14 +473,21 @@ class SgdDocumentoService
                 ->orderByDesc('bb.id_documento_buzon_bitacora')
                 ->select('bb.id_usuario', 'bb.comentario', 'bb.mensaje_respuesta')
                 ->first();
-            if ($firmaAlc) {
-                $sol->alcalde_decision = 'autorizado';
-                $sol->alcalde_id = $firmaAlc->id_usuario ?: $sol->alcalde_id;
-                $sol->alcalde_decidido_at = $sol->alcalde_decidido_at ?: date('Y-m-d H:i:s');
-                $obs = $firmaAlc->mensaje_respuesta ?: $firmaAlc->comentario;
-                if ($obs) {
-                    $sol->alcalde_observaciones = $obs;
-                }
+        }
+
+        if (!empty($doc->finalizado) || $final || $firmaAlc || ($nHechas >= $nReq && !$hop)) {
+            $sol->estado = 'completada';
+        } elseif ($sol->estado !== 'rechazada') {
+            $sol->estado = 'pendiente';
+        }
+
+        if ($alc && empty($sol->alcalde_decision) && $firmaAlc) {
+            $sol->alcalde_decision = 'autorizado';
+            $sol->alcalde_id = $firmaAlc->id_usuario ?: $sol->alcalde_id;
+            $sol->alcalde_decidido_at = $sol->alcalde_decidido_at ?: date('Y-m-d H:i:s');
+            $obs = $firmaAlc->mensaje_respuesta ?: $firmaAlc->comentario;
+            if ($obs) {
+                $sol->alcalde_observaciones = $obs;
             }
         }
         if ($sol->estado === 'rechazada' && $alc && empty($sol->alcalde_decision)) {

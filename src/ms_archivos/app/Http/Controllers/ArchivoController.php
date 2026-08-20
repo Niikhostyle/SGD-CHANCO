@@ -91,10 +91,10 @@ class ArchivoController extends Controller
             $nFolio = $datosDocumentos['folio'];
             $tPlantillaDistribucion = "";
 
-            if (isset($datosJsonTipoDocumento['numero_firmas']))
-                $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-            else
+            $nNroFirmas = (int) ($datosJsonTipoDocumento['numero_firmas'] ?? 4);
+            if ($nNroFirmas < 1 || $nNroFirmas > 6) {
                 $nNroFirmas = 4;
+            }
 
             if (isset($datosDocumentos['distribucion']))
                 $tPlantillaDistribucion = $datosDocumentos['distribucion'];
@@ -102,15 +102,15 @@ class ArchivoController extends Controller
             //agregar espacio para firmas al contenido del documento
 
             $aFirmaPosicion = array(
-                '1' => 115, //85,  //165, 
-                '2' => 115, //85,  //165, 
-                '3' => 245, //185, //265,
-                '4' => 245, //185, //265,
-                '5' => 378, //285, //365, 
-                '6' => 378, //285, //365
+                1 => 115,
+                2 => 115,
+                3 => 245,
+                4 => 245,
+                5 => 378,
+                6 => 378,
             );
 
-            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas];
+            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas] ?? 245;
             $datosRequest['generaFolio'] = $request->json()->get('generaFolio',0);
             //si existe folio, saltar proceso de obtención de folio
             $fecha = new \DateTime('now');
@@ -185,7 +185,7 @@ class ArchivoController extends Controller
             //espacio visadores 
 
             $altoTotal = 0;
-            $nEspacioVisadores = 20;
+            $nEspacioVisadores = 40;
 
             //si hay visadores se setea linea y se suma 20 al alto final     
             $sDatosVisadores = $this->obtenerVisadores($nDocumento, $idDocumentoBuzon);
@@ -345,10 +345,10 @@ class ArchivoController extends Controller
             $nFolio = $datosDocumentos['folio'];
             $tPlantillaDistribucion = "";
 
-            if (isset($datosJsonTipoDocumento['numero_firmas']))
-                $nNroFirmas = $datosJsonTipoDocumento['numero_firmas'];
-            else
+            $nNroFirmas = (int) ($datosJsonTipoDocumento['numero_firmas'] ?? 4);
+            if ($nNroFirmas < 1 || $nNroFirmas > 6) {
                 $nNroFirmas = 4;
+            }
 
             if (isset($datosDocumentos['distribucion']))
                 $tPlantillaDistribucion = $datosDocumentos['distribucion'];
