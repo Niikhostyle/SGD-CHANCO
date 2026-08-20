@@ -246,7 +246,7 @@ class SgdDocumentoService
             . ', feriados ' . $saldo['feriados_legales']
             . ', compensatorios ' . $saldo['dias_compensatorios']
             . '. Solicita ' . (int) $sol->total_dias . ' día(s).';
-        $txtFlujo = 'Flujo: 1) firma funcionario · 2) visación Departamento de Personal · 3) firma director'
+        $txtFlujo = 'Flujo: 1) visación Departamento de Personal (iniciales en el PDF) · 2) firma FE del funcionario · 3) firma director'
             . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
             . ' · 4) firma alcalde.';
         $comentario = trim((string) $comentario . "\n" . $txtSaldo . "\n" . $txtFlujo);
@@ -325,12 +325,12 @@ class SgdDocumentoService
             throw new Exception('No se creó el buzón de destino (Departamento de Personal).');
         }
 
-        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
-
-        $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
-        if ($requiereFe) {
-            $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
-        }
+        // Igual que oficios: el PDF (y la FE del funcionario) se generan DESPUÉS de la
+        // visación de Personal, para que las iniciales queden impresas en el pie.
+        $sol->id_documento = $idDocumento;
+        $sol->id_documento_buzon = $idDocBuzon;
+        $sol->id_tipo_documento = $idTipo;
+        $sol->save();
 
         $enviar = $this->http($sessionKey)->timeout(120)->put($this->apiDocumentos() . '/api/sgd-documentos/enviar', [
             'id_documento' => $idDocumento,
@@ -348,12 +348,7 @@ class SgdDocumentoService
             throw new Exception('El documento SGD se creó pero no se pudo enviar al buzón: ' . $this->errorHttp($enviar));
         }
 
-        $sol->id_documento = $idDocumento;
-        $sol->id_documento_buzon = $idDocBuzon;
-        $sol->id_tipo_documento = $idTipo;
-        $sol->save();
-
-        $this->flujo->registrar($sol, 'enviar_sgd', $idEnviar, $uid, 'Documento SGD #' . $idDocumento . ' firmado por el funcionario y enviado a visación de Departamento de Personal.');
+        $this->flujo->registrar($sol, 'enviar_sgd', $idEnviar, $uid, 'Documento SGD #' . $idDocumento . ' enviado a visación de Departamento de Personal. El PDF y la firma del funcionario se generan al visar (igual que un oficio).');
 
         return [
             'id_documento' => $idDocumento,
@@ -361,6 +356,67 @@ class SgdDocumentoService
             'id_tipo_documento' => $idTipo,
             'id_buzon_origen' => $idOrigen,
         ];
+    }
+
+    /**
+     * Tras visar (acción 6): genera el PDF con iniciales y aplica la FE del solicitante.
+     * Así la visación queda como en el resto del SGD (ABC/nff).
+     */
+    public function trasVisar(int $idDocumento, string $sessionKey): array
+    {
+        $sol = \App\Models\SolSolicitud::where('id_documento', $idDocumento)->first();
+        if (!$sol) {
+            return ['aplicado' => false, 'motivo' => 'no_es_solicitud'];
+        }
+
+        $nFirmas = (int) DB::table('documento_buzon_bitacora as bb')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
+            ->where('db.id_documento', $idDocumento)
+            ->where('bb.id_accion', 7)
+            ->count();
+        if ($nFirmas > 0) {
+            return ['aplicado' => false, 'motivo' => 'ya_firmado'];
+        }
+
+        $idDocBuzon = (int) ($sol->id_documento_buzon ?: 0);
+        $origenHop = DB::table('documento_buzon')
+            ->where('id_documento', $idDocumento)
+            ->whereNull('id_documento_buzon_padre')
+            ->orderBy('id_documento_buzon')
+            ->first();
+        if ($origenHop) {
+            $idDocBuzon = (int) $origenHop->id_documento_buzon;
+        }
+        if (!$idDocBuzon) {
+            throw new Exception('No se encontró el buzón de origen de la solicitud para generar el PDF.');
+        }
+
+        $idOrigen = (int) DB::table('documento_buzon')->where('id_documento_buzon', $idDocBuzon)->value('id_buzon');
+        $uid = (int) $sol->user_id;
+        if (!$idOrigen || !$uid) {
+            throw new Exception('Faltan datos del solicitante para firmar tras la visación.');
+        }
+
+        $nVisas = (int) DB::table('documento_buzon_bitacora as bb')
+            ->join('documento_buzon as db', 'db.id_documento_buzon', '=', 'bb.id_documento_buzon')
+            ->where('db.id_documento', $idDocumento)
+            ->where('bb.id_accion', 6)
+            ->count();
+        if ($nVisas < 1) {
+            return ['aplicado' => false, 'motivo' => 'sin_visacion'];
+        }
+
+        $this->generarPdfSgd($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+
+        $plantilla = $sol->tipoDocumento;
+        $requiereFe = $plantilla ? (bool) $plantilla->requiere_fe : true;
+        if ($requiereFe) {
+            $this->firmarComoSolicitante($sessionKey, $idDocumento, $idDocBuzon, $idOrigen, $uid);
+        }
+
+        $this->flujo->registrar($sol, 'pdf_tras_visar', $idOrigen, $uid, 'PDF generado con visación y firma del funcionario (documento #' . $idDocumento . ').');
+
+        return ['aplicado' => true, 'id_documento' => $idDocumento];
     }
 
     protected function firmarComoSolicitante(string $sessionKey, int $idDocumento, int $idDocBuzon, int $idOrigen, int $uid): void

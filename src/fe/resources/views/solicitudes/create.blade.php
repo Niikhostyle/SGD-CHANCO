@@ -116,7 +116,7 @@
                         </option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">Usted firma al enviar. Luego visa <b>Departamento de Personal</b>, firma el <b>director</b> de este buzón y al final el <b>alcalde</b>.</small>
+                <small class="form-text text-muted">Se envía a <b>Departamento de Personal</b> para visar (iniciales en el PDF, igual que un oficio). Al visar se genera el PDF y la firma del funcionario; luego firma el <b>director</b> de este buzón y al final el <b>alcalde</b>.</small>
             </div>
         </div>
     </div>
@@ -134,7 +134,7 @@
             <div id="preview-distribucion" class="border rounded p-2 mt-3 bg-light" style="display:none"></div>
         </div>
         <div class="card-footer">
-            <button class="btn btn-success btn-lg" type="submit" id="btn-enviar-sol"><i class="fas fa-paper-plane"></i> Firmar y enviar al buzón</button>
+            <button class="btn btn-success btn-lg" type="submit" id="btn-enviar-sol"><i class="fas fa-paper-plane"></i> Enviar a Personal para visación</button>
             <button type="button" class="btn btn-outline-primary btn-lg" id="btn-vista-previa-2"><i class="fas fa-eye"></i> Ver vista previa</button>
             <a href="{{ route('solicitudes.index') }}" class="btn btn-default btn-lg">Cancelar</a>
         </div>

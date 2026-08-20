@@ -528,7 +528,11 @@ class BuzonController extends Controller
                     'id_usuario' => Auth::user()->id
                 ]);
 
-            return $datosDocumento->json();
+            $json = $datosDocumento->json();
+            if ((int) $request->accion === 6 && (int) ($json['status'] ?? 0) === 200) {
+                $this->trasVisarSolicitud($sesion_key, (int) $request->hiddIdDocumento);
+            }
+            return $json;
         }
     }
 
@@ -583,7 +587,31 @@ class BuzonController extends Controller
             'id_usuario' => Auth::user()->id
         ])->throw();
 
-        return $datosDocumento->json();
+        $json = $datosDocumento->json();
+        if ((int) ($json['status'] ?? 0) === 200) {
+            $this->trasVisarSolicitud($sesion_key, (int) $id);
+        }
+        return $json;
+    }
+
+    /**
+     * Si el documento es una solicitud, genera el PDF con iniciales de visación
+     * y aplica la firma FE del funcionario (mismo criterio que oficios).
+     */
+    protected function trasVisarSolicitud(string $sesionKey, int $idDocumento): void
+    {
+        if ($idDocumento < 1) {
+            return;
+        }
+        try {
+            Http::withHeaders(['key' => $sesionKey, 'Content-Type' => 'application/json'])
+                ->timeout(120)
+                ->put(config('sgd.api_solicitudes') . '/api/sgd-solicitudes/tras-visar', [
+                    'id_documento' => $idDocumento,
+                ]);
+        } catch (\Throwable $e) {
+            \Log::warning('trasVisarSolicitud: ' . $e->getMessage(), ['id_documento' => $idDocumento]);
+        }
     }
 
     

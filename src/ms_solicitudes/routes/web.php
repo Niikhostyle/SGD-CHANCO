@@ -20,6 +20,7 @@ $router->group(['middleware' => ['auth']], function () use ($router) {
     $router->put('/api/sgd-solicitudes/firmar-alcalde', 'SolicitudController@firmarAlcalde');
     $router->put('/api/sgd-solicitudes/rechazar-alcalde', 'SolicitudController@rechazarAlcalde');
     $router->put('/api/sgd-solicitudes/actuar', 'SolicitudController@actuarFlujo');
+    $router->put('/api/sgd-solicitudes/tras-visar', 'SolicitudController@trasVisar');
     $router->get('/api/sgd-solicitudes/pdf', 'SolicitudController@pdf');
     $router->get('/api/sgd-solicitudes/plantilla', 'SolicitudController@plantilla');
 

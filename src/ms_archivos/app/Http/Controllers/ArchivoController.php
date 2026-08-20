@@ -199,7 +199,16 @@ class ArchivoController extends Controller
 
             $altoTotal = $nEspacioVisadores + $nEspacioDistribucion + $nAltoFirmas;
 
-            $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo, 'visadores' => $sDatosVisadores, 'distribucion' => $datosDocumentosDistribucion, 'altoFirmas' => $nAltoFirmas, 'altoDistribucion' => $nEspacioDistribucion, 'altoTotal' => $altoTotal);
+            $dataPdf = array(
+                'materia' => $datosDocumentos['materia'],
+                'encabezado' => $datosDocumentosencabezado,
+                'cuerpo' => $datosDocumentosCuerpo,
+                'visadores' => $sDatosVisadores !== '' ? '<div style="font-size:11px;letter-spacing:0.5px;">' . htmlspecialchars($sDatosVisadores, ENT_QUOTES, 'UTF-8') . '</div>' : '',
+                'distribucion' => $datosDocumentosDistribucion,
+                'altoFirmas' => $nAltoFirmas,
+                'altoDistribucion' => $nEspacioDistribucion,
+                'altoTotal' => $altoTotal
+            );
             PDF::setOptions(['isRemoteEnabled' => true, 'chroot' => storage_path('app/public')]);
             PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->save(storage_path('app/public/files/') . $nNombreArchivoCargar);
             //return PDF::loadView('pdf', $dataPdf)->setPaper('legal', 'portrait')->stream(storage_path('app/public/files/') . $nNombreArchivoCargar);  
@@ -589,7 +598,8 @@ class ArchivoController extends Controller
                 'documento_buzon_bitacora.id_usuario',
                 'users.nombres',
                 'users.primer_apellido',
-                'users.segundo_apellido'            )
+                'users.segundo_apellido'
+            )
             ->orderBy('documento_buzon_bitacora.id_documento_buzon_bitacora', 'desc')
             ->get();
 
@@ -599,27 +609,36 @@ class ArchivoController extends Controller
         $nTerminaCiclo = 0;
 
         foreach ($datosVisarFirmar as $value) {
-            if ($value['id_accion'] == 1)
-                $txtVisadoresCrea = strtolower(substr($value['nombres'], 0, 1) . substr($value['primer_apellido'], 0, 1) . substr($value['segundo_apellido'], 0, 1));
+            if ((int) $value['id_accion'] === 1) {
+                $txtVisadoresCrea = $this->inicialesUsuario($value, false);
+            }
 
-            if ($value['id_accion'] == 6 && $nTerminaCiclo != 1)
-            {
-                $txtUserBuzon = $value['id_buzon'].$value['id_usuario'];
-                if ($txtUserBuzonPrev != $txtUserBuzon)
-                {
-                    $txtUserBuzonPrev = $value['id_buzon'].$value['id_usuario'];                
-                    $txtVisadores .= strtoupper(substr($value['nombres'], 0, 1) . substr($value['primer_apellido'], 0, 1) . substr($value['segundo_apellido'], 0, 1)) . "/";
-                }  
-            }    
-            if ($value['id_accion'] == 4)       
-                $nTerminaCiclo = 1;    
-        };
+            if ((int) $value['id_accion'] === 6 && $nTerminaCiclo != 1) {
+                $txtUserBuzon = $value['id_buzon'] . $value['id_usuario'];
+                if ($txtUserBuzonPrev != $txtUserBuzon) {
+                    $txtUserBuzonPrev = $txtUserBuzon;
+                    $txtVisadores .= $this->inicialesUsuario($value, true) . "/";
+                }
+            }
+            if ((int) $value['id_accion'] === 4) {
+                $nTerminaCiclo = 1;
+            }
+        }
 
-        if ($txtVisadores != "")
+        if ($txtVisadores != "") {
             $txtVisadores .= $txtVisadoresCrea;
-
+        }
 
         return $txtVisadores;
+    }
+
+    protected function inicialesUsuario($value, bool $mayusculas): string
+    {
+        $n = mb_substr(trim((string) ($value['nombres'] ?? '')), 0, 1, 'UTF-8');
+        $a1 = mb_substr(trim((string) ($value['primer_apellido'] ?? '')), 0, 1, 'UTF-8');
+        $a2 = mb_substr(trim((string) ($value['segundo_apellido'] ?? '')), 0, 1, 'UTF-8');
+        $ini = $n . $a1 . $a2;
+        return $mayusculas ? mb_strtoupper($ini, 'UTF-8') : mb_strtolower($ini, 'UTF-8');
     }
 
     protected function reemplazarTokensFecha($html, $sfecha)

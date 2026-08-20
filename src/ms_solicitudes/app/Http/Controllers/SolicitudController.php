@@ -484,6 +484,22 @@ class SolicitudController extends Controller
         }
     }
 
+    public function trasVisar(Request $request)
+    {
+        try {
+            $body = $this->body($request);
+            $idDocumento = (int) ($body['id_documento'] ?? $request->get('id_documento') ?? 0);
+            if ($idDocumento < 1) {
+                throw new Exception('id_documento es obligatorio.');
+            }
+            $key = (string) $request->header('key');
+            $out = $this->sgd->trasVisar($idDocumento, $key);
+            return response()->json(['ok' => true, 'data' => $out]);
+        } catch (Exception $e) {
+            return response()->json(['ok' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
     public function pdf(Request $request)
     {
         try {

@@ -77,7 +77,8 @@
                 <ol class="mb-3 pl-3">
                     <li>Ábralo en el buzón.</li>
                     <li>Recíbalo (pasa a Recibidos).</li>
-                    <li>Personal visa y deriva al director. El director firma y deriva al alcalde.</li>
+                    <li>Personal visa (quedan las iniciales en el PDF, p. ej. ABC/nff) y se genera la firma del funcionario.</li>
+                    <li>Deriva al director; el director firma y deriva al alcalde.</li>
                 </ol>
                 @if(!empty($solicitud['sgd']['id_buzon']))
                     <a class="btn btn-primary" href="{{ url('buzonesCarpetas/'.$solicitud['sgd']['id_buzon']) }}">Abrir el buzón</a>
