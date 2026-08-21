@@ -11,6 +11,12 @@ class SolSaldoAnual extends Model
         'user_id', 'anio', 'dias_administrativos', 'feriados_legales', 'dias_compensatorios',
     ];
 
+    protected $casts = [
+        'dias_administrativos' => 'float',
+        'feriados_legales' => 'float',
+        'dias_compensatorios' => 'float',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

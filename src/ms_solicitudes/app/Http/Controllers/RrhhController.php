@@ -65,7 +65,7 @@ class RrhhController extends Controller
                 (int) ($d['anio'] ?? date('Y')),
                 $d['tipo'],
                 $d['permiso_tipo'] ?? 'dias_administrativos',
-                (int) $d['dias'],
+                round((float) ($d['dias'] ?? 0), 1),
                 $d['motivo'] ?? null
             );
             return response()->json(['ok' => true, 'data' => $saldo->load('user')]);

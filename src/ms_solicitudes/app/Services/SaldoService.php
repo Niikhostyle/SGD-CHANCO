@@ -123,6 +123,12 @@ class SaldoService
             throw new Exception('Tipo de permiso no válido para saldo.');
         }
         $dias = round((float) $dias, 1);
+        if ($dias < 0.5) {
+            throw new Exception('Debe indicar al menos 0,5 día.');
+        }
+        if (abs(($dias * 2) - round($dias * 2)) > 0.001) {
+            throw new Exception('Los días deben ser enteros o medios días (ej. 1 o 0,5).');
+        }
         if ($tipo === 'carga') {
             $saldo->{$campo} = round((float) $saldo->{$campo} + $dias, 1);
         } elseif ($tipo === 'descuento') {

@@ -42,7 +42,8 @@
             </div>
             <div class="form-group col-md-2">
                 <label>Días</label>
-                <input type="number" min="1" name="dias" class="form-control" value="1" required>
+                <input type="number" min="0.5" step="0.5" name="dias" class="form-control" value="1" required>
+                <small class="text-muted">Puede usar medios días (0,5).</small>
             </div>
             <div class="form-group col-md-2">
                 <label>&nbsp;</label>
@@ -74,14 +75,23 @@
                 </tr>
             </thead>
             <tbody>
+            @php
+                $fmtDias = function ($v) {
+                    $n = round((float) $v, 1);
+                    if (abs($n - (int) $n) < 0.05) {
+                        return (string) (int) $n;
+                    }
+                    return rtrim(rtrim(number_format($n, 1, ',', ''), '0'), ',');
+                };
+            @endphp
             @forelse($saldos as $s)
                 <tr>
                     <td class="align-middle">
                         <strong>{{ ($s['user']['nombres'] ?? '') }} {{ ($s['user']['primer_apellido'] ?? '') }}</strong>
                     </td>
-                    <td class="text-center text-primary" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['dias_administrativos'] }}</td>
-                    <td class="text-center text-info" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['feriados_legales'] }}</td>
-                    <td class="text-center text-success" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $s['dias_compensatorios'] }}</td>
+                    <td class="text-center text-primary" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $fmtDias($s['dias_administrativos'] ?? 0) }}</td>
+                    <td class="text-center text-info" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $fmtDias($s['feriados_legales'] ?? 0) }}</td>
+                    <td class="text-center text-success" style="font-size:2rem;font-weight:800;line-height:1.1">{{ $fmtDias($s['dias_compensatorios'] ?? 0) }}</td>
                 </tr>
             @empty
                 <tr><td colspan="4" class="text-center text-muted">Sin saldos</td></tr>

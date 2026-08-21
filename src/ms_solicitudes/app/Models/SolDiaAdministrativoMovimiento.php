@@ -10,4 +10,8 @@ class SolDiaAdministrativoMovimiento extends Model
     protected $fillable = [
         'user_id', 'registrado_por', 'anio', 'tipo', 'permiso_tipo', 'dias', 'motivo',
     ];
+
+    protected $casts = [
+        'dias' => 'float',
+    ];
 }
