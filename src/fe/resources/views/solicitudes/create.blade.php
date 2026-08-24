@@ -415,6 +415,18 @@
             return '{' + ta.value + '}';
         });
     }
+    function normalizarEstilosDoc(html) {
+        var s = String(html || '');
+        s = s.replace(/\bstyle="([^"]*)"/gi, function (_, style) {
+            var m = /margin-left\s*:\s*(\d+)px/i.exec(style);
+            if (m && parseInt(m[1], 10) >= 200) {
+                style = style.replace(/margin-left\s*:\s*\d+px\s*;?/gi, '');
+                if (!/text-align\s*:/i.test(style)) style = 'text-align:right;' + style;
+            }
+            return 'style="' + style.replace(/;\s*$/, '') + ';"';
+        });
+        return s.replace(/<img\b[^>]*src="file:[^"]*"[^>]*>/gi, '');
+    }
     function deduplicarDiaFecha(s, patMes) {
         return String(s || '').replace(new RegExp('(\\d{1,2})\\s+\\1\\s+(' + patMes + ')', 'gi'), '$1 $2');
     }
@@ -504,7 +516,7 @@
             out = out.split(k).join(map[k]);
         });
         out = completarDiaFecha(out, dia);
-        return out;
+        return normalizarEstilosDoc(out);
     }
     function setSide(id, html) {
         var el = $(id);

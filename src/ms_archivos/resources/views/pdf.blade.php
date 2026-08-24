@@ -22,6 +22,13 @@
             .content {               
                 margin-bottom: 60px;
             }
+            .content p {
+                max-width: 100%;
+            }
+            .content [style*="text-align:right"],
+            .content [style*="text-align: right"] {
+                margin-left: 0 !important;
+            }
             .pie {
                 height: {{$altoTotal}}px;                
                 page-break-inside: avoid !important;                   

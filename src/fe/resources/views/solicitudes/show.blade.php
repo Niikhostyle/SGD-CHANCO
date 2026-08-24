@@ -205,5 +205,9 @@
     }
     .sol-doc-preview table { max-width: 100%; }
     .sol-doc-preview img { max-width: 120px; height: auto; }
+    .sol-doc-preview p[style*="margin-left"] {
+        margin-left: 0 !important;
+        text-align: right !important;
+    }
 </style>
 @stop

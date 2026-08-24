@@ -271,7 +271,7 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{motivo}}">Motivo</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{viaticos_destino}}">Destino viatico</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{departamento}}">Departamento</button>
-                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha}}">Fecha de hoy</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha}}" data-fecha-derecha="1">Fecha de hoy (derecha)</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{dia}}">Día</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{mes}}">Mes</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_anio}">Año</button>
@@ -458,7 +458,12 @@
     $('.btn-campo').on('click', function () {
         var inst = (CKEDITOR.instances[editorActivo] || CKEDITOR.instances.plantilla_cuerpo_html);
         if (!inst) return;
-        inst.insertText($(this).attr('data-campo'));
+        var campo = $(this).attr('data-campo') || '';
+        if ($(this).data('fecha-derecha')) {
+            inst.insertHtml('<p style="text-align:right">' + campo + '</p>');
+        } else {
+            inst.insertText(campo);
+        }
         inst.focus();
     });
 
@@ -562,6 +567,18 @@
             return '{' + ta.value + '}';
         });
     }
+    function normalizarEstilosDoc(html) {
+        var s = String(html || '');
+        s = s.replace(/\bstyle="([^"]*)"/gi, function (_, style) {
+            var m = /margin-left\s*:\s*(\d+)px/i.exec(style);
+            if (m && parseInt(m[1], 10) >= 200) {
+                style = style.replace(/margin-left\s*:\s*\d+px\s*;?/gi, '');
+                if (!/text-align\s*:/i.test(style)) style = 'text-align:right;' + style;
+            }
+            return 'style="' + style.replace(/;\s*$/, '') + ';"';
+        });
+        return s.replace(/<img\b[^>]*src="file:[^"]*"[^>]*>/gi, '');
+    }
     function deduplicarDiaFecha(s, patMes) {
         return String(s || '').replace(new RegExp('(\\d{1,2})\\s+\\1\\s+(' + patMes + ')', 'gi'), '$1 $2');
     }
@@ -632,7 +649,7 @@
             return rank(a) - rank(b) || b.length - a.length;
         }).forEach(function (k) { out = out.split(k).join(map[k]); });
         out = completarDiaFecha(out, dia);
-        return out;
+        return normalizarEstilosDoc(out);
     }
     $('#btn-vista-previa').on('click', function () {
         if (!ckListo) {

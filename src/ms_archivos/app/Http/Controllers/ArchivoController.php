@@ -196,9 +196,9 @@ class ArchivoController extends Controller
                 $tPlantillaDistribucion = str_replace('{t_folio}', 'SIN FOLIO', $tPlantillaDistribucion);
             }
 
-            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($sCuerpo);
-            $datosDocumentosencabezado = $this->incrustarImagenesPdf($sEncabezado);
-            $datosDocumentosDistribucion = $this->incrustarImagenesPdf($tPlantillaDistribucion);
+            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($this->normalizarEstilosPdf($sCuerpo));
+            $datosDocumentosencabezado = $this->incrustarImagenesPdf($this->normalizarEstilosPdf($sEncabezado));
+            $datosDocumentosDistribucion = $this->incrustarImagenesPdf($this->normalizarEstilosPdf($tPlantillaDistribucion));
 
             //espacio visadores 
 
@@ -509,8 +509,8 @@ class ArchivoController extends Controller
             $sCuerpo = str_replace('{t_folio}', $nFolio, $sCuerpo);
             $sCuerpo = $this->reemplazarTokensFecha($sCuerpo, $sfecha);
 
-            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($sCuerpo);
-            $datosDocumentosencabezado = $this->incrustarImagenesPdf($sEncabezado);
+            $datosDocumentosCuerpo = $this->incrustarImagenesPdf($this->normalizarEstilosPdf($sCuerpo));
+            $datosDocumentosencabezado = $this->incrustarImagenesPdf($this->normalizarEstilosPdf($sEncabezado));
 
             $dataPdf = array('materia' => $datosDocumentos['materia'], 'encabezado' => $datosDocumentosencabezado, 'cuerpo' => $datosDocumentosCuerpo);
 
@@ -724,6 +724,29 @@ class ArchivoController extends Controller
     protected function deduplicarDiaFecha($html, $patMes)
     {
         return preg_replace('/(\d{1,2})\s+\1\s+(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
+    }
+
+    /** margin-left enorme (p. ej. 600px desde Word) recorta el inicio del texto en DomPDF. */
+    protected function normalizarEstilosPdf($html)
+    {
+        $html = (string) ($html ?: '');
+        $html = preg_replace_callback(
+            '/\bstyle=(["\'])(.*?)\1/is',
+            function ($m) {
+                $style = $m[2];
+                if (preg_match('/margin-left\s*:\s*(\d+)px/i', $style, $mm) && (int) $mm[1] >= 200) {
+                    $style = preg_replace('/margin-left\s*:\s*\d+px\s*;?/i', '', $style);
+                    if (!preg_match('/text-align\s*:/i', $style)) {
+                        $style = 'text-align:right;' . $style;
+                    }
+                }
+                $style = trim($style, " \t\n\r\0\x0B;") . ';';
+                return 'style=' . $m[1] . $style . $m[1];
+            },
+            $html
+        ) ?? $html;
+        $html = preg_replace('/<img\b[^>]*\bsrc=["\']file:[^"\']*["\'][^>]*>/i', '', $html) ?? $html;
+        return $html;
     }
 
     protected function incrustarImagenesPdf($html)

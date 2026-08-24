@@ -148,6 +148,7 @@ class PlantillaService
     public function renderHtml(?string $html, User $user, array $datos): string
     {
         $html = $this->normalizarUrlsImagen($html ?: '');
+        $html = $this->normalizarEstilosDoc($html);
         $html = $this->normalizarLlavesToken($html);
         $html = strtr($html, $this->mapaCampos($user, $datos));
         return $this->completarDiaFecha($html, date('d'));
@@ -165,6 +166,27 @@ class PlantillaService
             $html
         ) ?? $html;
         return $html;
+    }
+
+    /** Evita margin-left excesivo que oculta el día de la fecha en PDF/vista previa. */
+    public function normalizarEstilosDoc(string $html): string
+    {
+        $html = preg_replace_callback(
+            '/\bstyle=(["\'])(.*?)\1/is',
+            function ($m) {
+                $style = $m[2];
+                if (preg_match('/margin-left\s*:\s*(\d+)px/i', $style, $mm) && (int) $mm[1] >= 200) {
+                    $style = preg_replace('/margin-left\s*:\s*\d+px\s*;?/i', '', $style);
+                    if (!preg_match('/text-align\s*:/i', $style)) {
+                        $style = 'text-align:right;' . $style;
+                    }
+                }
+                $style = trim($style, " \t\n\r\0\x0B;") . ';';
+                return 'style=' . $m[1] . $style . $m[1];
+            },
+            $html
+        ) ?? $html;
+        return preg_replace('/<img\b[^>]*\bsrc=["\']file:[^"\']*["\'][^>]*>/i', '', $html) ?? $html;
     }
 
     /** Quita spans/entidades dentro de {tokens} rotos por CKEditor. */
