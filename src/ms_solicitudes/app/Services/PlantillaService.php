@@ -53,9 +53,15 @@ class PlantillaService
             '{{explicacion}}' => $datos['explicacion'] ?? ($datos['motivo'] ?? ''),
             '{{viaticos_destino}}' => $datos['viaticos_destino'] ?? '',
             '{{fecha}}' => $this->fechaLarga(),
+            '{{dia}}' => date('d'),
+            '{{mes}}' => $this->nombreMes(),
             '{{anio}}' => date('Y'),
             '{t_anio}' => date('Y'),
+            '{t_dia}' => date('d'),
+            '{t_mes}' => $this->nombreMes(),
             '{t_fecha}' => $this->fechaLarga(),
+            '{dia}' => date('d'),
+            '{mes}' => $this->nombreMes(),
             '{t_folio}' => (string) ($datos['folio'] ?? 'SIN FOLIO'),
             '{{ha_solicitado}}' => (string) $saldos['ha_solicitado'],
             '{{solicita}}' => (string) $saldos['solicita'],
@@ -128,16 +134,35 @@ class PlantillaService
         return '';
     }
 
-    protected function fechaLarga(): string
+    protected function nombreMes(): string
     {
         $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-        $n = (int) date('n');
-        return date('d') . ' de ' . $meses[$n - 1] . ' del ' . date('Y');
+        return $meses[(int) date('n') - 1];
+    }
+
+    protected function fechaLarga(): string
+    {
+        return date('d') . ' de ' . $this->nombreMes() . ' del ' . date('Y');
     }
 
     public function renderHtml(?string $html, User $user, array $datos): string
     {
-        return strtr($html ?: '', $this->mapaCampos($user, $datos));
+        $html = $this->normalizarUrlsImagen($html ?: '');
+        return strtr($html, $this->mapaCampos($user, $datos));
+    }
+
+    /**
+     * Reescribe URLs absolutas de producción (sgd.chanco.cl) a rutas /files/...
+     * para que el PDF y la vista previa usen el storage local.
+     */
+    public function normalizarUrlsImagen(string $html): string
+    {
+        $html = preg_replace(
+            '#https?://[^"\'\s>]+/files/#i',
+            '/files/',
+            $html
+        ) ?? $html;
+        return $html;
     }
 
     public function renderCuerpo(SolTipoDocumento $plantilla, User $user, array $datos): string

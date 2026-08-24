@@ -191,9 +191,9 @@ Route::middleware(['auth:sanctum', 'verified'])->put('generar_archivoExterno', [
 Route::any('/ckfinder/connector', '\CKSource\CKFinderBridge\Controller\CKFinderController@requestAction')->name('ckfinder_connector');
 Route::any('/ckfinder/browser', '\CKSource\CKFinderBridge\Controller\CKFinderController@browserAction')->name('ckfinder_browser');
 
-Route::middleware(['auth:sanctum', 'verified'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class, 'showImage'])->name('images.show');
-Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_firma/{filename}', [DocumentoBuzonArchivoController::class, 'showImageFirma'])->name('images.showFirma');
-Route::middleware(['auth:sanctum', 'verified'])->get('files/imagen_perfil/{filename}', [DocumentoBuzonArchivoController::class, 'showImagePerfil'])->name('images.showImagePerfil');
+Route::middleware(['auth'])->get('files/editor/images/{filename}', [DocumentoBuzonArchivoController::class, 'showImage'])->name('images.show');
+Route::middleware(['auth'])->get('files/imagen_firma/{filename}', [DocumentoBuzonArchivoController::class, 'showImageFirma'])->name('images.showFirma');
+Route::middleware(['auth'])->get('files/imagen_perfil/{filename}', [DocumentoBuzonArchivoController::class, 'showImagePerfil'])->name('images.showImagePerfil');
 
 
 //verificacion archivos

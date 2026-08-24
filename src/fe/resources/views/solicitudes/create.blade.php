@@ -444,8 +444,23 @@
                 var d = new Date();
                 return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
             })(),
+            '@{{dia}}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
+            '@{{mes}}': (function () {
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                return meses[(new Date()).getMonth()];
+            })(),
             '@{{anio}}': String(new Date().getFullYear()),
             '{t_anio}': String(new Date().getFullYear()),
+            '{t_dia}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
+            '{t_mes}': (function () {
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                return meses[(new Date()).getMonth()];
+            })(),
+            '{dia}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
+            '{mes}': (function () {
+                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                return meses[(new Date()).getMonth()];
+            })(),
             '{t_fecha}': (function () {
                 var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
                 var d = new Date();
@@ -461,6 +476,8 @@
             '@{{alcalde_observaciones}}': '________________'
         };
         var out = html || '';
+        // URLs de prod → origin actual (para ver el logo en vista previa)
+        out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
         Object.keys(map).forEach(function (k) {
             out = out.split(k).join(map[k]);
         });

@@ -662,7 +662,19 @@ class ArchivoController extends Controller
     protected function reemplazarTokensFecha($html, $sfecha)
     {
         $html = $html ?: '';
-        $html = str_replace(['{t_anio}', '{{anio}}'], date('Y'), $html);
+        $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        $dia = date('d');
+        $mes = $meses[(int) date('n') - 1];
+        $anio = date('Y');
+        // Si $sfecha trae día completo ("24 de agosto del 2026"), preferir ese día/mes/año.
+        if (preg_match('/^(\d{1,2})\s+de\s+(\w+)\s+del\s+(\d{4})/u', (string) $sfecha, $m)) {
+            $dia = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+            $mes = $m[2];
+            $anio = $m[3];
+        }
+        $html = str_replace(['{t_anio}', '{{anio}}'], $anio, $html);
+        $html = str_replace(['{t_dia}', '{{dia}}', '{dia}'], $dia, $html);
+        $html = str_replace(['{t_mes}', '{{mes}}', '{mes}'], $mes, $html);
         $html = str_replace(['{t_fecha}', '{{fecha}}'], $sfecha, $html);
         return $html;
     }
@@ -670,6 +682,8 @@ class ArchivoController extends Controller
     protected function incrustarImagenesPdf($html)
     {
         $html = $html ?: '';
+        // Cualquier host (prod/test) → path local /files/...
+        $html = preg_replace('#https?://[^"\'\s>]+/files/#i', '/files/', $html) ?? $html;
         $appUrl = rtrim((string) env('APP_URL'), '/');
         if ($appUrl !== '') {
             $html = str_replace($appUrl, storage_path('app/public'), $html);
@@ -731,6 +745,17 @@ class ArchivoController extends Controller
             if (is_file($c) && is_readable($c)) {
                 return $c;
             }
+        }
+        // Fallback escudo municipal (misma imagen que usa el FE)
+        $fallback = base_path('../fe/public/img/logo2.png');
+        if (!is_file($fallback)) {
+            $fallback = storage_path('app/public/files/editor/images/logo_municipal.png');
+        }
+        if (!is_file($fallback)) {
+            $fallback = '/var/www/sgd/public/img/logo2.png';
+        }
+        if (is_file($fallback) && is_readable($fallback)) {
+            return $fallback;
         }
         return null;
     }

@@ -188,7 +188,7 @@
                         <option value="5">5</option>
                         <option value="6">6</option>
                     </select>
-                    <small class="text-muted">3 firmas FE (solicitante, director, alcalde) + visación de Personal.</small>
+                    
                 </div>
                 <div class="form-group col-md-2">
                     <label>Nombre Firma Folio</label>
@@ -272,7 +272,11 @@
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{viaticos_destino}}">Destino viatico</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{departamento}}">Departamento</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{fecha}}">Fecha de hoy</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{dia}}">Día</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="@{{mes}}">Mes</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_anio}">Año</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_dia}">Día (t_dia)</button>
+                <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_mes}">Mes (t_mes)</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_fecha}">Fecha larga</button>
                 <button type="button" class="btn btn-xs btn-outline-secondary btn-campo" data-campo="{t_folio}">Folio</button>
                 <button type="button" class="btn btn-xs btn-outline-info btn-campo" data-campo="@{{ha_solicitado}}">Ha solicitado</button>
@@ -563,8 +567,14 @@
             '@{{explicacion}}': 'Asuntos personales',
             '@{{viaticos_destino}}': 'Talca',
             '@{{fecha}}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
+            '@{{dia}}': pad2(hoy.getDate()),
+            '@{{mes}}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
             '@{{anio}}': String(hoy.getFullYear()),
             '{t_anio}': String(hoy.getFullYear()),
+            '{t_dia}': pad2(hoy.getDate()),
+            '{t_mes}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
+            '{dia}': pad2(hoy.getDate()),
+            '{mes}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
             '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
             '{t_folio}': 'SIN FOLIO',
             '@{{ha_solicitado}}': '2',
@@ -576,6 +586,7 @@
             '@{{alcalde_observaciones}}': '________________'
         };
         var out = html || '';
+        out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
         Object.keys(map).forEach(function (k) { out = out.split(k).join(map[k]); });
         return out;
     }
