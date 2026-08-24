@@ -436,17 +436,17 @@
         var anio = String(d.getFullYear());
         var fechaLarga = dia + ' de ' + mes + ' del ' + anio;
         var map = {};
-        map['{{' + 'nombre}}'] = yo.nombre || '';
-        map['{{' + 'run}}'] = yo.run || '';
-        map['{{' + 'cargo}}'] = yo.cargo || '';
-        map['{{' + 'departamento}}'] = yo.departamento || '';
-        map['{{' + 'tipo_solicitud}}'] = t ? (t.nombre || '') : '';
-        map['{{' + 'fecha_inicio}}'] = fmtFecha($('#fecha_inicio').val());
-        map['{{' + 'fecha_termino}}'] = fmtFecha($('#fecha_termino').val());
-        map['{{' + 'total_dias}}'] = String(dias() || '');
-        map['{{' + 'jornada_inicio}}'] = String(($('#jornada_inicio').val() || '').toUpperCase());
-        map['{{' + 'jornada_termino}}'] = String(($('#jornada_termino').val() || '').toUpperCase());
-        map['{{' + 'jornada}}'] = (function () {
+        map['@{{nombre}}'] = yo.nombre || '';
+        map['@{{run}}'] = yo.run || '';
+        map['@{{cargo}}'] = yo.cargo || '';
+        map['@{{departamento}}'] = yo.departamento || '';
+        map['@{{tipo_solicitud}}'] = t ? (t.nombre || '') : '';
+        map['@{{fecha_inicio}}'] = fmtFecha($('#fecha_inicio').val());
+        map['@{{fecha_termino}}'] = fmtFecha($('#fecha_termino').val());
+        map['@{{total_dias}}'] = String(dias() || '');
+        map['@{{jornada_inicio}}'] = String(($('#jornada_inicio').val() || '').toUpperCase());
+        map['@{{jornada_termino}}'] = String(($('#jornada_termino').val() || '').toUpperCase());
+        map['@{{jornada}}'] = (function () {
             if (esMediaJornada()) {
                 var h = horarioFranja(franjaMedia());
                 return 'media jornada ' + h.label + ' (' + h.permiso + ')';
@@ -457,15 +457,15 @@
             if (a === b) return 'jornada ' + a;
             return (a || '—') + ' a ' + (b || '—');
         })();
-        map['{{' + 'horario_permiso}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).permiso : '08:30 a 17:30';
-        map['{{' + 'horario_trabaja}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).trabaja : '';
-        map['{{' + 'motivo}}'] = $('#motivo').val() || '';
-        map['{{' + 'explicacion}}'] = $('#motivo').val() || '';
-        map['{{' + 'viaticos_destino}}'] = $('#viaticos_destino').val() || '';
-        map['{{' + 'fecha}}'] = fechaLarga;
-        map['{{' + 'dia}}'] = dia;
-        map['{{' + 'mes}}'] = mes;
-        map['{{' + 'anio}}'] = anio;
+        map['@{{horario_permiso}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).permiso : '08:30 a 17:30';
+        map['@{{horario_trabaja}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).trabaja : '';
+        map['@{{motivo}}'] = $('#motivo').val() || '';
+        map['@{{explicacion}}'] = $('#motivo').val() || '';
+        map['@{{viaticos_destino}}'] = $('#viaticos_destino').val() || '';
+        map['@{{fecha}}'] = fechaLarga;
+        map['@{{dia}}'] = dia;
+        map['@{{mes}}'] = mes;
+        map['@{{anio}}'] = anio;
         map['{t_anio}'] = anio;
         map['{t_dia}'] = dia;
         map['{t_mes}'] = mes;
@@ -473,13 +473,13 @@
         map['{mes}'] = mes;
         map['{t_fecha}'] = fechaLarga;
         map['{t_folio}'] = 'SIN FOLIO';
-        map['{{' + 'ha_solicitado}}'] = String(rrhh().ha);
-        map['{{' + 'solicita}}'] = String(rrhh().solicita);
-        map['{{' + 'saldo}}'] = String(rrhh().saldo);
-        map['{{' + 'total}}'] = String(rrhh().total);
-        map['{{' + 'alcalde_autorizado}}'] = '______';
-        map['{{' + 'alcalde_denegado}}'] = '______';
-        map['{{' + 'alcalde_observaciones}}'] = '________________';
+        map['@{{ha_solicitado}}'] = String(rrhh().ha);
+        map['@{{solicita}}'] = String(rrhh().solicita);
+        map['@{{saldo}}'] = String(rrhh().saldo);
+        map['@{{total}}'] = String(rrhh().total);
+        map['@{{alcalde_autorizado}}'] = '______';
+        map['@{{alcalde_denegado}}'] = '______';
+        map['@{{alcalde_observaciones}}'] = '________________';
         var out = normalizarLlavesToken(html || '');
         out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
         Object.keys(map).forEach(function (k) {
