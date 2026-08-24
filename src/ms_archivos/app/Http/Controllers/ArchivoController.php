@@ -683,28 +683,35 @@ class ArchivoController extends Controller
         $html = str_replace(['{t_dia}', '{{dia}}', '{dia}'], $dia, $html);
         $html = str_replace(['{t_mes}', '{{mes}}', '{mes}'], $mes, $html);
         $html = str_replace(['{t_fecha}', '{{fecha}}'], $sfecha, $html);
-        // Plantillas con hueco: "   de agosto del 2026" → "24 de agosto del 2026"
-        if ($this->yaTieneDiaAntesDeMes($html)) {
-            return $html;
-        }
-        $mesesAlt = implode('|', $meses);
-        $html = preg_replace_callback(
-            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+|<br\s*\/?>)(de\s+(' . $mesesAlt . ')\s+del?\s+\d{4})/iu',
-            function ($m) use ($dia) {
-                return $m[1] . $dia . ' ' . $m[2];
-            },
-            $html
-        ) ?? $html;
-        return $html;
+        return $this->completarDiaFecha($html, $dia);
     }
 
-    protected function yaTieneDiaAntesDeMes($html): bool
+    protected function completarDiaFecha($html, $dia)
     {
         $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-        return (bool) preg_match(
-            '/\d{1,2}(?:\s|&nbsp;|<br\s*\/?>)*de\s+(' . $meses . ')\s+del?\s+\d{4}/iu',
-            (string) $html
-        );
+        $patMes = 'de\s+(' . $meses . ')\s+del?\s+\d{4}';
+        $html = (string) $html;
+
+        $html = preg_replace('/(\d{1,2})\s+\1\s+(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
+        $html = preg_replace('/(\d{1,2})\s*<br\s*\/?>\s*(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
+
+        return preg_replace_callback(
+            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(' . $patMes . ')/iu',
+            function ($m) use ($dia, $html) {
+                $pos = $m[0][1];
+                $before = substr($html, max(0, $pos - 24), $pos - max(0, $pos - 24));
+                $before = html_entity_decode(strip_tags(str_replace('&nbsp;', ' ', $before)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $before = preg_replace('/\s+/u', ' ', $before) ?? $before;
+                if (preg_match('/\d{1,2}\s*$/u', rtrim($before))) {
+                    return $m[0][0];
+                }
+                return $m[1][0] . $dia . ' ' . $m[2][0];
+            },
+            $html,
+            -1,
+            $count,
+            PREG_OFFSET_CAPTURE
+        ) ?? $html;
     }
 
     protected function incrustarImagenesPdf($html)

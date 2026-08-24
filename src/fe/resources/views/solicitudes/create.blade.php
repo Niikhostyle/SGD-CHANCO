@@ -415,15 +415,17 @@
             return '{' + ta.value + '}';
         });
     }
-    function yaTieneDiaAntesDeMes(html) {
-        var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-        return new RegExp('\\d{1,2}(?:\\s|&nbsp;|<br\\s*/?>)*de\\s+(' + meses + ')\\s+del?\\s+\\d{4}', 'i').test(String(html || ''));
-    }
     function completarDiaFecha(html, dia) {
-        if (yaTieneDiaAntesDeMes(html)) return String(html || '');
         var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+|<br\\s*/?>)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
-        return String(html || '').replace(re, function (all, pref, resto) {
+        var patMes = 'de\\s+(' + meses + ')\\s+del?\\s+\\d{4}';
+        var s = String(html || '');
+        s = s.replace(new RegExp('(\\d{1,2})\\s+\\1\\s+(' + patMes + ')', 'gi'), '$1 $2');
+        s = s.replace(new RegExp('(\\d{1,2})\\s*<br\\s*/?>\\s*(' + patMes + ')', 'gi'), '$1 $2');
+        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(' + patMes + ')', 'gi');
+        return s.replace(re, function (all, pref, resto, offset) {
+            var before = s.slice(Math.max(0, offset - 24), offset);
+            before = before.replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+            if (/\d{1,2}\s*$/i.test(before)) return all;
             return pref + dia + ' ' + resto;
         });
     }
