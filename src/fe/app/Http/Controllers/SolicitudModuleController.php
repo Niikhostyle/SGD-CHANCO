@@ -174,7 +174,7 @@ class SolicitudModuleController extends Controller
             toast($res->json()['message'] ?? 'No se pudo crear la solicitud', 'error');
             return back()->withInput();
         }
-        toast('Solicitud firmada y enviada al director. Luego visa Personal, firma el alcalde y vuelve a Personal.', 'success');
+        toast('Solicitud enviada correctamente.', 'success');
         return redirect()->route('solicitudes.show', ['id' => $res->json()['data']['id']]);
     }
 

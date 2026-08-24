@@ -6,7 +6,6 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-0">Mis solicitudes</h1>
-            <p class="text-muted mb-0">Pida días, permisos o viáticos. El trámite sigue en el buzón, como un documento normal.</p>
         </div>
         <a href="{{ route('solicitudes.create') }}" class="btn btn-success btn-lg"><i class="fas fa-plus"></i> Nueva solicitud</a>
     </div>

@@ -4,7 +4,6 @@
 
 @section('content_header')
     <h1 class="mb-0">Nueva solicitud</h1>
-    <p class="text-muted mb-0">Complete los 3 pasos. El documento se envía al buzón como un oficio normal.</p>
 @stop
 
 @section('content')
@@ -156,17 +155,13 @@
                         </option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">
-                    Flujo libre: usted <b>firma al enviar</b> → firma el <b>director</b> de este buzón →
-                    visa <b>Departamento de Personal</b> → firma el <b>alcalde</b> → vuelve a <b>Personal</b>.
-                </small>
             </div>
         </div>
     </div>
 
     <div class="card card-outline card-success">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span><strong>Documento</strong> <small class="text-muted">— puede revisar o ajustar el texto antes de enviar</small></span>
+            <span><strong>Documento</strong></span>
             <button type="button" class="btn btn-outline-primary" id="btn-vista-previa">
                 <i class="fas fa-eye"></i> Ver vista previa
             </button>
