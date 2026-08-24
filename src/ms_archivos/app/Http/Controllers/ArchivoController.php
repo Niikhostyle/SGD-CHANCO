@@ -683,15 +683,11 @@ class ArchivoController extends Controller
         $html = str_replace(['{t_dia}', '{{dia}}', '{dia}'], $dia, $html);
         $html = str_replace(['{t_mes}', '{{mes}}', '{mes}'], $mes, $html);
         $html = str_replace(['{t_fecha}', '{{fecha}}'], $sfecha, $html);
-        // Plantillas con hueco: "   de agosto del 2026" → "24 de agosto del 2026"
+        // Plantillas con hueco: "   de agosto del 2026" → "24 de agosto del 2026" (sin duplicar {t_dia})
         $mesesAlt = implode('|', $meses);
         $html = preg_replace_callback(
-            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(de\s+(' . $mesesAlt . ')\s+del?\s+\d{4})/iu',
+            '/(?<![0-9]\s)(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(de\s+(' . $mesesAlt . ')\s+del?\s+\d{4})/iu',
             function ($m) use ($dia) {
-                $plain = html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                if (preg_match('/\d\s*$/u', $plain)) {
-                    return $m[0];
-                }
                 return $m[1] . $dia . ' ' . $m[2];
             },
             $html

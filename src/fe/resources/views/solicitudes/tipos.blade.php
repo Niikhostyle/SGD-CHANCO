@@ -564,10 +564,9 @@
     }
     function completarDiaFecha(html, dia) {
         var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
+        // No anteponer día si ya hay uno (p. ej. {t_dia} → "24 de agosto...")
+        var re = new RegExp('(?<![0-9]\\s)(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
         return String(html || '').replace(re, function (all, pref, resto) {
-            var plain = String(pref).replace(/&nbsp;/gi, ' ').replace(/<[^>]+>/g, '');
-            if (/\d\s*$/.test(plain)) return all;
             return pref + dia + ' ' + resto;
         });
     }
