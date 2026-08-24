@@ -178,7 +178,7 @@ class SolicitudController extends Controller
             $mediaJornada = !empty($datos['media_jornada']) && in_array((string) $datos['media_jornada'], ['1', 'true', 'on'], true);
             $franja = $this->saldos->normalizarJornada($datos['media_franja'] ?? null);
             if (in_array($cat, ['dias', 'compensatorios'], true)) {
-                if ($mediaJornada || $franja) {
+                if ($mediaJornada) {
                     $franja = $franja ?: ($jIni ?: 'am');
                     $jIni = $franja;
                     $jFin = $franja;

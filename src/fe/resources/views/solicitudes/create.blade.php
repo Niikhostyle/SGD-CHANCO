@@ -316,6 +316,7 @@
         if (!medioOk) {
             $('#media_jornada').val('0');
             $('#panel-media-jornada').hide();
+            $('input[name=media_franja]').prop('disabled', true);
             $('#btn-media-jornada').removeClass('btn-primary').addClass('btn-outline-primary');
             $('#wrap-fecha-termino').show();
             $('#fecha_termino').prop('required', true);
@@ -327,6 +328,7 @@
             $('#btn-media-jornada').removeClass('btn-outline-primary').addClass('btn-primary');
             $('#panel-media-jornada').show();
             $('#wrap-fecha-termino').hide();
+            $('input[name=media_franja]').prop('disabled', false);
             var f = $('#fecha_inicio').val();
             if (f) $('#fecha_termino').val(f);
             $('#fecha_termino').prop('required', false);
@@ -343,6 +345,7 @@
             $('#btn-media-jornada').removeClass('btn-primary').addClass('btn-outline-primary');
             $('#panel-media-jornada').hide();
             $('#wrap-fecha-termino').show();
+            $('input[name=media_franja]').prop('disabled', true);
             $('#fecha_termino').prop('required', true);
             $('#jornada_inicio').val('am');
             $('#jornada_termino').val('pm');
