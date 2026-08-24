@@ -415,19 +415,27 @@
             return '{' + ta.value + '}';
         });
     }
+    function deduplicarDiaFecha(s, patMes) {
+        return String(s || '').replace(new RegExp('(\\d{1,2})\\s+\\1\\s+(' + patMes + ')', 'gi'), '$1 $2');
+    }
     function completarDiaFecha(html, dia) {
         var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
         var patMes = 'de\\s+(' + meses + ')\\s+del?\\s+\\d{4}';
+        var fechaCompleta = new RegExp('\\d{1,2}\\s+(' + meses + ')\\s+del?\\s+\\d{4}', 'i');
         var s = String(html || '');
-        s = s.replace(new RegExp('(\\d{1,2})\\s+\\1\\s+(' + patMes + ')', 'gi'), '$1 $2');
+        s = deduplicarDiaFecha(s, patMes);
         s = s.replace(new RegExp('(\\d{1,2})\\s*<br\\s*/?>\\s*(' + patMes + ')', 'gi'), '$1 $2');
+        if (fechaCompleta.test(s)) {
+            return deduplicarDiaFecha(s, patMes);
+        }
         var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(' + patMes + ')', 'gi');
-        return s.replace(re, function (all, pref, resto, offset) {
-            var before = s.slice(Math.max(0, offset - 24), offset);
+        s = s.replace(re, function (all, pref, resto, offset) {
+            var before = s.slice(Math.max(0, offset - 200), offset);
             before = before.replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
             if (/\d{1,2}\s*$/i.test(before)) return all;
             return pref + dia + ' ' + resto;
         });
+        return deduplicarDiaFecha(s, patMes);
     }
     function fill(html) {
         var t = tipoActual();
@@ -485,7 +493,14 @@
         map['@{{alcalde_observaciones}}'] = '________________';
         var out = normalizarLlavesToken(html || '');
         out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
-        Object.keys(map).forEach(function (k) {
+        Object.keys(map).sort(function (a, b) {
+            function rank(k) {
+                if (/fecha/i.test(k)) return 0;
+                if (/dia/i.test(k)) return 2;
+                return 1;
+            }
+            return rank(a) - rank(b) || b.length - a.length;
+        }).forEach(function (k) {
             out = out.split(k).join(map[k]);
         });
         out = completarDiaFecha(out, dia);

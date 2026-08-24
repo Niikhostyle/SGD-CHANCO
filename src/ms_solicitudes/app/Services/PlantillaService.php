@@ -178,20 +178,25 @@ class PlantillaService
         }, $html) ?? $html;
     }
 
-    /** Normaliza fecha: une dia+br, quita duplicados y rellena huecos " de mes del año". */
+    /** Normaliza fecha: quita duplicados, une dia+br y rellena huecos solo si falta la fecha. */
     protected function completarDiaFecha(string $html, string $dia): string
     {
         $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
         $patMes = 'de\s+(' . $meses . ')\s+del?\s+\d{4}';
+        $fechaCompleta = '/\d{1,2}\s+(' . $meses . ')\s+del?\s+\d{4}/iu';
 
-        $html = preg_replace('/(\d{1,2})\s+\1\s+(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
+        $html = $this->deduplicarDiaFecha($html, $patMes);
         $html = preg_replace('/(\d{1,2})\s*<br\s*\/?>\s*(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
 
-        return preg_replace_callback(
+        if (preg_match($fechaCompleta, $html)) {
+            return $this->deduplicarDiaFecha($html, $patMes);
+        }
+
+        $html = preg_replace_callback(
             '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(' . $patMes . ')/iu',
             function ($m) use ($dia, $html) {
                 $pos = $m[0][1];
-                $before = substr($html, max(0, $pos - 24), $pos - max(0, $pos - 24));
+                $before = substr($html, max(0, $pos - 200), $pos - max(0, $pos - 200));
                 $before = html_entity_decode(strip_tags(str_replace('&nbsp;', ' ', $before)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $before = preg_replace('/\s+/u', ' ', $before) ?? $before;
                 if (preg_match('/\d{1,2}\s*$/u', rtrim($before))) {
@@ -204,6 +209,13 @@ class PlantillaService
             $count,
             PREG_OFFSET_CAPTURE
         ) ?? $html;
+
+        return $this->deduplicarDiaFecha($html, $patMes);
+    }
+
+    protected function deduplicarDiaFecha(string $html, string $patMes): string
+    {
+        return preg_replace('/(\d{1,2})\s+\1\s+(' . $patMes . ')/iu', '$1 $2', $html) ?? $html;
     }
 
     public function renderCuerpo(SolTipoDocumento $plantilla, User $user, array $datos): string
