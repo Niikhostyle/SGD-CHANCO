@@ -415,9 +415,14 @@
             return '{' + ta.value + '}';
         });
     }
-    function completarDiaFecha(html, dia) {
+    function yaTieneDiaAntesDeMes(html) {
         var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
-        var re = new RegExp('(?<![0-9]\\s)(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
+        return new RegExp('\\d{1,2}(?:\\s|&nbsp;|<br\\s*/?>)*de\\s+(' + meses + ')\\s+del?\\s+\\d{4}', 'i').test(String(html || ''));
+    }
+    function completarDiaFecha(html, dia) {
+        if (yaTieneDiaAntesDeMes(html)) return String(html || '');
+        var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+|<br\\s*/?>)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
         return String(html || '').replace(re, function (all, pref, resto) {
             return pref + dia + ' ' + resto;
         });

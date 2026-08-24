@@ -683,16 +683,28 @@ class ArchivoController extends Controller
         $html = str_replace(['{t_dia}', '{{dia}}', '{dia}'], $dia, $html);
         $html = str_replace(['{t_mes}', '{{mes}}', '{mes}'], $mes, $html);
         $html = str_replace(['{t_fecha}', '{{fecha}}'], $sfecha, $html);
-        // Plantillas con hueco: "   de agosto del 2026" → "24 de agosto del 2026" (sin duplicar {t_dia})
+        // Plantillas con hueco: "   de agosto del 2026" → "24 de agosto del 2026"
+        if ($this->yaTieneDiaAntesDeMes($html)) {
+            return $html;
+        }
         $mesesAlt = implode('|', $meses);
         $html = preg_replace_callback(
-            '/(?<![0-9]\s)(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(de\s+(' . $mesesAlt . ')\s+del?\s+\d{4})/iu',
+            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+|<br\s*\/?>)(de\s+(' . $mesesAlt . ')\s+del?\s+\d{4})/iu',
             function ($m) use ($dia) {
                 return $m[1] . $dia . ' ' . $m[2];
             },
             $html
         ) ?? $html;
         return $html;
+    }
+
+    protected function yaTieneDiaAntesDeMes($html): bool
+    {
+        $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        return (bool) preg_match(
+            '/\d{1,2}(?:\s|&nbsp;|<br\s*\/?>)*de\s+(' . $meses . ')\s+del?\s+\d{4}/iu',
+            (string) $html
+        );
     }
 
     protected function incrustarImagenesPdf($html)

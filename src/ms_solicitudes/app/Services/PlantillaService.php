@@ -178,12 +178,25 @@ class PlantillaService
         }, $html) ?? $html;
     }
 
-    /** Si la plantilla tiene " de agosto del 2026" sin día, lo antepone (no duplica si ya hay {t_dia}). */
-    protected function completarDiaFecha(string $html, string $dia): string
+    /** Si ya hay día antes de "de mes del año" (incluso tras &lt;br&gt;), no volver a insertar. */
+    protected function yaTieneDiaAntesDeMes(string $html): bool
     {
         $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        return (bool) preg_match(
+            '/\d{1,2}(?:\s|&nbsp;|<br\s*\/?>)*de\s+(' . $meses . ')\s+del?\s+\d{4}/iu',
+            $html
+        );
+    }
+
+    /** Si la plantilla tiene " de agosto del 2026" sin día, lo antepone (no duplica si ya hay fecha). */
+    protected function completarDiaFecha(string $html, string $dia): string
+    {
+        if ($this->yaTieneDiaAntesDeMes($html)) {
+            return $html;
+        }
+        $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
         return preg_replace_callback(
-            '/(?<![0-9]\s)(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(de\s+(' . $meses . ')\s+del?\s+\d{4})/iu',
+            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+|<br\s*\/?>)(de\s+(' . $meses . ')\s+del?\s+\d{4})/iu',
             function ($m) use ($dia) {
                 return $m[1] . $dia . ' ' . $m[2];
             },
