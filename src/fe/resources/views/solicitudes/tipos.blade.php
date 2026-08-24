@@ -552,45 +552,69 @@
     function editorHtml(name) {
         return CKEDITOR.instances[name] ? CKEDITOR.instances[name].getData() : ($('#' + name).val() || '');
     }
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    function normalizarLlavesToken(html) {
+        // CKEditor a veces parte {t_dia} con spans/entidades → {t_dia}
+        return String(html || '').replace(/\{([^{}]+)\}/g, function (_, inner) {
+            var t = String(inner).replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, '').replace(/\s+/g, '');
+            var ta = document.createElement('textarea');
+            ta.innerHTML = t;
+            return '{' + ta.value + '}';
+        });
+    }
+    function completarDiaFecha(html, dia) {
+        var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
+        return String(html || '').replace(re, function (all, pref, resto) {
+            var plain = String(pref).replace(/&nbsp;/gi, ' ').replace(/<[^>]+>/g, '');
+            if (/\d\s*$/.test(plain)) return all;
+            return pref + dia + ' ' + resto;
+        });
+    }
     function fillEjemplo(html) {
         var hoy = new Date();
-        var map = {
-            '@{{nombre}}': 'JUAN PEREZ GONZALEZ',
-            '@{{run}}': '12.345.678-9',
-            '@{{cargo}}': 'Administrativo',
-            '@{{departamento}}': 'Dirección de Administración',
-            '@{{tipo_solicitud}}': $('#nombre').val() || 'Días administrativos',
-            '@{{fecha_inicio}}': '19-08-2026',
-            '@{{fecha_termino}}': '26-08-2026',
-            '@{{total_dias}}': '6',
-            '@{{motivo}}': 'Asuntos personales',
-            '@{{explicacion}}': 'Asuntos personales',
-            '@{{viaticos_destino}}': 'Talca',
-            '@{{fecha}}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
-            '@{{dia}}': pad2(hoy.getDate()),
-            '@{{mes}}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
-            '@{{anio}}': String(hoy.getFullYear()),
-            '{t_anio}': String(hoy.getFullYear()),
-            '{t_dia}': pad2(hoy.getDate()),
-            '{t_mes}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
-            '{dia}': pad2(hoy.getDate()),
-            '{mes}': ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()],
-            '{t_fecha}': pad2(hoy.getDate()) + ' de ' + ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][hoy.getMonth()] + ' del ' + hoy.getFullYear(),
-            '{t_folio}': 'SIN FOLIO',
-            '@{{ha_solicitado}}': '2',
-            '@{{solicita}}': '6',
-            '@{{saldo}}': '4',
-            '@{{total}}': '12',
-            '@{{alcalde_autorizado}}': '______',
-            '@{{alcalde_denegado}}': '______',
-            '@{{alcalde_observaciones}}': '________________'
-        };
-        var out = html || '';
+        var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        var dia = pad2(hoy.getDate());
+        var mes = meses[hoy.getMonth()];
+        var anio = String(hoy.getFullYear());
+        var fechaLarga = dia + ' de ' + mes + ' del ' + anio;
+        var map = {};
+        // Claves armadas en JS para que Blade no las altere
+        map['{{' + 'nombre}}'] = 'JUAN PEREZ GONZALEZ';
+        map['{{' + 'run}}'] = '12.345.678-9';
+        map['{{' + 'cargo}}'] = 'Administrativo';
+        map['{{' + 'departamento}}'] = 'Dirección de Administración';
+        map['{{' + 'tipo_solicitud}}'] = $('#nombre').val() || 'Días administrativos';
+        map['{{' + 'fecha_inicio}}'] = '19-08-2026';
+        map['{{' + 'fecha_termino}}'] = '26-08-2026';
+        map['{{' + 'total_dias}}'] = '6';
+        map['{{' + 'motivo}}'] = 'Asuntos personales';
+        map['{{' + 'explicacion}}'] = 'Asuntos personales';
+        map['{{' + 'viaticos_destino}}'] = 'Talca';
+        map['{{' + 'fecha}}'] = fechaLarga;
+        map['{{' + 'dia}}'] = dia;
+        map['{{' + 'mes}}'] = mes;
+        map['{{' + 'anio}}'] = anio;
+        map['{t_anio}'] = anio;
+        map['{t_dia}'] = dia;
+        map['{t_mes}'] = mes;
+        map['{dia}'] = dia;
+        map['{mes}'] = mes;
+        map['{t_fecha}'] = fechaLarga;
+        map['{t_folio}'] = 'SIN FOLIO';
+        map['{{' + 'ha_solicitado}}'] = '2';
+        map['{{' + 'solicita}}'] = '6';
+        map['{{' + 'saldo}}'] = '4';
+        map['{{' + 'total}}'] = '12';
+        map['{{' + 'alcalde_autorizado}}'] = '______';
+        map['{{' + 'alcalde_denegado}}'] = '______';
+        map['{{' + 'alcalde_observaciones}}'] = '________________';
+        var out = normalizarLlavesToken(html || '');
         out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
         Object.keys(map).forEach(function (k) { out = out.split(k).join(map[k]); });
+        out = completarDiaFecha(out, dia);
         return out;
     }
-    function pad2(n) { return (n < 10 ? '0' : '') + n; }
     $('#btn-vista-previa').on('click', function () {
         if (!ckListo) {
             alert('Espere a que cargue el editor.');

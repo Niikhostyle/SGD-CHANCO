@@ -409,78 +409,83 @@
             total: asig
         };
     }
+    function normalizarLlavesToken(html) {
+        return String(html || '').replace(/\{([^{}]+)\}/g, function (_, inner) {
+            var t = String(inner).replace(/<[^>]+>/g, '').replace(/&nbsp;/gi, '').replace(/\s+/g, '');
+            var ta = document.createElement('textarea');
+            ta.innerHTML = t;
+            return '{' + ta.value + '}';
+        });
+    }
+    function completarDiaFecha(html, dia) {
+        var meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        var re = new RegExp('(^|>|&nbsp;|[\\s\\u00A0_\\.·…]+)(de\\s+(' + meses + ')\\s+del?\\s+\\d{4})', 'gi');
+        return String(html || '').replace(re, function (all, pref, resto) {
+            var plain = String(pref).replace(/&nbsp;/gi, ' ').replace(/<[^>]+>/g, '');
+            if (/\d\s*$/.test(plain)) return all;
+            return pref + dia + ' ' + resto;
+        });
+    }
     function fill(html) {
         var t = tipoActual();
         var yo = window.SOL_YO || {};
-        var map = {
-            '@{{nombre}}': yo.nombre || '',
-            '@{{run}}': yo.run || '',
-            '@{{cargo}}': yo.cargo || '',
-            '@{{departamento}}': yo.departamento || '',
-            '@{{tipo_solicitud}}': t ? (t.nombre || '') : '',
-            '@{{fecha_inicio}}': fmtFecha($('#fecha_inicio').val()),
-            '@{{fecha_termino}}': fmtFecha($('#fecha_termino').val()),
-            '@{{total_dias}}': String(dias() || ''),
-            '@{{jornada_inicio}}': String(($('#jornada_inicio').val() || '').toUpperCase()),
-            '@{{jornada_termino}}': String(($('#jornada_termino').val() || '').toUpperCase()),
-            '@{{jornada}}': (function () {
-                if (esMediaJornada()) {
-                    var h = horarioFranja(franjaMedia());
-                    return 'media jornada ' + h.label + ' (' + h.permiso + ')';
-                }
-                var a = ($('#jornada_inicio').val() || '').toUpperCase();
-                var b = ($('#jornada_termino').val() || '').toUpperCase();
-                if (!a && !b) return '';
-                if (a === b) return 'jornada ' + a;
-                return (a || '—') + ' a ' + (b || '—');
-            })(),
-            '@{{horario_permiso}}': esMediaJornada() ? horarioFranja(franjaMedia()).permiso : '08:30 a 17:30',
-            '@{{horario_trabaja}}': esMediaJornada() ? horarioFranja(franjaMedia()).trabaja : '',
-            '@{{motivo}}': $('#motivo').val() || '',
-            '@{{explicacion}}': $('#motivo').val() || '',
-            '@{{viaticos_destino}}': $('#viaticos_destino').val() || '',
-            '@{{fecha}}': (function () {
-                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-                var d = new Date();
-                return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
-            })(),
-            '@{{dia}}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
-            '@{{mes}}': (function () {
-                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-                return meses[(new Date()).getMonth()];
-            })(),
-            '@{{anio}}': String(new Date().getFullYear()),
-            '{t_anio}': String(new Date().getFullYear()),
-            '{t_dia}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
-            '{t_mes}': (function () {
-                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-                return meses[(new Date()).getMonth()];
-            })(),
-            '{dia}': (function () { return ('0' + (new Date()).getDate()).slice(-2); })(),
-            '{mes}': (function () {
-                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-                return meses[(new Date()).getMonth()];
-            })(),
-            '{t_fecha}': (function () {
-                var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-                var d = new Date();
-                return ('0' + d.getDate()).slice(-2) + ' de ' + meses[d.getMonth()] + ' del ' + d.getFullYear();
-            })(),
-            '{t_folio}': 'SIN FOLIO',
-            '@{{ha_solicitado}}': String(rrhh().ha),
-            '@{{solicita}}': String(rrhh().solicita),
-            '@{{saldo}}': String(rrhh().saldo),
-            '@{{total}}': String(rrhh().total),
-            '@{{alcalde_autorizado}}': '______',
-            '@{{alcalde_denegado}}': '______',
-            '@{{alcalde_observaciones}}': '________________'
-        };
-        var out = html || '';
-        // URLs de prod → origin actual (para ver el logo en vista previa)
+        var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        var d = new Date();
+        var dia = ('0' + d.getDate()).slice(-2);
+        var mes = meses[d.getMonth()];
+        var anio = String(d.getFullYear());
+        var fechaLarga = dia + ' de ' + mes + ' del ' + anio;
+        var map = {};
+        map['{{' + 'nombre}}'] = yo.nombre || '';
+        map['{{' + 'run}}'] = yo.run || '';
+        map['{{' + 'cargo}}'] = yo.cargo || '';
+        map['{{' + 'departamento}}'] = yo.departamento || '';
+        map['{{' + 'tipo_solicitud}}'] = t ? (t.nombre || '') : '';
+        map['{{' + 'fecha_inicio}}'] = fmtFecha($('#fecha_inicio').val());
+        map['{{' + 'fecha_termino}}'] = fmtFecha($('#fecha_termino').val());
+        map['{{' + 'total_dias}}'] = String(dias() || '');
+        map['{{' + 'jornada_inicio}}'] = String(($('#jornada_inicio').val() || '').toUpperCase());
+        map['{{' + 'jornada_termino}}'] = String(($('#jornada_termino').val() || '').toUpperCase());
+        map['{{' + 'jornada}}'] = (function () {
+            if (esMediaJornada()) {
+                var h = horarioFranja(franjaMedia());
+                return 'media jornada ' + h.label + ' (' + h.permiso + ')';
+            }
+            var a = ($('#jornada_inicio').val() || '').toUpperCase();
+            var b = ($('#jornada_termino').val() || '').toUpperCase();
+            if (!a && !b) return '';
+            if (a === b) return 'jornada ' + a;
+            return (a || '—') + ' a ' + (b || '—');
+        })();
+        map['{{' + 'horario_permiso}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).permiso : '08:30 a 17:30';
+        map['{{' + 'horario_trabaja}}'] = esMediaJornada() ? horarioFranja(franjaMedia()).trabaja : '';
+        map['{{' + 'motivo}}'] = $('#motivo').val() || '';
+        map['{{' + 'explicacion}}'] = $('#motivo').val() || '';
+        map['{{' + 'viaticos_destino}}'] = $('#viaticos_destino').val() || '';
+        map['{{' + 'fecha}}'] = fechaLarga;
+        map['{{' + 'dia}}'] = dia;
+        map['{{' + 'mes}}'] = mes;
+        map['{{' + 'anio}}'] = anio;
+        map['{t_anio}'] = anio;
+        map['{t_dia}'] = dia;
+        map['{t_mes}'] = mes;
+        map['{dia}'] = dia;
+        map['{mes}'] = mes;
+        map['{t_fecha}'] = fechaLarga;
+        map['{t_folio}'] = 'SIN FOLIO';
+        map['{{' + 'ha_solicitado}}'] = String(rrhh().ha);
+        map['{{' + 'solicita}}'] = String(rrhh().solicita);
+        map['{{' + 'saldo}}'] = String(rrhh().saldo);
+        map['{{' + 'total}}'] = String(rrhh().total);
+        map['{{' + 'alcalde_autorizado}}'] = '______';
+        map['{{' + 'alcalde_denegado}}'] = '______';
+        map['{{' + 'alcalde_observaciones}}'] = '________________';
+        var out = normalizarLlavesToken(html || '');
         out = out.replace(/https?:\/\/[^"'\/\s>]+\/files\//gi, (window.location.origin || '') + '/files/');
         Object.keys(map).forEach(function (k) {
             out = out.split(k).join(map[k]);
         });
+        out = completarDiaFecha(out, dia);
         return out;
     }
     function setSide(id, html) {

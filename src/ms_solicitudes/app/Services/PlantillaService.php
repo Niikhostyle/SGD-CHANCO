@@ -148,7 +148,9 @@ class PlantillaService
     public function renderHtml(?string $html, User $user, array $datos): string
     {
         $html = $this->normalizarUrlsImagen($html ?: '');
-        return strtr($html, $this->mapaCampos($user, $datos));
+        $html = $this->normalizarLlavesToken($html);
+        $html = strtr($html, $this->mapaCampos($user, $datos));
+        return $this->completarDiaFecha($html, date('d'));
     }
 
     /**
@@ -163,6 +165,34 @@ class PlantillaService
             $html
         ) ?? $html;
         return $html;
+    }
+
+    /** Quita spans/entidades dentro de {tokens} rotos por CKEditor. */
+    protected function normalizarLlavesToken(string $html): string
+    {
+        return preg_replace_callback('/\{([^{}]+)\}/u', function ($m) {
+            $inner = preg_replace('/<[^>]+>/', '', $m[1]) ?? $m[1];
+            $inner = html_entity_decode($inner, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $inner = preg_replace('/\s+/u', '', $inner) ?? $inner;
+            return '{' . $inner . '}';
+        }, $html) ?? $html;
+    }
+
+    /** Si la plantilla tiene " de agosto del 2026" sin día, lo antepone. */
+    protected function completarDiaFecha(string $html, string $dia): string
+    {
+        $meses = 'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre';
+        return preg_replace_callback(
+            '/(^|>|&nbsp;|[\s\x{00A0}_\.·…]+)(de\s+(' . $meses . ')\s+del?\s+\d{4})/iu',
+            function ($m) use ($dia) {
+                $plain = html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                if (preg_match('/\d\s*$/u', $plain)) {
+                    return $m[0];
+                }
+                return $m[1] . $dia . ' ' . $m[2];
+            },
+            $html
+        ) ?? $html;
     }
 
     public function renderCuerpo(SolTipoDocumento $plantilla, User $user, array $datos): string
