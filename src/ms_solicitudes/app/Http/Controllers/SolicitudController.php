@@ -126,7 +126,9 @@ class SolicitudController extends Controller
             $data['usa_flujo_buzones'] = $s->pasos->count() > 0;
             $data['sgd'] = $this->sgd->detalleSgd($s);
             $idBuzonSgd = (int) ($data['sgd']['id_buzon'] ?? 0);
+            // El solicitante ve su trámite aquí; el buzón SGD es para quien debe recibir/visar/firmar.
             $data['puede_abrir_buzon'] = $idBuzonSgd > 0
+                && !$data['es_solicitante']
                 && ($this->roles->isAdmin($uid) || $this->flujo->usuarioEnBuzon($uid, $idBuzonSgd));
             $data['saldo'] = $this->saldos->resumen((int) $s->user_id);
             $data['puede_ver_saldos'] = $this->roles->puedeGestionarSaldos($uid) || (int) $s->user_id === $uid;
