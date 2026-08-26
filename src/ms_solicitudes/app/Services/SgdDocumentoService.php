@@ -382,9 +382,9 @@ class SgdDocumentoService
             'enviar_sgd',
             $idEnviar,
             $uid,
-            'Documento SGD #' . $idDocumento . ' firmado por el solicitante y enviado al director'
+            'Documento SGD #' . $idDocumento . ' firmado por el solicitante y enviado '
                 . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
-                . '. Luego: visa Personal → firma alcalde → vuelve a Personal.'
+                
         );
 
         return [
