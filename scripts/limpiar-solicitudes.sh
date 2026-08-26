@@ -17,24 +17,40 @@ if [[ ! -f "$SQL" ]]; then
   exit 1
 fi
 
-echo "==> Solicitudes ANTES..."
-docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
-  "SELECT count(*) AS solicitudes, coalesce(max(id),0) AS max_id FROM sol_solicitudes;"
+docker_cmd() {
+  if docker info >/dev/null 2>&1; then
+    docker "$@"
+  else
+    sudo docker "$@"
+  fi
+}
+
+echo "==> ANTES (solicitudes + documentos SGD ligados)..."
+docker_cmd exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+  "SELECT count(*) AS solicitudes, coalesce(max(id),0) AS max_id FROM sol_solicitudes;
+   SELECT count(*) AS docs_solicitudes FROM sol_solicitudes WHERE id_documento IS NOT NULL;
+   SELECT 'documento' t, count(*) c FROM documento
+   UNION ALL SELECT 'documento_buzon', count(*) FROM documento_buzon;"
 
 echo "==> Ejecutando limpieza (solo solicitudes)..."
-docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" < "$SQL"
+docker_cmd exec -i "$CONTAINER" psql -v ON_ERROR_STOP=1 -U "$DB_USER" -d "$DB_NAME" < "$SQL"
 
-echo "==> Solicitudes DESPUÉS..."
-docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
-  "SELECT count(*) AS solicitudes, coalesce(max(id),0) AS max_id FROM sol_solicitudes;
+echo "==> DESPUÉS..."
+docker_cmd exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c \
+  "SELECT count(*) AS solicitudes FROM sol_solicitudes;
    SELECT setval(pg_get_serial_sequence('sol_solicitudes','id'), 1, false) AS proximo_id_si_inserta;"
 
 if [[ "${1:-}" == "--con-archivos" ]]; then
   echo "==> Limpiando PDFs de solicitudes en data/files..."
   FILES_DIR="$ROOT/data/files"
   if [[ -d "$FILES_DIR/solicitudes" ]]; then
-    find "$FILES_DIR/solicitudes" -type f \( -iname '*.pdf' -o -iname '*.PDF' \) -delete
-    echo "PDFs en data/files/solicitudes eliminados."
+    if find "$FILES_DIR/solicitudes" -type f \( -iname '*.pdf' -o -iname '*.PDF' \) -delete 2>/dev/null; then
+      echo "PDFs en data/files/solicitudes eliminados."
+    else
+      echo "Reintentando con sudo..."
+      sudo find "$FILES_DIR/solicitudes" -type f \( -iname '*.pdf' -o -iname '*.PDF' \) -delete
+      echo "PDFs en data/files/solicitudes eliminados (sudo)."
+    fi
   fi
   # PDFs principales de documentos SGD suelen estar en data/files/*.pdf;
   # no borramos todos los oficios: solo los que ya no tienen fila en documento.

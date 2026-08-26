@@ -6,33 +6,39 @@
 -- La próxima solicitud queda con id = 1.
 -- =============================================================================
 
+\set ON_ERROR_STOP on
+
 BEGIN;
 
--- 1) Documentos SGD ligados a solicitudes (si existen)
+-- Documentos SGD ligados a solicitudes (id_documento en sol_solicitudes)
 CREATE TEMP TABLE tmp_sol_docs ON COMMIT DROP AS
 SELECT DISTINCT id_documento
 FROM sol_solicitudes
 WHERE id_documento IS NOT NULL;
 
+-- Hijos de documento_buzon de esos documentos
+CREATE TEMP TABLE tmp_sol_db ON COMMIT DROP AS
+SELECT db.id_documento_buzon
+FROM documento_buzon db
+JOIN tmp_sol_docs t ON t.id_documento = db.id_documento;
+
+-- 1) Descargas de archivos (FK → documento_buzon_archivo, no documento_buzon)
 DELETE FROM documento_buzon_archivo_descarga d
-USING documento_buzon db, tmp_sol_docs t
-WHERE d.id_documento_buzon = db.id_documento_buzon
-  AND db.id_documento = t.id_documento;
+USING documento_buzon_archivo a, tmp_sol_db tb
+WHERE d.id_documento_buzon_archivo = a.id_documento_buzon_archivo
+  AND a.id_documento_buzon = tb.id_documento_buzon;
 
 DELETE FROM documento_buzon_notificacion n
-USING documento_buzon db, tmp_sol_docs t
-WHERE n.id_documento_buzon = db.id_documento_buzon
-  AND db.id_documento = t.id_documento;
+USING tmp_sol_db tb
+WHERE n.id_documento_buzon = tb.id_documento_buzon;
 
 DELETE FROM documento_buzon_bitacora b
-USING documento_buzon db, tmp_sol_docs t
-WHERE b.id_documento_buzon = db.id_documento_buzon
-  AND db.id_documento = t.id_documento;
+USING tmp_sol_db tb
+WHERE b.id_documento_buzon = tb.id_documento_buzon;
 
 DELETE FROM documento_buzon_archivo a
-USING documento_buzon db, tmp_sol_docs t
-WHERE a.id_documento_buzon = db.id_documento_buzon
-  AND db.id_documento = t.id_documento;
+USING tmp_sol_db tb
+WHERE a.id_documento_buzon = tb.id_documento_buzon;
 
 DELETE FROM documento_favorito_usuario f
 USING tmp_sol_docs t
@@ -46,18 +52,17 @@ DELETE FROM documento_buzon db
 USING tmp_sol_docs t
 WHERE db.id_documento = t.id_documento;
 
-DELETE FROM documento d
-USING tmp_sol_docs t
-WHERE d.id_documento = t.id_documento;
-
 DELETE FROM firma_log fl
 USING tmp_sol_docs t
 WHERE fl.id_documento = t.id_documento;
 
--- 2) Tablas del módulo solicitudes (reinicia secuencias → próximo id = 1)
+DELETE FROM documento d
+USING tmp_sol_docs t
+WHERE d.id_documento = t.id_documento;
+
+-- 2) Módulo solicitudes (CASCADE: sol_solicitud_buzon, sol_solicitud_bitacora, etc.)
 TRUNCATE TABLE sol_solicitudes RESTART IDENTITY CASCADE;
 
--- Asegurar secuencia de sol_solicitudes en 1 (por si el nombre de seq varía)
 DO $$
 DECLARE
   seq text;
@@ -71,4 +76,8 @@ END $$;
 COMMIT;
 
 -- Verificación
-SELECT 'sol_solicitudes' AS tabla, count(*) AS filas FROM sol_solicitudes;
+SELECT 'sol_solicitudes' AS tabla, count(*) AS filas FROM sol_solicitudes
+UNION ALL
+SELECT 'documento (restantes)', count(*) FROM documento
+UNION ALL
+SELECT 'documento_buzon (restantes)', count(*) FROM documento_buzon;
