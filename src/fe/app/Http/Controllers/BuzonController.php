@@ -721,14 +721,14 @@ class BuzonController extends Controller
             else
                 $nNroFirmas = 4;
 
-            //agregar espacio para firmas al contenido del documento
+            // Debe alcanzar la fila superior de sellos (ver grilla en FirmaController).
             $aFirmaPosicion = array(
-                '1' => 85,  //165, 
-                '2' => 85,  //165, 
-                '3' => 185, //265,
-                '4' => 185, //265,
-                '5' => 285, //365, 
-                '6' => 285, //365
+                '1' => 175,
+                '2' => 175,
+                '3' => 320,
+                '4' => 320,
+                '5' => 470,
+                '6' => 470,
             );
 
             $nAltoFirmas = $aFirmaPosicion[$nNroFirmas] + 10;

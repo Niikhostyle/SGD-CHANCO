@@ -119,16 +119,17 @@ class ArchivoController extends Controller
 
             //agregar espacio para firmas al contenido del documento
 
+            // Debe alcanzar la fila superior de sellos (ver grilla en FirmaController).
             $aFirmaPosicion = array(
-                1 => 115,
-                2 => 115,
-                3 => 245,
-                4 => 245,
-                5 => 378,
-                6 => 378,
+                1 => 175,
+                2 => 175,
+                3 => 320,
+                4 => 320,
+                5 => 470,
+                6 => 470,
             );
 
-            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas] ?? 245;
+            $nAltoFirmas = $aFirmaPosicion[$nNroFirmas] ?? 320;
             $datosRequest['generaFolio'] = $request->json()->get('generaFolio',0);
             //si existe folio, saltar proceso de obtención de folio
             $fecha = new \DateTime('now');

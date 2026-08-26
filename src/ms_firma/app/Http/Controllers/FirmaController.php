@@ -291,16 +291,18 @@ class FirmaController extends Controller
 
                 $nEspacioVisadores = 40;
 
+                // Cajas ~115px de alto y ~30px de separación (el sello FE es más ancho que alto;
+                // con 85px se desbordaba y las firmas se veían sobrepuestas).
                 $aUbicacionesFirma = array(
-                    array(300, 240, 555, 325),
-                    array(30, 240, 285, 325),
-                    array(300, 140, 555, 225),
-                    array(30, 140, 285, 225),
-                    array(300, 40, 555, 125),
-                    array(30, 40, 285, 125)
+                    array(315, 335, 575, 450),
+                    array(25, 335, 285, 450),
+                    array(315, 190, 575, 305),
+                    array(25, 190, 285, 305),
+                    array(315, 45, 575, 160),
+                    array(25, 45, 285, 160)
                 );
 
-                // Misma grilla que oficios: 4 firmas = 2x2 (índices 2,3,4,5) + 40px de visación.
+                // Misma grilla que oficios: 4 firmas = 2x2 (índices 2,3,4,5) + espacio de visación.
                 $aFirmaPosicion = array(
                     1 => array(0 => 4),
                     2 => array(0 => 4, 1 => 5),
