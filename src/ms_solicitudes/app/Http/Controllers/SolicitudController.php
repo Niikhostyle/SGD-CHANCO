@@ -125,6 +125,9 @@ class SolicitudController extends Controller
             $data['es_solicitante'] = (int) $s->user_id === $uid;
             $data['usa_flujo_buzones'] = $s->pasos->count() > 0;
             $data['sgd'] = $this->sgd->detalleSgd($s);
+            $idBuzonSgd = (int) ($data['sgd']['id_buzon'] ?? 0);
+            $data['puede_abrir_buzon'] = $idBuzonSgd > 0
+                && ($this->roles->isAdmin($uid) || $this->flujo->usuarioEnBuzon($uid, $idBuzonSgd));
             $data['saldo'] = $this->saldos->resumen((int) $s->user_id);
             $data['puede_ver_saldos'] = $this->roles->puedeGestionarSaldos($uid) || (int) $s->user_id === $uid;
             return response()->json(['ok' => true, 'data' => $data]);

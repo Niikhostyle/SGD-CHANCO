@@ -22,7 +22,7 @@
         @endif
     </div>
     <div class="btn-group mb-2">
-        @if(!empty($solicitud['sgd']['id_buzon']))
+        @if(!empty($solicitud['puede_abrir_buzon']))
             <a class="btn btn-primary" href="{{ url('buzonesCarpetas/'.$solicitud['sgd']['id_buzon']) }}">
                 <i class="fas fa-inbox"></i> Abrir buzón
             </a>
