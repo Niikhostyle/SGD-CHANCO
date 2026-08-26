@@ -382,9 +382,8 @@ class SgdDocumentoService
             'enviar_sgd',
             $idEnviar,
             $uid,
-            'Documento SGD #' . $idDocumento . ' firmado por el solicitante y enviado '
-                . ($buzonDir ? ' (' . $buzonDir->nombre . ')' : '')
-                
+            'Solicitud #' . $sol->id . ' firmada por el solicitante y enviada'
+                . ($buzonDir ? ' a ' . $buzonDir->nombre : '.')
         );
 
         return [
