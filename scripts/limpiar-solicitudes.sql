@@ -10,11 +10,34 @@
 
 BEGIN;
 
--- Documentos SGD ligados a solicitudes (id_documento en sol_solicitudes)
+-- Documentos SGD de solicitudes: enlazados en sol_solicitudes + huérfanos por tipo/materia
 CREATE TEMP TABLE tmp_sol_docs ON COMMIT DROP AS
-SELECT DISTINCT id_documento
-FROM sol_solicitudes
-WHERE id_documento IS NOT NULL;
+SELECT DISTINCT src.id_documento
+FROM (
+  SELECT s.id_documento
+  FROM sol_solicitudes s
+  WHERE s.id_documento IS NOT NULL
+
+  UNION
+
+  SELECT d.id_documento
+  FROM documento d
+  WHERE d.id_tipo_documento IN (
+    SELECT std.id_tipo_documento
+    FROM sol_tipo_documentos std
+    WHERE std.id_tipo_documento IS NOT NULL
+  )
+
+  UNION
+
+  SELECT d.id_documento
+  FROM documento d
+  JOIN tipo_documento td ON td.id_tipo_documento = d.id_tipo_documento
+  WHERE td.nombre_corto LIKE 'SOL-%'
+     OR td.descripcion LIKE 'Solicitud:%'
+     OR d.materia ILIKE 'Solicitud de %'
+) src
+WHERE src.id_documento IS NOT NULL;
 
 -- Hijos de documento_buzon de esos documentos
 CREATE TEMP TABLE tmp_sol_db ON COMMIT DROP AS
